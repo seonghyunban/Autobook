@@ -1,0 +1,35 @@
+experiment_name: p3-baseline        # W&B group name + results folder name
+nanochat_ref: baseline-v0            # git branch or tag to checkout in the nanochat fork
+
+modal:
+  gpu: A10G                          # "T4", "A10G", "A100", "H100"
+  timeout_hours: 2                   # max wall time before Modal kills the run
+
+stages:
+  - name: short-context
+    args:                            # maps directly to nanochat CLI args
+      depth: 6                       # picochat depth — PLACEHOLDER, finalized after Phase 3
+      max_seq_len: 512               # reduced sequence length for stage 1 — PLACEHOLDER
+      num_iterations: 1000           # iterations for short-context training — PLACEHOLDER
+      model_tag: pico-short          # checkpoint folder name
+      save_every: 500                # checkpoint interval
+      run: p3-baseline-short         # W&B run name
+
+  - name: extended-context
+    args:
+      depth: 6                       # must match stage 1
+      max_seq_len: 2048              # extended sequence length for stage 2
+      num_iterations: 1500           # PLACEHOLDER — depends on --num-iterations semantics (Phase 2)
+      model_tag: pico-short          # same tag — checkpoints coexist by step number
+      resume_from_step: 1000         # resume from end of stage 1 — PLACEHOLDER
+      save_every: 500
+      run: p3-baseline-extended      # W&B run name
+
+eval:
+  - checkpoint: pico-short           # model_tag to evaluate
+    step: 1000                       # stage 1 checkpoint — PLACEHOLDER
+    custom_eval: p3/evals/context_length_eval.py
+
+  - checkpoint: pico-short
+    step: 1500                       # stage 2 checkpoint — PLACEHOLDER
+    custom_eval: p3/evals/context_length_eval.py
