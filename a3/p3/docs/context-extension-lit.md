@@ -31,8 +31,8 @@ If extension training runs too long relative to the short-context phase, the mod
 | Paper | Short Length | Target Length | Ratio | Notes |
 |-------|-------------|---------------|-------|-------|
 | GrowLength | 128 | 1024 | 8x | Multi-stage: 128→256→512→1024 |
-| SkyLadder | 32 | 8192 | 256x | Continuous linear expansion |
-| ProLong | 4096 | 128K | 32x | Continued pretraining from Llama-3 |
+| SkyLadder | 32 | 8192 | 256x | Linearly increasing schedule (stepwise in 1K increments) |
+| ProLong | 8192 | 512K | 64x | Continued pretraining from Llama-3-8B |
 | **Ours** | **512** | **2048** | **4x** | Single-stage jump |
 
 Our 4x ratio is conservative compared to the literature. GrowLength successfully uses 2x between stages; SkyLadder handles 256x with continuous expansion. A 4x single-stage jump is within the safe range, especially with RoPE (which handles new positions without weight mismatch).
@@ -51,6 +51,6 @@ We choose `max_seq_len=512` for stage 1 based on:
 
 1. Jin, H., Han, X., Yang, J., Jiang, Z., Chang, C.-Y., & Hu, X. (2023). *GrowLength: Accelerating LLMs Pretraining by Progressively Growing Training Length*. arXiv:2310.00576. https://arxiv.org/abs/2310.00576
 
-2. (2025). *SkyLadder: Better and Faster Pretraining via Context Window Scheduling*. NeurIPS 2025. arXiv:2503.15450. https://arxiv.org/abs/2503.15450
+2. Zhu, T., Liu, Q., Wang, H., Chen, S., Gu, X., Pang, T., & Kan, M.-Y. (2025). *SkyLadder: Better and Faster Pretraining via Context Window Scheduling*. NeurIPS 2025. arXiv:2503.15450. https://arxiv.org/abs/2503.15450
 
 3. Gao, T., Wettig, A., Yen, H., & Chen, D. (2024). *How to Train Long-Context Language Models (Effectively)*. ACL 2025. arXiv:2410.02660. https://arxiv.org/abs/2410.02660
