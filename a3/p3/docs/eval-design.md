@@ -22,7 +22,11 @@ Per-position cross-entropy loss on long documents, bucketed into 128-token windo
 
 **What it answers**: Can the model handle positions beyond its training length?
 
-**Data source**: All documents from PG19 test split, each truncated to 2048 tokens. PG19 avoids data contamination (nanochat trains on FineWeb-edu) and is standard in context extension literature (PI, YaRN, LongRoPE).
+**Data source**: All documents from PG19 test split, each truncated to 2048 tokens.
+
+**Why PG19**: Three reasons. First, no contamination — nanochat trains on FineWeb-edu (web text), while PG19 is Project Gutenberg books (pre-1919 literature). Zero overlap. Second, every document is tens of thousands of tokens, so every sample fills all 16 position buckets with no filtering needed. Third, PG19 is the standard eval dataset in context extension literature — Positional Interpolation (Chen et al., 2023), YaRN (Peng et al., 2023), and LongRoPE (Ding et al., 2024) all use it.
+
+PG19's pre-1919 prose is stylistically different from FineWeb-edu, so absolute perplexity will be higher than on in-distribution text. This does not affect the comparison — the stylistic gap is constant across all three checkpoints, and we compare relative positional loss, not absolute numbers.
 
 **Expected results**:
 - Short: catastrophic loss beyond position 512 (RoPE encounters unseen positions)
