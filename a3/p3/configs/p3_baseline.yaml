@@ -8,13 +8,13 @@ stages:
       depth: 6                       # picochat depth
       max_seq_len: 512               # reduced sequence length for stage 1
       model_tag: pico-short          # checkpoint folder name
-      save_every: 250                # save at 250, 500, ~929
+      save_every: 250                # save at 250, 500, ..., ~1433
       run: p3-baseline-short         # W&B run name
-    # num_iterations omitted — nanochat auto-computes from scaling law (~929)
+    # num_iterations omitted — nanochat auto-computes from scaling law (~1433)
 
   - name: extended-context
     depends_on: short-context        # runner reads previous stage's final step
-    extra_iterations: 500            # runner adds to previous stage's final step (~929 + 500 = ~1429)
+    extra_iterations: 500            # runner adds to previous stage's final step (~1433 + 500 = ~1933)
     args:
       depth: 6                       # must match stage 1
       max_seq_len: 2048              # extended sequence length for stage 2
@@ -30,7 +30,7 @@ stages:
       model_tag: pico-full           # distinct tag — separate checkpoint directory
       save_every: 250                # same granularity as stage 1
       run: p3-baseline-full          # W&B run name
-    # num_iterations omitted — nanochat auto-computes (~929, same as stage 1)
+    # num_iterations omitted — nanochat auto-computes (~1433, same as stage 1)
 
 eval:
   - checkpoint: pico-short           # stage 1 — short context only

@@ -51,7 +51,7 @@ GrowLength and SkyLadder both find that short-context pretraining produces the b
 
 ### 6. Data portion = 0.24% of dataset
 
-Token budget of ~244M is 0.24% of the FineWeb-edu 100B-token corpus. This is the compute-optimal amount for a 23M scaling-parameter model under nanochat's 10.5x data ratio, which follows from Chinchilla-style scaling laws (Hoffmann et al., 2022). We use nanochat's default ratio because the codebase's hyperparameters (LR, batch size, weight decay) are co-tuned for it.
+Token budget of ~376M is 0.38% of the FineWeb-edu 100B-token corpus. This is the compute-optimal amount for a 35.8M scaling-parameter model under nanochat's 10.5x data ratio, which follows from Chinchilla-style scaling laws (Hoffmann et al., 2022). We use nanochat's default ratio because the codebase's hyperparameters (LR, batch size, weight decay) are co-tuned for it.
 
 > **Reference**: Hoffmann et al. (2022) — Chinchilla scaling laws
 
@@ -69,7 +69,7 @@ PG19 avoids data contamination (nanochat trains on FineWeb-edu) and is standard 
 
 Assignment requirement R3: "Resume training from short checkpoint with sequence length 2048." Also nanochat's default `--max-seq-len`. No RoPE interpolation needed — returning to native context length.
 
-### 9. Depth = 6 (dim=384, heads=3, ~74M total, ~23M scaling)
+### 9. Depth = 6 (dim=384, heads=3, ~136M total, ~35.8M scaling)
 
 Assignment says "a smaller nanochat config you define." Depth 6 is the smallest config with 3 attention heads. Depth 4 has only 2 heads. Depth 8+ costs ~3x more with no benefit for the context extension experiment. Nanochat's own `runcpu.sh` uses depth 6 for demos. Far enough from nanochat's default depth 20 for P4 scaling law comparison.
 
@@ -77,15 +77,15 @@ Assignment says "a smaller nanochat config you define." Depth 6 is the smallest 
 
 Nanochat's `target_param_data_ratio=10.5`, empirically derived from the d12-d26 miniseries sweep. Below Chinchilla-optimal ~20x. We don't override because LR schedule, batch size scaling, and weight decay are co-tuned for this ratio.
 
-### 11. Stage 1: auto-compute iterations (~929)
+### 11. Stage 1: auto-compute iterations (~1433)
 
-`target_tokens // total_batch_size = 243,600,336 // 262,144 ≈ 929`. Let nanochat auto-compute — don't override `--num-iterations`. Stage 1 runs to natural completion with proper LR warmdown.
+`target_tokens // total_batch_size = 375,732,000 // 262,144 ≈ 1433`. Let nanochat auto-compute — don't override `--num-iterations`. Stage 1 runs to natural completion with proper LR warmdown.
 
-### 12. Stage 2: 500 extension steps
+### 12. Stage 2: 500 extension steps (1433 + 500 = 1933 total)
 
 Continued pretraining beyond Stage 1's natural horizon. GrowLength provides no quantitative recovery data — 500 is a generous margin. `save_every=50` gives 10 checkpoints to observe the spike and recovery curve. If loss plateaus early, extra steps are harmless.
 
-### 13. Stage 3: auto-compute iterations (~929)
+### 13. Stage 3: auto-compute iterations (~1433)
 
 Same model, same scaling ratio → same auto-computed iteration count as Stage 1. Fair comparison: same data budget, different sequence length.
 
@@ -112,7 +112,7 @@ Compute budget decision. A100 provides sufficient memory and throughput for dept
 
 ### 18. LR rewarm on resume (~0 → ~0.70)
 
-Stage 1 completes warmdown (LR ≈ 0). Stage 2 recalculates the schedule for `num_iterations=~1429`: warmdown starts at step ~714. At resume step ~929, LR ≈ `(1429 - 929) / (1429 - 714) ≈ 0.70`. This is a deliberate rewarm — the same approach ProLong uses for context extension. The jump may compound with the loss spike from the 4x context increase, but `save_every=50` tracks recovery.
+Stage 1 completes warmdown (LR ≈ 0). Stage 2 recalculates the schedule for `num_iterations=~1933`: warmdown starts at step ~967. At resume step ~1433, LR ≈ `(1933 - 1433) / (1933 - 967) ≈ 0.52`. This is a deliberate rewarm — the same approach ProLong uses for context extension. The jump may compound with the loss spike from the 4x context increase, but `save_every=50` tracks recovery.
 
 ### 19. Custom eval = positional perplexity
 
@@ -165,11 +165,11 @@ Full test split. Compute is cheap, no reason to subsample.
 
 | Stage | GPU | Est. Time | Est. Cost |
 |-------|-----|-----------|-----------|
-| Stage 1 (~929 iters, seq_len=512) | A100 | ~5-15 min | $0.25-0.60 |
+| Stage 1 (~1433 iters, seq_len=512) | A100 | ~10-20 min | $0.40-0.80 |
 | Stage 2 (500 iters, seq_len=2048) | A100 | ~10-20 min | $0.40-0.80 |
-| Stage 3 (~929 iters, seq_len=2048) | A100 | ~15-30 min | $0.60-1.25 |
+| Stage 3 (~1433 iters, seq_len=2048) | A100 | ~25-35 min | $1.00-1.40 |
 | Eval (3 checkpoints × evals) | A100 | ~10-15 min | $0.40-0.60 |
-| **Total** | **A100** | **~40-80 min** | **$1.65-3.25** |
+| **Total** | **A100** | **~55-90 min** | **$2.20-3.60** |
 
 Under $10 with failed runs and reruns.
 
