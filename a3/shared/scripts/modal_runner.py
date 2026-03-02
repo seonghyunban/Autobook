@@ -136,8 +136,6 @@ def setup(nanochat_ref: str):
     _checkout_ref(nanochat_ref)
 
     tokenizer_dir = os.path.join(VOLUME_PATH, "tokenizer")
-    tokenizer_path = os.path.join(tokenizer_dir, "tokenizer.pkl")
-
     all_exist = all(
         os.path.exists(os.path.join(tokenizer_dir, f)) for f in TOKENIZER_FILES
     )
@@ -254,14 +252,14 @@ def train(nanochat_ref: str, args: dict) -> dict:
 # Eval function
 # ---------------------------------------------------------------------------
 
+eval_image = image.add_local_dir("a3/p3/evals", remote_path="/root/evals")
+
 @app.function(
-    image=image,
+    image=eval_image,
     volumes={VOLUME_PATH: volume},
     secrets=[wandb_secret],
     gpu="A100",      # change here to switch GPU for all eval stages
     timeout=3600,    # 1 hour max
-    # TODO: mount path is P3-specific — parameterize for other parts
-    mounts=[modal.Mount.from_local_dir("a3/p3/evals", remote_path="/root/evals")],
 )
 def evaluate(
     nanochat_ref: str,
@@ -323,15 +321,13 @@ def evaluate(
 
     # --- Custom eval (direct import, no subprocess) ---
     if custom_eval_script:
-        import importlib
         import sys
 
         sys.path.insert(0, "/root/evals")
-        module_name = os.path.splitext(os.path.basename(custom_eval_script))[0]
-        eval_module = importlib.import_module(module_name)
+        from context_length_eval import run_eval
 
-        print(f"[eval] Running custom: {module_name}.run_eval()")
-        results["custom_eval"] = eval_module.run_eval(
+        print("[eval] Running custom: context_length_eval.run_eval()")
+        results["custom_eval"] = run_eval(
             checkpoint_dir=VOLUME_PATH,
             model_tag=checkpoint_tag,
             step=step,
