@@ -13,9 +13,9 @@ train:
   - name: train
     args:
       depth: 6
-      max_seq_len: 512
+      max_seq_len: 1024
       model_tag: smoke-p2
-      device_batch_size: 32
+      device_batch_size: 16              # 16 * 1024 = 16384 = total_batch_size
       total_batch_size: 16384
       num_iterations: 3
       save_every: 3
