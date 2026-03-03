@@ -13,37 +13,41 @@ def run(cfg: dict) -> dict:
     Dispatches setup, training stages, and evals. Returns all results.
     Runs on Modal (no GPU) so the pipeline survives local client disconnects.
     """
+
+    # [Number] Name: intuitive, concise one sentence description
     nanochat_ref = cfg["nanochat_ref"]
     experiment_name = cfg.get("experiment_name", "experiment")
+    _print_header(experiment_name, nanochat_ref)
 
-    print(f"\n{'='*60}")
-    print(f"  {experiment_name}")
-    print(f"  nanochat ref: {nanochat_ref}")
-    print(f"{'='*60}")
-
-    # --- Setup (idempotent) ---
-    print("\n[pipeline] Ensuring tokenizer + data exist on volume...")
+    # [Number] Name: intuitive, concise one sentence description
     setup.remote(nanochat_ref)
 
-    # --- Training stages ---
+    # [Number] Name: intuitive, concise one sentence description
     stage_results = {}
     independent, dependent = partition_stages(cfg["stages"])
 
-    # Wave 1: independent stages — run in parallel via .spawn()
+    # [Number] Name: intuitive, concise one sentence description
     if independent:
-        names = [s["name"] for s in independent]
-        print(f"\n[pipeline] Spawning {len(independent)} independent stages: {names}")
+        # [Number] Name: intuitive, concise one sentence description
+        _log_stages_spawned(independent)
+        
+        # [Number] Name: intuitive, concise one sentence description
         handles = {}
         for stage in independent:
-            handles[stage["name"]] = (stage, train.spawn(nanochat_ref, dict(stage["args"])))
+            handles[stage["name"]] = (
+                stage,
+                train.spawn(nanochat_ref, dict(stage["args"])),
+            )
 
+        # [Number] Name: intuitive, concise one sentence description
         for name, (stage, handle) in handles.items():
             result = handle.get()
             stage_results[name] = result
             print(f"[pipeline] [{name}] Done: final_step={result['final_step']}")
 
-    # Wave 2: dependent stages (sequential — each resolves from prior results)
+    # [Number] Name: intuitive, concise one sentence description
     for stage in dependent:
+        # [Number] Name: intuitive, concise one sentence description
         stage_name = stage["name"]
         dep_name = stage["depends_on"]
         if dep_name not in stage_results:
@@ -51,53 +55,101 @@ def run(cfg: dict) -> dict:
                 f"Stage '{stage_name}' depends on '{dep_name}', "
                 f"which hasn't run yet. Check stage ordering in config."
             )
-
+        
+        # [Number] Name: intuitive, concise one sentence description 
         args = dict(stage["args"])
         dep_final_step = stage_results[dep_name]["final_step"]
         args["resume_from_step"] = dep_final_step
         args["num_iterations"] = dep_final_step + stage["extra_iterations"]
 
-        print(f"\n[pipeline] [{stage_name}] Resuming from '{dep_name}' step {dep_final_step}")
-        print(f"[pipeline] [{stage_name}] num_iterations={args['num_iterations']}")
+        # [Number] Name: intuitive, concise one sentence description
+        _log_stage_resume(stage_name, dep_name, dep_final_step, args["num_iterations"])
 
+        # [Number] Name: intuitive, concise one sentence description
         result = train.remote(nanochat_ref, args)
         stage_results[stage_name] = result
         print(f"[pipeline] [{stage_name}] Done: final_step={result['final_step']}")
 
-    # --- Evaluation (parallel dispatch with error isolation, M5) ---
+    # [Number] Name: intuitive, concise one sentence description
     eval_entries = cfg.get("eval", [])
     eval_inputs = resolve_eval_inputs(eval_entries, stage_results, nanochat_ref)
 
+    # [Number] Name: intuitive, concise one sentence description
     eval_results = []
     if eval_inputs:
-        print(f"\n[pipeline] Spawning {len(eval_inputs)} evals in parallel...")
-        for inp in eval_inputs:
-            print(f"[pipeline] [eval] Queued: {inp[1]} @ step {inp[2]} ({inp[3]})")
+        # [Number] Name: intuitive, concise one sentence description
+        _log_eval_queue(eval_inputs)
 
-        # Spawn all evals
+        # [Number] Name: intuitive, concise one sentence description
         handles = []
         for inp in eval_inputs:
             handles.append((inp, evaluate.spawn(*inp)))
 
-        # Collect results, isolating failures
+        # [Number] Name: intuitive, concise one sentence description
         for inp, handle in handles:
             try:
                 result = handle.get()
                 eval_results.append(result)
-                tag = result.get("checkpoint_tag", "?")
-                s = result.get("step", "?")
-                val_bpb = result.get("val_bpb", "N/A")
-                core = result.get("core_metric", "N/A")
-                print(f"[pipeline]   {tag}@{s}: BPB={val_bpb}, CORE={core}")
-                if "custom_eval" in result:
-                    ppl = result["custom_eval"].get("aggregate_perplexity")
-                    print(f"[pipeline]   Positional PPL: {ppl:.2f}" if ppl else "[pipeline]   Positional PPL: N/A")
+                _log_eval_result(result)
             except Exception as e:
                 tag, step = inp[1], inp[2]
                 print(f"[pipeline] [eval] FAILED: {tag}@{step}: {e}")
                 eval_results.append({"checkpoint_tag": tag, "step": step, "error": str(e)})
 
-    # --- Summary ---
+    # [Number] Name: intuitive, concise one sentence description
+    _print_summary(experiment_name, stage_results, eval_results)
+
+    return {
+        "experiment_name": experiment_name,
+        "stage_results": stage_results,
+        "eval_results": eval_results,
+    }
+
+
+
+
+
+
+# ---------------------------------------------------------------------------
+# Formatting helpers - not important
+# ---------------------------------------------------------------------------
+
+def _print_header(experiment_name: str, nanochat_ref: str):
+    print(f"\n{'='*60}")
+    print(f"  {experiment_name}")
+    print(f"  nanochat ref: {nanochat_ref}")
+    print(f"{'='*60}")
+    print("\n[pipeline] Ensuring tokenizer + data exist on volume...")
+
+
+def _log_stages_spawned(stages: list):
+    names = [s["name"] for s in stages]
+    print(f"\n[pipeline] Spawning {len(stages)} independent stages: {names}")
+
+
+def _log_stage_resume(stage_name: str, dep_name: str, dep_step: int, num_iterations: int):
+    print(f"\n[pipeline] [{stage_name}] Resuming from '{dep_name}' step {dep_step}")
+    print(f"[pipeline] [{stage_name}] num_iterations={num_iterations}")
+
+
+def _log_eval_queue(eval_inputs: list):
+    print(f"\n[pipeline] Spawning {len(eval_inputs)} evals in parallel...")
+    for inp in eval_inputs:
+        print(f"[pipeline] [eval] Queued: {inp[1]} @ step {inp[2]} ({inp[3]})")
+
+
+def _log_eval_result(result: dict):
+    tag = result.get("checkpoint_tag", "?")
+    s = result.get("step", "?")
+    val_bpb = result.get("val_bpb", "N/A")
+    core = result.get("core_metric", "N/A")
+    print(f"[pipeline]   {tag}@{s}: BPB={val_bpb}, CORE={core}")
+    if "custom_eval" in result:
+        ppl = result["custom_eval"].get("aggregate_perplexity")
+        print(f"[pipeline]   Positional PPL: {ppl:.2f}" if ppl else "[pipeline]   Positional PPL: N/A")
+
+
+def _print_summary(experiment_name: str, stage_results: dict, eval_results: list):
     print(f"\n{'='*60}")
     print(f"  SUMMARY: {experiment_name}")
     print(f"{'='*60}")
@@ -114,9 +166,3 @@ def run(cfg: dict) -> dict:
         else:
             print(f"  eval[{i}] {tag}@{s}: BPB={bpb}, CORE={core}")
     print("\nDone!")
-
-    return {
-        "experiment_name": experiment_name,
-        "stage_results": stage_results,
-        "eval_results": eval_results,
-    }
