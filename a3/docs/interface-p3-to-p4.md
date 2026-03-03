@@ -19,13 +19,30 @@
 | Extended seq_len (stage 2) | 2048 |
 | Nanochat branch/tag | `baseline-v0` |
 
-### Checkpoints
+### Checkpoints (Endpoints)
 
-| Checkpoint | Model tag | Step | seq_len | Path on Modal Volume |
-|------------|-----------|------|---------|---------------------|
-| Short-context | `pico-short` | 1433 | 512 | `/nanochat/base_checkpoints/pico-short/model_001433.pt` |
-| Extended-context | `pico-short` | 1933 | 2048 | `/nanochat/base_checkpoints/pico-short/model_001933.pt` |
-| Full (from scratch) | `pico-full` | 1433 | 2048 | `/nanochat/base_checkpoints/pico-full/model_001433.pt` |
+These are the three final checkpoints from P3's three training stages:
+
+| Checkpoint | Model tag | Step | How it was trained | seq_len | Val BPB |
+|------------|-----------|------|--------------------|---------|---------|
+| Short | `pico-short` | 1433 | Trained from scratch at seq_len=512 for 1433 steps | 512 | 1.0586 |
+| Extended | `pico-short` | 1933 | Resumed from Short, continued at seq_len=2048 for 500 more steps | 2048 | 1.0540 |
+| Full | `pico-full` | 1433 | Trained from scratch at seq_len=2048 for 1433 steps | 2048 | 1.0499 |
+
+**Recommended for P4**: `pico-full` @ step 1433 — strongest picochat model (best BPB and CORE).
+
+### All Available Checkpoints
+
+P3 saved checkpoints every 50 steps during training. These are all on the Modal Volume (`a3-checkpoints`) under `base_checkpoints/`. Each step has three files: `model_*.pt` (weights), `optim_*_rank0.pt` (optimizer state, only needed to resume training), `meta_*.json` (metadata).
+
+**pico-short** (39 checkpoints):
+- Steps 50–1433 (every 50): trained at seq_len=512 (Stage 1)
+- Steps 1450–1933 (every 50): extension at seq_len=2048 (Stage 2)
+
+**pico-full** (29 checkpoints):
+- Steps 50–1433 (every 50): trained at seq_len=2048 from scratch (Stage 3)
+
+If you need any of these checkpoints, ask Seonghyun — the Volume is on a personal Modal workspace so I'll download and share whichever ones you need.
 
 ### Key Metrics
 
