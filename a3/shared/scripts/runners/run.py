@@ -2,52 +2,59 @@
 
 from shared.infra import app, image, setup, volume
 from shared.helpers import partition_stages, resolve_eval_inputs
-from runners.train import train
-from runners.evaluate import evaluate
+from runners.train import Train
+from runners.evaluate import Evaluate
 
 
 @app.function(image=image, timeout=4 * 3600)
 def run(cfg: dict) -> dict:
-    """Run the full training + eval pipeline remotely.
-
-    Dispatches setup, training stages, and evals. Returns all results.
-    Runs on Modal (no GPU) so the pipeline survives local client disconnects.
+    """
+    1. Read config and set up tokenizer + data on the volume.
+    2. Run independent training stages in parallel.
+    3. Run dependent stages sequentially, resuming from prior results.
+    4. Evaluate all checkpoints in parallel.
+    5. Print summary and return results.
     """
 
-    # [Number] Name: intuitive, concise one sentence description
+    # [1] Config: read experiment settings from the YAML config
     nanochat_ref = cfg["nanochat_ref"]
     experiment_name = cfg.get("experiment_name", "experiment")
+    gpu = cfg.get("gpu", "A100-80GB")
+    timeout = cfg.get("timeout_hours", 3) * 3600
     _print_header(experiment_name, nanochat_ref)
 
-    # [Number] Name: intuitive, concise one sentence description
+    # [2] Setup: download tokenizer and data shards to the volume if missing
     setup.remote(nanochat_ref)
 
-    # [Number] Name: intuitive, concise one sentence description
+    # [3] Training: split stages and run them
     stage_results = {}
-    independent, dependent = partition_stages(cfg["stages"])
+    independent, dependent = partition_stages(cfg.get("train", []))
 
-    # [Number] Name: intuitive, concise one sentence description
+    # [3.1] Independent stages: run in parallel since they don't depend on each other
     if independent:
-        # [Number] Name: intuitive, concise one sentence description
+        # [3.1.1] Log which stages are being spawned
         _log_stages_spawned(independent)
-        
-        # [Number] Name: intuitive, concise one sentence description
+
+        # [3.1.2] Spawn: kick off each stage on its own GPU container
         handles = {}
         for stage in independent:
+            stage_gpu = stage.get("gpu", gpu)
             handles[stage["name"]] = (
                 stage,
-                train.spawn(nanochat_ref, dict(stage["args"])),
+                Train.with_options(gpu=stage_gpu, timeout=timeout)().run.spawn(
+                    nanochat_ref, dict(stage["args"])
+                ),
             )
 
-        # [Number] Name: intuitive, concise one sentence description
+        # [3.1.3] Collect: wait for each stage to finish and store its result
         for name, (stage, handle) in handles.items():
             result = handle.get()
             stage_results[name] = result
             print(f"[pipeline] [{name}] Done: final_step={result['final_step']}")
 
-    # [Number] Name: intuitive, concise one sentence description
+    # [3.2] Dependent stages: run sequentially, each resuming from a prior stage
     for stage in dependent:
-        # [Number] Name: intuitive, concise one sentence description
+        # [3.2.1] Validate: ensure the dependency has already completed
         stage_name = stage["name"]
         dep_name = stage["depends_on"]
         if dep_name not in stage_results:
@@ -55,37 +62,38 @@ def run(cfg: dict) -> dict:
                 f"Stage '{stage_name}' depends on '{dep_name}', "
                 f"which hasn't run yet. Check stage ordering in config."
             )
-        
-        # [Number] Name: intuitive, concise one sentence description 
+
+        # [3.2.2] Resume args: compute resume_from_step and num_iterations from the prior stage
         args = dict(stage["args"])
         dep_final_step = stage_results[dep_name]["final_step"]
         args["resume_from_step"] = dep_final_step
         args["num_iterations"] = dep_final_step + stage["extra_iterations"]
 
-        # [Number] Name: intuitive, concise one sentence description
+        # [3.2.3] Log the resume point
         _log_stage_resume(stage_name, dep_name, dep_final_step, args["num_iterations"])
 
-        # [Number] Name: intuitive, concise one sentence description
-        result = train.remote(nanochat_ref, args)
+        # [3.2.4] Run: train this stage and store its result
+        stage_gpu = stage.get("gpu", gpu)
+        result = Train.with_options(gpu=stage_gpu, timeout=timeout)().run.remote(nanochat_ref, args)
         stage_results[stage_name] = result
         print(f"[pipeline] [{stage_name}] Done: final_step={result['final_step']}")
 
-    # [Number] Name: intuitive, concise one sentence description
+    # [4] Evaluation: build eval inputs from config and stage results
     eval_entries = cfg.get("eval", [])
     eval_inputs = resolve_eval_inputs(eval_entries, stage_results, nanochat_ref)
 
-    # [Number] Name: intuitive, concise one sentence description
+    # [4.1] Dispatch: spawn all evals in parallel and collect results
     eval_results = []
     if eval_inputs:
-        # [Number] Name: intuitive, concise one sentence description
+        # [4.1.1] Log which evals are queued
         _log_eval_queue(eval_inputs)
 
-        # [Number] Name: intuitive, concise one sentence description
+        # [4.1.2] Spawn: kick off each eval on its own GPU container
         handles = []
         for inp in eval_inputs:
-            handles.append((inp, evaluate.spawn(*inp)))
+            handles.append((inp, Evaluate.with_options(gpu=gpu, timeout=timeout)().run.spawn(*inp)))
 
-        # [Number] Name: intuitive, concise one sentence description
+        # [4.1.3] Collect: wait for each eval, isolating failures so one crash doesn't kill the rest
         for inp, handle in handles:
             try:
                 result = handle.get()
@@ -96,7 +104,7 @@ def run(cfg: dict) -> dict:
                 print(f"[pipeline] [eval] FAILED: {tag}@{step}: {e}")
                 eval_results.append({"checkpoint_tag": tag, "step": step, "error": str(e)})
 
-    # [Number] Name: intuitive, concise one sentence description
+    # [5] Summary: print final results
     _print_summary(experiment_name, stage_results, eval_results)
 
     return {
@@ -104,10 +112,6 @@ def run(cfg: dict) -> dict:
         "stage_results": stage_results,
         "eval_results": eval_results,
     }
-
-
-
-
 
 
 # ---------------------------------------------------------------------------

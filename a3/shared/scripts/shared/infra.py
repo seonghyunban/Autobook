@@ -1,5 +1,7 @@
 """Declarative infrastructure: constants, Modal app, image, volume, secrets, setup."""
 
+import glob as _glob
+import os
 import re
 
 import modal
@@ -47,7 +49,10 @@ image = (
     .add_local_python_source("shared", "runners")
 )
 
-eval_image = image.add_local_dir("a3/p3/evals", remote_path="/root/evals")
+eval_image = image
+for _eval_dir in sorted(_glob.glob("a3/*/evals")):
+    if os.path.isdir(_eval_dir):
+        eval_image = eval_image.add_local_dir(_eval_dir, remote_path="/root/evals")
 
 volume = modal.Volume.from_name("a3-checkpoints", create_if_missing=True)
 
