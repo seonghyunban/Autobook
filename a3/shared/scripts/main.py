@@ -8,7 +8,7 @@ With --detach, the pipeline runs entirely on Modal (survives local disconnects):
 """
 
 from shared.infra import app  # noqa: F401 — registers all Modal functions
-from runners.run import remote  # noqa: F401
+from runners.run import run  # noqa: F401
 
 
 @app.local_entrypoint()
@@ -23,7 +23,7 @@ def main(config: str):
     print(f"Launching pipeline: {experiment_name}")
     print("Tip: use 'modal run --detach ...' to survive local disconnects.\n")
 
-    results = remote.remote(cfg)
+    results = run.remote(cfg)
 
     # Print summary locally (only reached if not using --detach)
     print(f"\n{'='*60}")

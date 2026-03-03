@@ -7,7 +7,7 @@ from runners.evaluate import evaluate
 
 
 @app.function(image=image, timeout=4 * 3600)
-def remote(cfg: dict) -> dict:
+def run(cfg: dict) -> dict:
     """Run the full training + eval pipeline remotely.
 
     Dispatches setup, training stages, and evals. Returns all results.
