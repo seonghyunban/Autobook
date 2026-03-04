@@ -106,13 +106,26 @@ def _run_standard_evals(checkpoint_tag: str, step: int, standard_evals: str) -> 
         f"--step={step}",
     ]
     print(f"[eval] Running: {' '.join(cmd)}")
-    proc = subprocess.run(cmd, capture_output=True, text=True)
-    print(proc.stdout)
-    if proc.returncode != 0:
-        print(proc.stderr)
-        proc.check_returncode()
+    proc = subprocess.Popen(
+        cmd,
+        stdout=subprocess.PIPE,
+        stderr=subprocess.STDOUT,
+        text=True,
+        bufsize=1,
+    )
 
-    return parse_eval_stdout(proc.stdout, standard_evals)
+    stdout_lines = []
+    assert proc.stdout is not None
+    for line in proc.stdout:
+        print(line, end="")
+        stdout_lines.append(line)
+
+    returncode = proc.wait()
+    stdout_text = "".join(stdout_lines)
+    if returncode != 0:
+        raise subprocess.CalledProcessError(returncode, cmd, output=stdout_text)
+
+    return parse_eval_stdout(stdout_text, standard_evals)
 
 
 def _rename_core_csv(checkpoint_tag: str, step: int):
