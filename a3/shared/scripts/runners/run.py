@@ -6,7 +6,7 @@ from runners.train import Train
 from runners.evaluate import Evaluate
 
 
-@app.function(image=image, timeout=48 * 3600)
+@app.function(image=image, timeout=24 * 3600)
 def run(cfg: dict) -> dict:
     """
     1. Read config and set up tokenizer + data on the volume.
