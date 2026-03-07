@@ -10,7 +10,7 @@ import modal
 # Constants
 # ---------------------------------------------------------------------------
 
-WANDB_PROJECT = "490-autobook-a3"
+WANDB_PROJECT = "490-autobook-a4"
 NANOCHAT_DIR = "/root/nanochat"
 VOLUME_PATH = "/data/checkpoints"
 CKPT_SUBDIR = "base_checkpoints"
@@ -22,7 +22,7 @@ CKPT_STEP_RE = re.compile(r"model_(\d+)\.pt$")
 # App, Image, Volume, Secret
 # ---------------------------------------------------------------------------
 
-app = modal.App("a3-nanochat")
+app = modal.App("a4-nanochat")
 
 image = (
     modal.Image.debian_slim(python_version="3.12")
@@ -51,7 +51,8 @@ image = (
 )
 
 eval_image = image
-for _eval_dir in sorted(_glob.glob("a3/*/evals")):
+_eval_roots = sorted(set(_glob.glob("a4/*/evals") + _glob.glob("a3/*/evals")))
+for _eval_dir in _eval_roots:
     if os.path.isdir(_eval_dir):
         eval_image = eval_image.add_local_dir(_eval_dir, remote_path="/root/evals")
 

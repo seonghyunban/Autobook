@@ -12,7 +12,7 @@ from shared.infra import (
     volume,
     wandb_secret,
 )
-from shared.helpers import checkout_ref
+from shared.helpers import checkout_ref, find_final_step
 
 
 @app.cls(
@@ -49,17 +49,29 @@ class Train:
         os.chdir(NANOCHAT_DIR)
         checkout_ref(nanochat_ref)
 
+        # [1.1] Optional init copy: branch checkpoints to a new model tag before training
+        _maybe_init_checkpoint_branch(args)
+
         # [2] Git hash: record which nanochat commit is being trained
         git_hash = _get_git_hash()
 
         # [3] Train: build CLI from args and run nanochat
+        script = args.get("script", "scripts.base_train")
+        model_tag = args.get("model_tag", f"d{args['depth']}")
+        ckpt_subdir = _checkpoint_subdir_for_script(script)
+        prev_final_step = _safe_find_final_step(model_tag, ckpt_subdir)
+
         cmd = _build_cli(args)
         subprocess.run(cmd, check=True)
 
-        # [4] Final step: use num_iterations (the target step nanochat trained to).
-        #     Avoids stale checkpoints on the Volume from prior runs.
-        model_tag = args.get("model_tag", f"d{args['depth']}")
-        final_step = args["num_iterations"]
+        # [4] Final step: discover from filesystem to support scripts where
+        #     num_iterations may be -1 (e.g. chat_sft full-epoch mode).
+        final_step = find_final_step(VOLUME_PATH, ckpt_subdir, model_tag)
+        if prev_final_step is not None and final_step <= prev_final_step:
+            raise RuntimeError(
+                f"No new checkpoint detected for '{model_tag}' in '{ckpt_subdir}'. "
+                f"Before run: {prev_final_step}, after run: {final_step}."
+            )
         print(f"[train] Final step: {final_step}")
 
         # [5] W&B metadata: attach git hash to the W&B run for reproducibility
@@ -81,9 +93,17 @@ class Train:
 
 def _build_cli(args: dict) -> list[str]:
     """Convert underscore args to kebab-case CLI flags."""
-    script = args.pop("script", "scripts.base_train")
+    script = args.get("script", "scripts.base_train")
     cmd = ["python", "-m", script]
+    reserved = {
+        "script",
+        "init_from_source",
+        "init_from_tag",
+        "init_from_step",
+    }
     for key, value in args.items():
+        if key in reserved:
+            continue
         cli_key = key.replace("_", "-")
         if isinstance(value, bool):
             # argparse store_true/store_false flags should be passed without "=value"
@@ -120,3 +140,75 @@ def _log_git_hash_to_wandb(run_name: str | None, git_hash: str):
             print(f"[train] Logged git_hash to W&B run: {run_name}")
     except Exception as e:
         print(f"[train] WARNING: could not update W&B with git hash: {e}")
+
+
+def _checkpoint_subdir_for_script(script: str) -> str:
+    if script == "scripts.base_train":
+        return CKPT_SUBDIR
+    if script == "scripts.chat_sft":
+        return "chatsft_checkpoints"
+    if script == "scripts.chat_rl":
+        return "chatrl_checkpoints"
+    return CKPT_SUBDIR
+
+
+def _safe_find_final_step(model_tag: str, ckpt_subdir: str) -> int | None:
+    try:
+        return find_final_step(VOLUME_PATH, ckpt_subdir, model_tag)
+    except FileNotFoundError:
+        return None
+
+
+def _copy_if_missing(src: str, dst: str):
+    import os
+    import shutil
+
+    if os.path.exists(dst):
+        return
+    os.makedirs(os.path.dirname(dst), exist_ok=True)
+    shutil.copy2(src, dst)
+
+
+def _maybe_init_checkpoint_branch(args: dict):
+    """Optionally copy a source checkpoint into a new tag before training.
+
+    Expected args:
+      - init_from_source: base|sft|rl (default: base)
+      - init_from_tag: source model tag
+      - init_from_step: source checkpoint step
+    """
+    import glob
+    import os
+
+    init_from_tag = args.get("init_from_tag")
+    init_from_step = args.get("init_from_step")
+    if not init_from_tag or init_from_step is None:
+        return
+
+    init_from_source = args.get("init_from_source", "base")
+    source_subdir = {
+        "base": "base_checkpoints",
+        "sft": "chatsft_checkpoints",
+        "rl": "chatrl_checkpoints",
+    }[init_from_source]
+    target_subdir = _checkpoint_subdir_for_script(args.get("script", "scripts.base_train"))
+    target_tag = args.get("model_tag", f"d{args['depth']}")
+
+    src_dir = os.path.join(VOLUME_PATH, source_subdir, init_from_tag)
+    dst_dir = os.path.join(VOLUME_PATH, target_subdir, target_tag)
+
+    print(
+        f"[train] Initializing '{target_subdir}/{target_tag}' from "
+        f"'{source_subdir}/{init_from_tag}' @ step {init_from_step}"
+    )
+
+    model_name = f"model_{init_from_step:06d}.pt"
+    meta_name = f"meta_{init_from_step:06d}.json"
+
+    _copy_if_missing(os.path.join(src_dir, model_name), os.path.join(dst_dir, model_name))
+    _copy_if_missing(os.path.join(src_dir, meta_name), os.path.join(dst_dir, meta_name))
+
+    # Copy all optimizer rank shards for that step if present.
+    for src_optim in glob.glob(os.path.join(src_dir, f"optim_{init_from_step:06d}_rank*.pt")):
+        dst_optim = os.path.join(dst_dir, os.path.basename(src_optim))
+        _copy_if_missing(src_optim, dst_optim)
