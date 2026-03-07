@@ -57,7 +57,7 @@ class Train:
 
         # [3] Train: build CLI from args and run nanochat
         script = args.get("script", "scripts.base_train")
-        model_tag = args.get("model_tag", f"d{args['depth']}")
+        model_tag = _resolve_model_tag(args)
         ckpt_subdir = _checkpoint_subdir_for_script(script)
         prev_final_step = _safe_find_final_step(model_tag, ckpt_subdir)
 
@@ -113,6 +113,15 @@ def _build_cli(args: dict) -> list[str]:
         cmd.append(f"--{cli_key}={value}")
     print(f"[train] Running: {' '.join(cmd)}")
     return cmd
+
+
+def _resolve_model_tag(args: dict) -> str:
+    model_tag = args.get("model_tag")
+    if model_tag:
+        return model_tag
+    if "depth" in args:
+        return f"d{args['depth']}"
+    raise KeyError("Missing required training arg: model_tag (or depth fallback).")
 
 
 def _get_git_hash() -> str:
@@ -192,7 +201,7 @@ def _maybe_init_checkpoint_branch(args: dict):
         "rl": "chatrl_checkpoints",
     }[init_from_source]
     target_subdir = _checkpoint_subdir_for_script(args.get("script", "scripts.base_train"))
-    target_tag = args.get("model_tag", f"d{args['depth']}")
+    target_tag = _resolve_model_tag(args)
 
     src_dir = os.path.join(VOLUME_PATH, source_subdir, init_from_tag)
     dst_dir = os.path.join(VOLUME_PATH, target_subdir, target_tag)
