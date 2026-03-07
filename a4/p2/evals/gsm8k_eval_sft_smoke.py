@@ -6,7 +6,7 @@ from contextlib import nullcontext
 
 import torch
 
-SMOKE_MAX_PROBLEMS = 8
+SMOKE_MAX_PROBLEMS = 32
 SMOKE_BPB_DEVICE_BATCH_SIZE = 8
 SMOKE_BPB_SPLIT_TOKENS = 16384
 
