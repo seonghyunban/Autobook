@@ -110,15 +110,14 @@ def run_eval(
         parseable += int(pred_num is not None)
         exact += int(pred_num == ref_num)
         numeric += int(_numeric_equal(pred_num, ref_num))
-        if len(samples) < 3:
-            samples.append(
-                {
-                    "idx": i,
-                    "pred_num": pred_num,
-                    "ref_num": ref_num,
-                    "completion_head": completion[:220],
-                }
-            )
+        samples.append(
+            {
+                "idx": i,
+                "pred_num": pred_num,
+                "ref_num": ref_num,
+                "completion": completion,
+            }
+        )
 
     return {
         "smoke": True,
