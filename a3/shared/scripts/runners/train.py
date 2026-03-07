@@ -19,7 +19,7 @@ from shared.helpers import checkout_ref
     image=image,
     volumes={VOLUME_PATH: volume},
     secrets=[wandb_secret],
-    gpu="A100-80GB",
+    gpu="H100",
 )
 class Train:
     @modal.method()
@@ -85,6 +85,11 @@ def _build_cli(args: dict) -> list[str]:
     cmd = ["python", "-m", script]
     for key, value in args.items():
         cli_key = key.replace("_", "-")
+        if isinstance(value, bool):
+            # argparse store_true/store_false flags should be passed without "=value"
+            if value:
+                cmd.append(f"--{cli_key}")
+            continue
         cmd.append(f"--{cli_key}={value}")
     print(f"[train] Running: {' '.join(cmd)}")
     return cmd

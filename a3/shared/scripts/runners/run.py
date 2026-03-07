@@ -6,7 +6,7 @@ from runners.train import Train
 from runners.evaluate import Evaluate
 
 
-@app.function(image=image, timeout=4 * 3600)
+@app.function(image=image, timeout=24 * 3600)
 def run(cfg: dict) -> dict:
     """
     1. Read config and set up tokenizer + data on the volume.
@@ -21,10 +21,12 @@ def run(cfg: dict) -> dict:
     experiment_name = cfg.get("experiment_name", "experiment")
     gpu = cfg.get("gpu", "A100-80GB")
     timeout = cfg.get("timeout_hours", 3) * 3600
+    data_shards = int(cfg.get("data_shards", 8))
+    data_workers = int(cfg.get("data_workers", 4))
     _print_header(experiment_name, nanochat_ref)
 
     # [2] Setup: download tokenizer and data shards to the volume if missing
-    setup.remote(nanochat_ref)
+    setup.remote(nanochat_ref, data_shards, data_workers)
 
     # [3] Training: split stages and run them
     stage_results = {}
@@ -139,7 +141,9 @@ def _log_stage_resume(stage_name: str, dep_name: str, dep_step: int, num_iterati
 def _log_eval_queue(eval_inputs: list):
     print(f"\n[pipeline] Spawning {len(eval_inputs)} evals in parallel...")
     for inp in eval_inputs:
-        print(f"[pipeline] [eval] Queued: {inp[1]} @ step {inp[2]} ({inp[3]})")
+        max_per_task = inp[5] if len(inp) > 5 else -1
+        suffix = f", max_per_task={max_per_task}" if max_per_task > 0 else ""
+        print(f"[pipeline] [eval] Queued: {inp[1]} @ step {inp[2]} ({inp[3]}{suffix})")
 
 
 def _log_eval_result(result: dict):
