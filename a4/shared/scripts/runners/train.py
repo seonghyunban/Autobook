@@ -161,6 +161,22 @@ def _checkpoint_subdir_for_script(script: str) -> str:
     return CKPT_SUBDIR
 
 
+def _init_destination_subdir(script: str, init_from_source: str) -> str:
+    """Choose where seeded checkpoints should be copied.
+
+    For chat_sft, nanochat loads the starting checkpoint from source="base",
+    so init copies must land in base_checkpoints, even though outputs are saved
+    to chatsft_checkpoints.
+    """
+    if script == "scripts.chat_sft":
+        return "base_checkpoints"
+    return {
+        "base": "base_checkpoints",
+        "sft": "chatsft_checkpoints",
+        "rl": "chatrl_checkpoints",
+    }[init_from_source]
+
+
 def _safe_find_final_step(model_tag: str, ckpt_subdir: str) -> int | None:
     try:
         return find_final_step(VOLUME_PATH, ckpt_subdir, model_tag)
@@ -176,6 +192,42 @@ def _copy_if_missing(src: str, dst: str):
         return
     os.makedirs(os.path.dirname(dst), exist_ok=True)
     shutil.copy2(src, dst)
+
+
+def _sanitize_meta_model_config(meta_path: str):
+    """Drop unsupported model_config keys for the checked-out nanochat ref."""
+    import inspect
+    import json
+    import os
+
+    if not os.path.exists(meta_path):
+        return
+
+    try:
+        from nanochat.gpt import GPTConfig  # type: ignore
+    except Exception as e:
+        print(f"[train] WARNING: could not import GPTConfig for meta sanitization: {e}")
+        return
+
+    with open(meta_path, "r", encoding="utf-8") as f:
+        meta = json.load(f)
+
+    model_cfg = meta.get("model_config")
+    if not isinstance(model_cfg, dict):
+        return
+
+    supported = set(inspect.signature(GPTConfig).parameters.keys())
+    dropped = sorted([k for k in list(model_cfg.keys()) if k not in supported])
+    if not dropped:
+        return
+
+    for k in dropped:
+        model_cfg.pop(k, None)
+    meta["model_config"] = model_cfg
+
+    with open(meta_path, "w", encoding="utf-8") as f:
+        json.dump(meta, f, indent=2)
+    print(f"[train] Sanitized meta config at {meta_path}; dropped unsupported keys: {dropped}")
 
 
 def _maybe_init_checkpoint_branch(args: dict):
@@ -200,7 +252,8 @@ def _maybe_init_checkpoint_branch(args: dict):
         "sft": "chatsft_checkpoints",
         "rl": "chatrl_checkpoints",
     }[init_from_source]
-    target_subdir = _checkpoint_subdir_for_script(args.get("script", "scripts.base_train"))
+    script = args.get("script", "scripts.base_train")
+    target_subdir = _init_destination_subdir(script, init_from_source)
     target_tag = _resolve_model_tag(args)
 
     src_dir = os.path.join(VOLUME_PATH, source_subdir, init_from_tag)
@@ -215,7 +268,9 @@ def _maybe_init_checkpoint_branch(args: dict):
     meta_name = f"meta_{init_from_step:06d}.json"
 
     _copy_if_missing(os.path.join(src_dir, model_name), os.path.join(dst_dir, model_name))
-    _copy_if_missing(os.path.join(src_dir, meta_name), os.path.join(dst_dir, meta_name))
+    dst_meta = os.path.join(dst_dir, meta_name)
+    _copy_if_missing(os.path.join(src_dir, meta_name), dst_meta)
+    _sanitize_meta_model_config(dst_meta)
 
     # Copy all optimizer rank shards for that step if present.
     for src_optim in glob.glob(os.path.join(src_dir, f"optim_{init_from_step:06d}_rank*.pt")):
