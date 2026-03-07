@@ -19,6 +19,23 @@ def _get_max_problems() -> int | None:
     return None if value <= 0 else value
 
 
+def _get_debug_n() -> int:
+    raw = os.getenv("A4P2_GSM8K_DEBUG_N", "").strip()
+    if not raw:
+        return 64
+    value = int(raw)
+    return max(0, value)
+
+
+def _numeric_equal(a: str | None, b: str | None, tol: float = 1e-9) -> bool:
+    if a is None or b is None:
+        return False
+    try:
+        return abs(float(a) - float(b)) <= tol
+    except ValueError:
+        return False
+
+
 def run_eval(
     checkpoint_dir: str,
     model_tag: str,
@@ -33,6 +50,7 @@ def run_eval(
     from nanochat.loss_eval import evaluate_bpb
     from nanochat.tokenizer import get_token_bytes
     from scripts.chat_eval import run_chat_eval
+    from tasks.gsm8k import GSM8K, extract_answer
 
     device_type = autodetect_device_type()
     device = torch.device(device_type)
@@ -84,6 +102,52 @@ def run_eval(
             max_problems=max_problems,
         )
 
+    debug_n = _get_debug_n()
+    debug_info = None
+    if debug_n > 0:
+        task = GSM8K(subset="main", split="test")
+        n = min(debug_n, len(task))
+        parseable = 0
+        exact = 0
+        numeric = 0
+        samples = []
+
+        for i in range(n):
+            conversation = task[i]
+            prompt_ids = tokenizer.render_for_completion(conversation)
+            with autocast_ctx:
+                results, _ = engine.generate_batch(
+                    prompt_ids,
+                    num_samples=1,
+                    max_tokens=512,
+                    temperature=0.0,
+                    top_k=50,
+                )
+            completion = tokenizer.decode(results[0][len(prompt_ids):])
+            gold_text = conversation["messages"][-1]["content"][-1]["text"]
+            ref_num = extract_answer(gold_text)
+            pred_num = extract_answer(completion)
+            parseable += int(pred_num is not None)
+            exact += int(pred_num == ref_num)
+            numeric += int(_numeric_equal(pred_num, ref_num))
+            if len(samples) < 3:
+                samples.append(
+                    {
+                        "idx": i,
+                        "pred_num": pred_num,
+                        "ref_num": ref_num,
+                        "completion_head": completion[:220],
+                    }
+                )
+
+        debug_info = {
+            "n": n,
+            "parseable_rate": parseable / n if n else 0.0,
+            "strict_exact_rate": exact / n if n else 0.0,
+            "numeric_match_rate": numeric / n if n else 0.0,
+            "samples": samples,
+        }
+
     return {
         "task": "GSM8K",
         "source": "sft",
@@ -95,4 +159,5 @@ def run_eval(
         "bpb_split_tokens": split_tokens,
         "max_problems": max_problems if max_problems is not None else "all",
         "accuracy": float(accuracy),
+        "gsm8k_debug": debug_info,
     }
