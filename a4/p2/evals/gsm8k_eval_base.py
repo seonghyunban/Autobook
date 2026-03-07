@@ -5,7 +5,6 @@ Runner entrypoint:
     run_eval(checkpoint_dir, model_tag, step) -> dict
 """
 
-import copy
 import os
 import re
 from contextlib import nullcontext
@@ -39,7 +38,6 @@ def _numeric_equal(a: str | None, b: str | None, tol: float = 1e-9) -> bool:
 
 
 _LAST_NUM_RE = re.compile(r"-?[0-9]+(?:\.[0-9]+)?")
-_FORCE_SUFFIX = "\n\nReturn the final answer on the last line exactly as: #### <number>"
 
 
 def _extract_last_number(text: str) -> str | None:
@@ -47,12 +45,6 @@ def _extract_last_number(text: str) -> str | None:
     if not matches:
         return None
     return matches[-1].replace(",", "").strip()
-
-
-def _force_format_prompt(conversation: dict) -> dict:
-    conv = copy.deepcopy(conversation)
-    conv["messages"][0]["content"] = conv["messages"][0]["content"] + _FORCE_SUFFIX
-    return conv
 
 
 def run_eval(
@@ -68,7 +60,6 @@ def run_eval(
     from nanochat.engine import Engine
     from nanochat.loss_eval import evaluate_bpb
     from nanochat.tokenizer import get_token_bytes
-    from scripts.chat_eval import run_chat_eval
     from tasks.gsm8k import GSM8K, extract_answer
 
     device_type = autodetect_device_type()
@@ -107,92 +98,57 @@ def run_eval(
         bpb_results[split_name] = float(bpb)
 
     max_problems = _get_max_problems()
-    with autocast_ctx:
-        accuracy = run_chat_eval(
-            task_name="GSM8K",
-            model=model,
-            tokenizer=tokenizer,
-            engine=engine,
-            batch_size=8,
-            num_samples=1,
-            max_new_tokens=512,
-            temperature=0.0,
-            top_k=50,
-            max_problems=max_problems,
-        )
-
     debug_n = _get_debug_n()
-    debug_info = None
-    relaxed_numeric_debug = None
-    prompt_forced_debug = None
-    prompt_forced_parseable_debug = None
-    if debug_n > 0:
-        task = GSM8K(subset="main", split="test")
-        n = min(debug_n, len(task))
-        parseable = 0
-        exact = 0
-        numeric = 0
-        forced_parseable = 0
-        forced_exact = 0
-        samples = []
+    task = GSM8K(subset="main", split="test")
+    eval_n = len(task) if max_problems is None else min(max_problems, len(task))
+    strict_passed = 0
+    relaxed_passed = 0
+    parseable = 0
+    samples = []
+    sample_cap = min(debug_n, eval_n) if debug_n > 0 else 0
 
-        for i in range(n):
-            conversation = task[i]
-            prompt_ids = tokenizer.render_for_completion(conversation)
-            with autocast_ctx:
-                results, _ = engine.generate_batch(
-                    prompt_ids,
-                    num_samples=1,
-                    max_tokens=512,
-                    temperature=0.0,
-                    top_k=50,
-                )
-            completion = tokenizer.decode(results[0][len(prompt_ids):])
-            gold_text = conversation["messages"][-1]["content"][-1]["text"]
-            ref_num = extract_answer(gold_text)
-            pred_num = extract_answer(completion)
-            parseable += int(pred_num is not None)
-            exact += int(pred_num == ref_num)
-            relaxed_pred = pred_num if pred_num is not None else _extract_last_number(completion)
-            numeric += int(_numeric_equal(relaxed_pred, ref_num))
+    for i in range(eval_n):
+        conversation = task[i]
+        prompt_ids = tokenizer.render_for_completion(conversation)
+        with autocast_ctx:
+            results, _ = engine.generate_batch(
+                prompt_ids,
+                num_samples=1,
+                max_tokens=512,
+                temperature=0.0,
+                top_k=50,
+            )
+        completion = tokenizer.decode(results[0][len(prompt_ids):])
+        gold_text = conversation["messages"][-1]["content"][-1]["text"]
+        ref_num = extract_answer(gold_text)
+        strict_pred = extract_answer(completion)
+        relaxed_pred = strict_pred if strict_pred is not None else _extract_last_number(completion)
 
-            forced_conversation = _force_format_prompt(conversation)
-            forced_prompt_ids = tokenizer.render_for_completion(forced_conversation)
-            with autocast_ctx:
-                forced_results, _ = engine.generate_batch(
-                    forced_prompt_ids,
-                    num_samples=1,
-                    max_tokens=512,
-                    temperature=0.0,
-                    top_k=50,
-                )
-            forced_completion = tokenizer.decode(forced_results[0][len(forced_prompt_ids):])
-            forced_pred = extract_answer(forced_completion)
-            forced_parseable += int(forced_pred is not None)
-            forced_exact += int(forced_pred == ref_num)
+        parseable += int(strict_pred is not None)
+        strict_passed += int(strict_pred == ref_num)
+        relaxed_passed += int(_numeric_equal(relaxed_pred, ref_num))
 
+        if i < sample_cap:
             samples.append(
                 {
                     "idx": i,
                     "ref_num": ref_num,
-                    "strict_pred_num": pred_num,
+                    "strict_pred_num": strict_pred,
                     "relaxed_pred_num": relaxed_pred,
-                    "forced_pred_num": forced_pred,
-                    "strict_completion_head": completion[:220],
-                    "forced_completion_head": forced_completion[:220],
+                    "completion_head": completion[:220],
                 }
             )
 
-        debug_info = {
-            "n": n,
-            "parseable_rate": parseable / n if n else 0.0,
-            "strict_exact_rate": exact / n if n else 0.0,
-            "numeric_match_rate": numeric / n if n else 0.0,
-            "samples": samples,
-        }
-        relaxed_numeric_debug = numeric / n if n else 0.0
-        prompt_forced_debug = forced_exact / n if n else 0.0
-        prompt_forced_parseable_debug = forced_parseable / n if n else 0.0
+    strict_accuracy = strict_passed / eval_n if eval_n else 0.0
+    relaxed_accuracy = relaxed_passed / eval_n if eval_n else 0.0
+    debug_info = {
+        "n": eval_n,
+        "sample_count": len(samples),
+        "parseable_rate": parseable / eval_n if eval_n else 0.0,
+        "strict_exact_rate": strict_accuracy,
+        "numeric_match_rate": relaxed_accuracy,
+        "samples": samples,
+    }
 
     return {
         "task": "GSM8K",
@@ -204,10 +160,8 @@ def run_eval(
         "bpb_steps": steps,
         "bpb_split_tokens": split_tokens,
         "max_problems": max_problems if max_problems is not None else "all",
-        "accuracy": float(accuracy),
-        "accuracy_strict": float(accuracy),
-        "accuracy_relaxed_numeric_debug": relaxed_numeric_debug,
-        "accuracy_prompt_forced_debug": prompt_forced_debug,
-        "prompt_forced_parseable_rate_debug": prompt_forced_parseable_debug,
+        "accuracy": relaxed_accuracy,
+        "accuracy_strict": strict_accuracy,
+        "accuracy_relaxed_numeric": relaxed_accuracy,
         "gsm8k_debug": debug_info,
     }

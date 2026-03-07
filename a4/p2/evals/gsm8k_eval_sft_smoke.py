@@ -1,7 +1,6 @@
 #!/usr/bin/env python3
 """Fast/cheap GSM8K+BPB smoke eval for SFT checkpoints."""
 
-import copy
 import os
 import re
 from contextlib import nullcontext
@@ -23,7 +22,6 @@ def _numeric_equal(a: str | None, b: str | None, tol: float = 1e-9) -> bool:
 
 
 _LAST_NUM_RE = re.compile(r"-?[0-9]+(?:\.[0-9]+)?")
-_FORCE_SUFFIX = "\n\nReturn the final answer on the last line exactly as: #### <number>"
 
 
 def _extract_last_number(text: str) -> str | None:
@@ -31,12 +29,6 @@ def _extract_last_number(text: str) -> str | None:
     if not matches:
         return None
     return matches[-1].replace(",", "").strip()
-
-
-def _force_format_prompt(conversation: dict) -> dict:
-    conv = copy.deepcopy(conversation)
-    conv["messages"][0]["content"] = conv["messages"][0]["content"] + _FORCE_SUFFIX
-    return conv
 
 
 def run_eval(
@@ -52,7 +44,6 @@ def run_eval(
     from nanochat.engine import Engine
     from nanochat.loss_eval import evaluate_bpb
     from nanochat.tokenizer import get_token_bytes
-    from scripts.chat_eval import run_chat_eval
     from tasks.gsm8k import GSM8K, extract_answer
 
     device_type = autodetect_device_type()
@@ -90,27 +81,11 @@ def run_eval(
             bpb = evaluate_bpb(model, loader, steps, token_bytes)
         bpb_results[split_name] = float(bpb)
 
-    with autocast_ctx:
-        accuracy = run_chat_eval(
-            task_name="GSM8K",
-            model=model,
-            tokenizer=tokenizer,
-            engine=engine,
-            batch_size=8,
-            num_samples=1,
-            max_new_tokens=128,
-            temperature=0.0,
-            top_k=50,
-            max_problems=SMOKE_MAX_PROBLEMS,
-        )
-
     task = GSM8K(subset="main", split="test")
     n = min(SMOKE_MAX_PROBLEMS, len(task))
     parseable = 0
     exact = 0
     numeric = 0
-    forced_parseable = 0
-    forced_exact = 0
     samples = []
 
     for i in range(n):
@@ -132,33 +107,18 @@ def run_eval(
         exact += int(pred_num == ref_num)
         relaxed_pred = pred_num if pred_num is not None else _extract_last_number(completion)
         numeric += int(_numeric_equal(relaxed_pred, ref_num))
-
-        forced_conversation = _force_format_prompt(conversation)
-        forced_prompt_ids = tokenizer.render_for_completion(forced_conversation)
-        with autocast_ctx:
-            forced_results, _ = engine.generate_batch(
-                forced_prompt_ids,
-                num_samples=1,
-                max_tokens=128,
-                temperature=0.0,
-                top_k=50,
-            )
-        forced_completion = tokenizer.decode(forced_results[0][len(forced_prompt_ids):])
-        forced_pred = extract_answer(forced_completion)
-        forced_parseable += int(forced_pred is not None)
-        forced_exact += int(forced_pred == ref_num)
-
         samples.append(
             {
                 "idx": i,
                 "ref_num": ref_num,
                 "strict_pred_num": pred_num,
                 "relaxed_pred_num": relaxed_pred,
-                "forced_pred_num": forced_pred,
                 "strict_completion": completion,
-                "forced_completion": forced_completion,
             }
         )
+
+    strict_accuracy = exact / n if n else 0.0
+    relaxed_accuracy = numeric / n if n else 0.0
 
     return {
         "smoke": True,
@@ -171,18 +131,14 @@ def run_eval(
         "bpb_steps": steps,
         "bpb_split_tokens": split_tokens,
         "max_problems": SMOKE_MAX_PROBLEMS,
-        "accuracy": float(accuracy),
-        "accuracy_strict": float(accuracy),
-        "accuracy_relaxed_numeric_debug": numeric / n if n else 0.0,
-        "accuracy_prompt_forced_debug": forced_exact / n if n else 0.0,
-        "prompt_forced_parseable_rate_debug": forced_parseable / n if n else 0.0,
+        "accuracy": relaxed_accuracy,
+        "accuracy_strict": strict_accuracy,
+        "accuracy_relaxed_numeric": relaxed_accuracy,
         "gsm8k_debug": {
             "n": n,
             "parseable_rate": parseable / n if n else 0.0,
-            "strict_exact_rate": exact / n if n else 0.0,
-            "numeric_match_rate": numeric / n if n else 0.0,
-            "prompt_forced_parseable_rate": forced_parseable / n if n else 0.0,
-            "prompt_forced_strict_rate": forced_exact / n if n else 0.0,
+            "strict_exact_rate": strict_accuracy,
+            "numeric_match_rate": relaxed_accuracy,
             "samples": samples,
         },
     }

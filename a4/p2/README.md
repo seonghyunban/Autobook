@@ -4,11 +4,11 @@ This document freezes the A3 checkpoint used as the Part 2 starting artifact and
 
 ## Canonical Starting Checkpoint
 
-- Checkpoint tag: `nano-baseline-fp8-full`
+- Checkpoint tag: `nano-swiglu-fp8-full`
 - Checkpoint step: `4357`
 - Modal volume path:
-  - `base_checkpoints/nano-baseline-fp8-full/model_004357.pt`
-  - `base_checkpoints/nano-baseline-fp8-full/meta_004357.json`
+  - `base_checkpoints/nano-swiglu-fp8-full/model_004357.pt`
+  - `base_checkpoints/nano-swiglu-fp8-full/meta_004357.json`
 - Tokenizer (shared 65,536-vocab tokenizer):
   - `tokenizer/tokenizer.pkl`
   - `tokenizer/token_bytes.pt`
@@ -24,7 +24,7 @@ This document freezes the A3 checkpoint used as the Part 2 starting artifact and
 All configs are in `a4/p2/configs/`.
 
 1. `a4p2_pretrained_gsm8k_eval.yaml`
-   - Eval-only on pretrained base checkpoint (`nano-baseline-fp8-full@4357`)
+   - Eval-only on pretrained base checkpoint (`nano-swiglu-fp8-full@4357`)
    - Runs standard `bpb` + custom GSM8K/BPB
 2. `a4p2_sft_original.yaml`
    - SFT run from pretrained checkpoint with original SFT recipe
