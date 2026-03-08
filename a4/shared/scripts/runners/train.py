@@ -62,7 +62,12 @@ class Train:
         prev_final_step = _safe_find_final_step(model_tag, ckpt_subdir)
 
         cmd = _build_cli(args)
-        subprocess.run(cmd, check=True)
+        child_env = os.environ.copy()
+        child_env["PYTHONIOENCODING"] = "utf-8"
+        child_env["PYTHONUTF8"] = "1"
+        child_env.setdefault("LANG", "C.UTF-8")
+        child_env.setdefault("LC_ALL", "C.UTF-8")
+        subprocess.run(cmd, check=True, env=child_env)
 
         # [4] Final step: discover from filesystem to support scripts where
         #     num_iterations may be -1 (e.g. chat_sft full-epoch mode).

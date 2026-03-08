@@ -12,14 +12,14 @@ train:
       init_from_source: base
       init_from_tag: nano-swiglu-fp8-full
       init_from_step: 4357
-      model_tag: a4p2-sft-orig-swiglu
+      model_tag: a4p2-sft-orig-swiglu-v2
       model_step: 4357
       load_optimizer: 1
       num_iterations: -1
-      run: a4p2-sft-original
+      run: a4p2-sft-original-v2
 
 eval:
-  - checkpoint: a4p2-sft-orig-swiglu
+  - checkpoint: a4p2-sft-orig-swiglu-v2
     after_stage: sft_original
     evals: [custom]
     custom_eval: p2/evals/gsm8k_eval_sft.py
