@@ -67,6 +67,11 @@ class Train:
         child_env["PYTHONUTF8"] = "1"
         child_env.setdefault("LANG", "C.UTF-8")
         child_env.setdefault("LC_ALL", "C.UTF-8")
+        child_env.setdefault("WANDB_SILENT", "true")
+        child_env.setdefault("WANDB_CONSOLE", "off")
+        child_env.setdefault("TERM", "dumb")
+        child_env.setdefault("HF_DATASETS_DISABLE_PROGRESS_BARS", "1")
+        child_env.setdefault("TQDM_DISABLE", "1")
         subprocess.run(cmd, check=True, env=child_env)
 
         # [4] Final step: discover from filesystem to support scripts where
@@ -99,7 +104,7 @@ class Train:
 def _build_cli(args: dict) -> list[str]:
     """Convert underscore args to kebab-case CLI flags."""
     script = args.get("script", "scripts.base_train")
-    cmd = ["python", "-m", script]
+    cmd = ["python", "-u", "-m", script]
     reserved = {
         "script",
         "init_from_source",

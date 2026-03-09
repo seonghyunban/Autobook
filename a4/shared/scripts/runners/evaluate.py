@@ -31,6 +31,7 @@ class Evaluate:
         standard_evals: str = "bpb,core",
         custom_eval_script: str | None = None,
         max_per_task: int = -1,
+        custom_eval_output_name: str | None = None,
     ) -> dict:
         """Run standard evals and optionally a custom eval on one checkpoint.
 
@@ -47,6 +48,7 @@ class Evaluate:
             standard_evals: Comma-separated eval names ("bpb", "core", or "bpb,core").
             custom_eval_script: Path to a custom eval script, or None to skip.
             max_per_task: Max examples per CORE task (-1 = full task).
+            custom_eval_output_name: Optional JSON filename for custom eval output.
 
         Returns:
             Dict with train_bpb, val_bpb, core_metric, core_tasks, and
@@ -88,7 +90,7 @@ class Evaluate:
                         results[key] = custom_result[key]
                 if "accuracy" in custom_result:
                     results["custom_accuracy"] = custom_result["accuracy"]
-            _save_custom_eval(checkpoint_tag, step, custom_result)
+            _save_custom_eval(checkpoint_tag, step, custom_result, custom_eval_output_name)
 
         # [5] Commit: persist eval results to the volume
         volume.commit()
@@ -170,14 +172,20 @@ def _run_custom_eval(custom_eval_script: str, checkpoint_tag: str, step: int) ->
     )
 
 
-def _save_custom_eval(checkpoint_tag: str, step: int, custom_result: dict):
+def _save_custom_eval(
+    checkpoint_tag: str,
+    step: int,
+    custom_result: dict,
+    output_name: str | None = None,
+):
     """Save custom eval results as JSON on the volume."""
     import json
     import os
 
     custom_eval_dir = os.path.join(VOLUME_PATH, CUSTOM_EVAL_SUBDIR)
     os.makedirs(custom_eval_dir, exist_ok=True)
-    out_path = os.path.join(custom_eval_dir, f"{checkpoint_tag}_{step:06d}.json")
+    filename = output_name or f"{checkpoint_tag}_{step:06d}.json"
+    out_path = os.path.join(custom_eval_dir, filename)
     with open(out_path, "w") as f:
         json.dump(custom_result, f, indent=2)
     print(f"[eval] Custom eval saved: {out_path}")
