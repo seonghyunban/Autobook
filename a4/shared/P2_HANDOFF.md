@@ -6,10 +6,6 @@ This note is for teammates working on P3 and P4 who need the final P2 artifacts.
 
 ```text
 a4/shared/
-  checkpoint_p2/
-    model_024633.pt
-    meta_024633.json
-    optim_024633_rank0.pt
   configs/
     a4p2/
       a4p2_midtrain_finemath.yaml
@@ -25,32 +21,48 @@ a4/shared/
       final_midtrain_finemath_eval.json
       final_sft_original_eval.json
       final_sft_metamath_eval.json
+  P2_HANDOFF.md
 ```
 
-## Canonical Checkpoint Included Here
+## Canonical Checkpoint For Teammates
 
-The checkpoint copied into `a4/shared/checkpoint_p2/` is the final MetaMath SFT checkpoint:
+The canonical checkpoint to share with teammates is the final MetaMath SFT checkpoint:
 
 - `model_tag`: `a4p2-sft-metamath-swiglu`
 - `source`: `sft`
 - `final_step`: `24633`
 
-Files:
+Required files:
 
-- [model_024633.pt](AI-Accountant/a4/shared/checkpoint_p2/model_024633.pt)
-- [meta_024633.json](AI-Accountant/a4/shared/checkpoint_p2/meta_024633.json)
-- [optim_024633_rank0.pt](AI-Accountant/a4/shared/checkpoint_p2/optim_024633_rank0.pt)
+- `model_024633.pt`
+- `meta_024633.json`
+- `optim_024633_rank0.pt` if they want optimizer-state continuation
 
 This checkpoint matches the final eval result in:
 
 - [final_sft_metamath_eval.json](CSC490/AI-Accountant/a4/shared/results/a4p2/final_sft_metamath_eval.json)
 
-## What Each Shared Item Is For
+## What Should And Should Not Go In GitHub
 
-- `checkpoint_p2/`
-  - Use this if you want to load the final P2 SFT model in your own Modal workspace.
-  - `model + meta` are enough for eval-only or for training with `load_optimizer: 0`.
-  - `optim_024633_rank0.pt` is only needed if you want to continue with optimizer state.
+Commit these to GitHub:
+
+- configs in `a4/shared/configs/a4p2/`
+- eval JSONs in `a4/shared/results/a4p2/`
+- this handoff note
+- small metadata files like `meta_024633.json` if useful
+
+Do not commit these to GitHub:
+
+- `model_*.pt`
+- `optim_*.pt`
+
+Reason:
+
+- the checkpoint binaries are multiple GB each
+- they are too large for normal GitHub use
+- they should be shared through OneDrive, Google Drive, or another external file-sharing method
+
+## What Each Shared Item Is For
 
 - `configs/a4p2/`
   - These are the configs used for the final P2 runs.
@@ -60,9 +72,16 @@ This checkpoint matches the final eval result in:
   - These are the final eval outputs used for comparisons in P2.
   - Use them for report context or to compare against later runs.
 
+- external checkpoint share
+  - This is where teammates should get `model_024633.pt` and `optim_024633_rank0.pt`
+  - `model + meta` are enough for eval-only or for training with `load_optimizer: 0`
+  - `optim_024633_rank0.pt` is only needed if they want to continue with optimizer state
+
 ## If You Are On A Different Modal Workspace
 
 You will not see my Modal volume automatically.
+
+You should get the checkpoint binaries from the external shared drive, not from GitHub.
 
 You need to upload the checkpoint files into your own workspace's Modal volume under the SFT checkpoint directory:
 
@@ -135,9 +154,10 @@ Use `load_optimizer: 0` unless you explicitly want to continue from the optimize
 
 ## Notes
 
-- The shared checkpoint here is the MetaMath SFT final checkpoint, not the original SFT checkpoint.
+- The canonical P2 checkpoint is the MetaMath SFT final checkpoint, not the original SFT checkpoint.
 - The final original SFT eval result is still included in `results/a4p2/`.
-- If you need another checkpoint from P2 that is not in `checkpoint_p2/`, ask before starting a long run.
+- The large `.pt` checkpoint files should be shared outside GitHub.
+- If you need another checkpoint from P2 that is not already on the external shared drive, ask before starting a long run.
 
 ## Git Workflow For P3 And P4
 
