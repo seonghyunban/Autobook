@@ -43,7 +43,7 @@ import os
 import re
 
 # D9 taxonomy rules — order matters (first match wins)
-GSM_RE = re.compile(r"####\s*(\-?[0-9\.\,]+)")
+GSM_RE = re.compile(r"#### (\-?[0-9\.\,]+)")
 CALC_OPEN = re.compile(r"<\|python_start\|>")
 
 

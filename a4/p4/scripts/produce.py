@@ -26,11 +26,12 @@ import matplotlib.pyplot as plt
 # Constants from design-assets.md
 # ---------------------------------------------------------------------------
 
-RUN_ORDER = ["baseline", "separate_a", "separate_b", "separate_c", "separate_d", "combined"]
+RUN_ORDER = ["baseline", "separate_a", "separate_b", "combined_ab", "separate_c", "separate_d", "combined"]
 RUN_LABELS = {
     "baseline": "Baseline",
     "separate_a": "+ A (Format)",
     "separate_b": "+ B (Proximity)",
+    "combined_ab": "A+B",
     "separate_c": "+ C",
     "separate_d": "+ D",
     "combined": "Combined",
@@ -39,6 +40,7 @@ RUN_COLORS = {
     "baseline": "#666666",
     "separate_a": "#1f77b4",
     "separate_b": "#ff7f0e",
+    "combined_ab": "#17becf",
     "separate_c": "#2ca02c",
     "separate_d": "#d62728",
     "combined": "#9467bd",
@@ -47,6 +49,7 @@ RUN_MARKERS = {
     "baseline": "o",
     "separate_a": "s",
     "separate_b": "^",
+    "combined_ab": "P",
     "separate_c": "v",
     "separate_d": "D",
     "combined": "*",
