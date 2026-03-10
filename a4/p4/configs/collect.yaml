@@ -1,0 +1,41 @@
+# Collect config — specifies which runs to pull eval results and W&B metrics for.
+#
+# Usage:
+#   python -m a4.p4.scripts.collect --config a4/p4/configs/collect.yaml
+#
+# Fill in checkpoint_tag, eval_step, and wandb_run_id for each run after training.
+
+output_dir: a4/p4/results/collected
+volume_name: a3-checkpoints
+wandb_project: 490-autobook-a4
+
+runs:
+  - name: baseline
+    checkpoint_tag: TBD        # fill after step 4.1
+    eval_step: 467
+    wandb_run_id: TBD          # fill after run completes
+
+  - name: separate_a
+    checkpoint_tag: TBD
+    eval_step: 467
+    wandb_run_id: TBD
+
+  - name: separate_b
+    checkpoint_tag: TBD
+    eval_step: 467
+    wandb_run_id: TBD
+
+  - name: separate_c
+    checkpoint_tag: TBD
+    eval_step: 467
+    wandb_run_id: TBD
+
+  - name: separate_d
+    checkpoint_tag: TBD
+    eval_step: 467
+    wandb_run_id: TBD
+
+  - name: combined
+    checkpoint_tag: TBD
+    eval_step: 467
+    wandb_run_id: TBD
