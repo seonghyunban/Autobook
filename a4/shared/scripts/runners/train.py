@@ -120,6 +120,10 @@ def _build_cli(args: dict) -> list[str]:
             if value:
                 cmd.append(f"--{cli_key}")
             continue
+        if isinstance(value, list):
+            cmd.append(f"--{cli_key}")
+            cmd.extend(str(v) for v in value)
+            continue
         cmd.append(f"--{cli_key}={value}")
     print(f"[train] Running: {' '.join(cmd)}")
     return cmd
