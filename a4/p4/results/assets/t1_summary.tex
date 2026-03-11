@@ -1,0 +1,15 @@
+\begin{table}[ht]
+\centering
+\caption{Summary of evaluation results across all reward configurations. Best per column in \textbf{bold}. Single run per configuration.}
+\begin{tabular}{lrrrrr}
+\toprule
+Run & Pass@1 (\%) & Pass@8 (\%) & Gap (\%) & Extr.\ Fail (\%) & $\Delta$ Pass@1 \\
+\midrule
+Baseline & 9.7 & 24.9 & \textbf{15.2} & 60.3 & --- \\
+\midrule
++ A (Format) & \textbf{12.3} & \textbf{33.3} & 21.0 & \textbf{34.8} & +2.6 \\
++ B (Proximity) & 10.4 & 26.5 & 16.1 & 53.5 & +0.7 \\
+A+B & 11.9 & 30.3 & 18.3 & 39.6 & +2.2 \\
+\bottomrule
+\end{tabular}
+\end{table}

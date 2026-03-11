@@ -2,8 +2,7 @@
 #
 # Usage:
 #   python -m a4.p4.scripts.collect --config a4/p4/configs/collect.yaml
-#
-# Fill in checkpoint_tag, eval_step, and wandb_run_id for each run after training.
+#   python -m a4.p4.scripts.collect --config a4/p4/configs/collect.yaml --eval-only
 
 output_dir: a4/p4/results/collected
 volume_name: a3-checkpoints
@@ -11,43 +10,25 @@ wandb_project: 490-autobook-a4
 
 runs:
   - name: baseline
-    checkpoint_tag: TBD        # P3 baseline or Phase 6 baseline
-    eval_step: 467
-    wandb_run_id: TBD          # fill after run completes
+    checkpoint_tag: p4-baseline
+    eval_step: 466
+    wandb_run_id: TBD
     num_eval_shards: 8
 
   - name: separate_a
     checkpoint_tag: p4-separate-a
-    eval_step: 467
+    eval_step: 466
     wandb_run_id: TBD
     num_eval_shards: 8
 
   - name: separate_b
     checkpoint_tag: p4-separate-b
-    eval_step: 467
+    eval_step: 466
     wandb_run_id: TBD
     num_eval_shards: 8
 
   - name: combined_ab
     checkpoint_tag: p4-combined-ab
-    eval_step: 467
-    wandb_run_id: TBD
-    num_eval_shards: 8
-
-  - name: separate_c
-    checkpoint_tag: p4-separate-c
-    eval_step: 467
-    wandb_run_id: TBD
-    num_eval_shards: 8
-
-  - name: separate_d
-    checkpoint_tag: p4-separate-d
-    eval_step: 467
-    wandb_run_id: TBD
-    num_eval_shards: 8
-
-  - name: combined
-    checkpoint_tag: p4-combined
-    eval_step: 467
+    eval_step: 466
     wandb_run_id: TBD
     num_eval_shards: 8
