@@ -6,7 +6,7 @@
 #   3. p2_ablation2.yaml  — nanochat_ref: p2-change2 (your second architecture change)
 #
 # For each: copy this file, fill in the values, push your branch to the fork, then run:
-#   modal run --detach a3/shared/scripts/main.py --config a3/p2/configs/p2_baseline.yaml
+#   modal run --detach a4/shared/scripts/main.py --config a4/p2/configs/p2_baseline.yaml
 #
 # Remember: push your branch to the fork BEFORE running. Modal pulls from GitHub, not your laptop.
 

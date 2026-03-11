@@ -1,10 +1,10 @@
 """Local entrypoint — parses YAML config and dispatches to Modal.
 
 Usage:
-    modal run a3/shared/scripts/main.py --config a3/p3/configs/p3_baseline.yaml
+    modal run a4/shared/scripts/main.py --config a4/p3/configs/p3_baseline.yaml
 
 With --detach, the pipeline runs entirely on Modal (survives local disconnects):
-    modal run --detach a3/shared/scripts/main.py --config ...
+    modal run --detach a4/shared/scripts/main.py --config ...
 """
 
 import yaml

@@ -162,7 +162,7 @@ def run_eval(
         })
 
         done = len(samples)
-        if done == 1 or done % 50 == 0 or done == eval_n:
+        if True:
             elapsed = time.time() - t0
             eta = (elapsed / done) * (eval_n - done) if done else 0.0
             any_correct = any(r["correct"] for r in responses)

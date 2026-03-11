@@ -1,6 +1,9 @@
 """Orchestrator — dispatches training stages and evals. Runs on Modal (no GPU)."""
 
-from shared.infra import app, image, setup, volume
+import json
+import os
+
+from shared.infra import CUSTOM_EVAL_SUBDIR, VOLUME_PATH, app, image, setup, volume
 from shared.helpers import partition_stages, resolve_eval_inputs
 from runners.train import Train
 from runners.evaluate import Evaluate
@@ -88,9 +91,10 @@ def run(cfg: dict) -> dict:
     eval_results = []
     if eval_inputs:
         # [4.1.1] Expand sharded evals into individual dispatch items
-        dispatch_items = []  # (base_inp, eval_env, output_name, shard_group_key)
+        dispatch_items = []  # (base_args, eval_env, output_name, shard_group_key)
         for inp in eval_inputs:
             num_shards = inp[7] if len(inp) > 7 else 1
+            config_env = inp[8] if len(inp) > 8 else {}
             base_args = inp[:7]  # (nanochat_ref, checkpoint, step, standard_evals, custom_script, max_per_task, output_name)
 
             if num_shards > 1 and base_args[4]:  # has custom_eval_script
@@ -98,10 +102,10 @@ def run(cfg: dict) -> dict:
                 group_key = f"{tag}@{ckpt_step}"
                 for shard_idx in range(num_shards):
                     shard_output = f"{tag}_{ckpt_step:06d}_shard{shard_idx}of{num_shards}.json"
-                    shard_env = {"P4_EVAL_SHARD_IDX": str(shard_idx), "P4_EVAL_NUM_SHARDS": str(num_shards)}
+                    shard_env = {**config_env, "P4_EVAL_SHARD_IDX": str(shard_idx), "P4_EVAL_NUM_SHARDS": str(num_shards)}
                     dispatch_items.append((base_args, shard_env, shard_output, group_key))
             else:
-                dispatch_items.append((base_args, None, base_args[6], None))
+                dispatch_items.append((base_args, config_env or None, base_args[6], None))
 
         # [4.1.2] Log and spawn
         print(f"\n[pipeline] Spawning {len(dispatch_items)} evals in parallel...")
@@ -135,6 +139,17 @@ def run(cfg: dict) -> dict:
             merged = _merge_shard_results(shard_results)
             eval_results.append(merged)
             _log_eval_result(merged)
+
+            # Save merged result to volume so collect.py can find it
+            tag = merged.get("checkpoint_tag", "unknown")
+            step = merged.get("step", 0)
+            custom_eval_dir = os.path.join(VOLUME_PATH, CUSTOM_EVAL_SUBDIR)
+            os.makedirs(custom_eval_dir, exist_ok=True)
+            merged_path = os.path.join(custom_eval_dir, f"{tag}_{step:06d}.json")
+            with open(merged_path, "w") as f:
+                json.dump(merged.get("custom_eval", merged), f, indent=2)
+            print(f"[pipeline] Saved merged eval: {merged_path}")
+            volume.commit()
 
     # [5] Summary: print final results
     _print_summary(experiment_name, stage_results, eval_results)
@@ -193,6 +208,8 @@ def _log_eval_result(result: dict):
 
 def _merge_shard_results(shard_results: list[dict]) -> dict:
     """Merge custom_eval results from multiple shards into one."""
+    if not shard_results:
+        return {"error": "No shard results to merge (empty shard list)"}
     base = dict(shard_results[0])
     custom = base.get("custom_eval")
     if not isinstance(custom, dict) or "gsm8k_debug" not in custom:

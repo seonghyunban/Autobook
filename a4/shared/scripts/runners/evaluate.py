@@ -72,7 +72,8 @@ class Evaluate:
             results.update(_run_standard_evals(checkpoint_tag, step, standard_evals, max_per_task))
 
         # [3.1] Rename CSV: add model_tag to prevent collisions across checkpoints
-        _rename_core_csv(checkpoint_tag, step)
+        if standard_evals:
+            _rename_core_csv(checkpoint_tag, step)
 
         # [3.2] Parse CSV: extract per-task CORE scores
         csv_path = os.path.join(VOLUME_PATH, EVAL_SUBDIR, f"{checkpoint_tag}_{step:06d}.csv")

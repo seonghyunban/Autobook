@@ -222,8 +222,15 @@ def _sanitize_meta_model_config(meta_path: str):
     if not os.path.exists(meta_path):
         return
 
+    import sys
+    if NANOCHAT_DIR not in sys.path:
+        sys.path.insert(0, NANOCHAT_DIR)
     try:
-        from nanochat.gpt import GPTConfig  # type: ignore
+        # Reload in case a previous checkout cached a different version
+        import importlib
+        import nanochat.gpt as _gpt_mod
+        importlib.reload(_gpt_mod)
+        GPTConfig = _gpt_mod.GPTConfig
     except Exception as e:
         print(f"[train] WARNING: could not import GPTConfig for meta sanitization: {e}")
         return
