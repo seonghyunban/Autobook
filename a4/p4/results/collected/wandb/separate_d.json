@@ -1,0 +1,3275 @@
+{
+  "run_id": "c5fgztym",
+  "run_name": "separate_d",
+  "history": [
+    {
+      "_step": 1,
+      "mean_reward": 1.12109375,
+      "reward/correctness": 0.375,
+      "reward/entity_grounding": 0.74609375,
+      "mean_seq_length": 216.4765625
+    },
+    {
+      "_step": 3,
+      "mean_reward": 1.1139322519302368,
+      "reward/correctness": 0.44921875,
+      "reward/entity_grounding": 0.6647135019302368,
+      "mean_seq_length": 208.8828125
+    },
+    {
+      "_step": 5,
+      "reward/correctness": 0.4453125,
+      "reward/entity_grounding": 0.771484375,
+      "mean_seq_length": 197.4375,
+      "mean_reward": 1.216796875
+    },
+    {
+      "_step": 7,
+      "reward/correctness": 0.4140625,
+      "reward/entity_grounding": 0.8255208134651184,
+      "mean_seq_length": 201.5703125,
+      "mean_reward": 1.2395832538604736
+    },
+    {
+      "_step": 9,
+      "mean_seq_length": 192.34375,
+      "mean_reward": 1.2298177480697632,
+      "reward/correctness": 0.40234375,
+      "reward/entity_grounding": 0.8274739384651184
+    },
+    {
+      "_step": 11,
+      "reward/correctness": 0.42578125,
+      "reward/entity_grounding": 0.7900390625,
+      "mean_seq_length": 198.015625,
+      "mean_reward": 1.2158203125
+    },
+    {
+      "_step": 13,
+      "reward/correctness": 0.51953125,
+      "reward/entity_grounding": 0.783203125,
+      "mean_seq_length": 178.7265625,
+      "mean_reward": 1.302734375
+    },
+    {
+      "_step": 15,
+      "reward/entity_grounding": 0.654296875,
+      "mean_seq_length": 204.609375,
+      "mean_reward": 0.947265625,
+      "reward/correctness": 0.29296875
+    },
+    {
+      "_step": 17,
+      "mean_reward": 0.9329426884651184,
+      "reward/correctness": 0.3359375,
+      "reward/entity_grounding": 0.5970052480697632,
+      "mean_seq_length": 196.1015625
+    },
+    {
+      "_step": 19,
+      "reward/entity_grounding": 0.6484375,
+      "mean_seq_length": 175.08984375,
+      "mean_reward": 1.15234375,
+      "reward/correctness": 0.50390625
+    },
+    {
+      "_step": 21,
+      "reward/entity_grounding": 0.6647135615348816,
+      "mean_seq_length": 201.5625,
+      "mean_reward": 1.1295572519302368,
+      "reward/correctness": 0.46484375
+    },
+    {
+      "_step": 23,
+      "reward/entity_grounding": 0.7399088740348816,
+      "mean_seq_length": 213.4765625,
+      "mean_reward": 1.1656900644302368,
+      "reward/correctness": 0.42578125
+    },
+    {
+      "_step": 25,
+      "mean_reward": 1.2236328125,
+      "reward/correctness": 0.5078125,
+      "reward/entity_grounding": 0.7158203125,
+      "mean_seq_length": 198.74609375
+    },
+    {
+      "_step": 27,
+      "reward/entity_grounding": 0.6119792461395264,
+      "mean_seq_length": 221.5546875,
+      "mean_reward": 0.9049479365348816,
+      "reward/correctness": 0.29296875
+    },
+    {
+      "_step": 29,
+      "mean_reward": 1.306640625,
+      "reward/correctness": 0.44921875,
+      "reward/entity_grounding": 0.857421875,
+      "mean_seq_length": 192.546875
+    },
+    {
+      "_step": 31,
+      "reward/entity_grounding": 0.7248697876930237,
+      "mean_seq_length": 185.84765625,
+      "mean_reward": 1.240494728088379,
+      "reward/correctness": 0.515625
+    },
+    {
+      "_step": 33,
+      "reward/correctness": 0.453125,
+      "reward/entity_grounding": 0.8502604365348816,
+      "mean_seq_length": 208.61328125,
+      "mean_reward": 1.3033854961395264
+    },
+    {
+      "_step": 35,
+      "reward/correctness": 0.52734375,
+      "reward/entity_grounding": 0.696484386920929,
+      "mean_seq_length": 204.76171875,
+      "mean_reward": 1.2238280773162842
+    },
+    {
+      "_step": 37,
+      "mean_reward": 1.3069661855697632,
+      "reward/correctness": 0.53125,
+      "reward/entity_grounding": 0.7757161259651184,
+      "mean_seq_length": 191.39453125
+    },
+    {
+      "_step": 39,
+      "mean_seq_length": 168.359375,
+      "mean_reward": 1.525390625,
+      "reward/correctness": 0.61328125,
+      "reward/entity_grounding": 0.912109375
+    },
+    {
+      "_step": 41,
+      "reward/correctness": 0.45703125,
+      "reward/entity_grounding": 0.7513020634651184,
+      "mean_seq_length": 214.76171875,
+      "mean_reward": 1.2083333730697632
+    },
+    {
+      "_step": 43,
+      "mean_seq_length": 229.08984375,
+      "mean_reward": 0.9889323115348816,
+      "reward/correctness": 0.5078125,
+      "reward/entity_grounding": 0.4811198115348816
+    },
+    {
+      "_step": 45,
+      "mean_reward": 1.3763020038604736,
+      "reward/correctness": 0.53515625,
+      "reward/entity_grounding": 0.8411458730697632,
+      "mean_seq_length": 184.6015625
+    },
+    {
+      "_step": 47,
+      "reward/entity_grounding": 0.7978515625,
+      "mean_seq_length": 204.90234375,
+      "mean_reward": 1.1845703125,
+      "reward/correctness": 0.38671875
+    },
+    {
+      "_step": 49,
+      "mean_reward": 1.0791666507720947,
+      "reward/correctness": 0.3515625,
+      "reward/entity_grounding": 0.7276042103767395,
+      "mean_seq_length": 212.87109375
+    },
+    {
+      "_step": 51,
+      "reward/entity_grounding": 0.7056640386581421,
+      "mean_seq_length": 194.078125,
+      "mean_reward": 1.174414038658142,
+      "reward/correctness": 0.46875
+    },
+    {
+      "_step": 53,
+      "reward/correctness": 0.4453125,
+      "reward/entity_grounding": 0.740234375,
+      "mean_seq_length": 193.78515625,
+      "mean_reward": 1.185546875
+    },
+    {
+      "_step": 55,
+      "reward/correctness": 0.3515625,
+      "reward/entity_grounding": 0.859375,
+      "mean_seq_length": 183.7421875,
+      "mean_reward": 1.2109375
+    },
+    {
+      "_step": 57,
+      "mean_reward": 1.3828125,
+      "reward/correctness": 0.56640625,
+      "reward/entity_grounding": 0.81640625,
+      "mean_seq_length": 202.44921875
+    },
+    {
+      "_step": 59,
+      "mean_reward": 1.1751302480697632,
+      "reward/correctness": 0.3671875,
+      "reward/entity_grounding": 0.8079426884651184,
+      "mean_seq_length": 204.55859375
+    },
+    {
+      "_step": 61,
+      "mean_seq_length": 193.98046875,
+      "mean_reward": 1.2435824871063232,
+      "reward/correctness": 0.51171875,
+      "reward/entity_grounding": 0.7318638563156128
+    },
+    {
+      "_step": 63,
+      "reward/entity_grounding": 0.9052734375,
+      "mean_seq_length": 205.1640625,
+      "mean_reward": 1.3271484375,
+      "reward/correctness": 0.421875
+    },
+    {
+      "_step": 65,
+      "mean_reward": 1.1151258945465088,
+      "reward/correctness": 0.36328125,
+      "reward/entity_grounding": 0.7518446445465088,
+      "mean_seq_length": 201.06640625
+    },
+    {
+      "_step": 67,
+      "mean_seq_length": 197.20703125,
+      "mean_reward": 1.2638888359069824,
+      "reward/correctness": 0.46484375,
+      "reward/entity_grounding": 0.7990451455116272
+    },
+    {
+      "_step": 69,
+      "reward/entity_grounding": 0.794921875,
+      "mean_seq_length": 198.0859375,
+      "mean_reward": 1.205078125,
+      "reward/correctness": 0.41015625
+    },
+    {
+      "_step": 71,
+      "reward/entity_grounding": 0.8723958730697632,
+      "mean_seq_length": 206.41796875,
+      "mean_reward": 1.2864582538604736,
+      "reward/correctness": 0.4140625
+    },
+    {
+      "_step": 73,
+      "reward/correctness": 0.3671875,
+      "reward/entity_grounding": 0.849609375,
+      "mean_seq_length": 201.4609375,
+      "mean_reward": 1.216796875
+    },
+    {
+      "_step": 75,
+      "reward/entity_grounding": 0.77734375,
+      "mean_seq_length": 184.34375,
+      "mean_reward": 1.27734375,
+      "reward/correctness": 0.5
+    },
+    {
+      "_step": 77,
+      "mean_seq_length": 206.34765625,
+      "mean_reward": 1.3388671875,
+      "reward/correctness": 0.484375,
+      "reward/entity_grounding": 0.8544922471046448
+    },
+    {
+      "_step": 79,
+      "reward/correctness": 0.37109375,
+      "reward/entity_grounding": 0.7035156488418579,
+      "mean_seq_length": 199.89453125,
+      "mean_reward": 1.074609398841858
+    },
+    {
+      "_step": 81,
+      "mean_reward": 1.21484375,
+      "reward/correctness": 0.4140625,
+      "reward/entity_grounding": 0.80078125,
+      "mean_seq_length": 203.203125
+    },
+    {
+      "_step": 83,
+      "reward/correctness": 0.47265625,
+      "reward/entity_grounding": 0.8192708492279053,
+      "mean_seq_length": 192.375,
+      "mean_reward": 1.2919270992279053
+    },
+    {
+      "_step": 85,
+      "reward/entity_grounding": 0.8929687738418579,
+      "mean_seq_length": 194.453125,
+      "mean_reward": 1.4789061546325684,
+      "reward/correctness": 0.5859375
+    },
+    {
+      "_step": 87,
+      "reward/correctness": 0.49609375,
+      "reward/entity_grounding": 0.78125,
+      "mean_seq_length": 206.38671875,
+      "mean_reward": 1.27734375
+    },
+    {
+      "_step": 89,
+      "reward/correctness": 0.234375,
+      "reward/entity_grounding": 0.8789063096046448,
+      "mean_seq_length": 207.96875,
+      "mean_reward": 1.11328125
+    },
+    {
+      "_step": 91,
+      "reward/entity_grounding": 0.853515625,
+      "mean_seq_length": 208.29296875,
+      "mean_reward": 1.193359375,
+      "reward/correctness": 0.33984375
+    },
+    {
+      "_step": 93,
+      "mean_reward": 1.1708984375,
+      "reward/correctness": 0.3203125,
+      "reward/entity_grounding": 0.8505859375,
+      "mean_seq_length": 237.328125
+    },
+    {
+      "_step": 95,
+      "reward/entity_grounding": 0.9052734375,
+      "mean_seq_length": 200.515625,
+      "mean_reward": 1.4677734375,
+      "reward/correctness": 0.5625
+    },
+    {
+      "_step": 97,
+      "mean_seq_length": 206.42578125,
+      "mean_reward": 1.3704426288604736,
+      "reward/correctness": 0.4296875,
+      "reward/entity_grounding": 0.9407552480697632
+    },
+    {
+      "_step": 99,
+      "reward/entity_grounding": 0.7578125,
+      "mean_seq_length": 183.01953125,
+      "mean_reward": 1.35546875,
+      "reward/correctness": 0.59765625
+    },
+    {
+      "_step": 101,
+      "reward/entity_grounding": 0.8186197876930237,
+      "mean_seq_length": 192.6796875,
+      "mean_reward": 1.345963478088379,
+      "reward/correctness": 0.52734375
+    },
+    {
+      "_step": 103,
+      "reward/correctness": 0.32421875,
+      "reward/entity_grounding": 0.8528646230697632,
+      "mean_seq_length": 196.69140625,
+      "mean_reward": 1.1770833730697632
+    },
+    {
+      "_step": 105,
+      "mean_reward": 1.40234375,
+      "reward/correctness": 0.515625,
+      "reward/entity_grounding": 0.88671875,
+      "mean_seq_length": 182.19140625
+    },
+    {
+      "_step": 107,
+      "reward/entity_grounding": 0.7804036140441895,
+      "mean_seq_length": 182.1640625,
+      "mean_reward": 1.1905598640441895,
+      "reward/correctness": 0.41015625
+    },
+    {
+      "_step": 109,
+      "reward/entity_grounding": 0.7718099355697632,
+      "mean_seq_length": 203.13671875,
+      "mean_reward": 1.1155598163604736,
+      "reward/correctness": 0.34375
+    },
+    {
+      "_step": 111,
+      "reward/correctness": 0.4375,
+      "reward/entity_grounding": 0.7769531607627869,
+      "mean_seq_length": 182.22265625,
+      "mean_reward": 1.214453101158142
+    },
+    {
+      "_step": 113,
+      "reward/entity_grounding": 0.7805989980697632,
+      "mean_seq_length": 206.81640625,
+      "mean_reward": 1.1204427480697632,
+      "reward/correctness": 0.33984375
+    },
+    {
+      "_step": 115,
+      "mean_reward": 1.4095052480697632,
+      "reward/correctness": 0.5625,
+      "reward/entity_grounding": 0.8470051884651184,
+      "mean_seq_length": 187.109375
+    },
+    {
+      "_step": 117,
+      "reward/correctness": 0.51171875,
+      "reward/entity_grounding": 0.78515625,
+      "mean_seq_length": 200.87109375,
+      "mean_reward": 1.296875
+    },
+    {
+      "_step": 119,
+      "reward/entity_grounding": 0.6888021230697632,
+      "mean_seq_length": 213.51171875,
+      "mean_reward": 1.0403645038604736,
+      "reward/correctness": 0.3515625
+    },
+    {
+      "_step": 122,
+      "mean_reward": 1.15625,
+      "reward/correctness": 0.3515625,
+      "reward/entity_grounding": 0.8046875,
+      "mean_seq_length": 196.8046875
+    },
+    {
+      "_step": 124,
+      "mean_reward": 1.3059896230697632,
+      "reward/correctness": 0.55859375,
+      "reward/entity_grounding": 0.7473958730697632,
+      "mean_seq_length": 169.33203125
+    },
+    {
+      "_step": 126,
+      "reward/entity_grounding": 0.69921875,
+      "mean_seq_length": 201.0546875,
+      "mean_reward": 1.1796875,
+      "reward/correctness": 0.48046875
+    },
+    {
+      "_step": 128,
+      "mean_seq_length": 187.74609375,
+      "mean_reward": 1.337890625,
+      "reward/correctness": 0.453125,
+      "reward/entity_grounding": 0.884765625
+    },
+    {
+      "_step": 130,
+      "reward/correctness": 0.5,
+      "reward/entity_grounding": 0.736328125,
+      "mean_seq_length": 201.34765625,
+      "mean_reward": 1.236328125
+    },
+    {
+      "_step": 132,
+      "mean_reward": 1.0481771230697632,
+      "reward/correctness": 0.3984375,
+      "reward/entity_grounding": 0.6497396230697632,
+      "mean_seq_length": 214.03125
+    },
+    {
+      "_step": 134,
+      "reward/entity_grounding": 0.86328125,
+      "mean_seq_length": 197.1640625,
+      "mean_reward": 1.2265625,
+      "reward/correctness": 0.36328125
+    },
+    {
+      "_step": 136,
+      "mean_reward": 1.193359375,
+      "reward/correctness": 0.43359375,
+      "reward/entity_grounding": 0.759765625,
+      "mean_seq_length": 206.578125
+    },
+    {
+      "_step": 138,
+      "reward/correctness": 0.30859375,
+      "reward/entity_grounding": 0.8522135615348816,
+      "mean_seq_length": 198.1640625,
+      "mean_reward": 1.1608073711395264
+    },
+    {
+      "_step": 140,
+      "mean_reward": 1.2890625,
+      "reward/correctness": 0.42578125,
+      "reward/entity_grounding": 0.86328125,
+      "mean_seq_length": 201.62109375
+    },
+    {
+      "_step": 142,
+      "mean_reward": 1.248046875,
+      "reward/correctness": 0.359375,
+      "reward/entity_grounding": 0.888671875,
+      "mean_seq_length": 203.1875
+    },
+    {
+      "_step": 144,
+      "reward/entity_grounding": 0.7376302480697632,
+      "mean_seq_length": 209.75390625,
+      "mean_reward": 1.0423176288604736,
+      "reward/correctness": 0.3046875
+    },
+    {
+      "_step": 146,
+      "mean_reward": 1.1484375,
+      "reward/correctness": 0.36328125,
+      "reward/entity_grounding": 0.78515625,
+      "mean_seq_length": 201.13671875
+    },
+    {
+      "_step": 148,
+      "reward/entity_grounding": 0.8115885257720947,
+      "mean_seq_length": 221.24609375,
+      "mean_reward": 1.1826822757720947,
+      "reward/correctness": 0.37109375
+    },
+    {
+      "_step": 150,
+      "reward/entity_grounding": 0.8014323711395264,
+      "mean_seq_length": 208.13671875,
+      "mean_reward": 1.2311197519302368,
+      "reward/correctness": 0.4296875
+    },
+    {
+      "_step": 152,
+      "reward/entity_grounding": 0.9010416865348816,
+      "mean_seq_length": 168.765625,
+      "mean_reward": 1.4869791269302368,
+      "reward/correctness": 0.5859375
+    },
+    {
+      "_step": 154,
+      "mean_seq_length": 192.09375,
+      "mean_reward": 1.23046875,
+      "reward/correctness": 0.34375,
+      "reward/entity_grounding": 0.88671875
+    },
+    {
+      "_step": 156,
+      "reward/entity_grounding": 0.8020833134651184,
+      "mean_seq_length": 169.3828125,
+      "mean_reward": 1.2083333730697632,
+      "reward/correctness": 0.40625
+    },
+    {
+      "_step": 158,
+      "reward/entity_grounding": 0.7799479365348816,
+      "mean_seq_length": 197.75390625,
+      "mean_reward": 1.1158854961395264,
+      "reward/correctness": 0.3359375
+    },
+    {
+      "_step": 160,
+      "mean_seq_length": 205.41015625,
+      "mean_reward": 1.0790364742279053,
+      "reward/correctness": 0.24609375,
+      "reward/entity_grounding": 0.8329427242279053
+    },
+    {
+      "_step": 162,
+      "reward/correctness": 0.45703125,
+      "reward/entity_grounding": 0.728515625,
+      "mean_seq_length": 194.34375,
+      "mean_reward": 1.185546875
+    },
+    {
+      "_step": 164,
+      "mean_reward": 1.1433919668197632,
+      "reward/correctness": 0.25390625,
+      "reward/entity_grounding": 0.8894856572151184,
+      "mean_seq_length": 197.828125
+    },
+    {
+      "_step": 166,
+      "reward/entity_grounding": 0.74609375,
+      "mean_seq_length": 173.78515625,
+      "mean_reward": 1.0078125,
+      "reward/correctness": 0.26171875
+    },
+    {
+      "_step": 168,
+      "reward/entity_grounding": 0.7086588740348816,
+      "mean_seq_length": 198.26953125,
+      "mean_reward": 0.9195963144302368,
+      "reward/correctness": 0.2109375
+    },
+    {
+      "_step": 170,
+      "reward/entity_grounding": 0.7688802480697632,
+      "mean_seq_length": 197.9921875,
+      "mean_reward": 1.0266927480697632,
+      "reward/correctness": 0.2578125
+    },
+    {
+      "_step": 172,
+      "mean_seq_length": 184.50390625,
+      "mean_reward": 1.1182291507720947,
+      "reward/correctness": 0.33203125,
+      "reward/entity_grounding": 0.7861979007720947
+    },
+    {
+      "_step": 174,
+      "mean_reward": 1.0989583730697632,
+      "reward/correctness": 0.25,
+      "reward/entity_grounding": 0.8489583134651184,
+      "mean_seq_length": 192.2578125
+    },
+    {
+      "_step": 176,
+      "mean_reward": 1.1640625,
+      "reward/correctness": 0.20703125,
+      "reward/entity_grounding": 0.95703125,
+      "mean_seq_length": 184.8125
+    },
+    {
+      "_step": 178,
+      "mean_reward": 1.039453148841858,
+      "reward/correctness": 0.26171875,
+      "reward/entity_grounding": 0.7777343988418579,
+      "mean_seq_length": 181.33984375
+    },
+    {
+      "_step": 180,
+      "mean_seq_length": 193.4765625,
+      "mean_reward": 0.9833984375,
+      "reward/correctness": 0.24609375,
+      "reward/entity_grounding": 0.7373046875
+    },
+    {
+      "_step": 182,
+      "mean_seq_length": 168.16796875,
+      "mean_reward": 1.267578125,
+      "reward/correctness": 0.39453125,
+      "reward/entity_grounding": 0.873046875
+    },
+    {
+      "_step": 184,
+      "mean_reward": 0.9986979365348816,
+      "reward/correctness": 0.3359375,
+      "reward/entity_grounding": 0.6627603769302368,
+      "mean_seq_length": 179.7890625
+    },
+    {
+      "_step": 186,
+      "reward/entity_grounding": 0.6930338740348816,
+      "mean_seq_length": 182.60546875,
+      "mean_reward": 0.8414713740348816,
+      "reward/correctness": 0.1484375
+    },
+    {
+      "_step": 188,
+      "reward/entity_grounding": 0.6341146230697632,
+      "mean_seq_length": 172.34375,
+      "mean_reward": 0.8919270634651184,
+      "reward/correctness": 0.2578125
+    },
+    {
+      "_step": 190,
+      "reward/correctness": 0.1328125,
+      "reward/entity_grounding": 0.7473958730697632,
+      "mean_seq_length": 189.18359375,
+      "mean_reward": 0.8802083134651184
+    },
+    {
+      "_step": 192,
+      "mean_seq_length": 173.38671875,
+      "mean_reward": 1.025390625,
+      "reward/correctness": 0.2265625,
+      "reward/entity_grounding": 0.798828125
+    },
+    {
+      "_step": 194,
+      "reward/entity_grounding": 0.806640625,
+      "mean_seq_length": 185.9296875,
+      "mean_reward": 0.974609375,
+      "reward/correctness": 0.16796875
+    },
+    {
+      "_step": 196,
+      "reward/correctness": 0.23828125,
+      "reward/entity_grounding": 0.98046875,
+      "mean_seq_length": 174.85546875,
+      "mean_reward": 1.21875
+    },
+    {
+      "_step": 198,
+      "reward/correctness": 0.1875,
+      "reward/entity_grounding": 0.735156238079071,
+      "mean_seq_length": 191.92578125,
+      "mean_reward": 0.922656238079071
+    },
+    {
+      "_step": 200,
+      "reward/correctness": 0.234375,
+      "reward/entity_grounding": 0.83984375,
+      "mean_seq_length": 175.7578125,
+      "mean_reward": 1.07421875
+    },
+    {
+      "_step": 202,
+      "reward/correctness": 0.1953125,
+      "reward/entity_grounding": 0.6131510734558105,
+      "mean_seq_length": 186.171875,
+      "mean_reward": 0.8084635734558105
+    },
+    {
+      "_step": 204,
+      "reward/correctness": 0.109375,
+      "reward/entity_grounding": 0.7684245109558105,
+      "mean_seq_length": 186.7265625,
+      "mean_reward": 0.8777995109558105
+    },
+    {
+      "_step": 206,
+      "reward/entity_grounding": 0.6875,
+      "mean_seq_length": 190.7890625,
+      "mean_reward": 0.7890625,
+      "reward/correctness": 0.1015625
+    },
+    {
+      "_step": 208,
+      "reward/entity_grounding": 0.6770833730697632,
+      "mean_seq_length": 202.2578125,
+      "mean_reward": 0.8841146230697632,
+      "reward/correctness": 0.20703125
+    },
+    {
+      "_step": 210,
+      "reward/correctness": 0.14453125,
+      "reward/entity_grounding": 0.7041015625,
+      "mean_seq_length": 205.35546875,
+      "mean_reward": 0.8486328125
+    },
+    {
+      "_step": 212,
+      "reward/correctness": 0.26171875,
+      "reward/entity_grounding": 0.822265625,
+      "mean_seq_length": 165.9609375,
+      "mean_reward": 1.083984375
+    },
+    {
+      "_step": 214,
+      "reward/entity_grounding": 0.806640625,
+      "mean_seq_length": 199.94140625,
+      "mean_reward": 1.001953125,
+      "reward/correctness": 0.1953125
+    },
+    {
+      "_step": 216,
+      "reward/correctness": 0.203125,
+      "reward/entity_grounding": 0.763671875,
+      "mean_seq_length": 202.41015625,
+      "mean_reward": 0.966796875
+    },
+    {
+      "_step": 218,
+      "reward/correctness": 0.1953125,
+      "reward/entity_grounding": 0.505664050579071,
+      "mean_seq_length": 214.40234375,
+      "mean_reward": 0.7009766101837158
+    },
+    {
+      "_step": 220,
+      "reward/entity_grounding": 0.5914062261581421,
+      "mean_seq_length": 205.64453125,
+      "mean_reward": 0.7984374761581421,
+      "reward/correctness": 0.20703125
+    },
+    {
+      "_step": 222,
+      "mean_seq_length": 207.54296875,
+      "mean_reward": 1.009765625,
+      "reward/correctness": 0.1953125,
+      "reward/entity_grounding": 0.814453125
+    },
+    {
+      "_step": 224,
+      "mean_seq_length": 208.58984375,
+      "mean_reward": 0.957812488079071,
+      "reward/correctness": 0.24609375,
+      "reward/entity_grounding": 0.711718738079071
+    },
+    {
+      "_step": 226,
+      "reward/correctness": 0.18359375,
+      "reward/entity_grounding": 0.8404017686843872,
+      "mean_seq_length": 226.98046875,
+      "mean_reward": 1.0239955186843872
+    },
+    {
+      "_step": 228,
+      "reward/entity_grounding": 0.584765613079071,
+      "mean_seq_length": 225.02734375,
+      "mean_reward": 0.698046863079071,
+      "reward/correctness": 0.11328125
+    },
+    {
+      "_step": 230,
+      "reward/correctness": 0.1640625,
+      "reward/entity_grounding": 0.6380022168159485,
+      "mean_seq_length": 243.42578125,
+      "mean_reward": 0.8020647168159485
+    },
+    {
+      "_step": 232,
+      "reward/entity_grounding": 0.7041666507720947,
+      "mean_seq_length": 160.21875,
+      "mean_reward": 0.8721354603767395,
+      "reward/correctness": 0.16796875
+    },
+    {
+      "_step": 234,
+      "reward/entity_grounding": 0.515625,
+      "mean_seq_length": 149.60546875,
+      "mean_reward": 0.671875,
+      "reward/correctness": 0.15625
+    },
+    {
+      "_step": 236,
+      "reward/entity_grounding": 0.7760416865348816,
+      "mean_seq_length": 149.15234375,
+      "mean_reward": 0.9283854365348816,
+      "reward/correctness": 0.15234375
+    },
+    {
+      "_step": 238,
+      "mean_reward": 0.8548177480697632,
+      "reward/correctness": 0.26953125,
+      "reward/entity_grounding": 0.5852864980697632,
+      "mean_seq_length": 141.546875
+    },
+    {
+      "_step": 240,
+      "mean_reward": 0.720703125,
+      "reward/correctness": 0.15625,
+      "reward/entity_grounding": 0.564453125,
+      "mean_seq_length": 136.6171875
+    },
+    {
+      "_step": 243,
+      "reward/correctness": 0.24609375,
+      "reward/entity_grounding": 0.5872396230697632,
+      "mean_seq_length": 156.6796875,
+      "mean_reward": 0.8333333730697632
+    },
+    {
+      "_step": 245,
+      "reward/entity_grounding": 0.6773437261581421,
+      "mean_seq_length": 157.64453125,
+      "mean_reward": 0.7554687261581421,
+      "reward/correctness": 0.078125
+    },
+    {
+      "_step": 247,
+      "reward/entity_grounding": 0.7711588740348816,
+      "mean_seq_length": 144.5,
+      "mean_reward": 0.9274088144302368,
+      "reward/correctness": 0.15625
+    },
+    {
+      "_step": 249,
+      "reward/entity_grounding": 0.81640625,
+      "mean_seq_length": 132.48046875,
+      "mean_reward": 0.9453125,
+      "reward/correctness": 0.12890625
+    },
+    {
+      "_step": 251,
+      "reward/entity_grounding": 0.75,
+      "mean_seq_length": 164.04296875,
+      "mean_reward": 0.8828125,
+      "reward/correctness": 0.1328125
+    },
+    {
+      "_step": 253,
+      "reward/entity_grounding": 0.73828125,
+      "mean_seq_length": 131.28125,
+      "mean_reward": 0.90234375,
+      "reward/correctness": 0.1640625
+    },
+    {
+      "_step": 255,
+      "mean_seq_length": 155.71875,
+      "mean_reward": 0.8203125,
+      "reward/correctness": 0.09375,
+      "reward/entity_grounding": 0.7265625
+    },
+    {
+      "_step": 257,
+      "mean_seq_length": 138.3359375,
+      "mean_reward": 0.6884765625,
+      "reward/correctness": 0.0703125,
+      "reward/entity_grounding": 0.6181640625
+    },
+    {
+      "_step": 259,
+      "reward/correctness": 0.1796875,
+      "reward/entity_grounding": 0.7786458730697632,
+      "mean_seq_length": 142.17578125,
+      "mean_reward": 0.9583333730697632
+    },
+    {
+      "_step": 261,
+      "reward/correctness": 0.11328125,
+      "reward/entity_grounding": 0.5445963144302368,
+      "mean_seq_length": 151.796875,
+      "mean_reward": 0.6578775644302368
+    },
+    {
+      "_step": 263,
+      "reward/entity_grounding": 0.7223307490348816,
+      "mean_seq_length": 147.2734375,
+      "mean_reward": 0.8199869990348816,
+      "reward/correctness": 0.09765625
+    },
+    {
+      "_step": 265,
+      "reward/correctness": 0.16015625,
+      "reward/entity_grounding": 0.6567057371139526,
+      "mean_seq_length": 147.58203125,
+      "mean_reward": 0.8168619871139526
+    },
+    {
+      "_step": 267,
+      "mean_seq_length": 154.23828125,
+      "mean_reward": 1.01953125,
+      "reward/correctness": 0.19921875,
+      "reward/entity_grounding": 0.8203125
+    },
+    {
+      "_step": 269,
+      "mean_seq_length": 138.70703125,
+      "mean_reward": 0.910342276096344,
+      "reward/correctness": 0.19921875,
+      "reward/entity_grounding": 0.711123526096344
+    },
+    {
+      "_step": 271,
+      "reward/entity_grounding": 0.701171875,
+      "mean_seq_length": 133.76953125,
+      "mean_reward": 0.974609375,
+      "reward/correctness": 0.2734375
+    },
+    {
+      "_step": 273,
+      "mean_seq_length": 142.91015625,
+      "mean_reward": 1.0050780773162842,
+      "reward/correctness": 0.265625,
+      "reward/entity_grounding": 0.739453136920929
+    },
+    {
+      "_step": 275,
+      "reward/correctness": 0.19921875,
+      "reward/entity_grounding": 0.81640625,
+      "mean_seq_length": 145.24609375,
+      "mean_reward": 1.015625
+    },
+    {
+      "_step": 277,
+      "reward/entity_grounding": 0.6520182490348816,
+      "mean_seq_length": 148.31640625,
+      "mean_reward": 0.8824869394302368,
+      "reward/correctness": 0.23046875
+    },
+    {
+      "_step": 279,
+      "reward/entity_grounding": 0.693359375,
+      "mean_seq_length": 132.37890625,
+      "mean_reward": 0.837890625,
+      "reward/correctness": 0.14453125
+    },
+    {
+      "_step": 281,
+      "reward/correctness": 0.27734375,
+      "reward/entity_grounding": 0.7153646349906921,
+      "mean_seq_length": 148.45703125,
+      "mean_reward": 0.9927083849906921
+    },
+    {
+      "_step": 283,
+      "mean_reward": 1.0755207538604736,
+      "reward/correctness": 0.28125,
+      "reward/entity_grounding": 0.7942708134651184,
+      "mean_seq_length": 164.85546875
+    },
+    {
+      "_step": 285,
+      "reward/correctness": 0.28125,
+      "reward/entity_grounding": 0.7174478769302368,
+      "mean_seq_length": 142.9296875,
+      "mean_reward": 0.9986979365348816
+    },
+    {
+      "_step": 287,
+      "reward/entity_grounding": 0.689453125,
+      "mean_seq_length": 129.390625,
+      "mean_reward": 0.876953125,
+      "reward/correctness": 0.1875
+    },
+    {
+      "_step": 289,
+      "reward/entity_grounding": 0.5890997052192688,
+      "mean_seq_length": 149.9453125,
+      "mean_reward": 0.6906622052192688,
+      "reward/correctness": 0.1015625
+    },
+    {
+      "_step": 291,
+      "reward/entity_grounding": 0.7747395634651184,
+      "mean_seq_length": 138.296875,
+      "mean_reward": 1.0638020038604736,
+      "reward/correctness": 0.2890625
+    },
+    {
+      "_step": 293,
+      "reward/entity_grounding": 0.7890625,
+      "mean_seq_length": 132.21875,
+      "mean_reward": 1.0625,
+      "reward/correctness": 0.2734375
+    },
+    {
+      "_step": 295,
+      "reward/entity_grounding": 0.6103515625,
+      "mean_seq_length": 144.22265625,
+      "mean_reward": 0.7587890625,
+      "reward/correctness": 0.1484375
+    },
+    {
+      "_step": 297,
+      "reward/correctness": 0.171875,
+      "reward/entity_grounding": 0.7099609375,
+      "mean_seq_length": 142.2265625,
+      "mean_reward": 0.8818359375
+    },
+    {
+      "_step": 299,
+      "reward/correctness": 0.32421875,
+      "reward/entity_grounding": 0.7220051884651184,
+      "mean_seq_length": 140.82421875,
+      "mean_reward": 1.0462238788604736
+    },
+    {
+      "_step": 301,
+      "reward/entity_grounding": 0.712890625,
+      "mean_seq_length": 142.1953125,
+      "mean_reward": 0.923828125,
+      "reward/correctness": 0.2109375
+    },
+    {
+      "_step": 303,
+      "reward/correctness": 0.24609375,
+      "reward/entity_grounding": 0.7317708730697632,
+      "mean_seq_length": 155.203125,
+      "mean_reward": 0.9778645634651184
+    },
+    {
+      "_step": 305,
+      "mean_reward": 1.0671875476837158,
+      "reward/correctness": 0.3671875,
+      "reward/entity_grounding": 0.699999988079071,
+      "mean_seq_length": 136.890625
+    },
+    {
+      "_step": 307,
+      "reward/correctness": 0.11328125,
+      "reward/entity_grounding": 0.7847656011581421,
+      "mean_seq_length": 126.6171875,
+      "mean_reward": 0.8980468511581421
+    },
+    {
+      "_step": 309,
+      "reward/correctness": 0.21484375,
+      "reward/entity_grounding": 0.6412109136581421,
+      "mean_seq_length": 130.01171875,
+      "mean_reward": 0.8560546636581421
+    },
+    {
+      "_step": 311,
+      "reward/correctness": 0.16796875,
+      "reward/entity_grounding": 0.69140625,
+      "mean_seq_length": 145.2265625,
+      "mean_reward": 0.859375
+    },
+    {
+      "_step": 313,
+      "mean_seq_length": 134.70703125,
+      "mean_reward": 0.960565447807312,
+      "reward/correctness": 0.26171875,
+      "reward/entity_grounding": 0.698846697807312
+    },
+    {
+      "_step": 315,
+      "mean_reward": 0.7389323115348816,
+      "reward/correctness": 0.1796875,
+      "reward/entity_grounding": 0.5592448115348816,
+      "mean_seq_length": 149.078125
+    },
+    {
+      "_step": 317,
+      "reward/correctness": 0.21484375,
+      "reward/entity_grounding": 0.76171875,
+      "mean_seq_length": 136.62890625,
+      "mean_reward": 0.9765625
+    },
+    {
+      "_step": 319,
+      "mean_reward": 1.2578125,
+      "reward/correctness": 0.421875,
+      "reward/entity_grounding": 0.8359375,
+      "mean_seq_length": 161.08203125
+    },
+    {
+      "_step": 321,
+      "mean_seq_length": 149.8515625,
+      "mean_reward": 0.9039062261581421,
+      "reward/correctness": 0.20703125,
+      "reward/entity_grounding": 0.6968749761581421
+    },
+    {
+      "_step": 323,
+      "mean_reward": 0.9093424081802368,
+      "reward/correctness": 0.26953125,
+      "reward/entity_grounding": 0.6398112177848816,
+      "mean_seq_length": 127.0703125
+    },
+    {
+      "_step": 325,
+      "reward/entity_grounding": 0.771484375,
+      "mean_seq_length": 126.0546875,
+      "mean_reward": 1.060546875,
+      "reward/correctness": 0.2890625
+    },
+    {
+      "_step": 327,
+      "mean_reward": 0.8837890625,
+      "reward/correctness": 0.20703125,
+      "reward/entity_grounding": 0.6767578125,
+      "mean_seq_length": 139.85546875
+    },
+    {
+      "_step": 329,
+      "mean_reward": 1.0338541269302368,
+      "reward/correctness": 0.2421875,
+      "reward/entity_grounding": 0.7916666865348816,
+      "mean_seq_length": 151.48828125
+    },
+    {
+      "_step": 331,
+      "reward/entity_grounding": 0.6240234375,
+      "mean_seq_length": 140.62109375,
+      "mean_reward": 0.9052734375,
+      "reward/correctness": 0.28125
+    },
+    {
+      "_step": 333,
+      "reward/entity_grounding": 0.8411458730697632,
+      "mean_seq_length": 147.375,
+      "mean_reward": 1.1497396230697632,
+      "reward/correctness": 0.30859375
+    },
+    {
+      "_step": 335,
+      "reward/entity_grounding": 0.7578125,
+      "mean_seq_length": 147.7578125,
+      "mean_reward": 1.0390625,
+      "reward/correctness": 0.28125
+    },
+    {
+      "_step": 337,
+      "reward/correctness": 0.30078125,
+      "reward/entity_grounding": 0.90625,
+      "mean_seq_length": 155.94140625,
+      "mean_reward": 1.20703125
+    },
+    {
+      "_step": 339,
+      "mean_reward": 1.1536457538604736,
+      "reward/correctness": 0.37109375,
+      "reward/entity_grounding": 0.7825520634651184,
+      "mean_seq_length": 155.33203125
+    },
+    {
+      "_step": 341,
+      "mean_seq_length": 152.953125,
+      "mean_reward": 1.2041015625,
+      "reward/correctness": 0.33203125,
+      "reward/entity_grounding": 0.8720703125
+    },
+    {
+      "_step": 343,
+      "reward/entity_grounding": 0.76171875,
+      "mean_seq_length": 143.56640625,
+      "mean_reward": 1.03125,
+      "reward/correctness": 0.26953125
+    },
+    {
+      "_step": 345,
+      "mean_reward": 1.1904296875,
+      "reward/correctness": 0.359375,
+      "reward/entity_grounding": 0.8310546875,
+      "mean_seq_length": 145.2421875
+    },
+    {
+      "_step": 347,
+      "reward/entity_grounding": 0.8216146230697632,
+      "mean_seq_length": 146.07421875,
+      "mean_reward": 1.0520833730697632,
+      "reward/correctness": 0.23046875
+    },
+    {
+      "_step": 349,
+      "mean_reward": 1.1178386211395264,
+      "reward/correctness": 0.3125,
+      "reward/entity_grounding": 0.8053385615348816,
+      "mean_seq_length": 156.66796875
+    },
+    {
+      "_step": 351,
+      "reward/entity_grounding": 0.7288411259651184,
+      "mean_seq_length": 151.41796875,
+      "mean_reward": 1.1194661855697632,
+      "reward/correctness": 0.390625
+    },
+    {
+      "_step": 353,
+      "reward/correctness": 0.3046875,
+      "reward/entity_grounding": 0.6126301884651184,
+      "mean_seq_length": 153.87109375,
+      "mean_reward": 0.9173177480697632
+    },
+    {
+      "_step": 355,
+      "reward/correctness": 0.3125,
+      "reward/entity_grounding": 0.7649274468421936,
+      "mean_seq_length": 140.0859375,
+      "mean_reward": 1.0774275064468384
+    },
+    {
+      "_step": 357,
+      "reward/entity_grounding": 0.7571614980697632,
+      "mean_seq_length": 141.140625,
+      "mean_reward": 1.1243489980697632,
+      "reward/correctness": 0.3671875
+    },
+    {
+      "_step": 359,
+      "mean_seq_length": 134.4296875,
+      "mean_reward": 0.8447917103767395,
+      "reward/correctness": 0.15234375,
+      "reward/entity_grounding": 0.6924479007720947
+    },
+    {
+      "_step": 361,
+      "mean_seq_length": 137.58984375,
+      "mean_reward": 1.1197916269302368,
+      "reward/correctness": 0.4609375,
+      "reward/entity_grounding": 0.6588541865348816
+    },
+    {
+      "_step": 364,
+      "reward/entity_grounding": 0.6819661855697632,
+      "mean_seq_length": 167.0234375,
+      "mean_reward": 0.9944661855697632,
+      "reward/correctness": 0.3125
+    },
+    {
+      "_step": 366,
+      "reward/entity_grounding": 0.828125,
+      "mean_seq_length": 141.48046875,
+      "mean_reward": 1.140625,
+      "reward/correctness": 0.3125
+    },
+    {
+      "_step": 368,
+      "reward/correctness": 0.296875,
+      "reward/entity_grounding": 0.8206380605697632,
+      "mean_seq_length": 149.5078125,
+      "mean_reward": 1.1175129413604736
+    },
+    {
+      "_step": 370,
+      "mean_reward": 0.9951171875,
+      "reward/correctness": 0.26953125,
+      "reward/entity_grounding": 0.7255859375,
+      "mean_seq_length": 144.21484375
+    },
+    {
+      "_step": 372,
+      "reward/entity_grounding": 0.769335925579071,
+      "mean_seq_length": 138.796875,
+      "mean_reward": 1.2146484851837158,
+      "reward/correctness": 0.4453125
+    },
+    {
+      "_step": 374,
+      "reward/correctness": 0.3203125,
+      "reward/entity_grounding": 0.8247395753860474,
+      "mean_seq_length": 141.984375,
+      "mean_reward": 1.1450520753860474
+    },
+    {
+      "_step": 376,
+      "mean_reward": 1.1223958730697632,
+      "reward/correctness": 0.38671875,
+      "reward/entity_grounding": 0.7356771230697632,
+      "mean_seq_length": 141.7265625
+    },
+    {
+      "_step": 378,
+      "reward/entity_grounding": 0.71484375,
+      "mean_seq_length": 145.19921875,
+      "mean_reward": 0.90234375,
+      "reward/correctness": 0.1875
+    },
+    {
+      "_step": 380,
+      "mean_reward": 1.0139974355697632,
+      "reward/correctness": 0.28515625,
+      "reward/entity_grounding": 0.7288411855697632,
+      "mean_seq_length": 143.42578125
+    },
+    {
+      "_step": 382,
+      "mean_reward": 1.0325521230697632,
+      "reward/correctness": 0.3046875,
+      "reward/entity_grounding": 0.7278646230697632,
+      "mean_seq_length": 130.546875
+    },
+    {
+      "_step": 384,
+      "reward/correctness": 0.51953125,
+      "reward/entity_grounding": 0.7328125238418579,
+      "mean_seq_length": 142.89453125,
+      "mean_reward": 1.252343773841858
+    },
+    {
+      "_step": 386,
+      "reward/entity_grounding": 0.6683593988418579,
+      "mean_seq_length": 144.97265625,
+      "mean_reward": 0.9261718988418579,
+      "reward/correctness": 0.2578125
+    },
+    {
+      "_step": 388,
+      "reward/correctness": 0.34375,
+      "reward/entity_grounding": 0.73828125,
+      "mean_seq_length": 150.359375,
+      "mean_reward": 1.08203125
+    },
+    {
+      "_step": 390,
+      "reward/correctness": 0.1484375,
+      "reward/entity_grounding": 0.7272135615348816,
+      "mean_seq_length": 149.16796875,
+      "mean_reward": 0.8756510615348816
+    },
+    {
+      "_step": 392,
+      "reward/entity_grounding": 0.67626953125,
+      "mean_seq_length": 144.546875,
+      "mean_reward": 0.95361328125,
+      "reward/correctness": 0.27734375
+    },
+    {
+      "_step": 394,
+      "reward/entity_grounding": 0.5690104365348816,
+      "mean_seq_length": 136.35546875,
+      "mean_reward": 0.9674478769302368,
+      "reward/correctness": 0.3984375
+    },
+    {
+      "_step": 396,
+      "reward/correctness": 0.30078125,
+      "reward/entity_grounding": 0.6294270753860474,
+      "mean_seq_length": 153.9375,
+      "mean_reward": 0.9302083253860474
+    },
+    {
+      "_step": 398,
+      "reward/entity_grounding": 0.875,
+      "mean_seq_length": 133.6796875,
+      "mean_reward": 1.26953125,
+      "reward/correctness": 0.39453125
+    },
+    {
+      "_step": 400,
+      "reward/entity_grounding": 0.5501302480697632,
+      "mean_seq_length": 146.92578125,
+      "mean_reward": 0.8196614384651184,
+      "reward/correctness": 0.26953125
+    },
+    {
+      "_step": 402,
+      "mean_seq_length": 134.37890625,
+      "mean_reward": 1.0852863788604736,
+      "reward/correctness": 0.265625,
+      "reward/entity_grounding": 0.8196614980697632
+    },
+    {
+      "_step": 404,
+      "reward/correctness": 0.2265625,
+      "reward/entity_grounding": 0.7808593511581421,
+      "mean_seq_length": 141.97265625,
+      "mean_reward": 1.007421851158142
+    },
+    {
+      "_step": 406,
+      "mean_reward": 1.09375,
+      "reward/correctness": 0.32421875,
+      "reward/entity_grounding": 0.76953125,
+      "mean_seq_length": 144.28125
+    },
+    {
+      "_step": 408,
+      "reward/entity_grounding": 0.8505859375,
+      "mean_seq_length": 150.6484375,
+      "mean_reward": 1.1748046875,
+      "reward/correctness": 0.32421875
+    },
+    {
+      "_step": 410,
+      "mean_seq_length": 141.625,
+      "mean_reward": 1.1044921875,
+      "reward/correctness": 0.3984375,
+      "reward/entity_grounding": 0.7060546875
+    },
+    {
+      "_step": 412,
+      "mean_seq_length": 150.7109375,
+      "mean_reward": 0.7770182490348816,
+      "reward/correctness": 0.09765625,
+      "reward/entity_grounding": 0.6793619990348816
+    },
+    {
+      "_step": 414,
+      "reward/entity_grounding": 0.6435546875,
+      "mean_seq_length": 125.796875,
+      "mean_reward": 0.9248046875,
+      "reward/correctness": 0.28125
+    },
+    {
+      "_step": 416,
+      "reward/entity_grounding": 0.7522786855697632,
+      "mean_seq_length": 140.11328125,
+      "mean_reward": 1.0882160663604736,
+      "reward/correctness": 0.3359375
+    },
+    {
+      "_step": 418,
+      "reward/entity_grounding": 0.908203125,
+      "mean_seq_length": 136.63671875,
+      "mean_reward": 1.337890625,
+      "reward/correctness": 0.4296875
+    },
+    {
+      "_step": 420,
+      "reward/entity_grounding": 0.7063801884651184,
+      "mean_seq_length": 153.19921875,
+      "mean_reward": 1.0579427480697632,
+      "reward/correctness": 0.3515625
+    },
+    {
+      "_step": 422,
+      "reward/correctness": 0.28515625,
+      "reward/entity_grounding": 0.8515625,
+      "mean_seq_length": 143.81640625,
+      "mean_reward": 1.13671875
+    },
+    {
+      "_step": 424,
+      "mean_seq_length": 139.11328125,
+      "mean_reward": 1.0807292461395264,
+      "reward/correctness": 0.234375,
+      "reward/entity_grounding": 0.8463541865348816
+    },
+    {
+      "_step": 426,
+      "reward/entity_grounding": 0.8170573115348816,
+      "mean_seq_length": 147.61328125,
+      "mean_reward": 1.0397136211395264,
+      "reward/correctness": 0.22265625
+    },
+    {
+      "_step": 428,
+      "reward/correctness": 0.31640625,
+      "reward/entity_grounding": 0.760546863079071,
+      "mean_seq_length": 155.4765625,
+      "mean_reward": 1.0769531726837158
+    },
+    {
+      "_step": 430,
+      "reward/entity_grounding": 0.8382161855697632,
+      "mean_seq_length": 151.71875,
+      "mean_reward": 1.0843099355697632,
+      "reward/correctness": 0.24609375
+    },
+    {
+      "_step": 432,
+      "reward/correctness": 0.34375,
+      "reward/entity_grounding": 0.810546875,
+      "mean_seq_length": 137.4453125,
+      "mean_reward": 1.154296875
+    },
+    {
+      "_step": 434,
+      "mean_reward": 1.0912760496139526,
+      "reward/correctness": 0.34375,
+      "reward/entity_grounding": 0.7475260496139526,
+      "mean_seq_length": 135.57421875
+    },
+    {
+      "_step": 436,
+      "reward/entity_grounding": 0.7451171875,
+      "mean_seq_length": 134.14453125,
+      "mean_reward": 1.1240234375,
+      "reward/correctness": 0.37890625
+    },
+    {
+      "_step": 438,
+      "mean_reward": 1.207421898841858,
+      "reward/correctness": 0.38671875,
+      "reward/entity_grounding": 0.8207031488418579,
+      "mean_seq_length": 138.0234375
+    },
+    {
+      "_step": 440,
+      "mean_reward": 1.1015625,
+      "reward/correctness": 0.3359375,
+      "reward/entity_grounding": 0.765625,
+      "mean_seq_length": 129.71484375
+    },
+    {
+      "_step": 442,
+      "reward/entity_grounding": 0.8170573115348816,
+      "mean_seq_length": 147.6171875,
+      "mean_reward": 1.1451823711395264,
+      "reward/correctness": 0.328125
+    },
+    {
+      "_step": 444,
+      "reward/correctness": 0.25390625,
+      "reward/entity_grounding": 0.7344679832458496,
+      "mean_seq_length": 149.80078125,
+      "mean_reward": 0.9883742332458496
+    },
+    {
+      "_step": 446,
+      "reward/entity_grounding": 0.7174479365348816,
+      "mean_seq_length": 148.6953125,
+      "mean_reward": 1.0065103769302368,
+      "reward/correctness": 0.2890625
+    },
+    {
+      "_step": 448,
+      "reward/entity_grounding": 0.7708333134651184,
+      "mean_seq_length": 136.14453125,
+      "mean_reward": 0.9622395634651184,
+      "reward/correctness": 0.19140625
+    },
+    {
+      "_step": 450,
+      "reward/entity_grounding": 0.71484375,
+      "mean_seq_length": 158.0546875,
+      "mean_reward": 1.12890625,
+      "reward/correctness": 0.4140625
+    },
+    {
+      "_step": 452,
+      "mean_seq_length": 155.0234375,
+      "mean_reward": 0.83447265625,
+      "reward/correctness": 0.2109375,
+      "reward/entity_grounding": 0.62353515625
+    },
+    {
+      "_step": 454,
+      "reward/entity_grounding": 0.6076822876930237,
+      "mean_seq_length": 138.63671875,
+      "mean_reward": 1.041275978088379,
+      "reward/correctness": 0.43359375
+    },
+    {
+      "_step": 456,
+      "reward/correctness": 0.2421875,
+      "reward/entity_grounding": 0.7310267686843872,
+      "mean_seq_length": 141.8203125,
+      "mean_reward": 0.9732142686843872
+    },
+    {
+      "_step": 458,
+      "mean_reward": 0.8743489384651184,
+      "reward/correctness": 0.20703125,
+      "reward/entity_grounding": 0.6673176884651184,
+      "mean_seq_length": 145.87890625
+    },
+    {
+      "_step": 460,
+      "reward/entity_grounding": 0.61328125,
+      "mean_seq_length": 126.77734375,
+      "mean_reward": 1.05078125,
+      "reward/correctness": 0.4375
+    },
+    {
+      "_step": 462,
+      "reward/entity_grounding": 0.6750651001930237,
+      "mean_seq_length": 145.44921875,
+      "mean_reward": 0.9289713501930237,
+      "reward/correctness": 0.25390625
+    },
+    {
+      "_step": 464,
+      "mean_reward": 1.171484351158142,
+      "reward/correctness": 0.38671875,
+      "reward/entity_grounding": 0.7847656011581421,
+      "mean_seq_length": 147.39453125
+    },
+    {
+      "_step": 466,
+      "mean_seq_length": 139.90234375,
+      "mean_reward": 1.2086588144302368,
+      "reward/correctness": 0.421875,
+      "reward/entity_grounding": 0.7867838740348816
+    },
+    {
+      "_step": 468,
+      "reward/entity_grounding": 0.6725260615348816,
+      "mean_seq_length": 178.80859375,
+      "mean_reward": 1.1217447519302368,
+      "reward/correctness": 0.44921875
+    },
+    {
+      "_step": 470,
+      "mean_reward": 1.0416666269302368,
+      "reward/correctness": 0.30078125,
+      "reward/entity_grounding": 0.7408854365348816,
+      "mean_seq_length": 145.109375
+    },
+    {
+      "_step": 472,
+      "reward/correctness": 0.18359375,
+      "reward/entity_grounding": 0.5279947519302368,
+      "mean_seq_length": 147.17578125,
+      "mean_reward": 0.7115885615348816
+    },
+    {
+      "_step": 474,
+      "reward/entity_grounding": 0.70703125,
+      "mean_seq_length": 143.25390625,
+      "mean_reward": 1.0703125,
+      "reward/correctness": 0.36328125
+    },
+    {
+      "_step": 476,
+      "reward/entity_grounding": 0.685546875,
+      "mean_seq_length": 155.88671875,
+      "mean_reward": 1.060546875,
+      "reward/correctness": 0.375
+    },
+    {
+      "_step": 478,
+      "reward/correctness": 0.515625,
+      "reward/entity_grounding": 0.8732700943946838,
+      "mean_seq_length": 150.87109375,
+      "mean_reward": 1.388895034790039
+    },
+    {
+      "_step": 480,
+      "reward/correctness": 0.3046875,
+      "reward/entity_grounding": 0.953125,
+      "mean_seq_length": 141.31640625,
+      "mean_reward": 1.2578125
+    },
+    {
+      "_step": 482,
+      "reward/entity_grounding": 0.7337239980697632,
+      "mean_seq_length": 155.359375,
+      "mean_reward": 1.1048176288604736,
+      "reward/correctness": 0.37109375
+    },
+    {
+      "_step": 485,
+      "reward/correctness": 0.359375,
+      "reward/entity_grounding": 0.7630208134651184,
+      "mean_seq_length": 141.22265625,
+      "mean_reward": 1.1223957538604736
+    },
+    {
+      "_step": 487,
+      "mean_seq_length": 133.2578125,
+      "mean_reward": 1.1399739980697632,
+      "reward/correctness": 0.34375,
+      "reward/entity_grounding": 0.7962239980697632
+    },
+    {
+      "_step": 489,
+      "reward/correctness": 0.5,
+      "reward/entity_grounding": 0.8795573115348816,
+      "mean_seq_length": 146.40625,
+      "mean_reward": 1.3795573711395264
+    },
+    {
+      "_step": 491,
+      "reward/correctness": 0.20703125,
+      "reward/entity_grounding": 0.715624988079071,
+      "mean_seq_length": 141.390625,
+      "mean_reward": 0.922656238079071
+    },
+    {
+      "_step": 493,
+      "reward/entity_grounding": 0.7513020634651184,
+      "mean_seq_length": 151.0625,
+      "mean_reward": 1.0325520038604736,
+      "reward/correctness": 0.28125
+    },
+    {
+      "_step": 495,
+      "reward/entity_grounding": 0.7955729365348816,
+      "mean_seq_length": 146.28515625,
+      "mean_reward": 1.1158853769302368,
+      "reward/correctness": 0.3203125
+    },
+    {
+      "_step": 497,
+      "reward/entity_grounding": 0.703125,
+      "mean_seq_length": 138.79296875,
+      "mean_reward": 1.08203125,
+      "reward/correctness": 0.37890625
+    },
+    {
+      "_step": 499,
+      "reward/entity_grounding": 0.86328125,
+      "mean_seq_length": 136.7265625,
+      "mean_reward": 1.2421875,
+      "reward/correctness": 0.37890625
+    },
+    {
+      "_step": 501,
+      "reward/correctness": 0.30078125,
+      "reward/entity_grounding": 0.7925781011581421,
+      "mean_seq_length": 161.34765625,
+      "mean_reward": 1.093359351158142
+    },
+    {
+      "_step": 503,
+      "mean_reward": 1.265625,
+      "reward/correctness": 0.3828125,
+      "reward/entity_grounding": 0.8828125,
+      "mean_seq_length": 165.55859375
+    },
+    {
+      "_step": 505,
+      "reward/correctness": 0.3203125,
+      "reward/entity_grounding": 0.6028645634651184,
+      "mean_seq_length": 151.33984375,
+      "mean_reward": 0.9231770634651184
+    },
+    {
+      "_step": 507,
+      "mean_reward": 1.0240886211395264,
+      "reward/correctness": 0.28515625,
+      "reward/entity_grounding": 0.7389323115348816,
+      "mean_seq_length": 138.6171875
+    },
+    {
+      "_step": 509,
+      "reward/entity_grounding": 0.619140625,
+      "mean_seq_length": 145.5546875,
+      "mean_reward": 0.916015625,
+      "reward/correctness": 0.296875
+    },
+    {
+      "_step": 511,
+      "reward/entity_grounding": 0.768750011920929,
+      "mean_seq_length": 139.3046875,
+      "mean_reward": 1.1593749523162842,
+      "reward/correctness": 0.390625
+    },
+    {
+      "_step": 513,
+      "reward/entity_grounding": 0.8567708730697632,
+      "mean_seq_length": 138.5703125,
+      "mean_reward": 1.2552082538604736,
+      "reward/correctness": 0.3984375
+    },
+    {
+      "_step": 515,
+      "mean_seq_length": 147.66796875,
+      "mean_reward": 1.279296875,
+      "reward/correctness": 0.453125,
+      "reward/entity_grounding": 0.826171875
+    },
+    {
+      "_step": 517,
+      "mean_seq_length": 136.09375,
+      "mean_reward": 1.177148461341858,
+      "reward/correctness": 0.40234375,
+      "reward/entity_grounding": 0.7748047113418579
+    },
+    {
+      "_step": 519,
+      "reward/entity_grounding": 0.7686011791229248,
+      "mean_seq_length": 138.390625,
+      "mean_reward": 1.1592261791229248,
+      "reward/correctness": 0.390625
+    },
+    {
+      "_step": 521,
+      "mean_reward": 1.1988933086395264,
+      "reward/correctness": 0.3984375,
+      "reward/entity_grounding": 0.8004557490348816,
+      "mean_seq_length": 141.9921875
+    },
+    {
+      "_step": 523,
+      "reward/entity_grounding": 0.7757812738418579,
+      "mean_seq_length": 142.44921875,
+      "mean_reward": 1.100000023841858,
+      "reward/correctness": 0.32421875
+    },
+    {
+      "_step": 525,
+      "reward/entity_grounding": 0.7018229365348816,
+      "mean_seq_length": 133.84765625,
+      "mean_reward": 0.9166666865348816,
+      "reward/correctness": 0.21484375
+    },
+    {
+      "_step": 527,
+      "mean_reward": 1.0709635019302368,
+      "reward/correctness": 0.34765625,
+      "reward/entity_grounding": 0.7233073115348816,
+      "mean_seq_length": 147.69921875
+    },
+    {
+      "_step": 529,
+      "mean_seq_length": 148.75,
+      "mean_reward": 0.7682291865348816,
+      "reward/correctness": 0.15625,
+      "reward/entity_grounding": 0.6119791269302368
+    },
+    {
+      "_step": 531,
+      "reward/entity_grounding": 0.818359375,
+      "mean_seq_length": 138.85546875,
+      "mean_reward": 1.251953125,
+      "reward/correctness": 0.43359375
+    },
+    {
+      "_step": 533,
+      "reward/entity_grounding": 0.6985677480697632,
+      "mean_seq_length": 137.96875,
+      "mean_reward": 1.0227863788604736,
+      "reward/correctness": 0.32421875
+    },
+    {
+      "_step": 535,
+      "reward/entity_grounding": 0.751953125,
+      "mean_seq_length": 130.01953125,
+      "mean_reward": 1.107421875,
+      "reward/correctness": 0.35546875
+    },
+    {
+      "_step": 537,
+      "mean_seq_length": 152.77734375,
+      "mean_reward": 0.900390625,
+      "reward/correctness": 0.31640625,
+      "reward/entity_grounding": 0.583984375
+    },
+    {
+      "_step": 539,
+      "reward/entity_grounding": 0.8450521230697632,
+      "mean_seq_length": 174.2109375,
+      "mean_reward": 1.2747396230697632,
+      "reward/correctness": 0.4296875
+    },
+    {
+      "_step": 541,
+      "mean_reward": 1.0397136211395264,
+      "reward/correctness": 0.3671875,
+      "reward/entity_grounding": 0.6725260615348816,
+      "mean_seq_length": 157.171875
+    },
+    {
+      "_step": 543,
+      "reward/entity_grounding": 0.798828125,
+      "mean_seq_length": 145.796875,
+      "mean_reward": 1.185546875,
+      "reward/correctness": 0.38671875
+    },
+    {
+      "_step": 545,
+      "mean_reward": 1.2760417461395264,
+      "reward/correctness": 0.4609375,
+      "reward/entity_grounding": 0.8151041865348816,
+      "mean_seq_length": 167.96875
+    },
+    {
+      "_step": 547,
+      "reward/entity_grounding": 0.869140625,
+      "mean_seq_length": 144.875,
+      "mean_reward": 1.197265625,
+      "reward/correctness": 0.328125
+    },
+    {
+      "_step": 549,
+      "reward/entity_grounding": 0.7233073115348816,
+      "mean_seq_length": 158.59375,
+      "mean_reward": 1.0592447519302368,
+      "reward/correctness": 0.3359375
+    },
+    {
+      "_step": 551,
+      "reward/correctness": 0.47265625,
+      "reward/entity_grounding": 0.9192708730697632,
+      "mean_seq_length": 153.33984375,
+      "mean_reward": 1.3919271230697632
+    },
+    {
+      "_step": 553,
+      "reward/entity_grounding": 0.8013020753860474,
+      "mean_seq_length": 159.85546875,
+      "mean_reward": 1.1450520753860474,
+      "reward/correctness": 0.34375
+    },
+    {
+      "_step": 555,
+      "reward/correctness": 0.4921875,
+      "reward/entity_grounding": 0.8359375,
+      "mean_seq_length": 145.3515625,
+      "mean_reward": 1.328125
+    },
+    {
+      "_step": 557,
+      "reward/correctness": 0.3671875,
+      "reward/entity_grounding": 0.78125,
+      "mean_seq_length": 136.86328125,
+      "mean_reward": 1.1484375
+    },
+    {
+      "_step": 559,
+      "reward/correctness": 0.41796875,
+      "reward/entity_grounding": 0.6713541746139526,
+      "mean_seq_length": 150.83203125,
+      "mean_reward": 1.089322805404663
+    },
+    {
+      "_step": 561,
+      "reward/entity_grounding": 0.66796875,
+      "mean_seq_length": 131.56640625,
+      "mean_reward": 1.0078125,
+      "reward/correctness": 0.33984375
+    },
+    {
+      "_step": 563,
+      "reward/correctness": 0.28125,
+      "reward/entity_grounding": 0.6058593988418579,
+      "mean_seq_length": 134.22265625,
+      "mean_reward": 0.8871093988418579
+    },
+    {
+      "_step": 565,
+      "mean_reward": 1.076562523841858,
+      "reward/correctness": 0.3984375,
+      "reward/entity_grounding": 0.6781250238418579,
+      "mean_seq_length": 135.1796875
+    },
+    {
+      "_step": 567,
+      "reward/correctness": 0.43359375,
+      "reward/entity_grounding": 0.8232421875,
+      "mean_seq_length": 186.80859375,
+      "mean_reward": 1.2568359375
+    },
+    {
+      "_step": 569,
+      "reward/entity_grounding": 0.71484375,
+      "mean_seq_length": 159.921875,
+      "mean_reward": 1.0859375,
+      "reward/correctness": 0.37109375
+    },
+    {
+      "_step": 571,
+      "reward/correctness": 0.51953125,
+      "reward/entity_grounding": 0.695507824420929,
+      "mean_seq_length": 129.73828125,
+      "mean_reward": 1.2150390148162842
+    },
+    {
+      "_step": 573,
+      "mean_reward": 1.1731771230697632,
+      "reward/correctness": 0.35546875,
+      "reward/entity_grounding": 0.8177083730697632,
+      "mean_seq_length": 147.16796875
+    },
+    {
+      "_step": 575,
+      "mean_reward": 1.15234375,
+      "reward/correctness": 0.40234375,
+      "reward/entity_grounding": 0.75,
+      "mean_seq_length": 141.98828125
+    },
+    {
+      "_step": 577,
+      "reward/entity_grounding": 0.6868489384651184,
+      "mean_seq_length": 157.21484375,
+      "mean_reward": 0.8509114384651184,
+      "reward/correctness": 0.1640625
+    },
+    {
+      "_step": 579,
+      "reward/entity_grounding": 0.8059895634651184,
+      "mean_seq_length": 140.30078125,
+      "mean_reward": 1.1575520038604736,
+      "reward/correctness": 0.3515625
+    },
+    {
+      "_step": 581,
+      "reward/entity_grounding": 0.7721354365348816,
+      "mean_seq_length": 167.1171875,
+      "mean_reward": 1.0104167461395264,
+      "reward/correctness": 0.23828125
+    },
+    {
+      "_step": 583,
+      "mean_reward": 1.1875,
+      "reward/correctness": 0.51171875,
+      "reward/entity_grounding": 0.67578125,
+      "mean_seq_length": 155.19140625
+    },
+    {
+      "_step": 585,
+      "reward/entity_grounding": 0.755859375,
+      "mean_seq_length": 156.12109375,
+      "mean_reward": 1.130859375,
+      "reward/correctness": 0.375
+    },
+    {
+      "_step": 587,
+      "mean_seq_length": 160.390625,
+      "mean_reward": 1.2687499523162842,
+      "reward/correctness": 0.43359375,
+      "reward/entity_grounding": 0.835156261920929
+    },
+    {
+      "_step": 589,
+      "mean_seq_length": 140.41015625,
+      "mean_reward": 0.9356771111488342,
+      "reward/correctness": 0.359375,
+      "reward/entity_grounding": 0.5763021111488342
+    },
+    {
+      "_step": 591,
+      "reward/entity_grounding": 0.6875,
+      "mean_seq_length": 153.4453125,
+      "mean_reward": 0.96875,
+      "reward/correctness": 0.28125
+    },
+    {
+      "_step": 593,
+      "reward/entity_grounding": 0.6174479722976685,
+      "mean_seq_length": 159.578125,
+      "mean_reward": 0.9768229722976685,
+      "reward/correctness": 0.359375
+    },
+    {
+      "_step": 595,
+      "reward/correctness": 0.46484375,
+      "reward/entity_grounding": 0.7875000238418579,
+      "mean_seq_length": 160.73828125,
+      "mean_reward": 1.252343773841858
+    },
+    {
+      "_step": 597,
+      "reward/correctness": 0.3515625,
+      "reward/entity_grounding": 0.8463541865348816,
+      "mean_seq_length": 153.11328125,
+      "mean_reward": 1.1979167461395264
+    },
+    {
+      "_step": 599,
+      "mean_seq_length": 142.9296875,
+      "mean_reward": 1.064453125,
+      "reward/correctness": 0.328125,
+      "reward/entity_grounding": 0.736328125
+    },
+    {
+      "_step": 601,
+      "reward/correctness": 0.25390625,
+      "reward/entity_grounding": 0.802734375,
+      "mean_seq_length": 138.31640625,
+      "mean_reward": 1.056640625
+    },
+    {
+      "_step": 603,
+      "mean_seq_length": 137.4921875,
+      "mean_reward": 1.1044270992279053,
+      "reward/correctness": 0.3359375,
+      "reward/entity_grounding": 0.7684895396232605
+    },
+    {
+      "_step": 606,
+      "reward/correctness": 0.3828125,
+      "reward/entity_grounding": 0.734375,
+      "mean_seq_length": 166.5390625,
+      "mean_reward": 1.1171875
+    },
+    {
+      "_step": 608,
+      "reward/correctness": 0.23828125,
+      "reward/entity_grounding": 0.7721354365348816,
+      "mean_seq_length": 153.66796875,
+      "mean_reward": 1.0104167461395264
+    },
+    {
+      "_step": 610,
+      "mean_seq_length": 134.7890625,
+      "mean_reward": 0.998046875,
+      "reward/correctness": 0.23828125,
+      "reward/entity_grounding": 0.759765625
+    },
+    {
+      "_step": 612,
+      "reward/correctness": 0.26171875,
+      "reward/entity_grounding": 0.69921875,
+      "mean_seq_length": 162.17578125,
+      "mean_reward": 0.9609375
+    },
+    {
+      "_step": 614,
+      "reward/entity_grounding": 0.7369791865348816,
+      "mean_seq_length": 134.140625,
+      "mean_reward": 1.1510417461395264,
+      "reward/correctness": 0.4140625
+    },
+    {
+      "_step": 616,
+      "reward/correctness": 0.3515625,
+      "reward/entity_grounding": 0.8001302480697632,
+      "mean_seq_length": 161.2734375,
+      "mean_reward": 1.1516927480697632
+    },
+    {
+      "_step": 618,
+      "reward/entity_grounding": 0.7604166865348816,
+      "mean_seq_length": 132.546875,
+      "mean_reward": 1.1354167461395264,
+      "reward/correctness": 0.375
+    },
+    {
+      "_step": 620,
+      "mean_reward": 1.0455728769302368,
+      "reward/correctness": 0.37890625,
+      "reward/entity_grounding": 0.6666666865348816,
+      "mean_seq_length": 159.546875
+    },
+    {
+      "_step": 622,
+      "reward/entity_grounding": 0.717578113079071,
+      "mean_seq_length": 160.5546875,
+      "mean_reward": 1.1003906726837158,
+      "reward/correctness": 0.3828125
+    },
+    {
+      "_step": 624,
+      "reward/entity_grounding": 0.8837890625,
+      "mean_seq_length": 146.14453125,
+      "mean_reward": 1.2158203125,
+      "reward/correctness": 0.33203125
+    },
+    {
+      "_step": 626,
+      "reward/entity_grounding": 0.67578125,
+      "mean_seq_length": 138.453125,
+      "mean_reward": 1.08203125,
+      "reward/correctness": 0.40625
+    },
+    {
+      "_step": 628,
+      "reward/entity_grounding": 0.6595052480697632,
+      "mean_seq_length": 137.734375,
+      "mean_reward": 1.0423176288604736,
+      "reward/correctness": 0.3828125
+    },
+    {
+      "_step": 630,
+      "reward/correctness": 0.33203125,
+      "reward/entity_grounding": 0.763671875,
+      "mean_seq_length": 138.8828125,
+      "mean_reward": 1.095703125
+    },
+    {
+      "_step": 632,
+      "reward/correctness": 0.34375,
+      "reward/entity_grounding": 0.681640625,
+      "mean_seq_length": 132.96875,
+      "mean_reward": 1.025390625
+    },
+    {
+      "_step": 634,
+      "reward/correctness": 0.2734375,
+      "reward/entity_grounding": 0.762499988079071,
+      "mean_seq_length": 131.4375,
+      "mean_reward": 1.0359375476837158
+    },
+    {
+      "_step": 636,
+      "reward/entity_grounding": 0.8450521230697632,
+      "mean_seq_length": 160.30078125,
+      "mean_reward": 1.2239582538604736,
+      "reward/correctness": 0.37890625
+    },
+    {
+      "_step": 638,
+      "reward/entity_grounding": 0.837109386920929,
+      "mean_seq_length": 127.40234375,
+      "mean_reward": 1.2082030773162842,
+      "reward/correctness": 0.37109375
+    },
+    {
+      "_step": 640,
+      "mean_reward": 1.1194660663604736,
+      "reward/correctness": 0.3515625,
+      "reward/entity_grounding": 0.7679036855697632,
+      "mean_seq_length": 150.7109375
+    },
+    {
+      "_step": 642,
+      "mean_reward": 1.0296224355697632,
+      "reward/correctness": 0.2890625,
+      "reward/entity_grounding": 0.7405599355697632,
+      "mean_seq_length": 141.73046875
+    },
+    {
+      "_step": 644,
+      "mean_reward": 1.1360677480697632,
+      "reward/correctness": 0.36328125,
+      "reward/entity_grounding": 0.7727864384651184,
+      "mean_seq_length": 126.12890625
+    },
+    {
+      "_step": 646,
+      "mean_seq_length": 149.05859375,
+      "mean_reward": 1.1295573711395264,
+      "reward/correctness": 0.36328125,
+      "reward/entity_grounding": 0.7662760615348816
+    },
+    {
+      "_step": 648,
+      "reward/entity_grounding": 0.7700520753860474,
+      "mean_seq_length": 163.72265625,
+      "mean_reward": 1.1841145753860474,
+      "reward/correctness": 0.4140625
+    },
+    {
+      "_step": 650,
+      "mean_reward": 1.3333332538604736,
+      "reward/correctness": 0.5859375,
+      "reward/entity_grounding": 0.7473958134651184,
+      "mean_seq_length": 151.7109375
+    },
+    {
+      "_step": 652,
+      "reward/entity_grounding": 0.6070963740348816,
+      "mean_seq_length": 153.66015625,
+      "mean_reward": 0.9235026240348816,
+      "reward/correctness": 0.31640625
+    },
+    {
+      "_step": 654,
+      "mean_reward": 1.2890625,
+      "reward/correctness": 0.3515625,
+      "reward/entity_grounding": 0.9375,
+      "mean_seq_length": 153.7421875
+    },
+    {
+      "_step": 656,
+      "mean_reward": 1.2213541269302368,
+      "reward/correctness": 0.42578125,
+      "reward/entity_grounding": 0.7955728769302368,
+      "mean_seq_length": 160.4765625
+    },
+    {
+      "_step": 658,
+      "reward/correctness": 0.328125,
+      "reward/entity_grounding": 0.641406238079071,
+      "mean_seq_length": 141.54296875,
+      "mean_reward": 0.969531238079071
+    },
+    {
+      "_step": 660,
+      "reward/entity_grounding": 0.796875,
+      "mean_seq_length": 159.19140625,
+      "mean_reward": 1.12890625,
+      "reward/correctness": 0.33203125
+    },
+    {
+      "_step": 662,
+      "mean_reward": 1.008072853088379,
+      "reward/correctness": 0.40625,
+      "reward/entity_grounding": 0.6018229126930237,
+      "mean_seq_length": 144.80859375
+    },
+    {
+      "_step": 664,
+      "reward/correctness": 0.44921875,
+      "reward/entity_grounding": 0.7513020634651184,
+      "mean_seq_length": 159.0234375,
+      "mean_reward": 1.2005208730697632
+    },
+    {
+      "_step": 666,
+      "reward/entity_grounding": 0.684765636920929,
+      "mean_seq_length": 141.6796875,
+      "mean_reward": 0.8449218273162842,
+      "reward/correctness": 0.16015625
+    },
+    {
+      "_step": 668,
+      "reward/entity_grounding": 0.8684896230697632,
+      "mean_seq_length": 152.796875,
+      "mean_reward": 1.1458332538604736,
+      "reward/correctness": 0.27734375
+    },
+    {
+      "_step": 670,
+      "reward/correctness": 0.328125,
+      "reward/entity_grounding": 0.7786458730697632,
+      "mean_seq_length": 150.51171875,
+      "mean_reward": 1.1067708730697632
+    },
+    {
+      "_step": 672,
+      "reward/entity_grounding": 0.828125,
+      "mean_seq_length": 159.5546875,
+      "mean_reward": 1.44140625,
+      "reward/correctness": 0.61328125
+    },
+    {
+      "_step": 674,
+      "reward/entity_grounding": 0.9130859375,
+      "mean_seq_length": 130.734375,
+      "mean_reward": 1.3466796875,
+      "reward/correctness": 0.43359375
+    },
+    {
+      "_step": 676,
+      "reward/entity_grounding": 0.6387695074081421,
+      "mean_seq_length": 158.58203125,
+      "mean_reward": 1.002050757408142,
+      "reward/correctness": 0.36328125
+    },
+    {
+      "_step": 678,
+      "reward/correctness": 0.390625,
+      "reward/entity_grounding": 0.7916666865348816,
+      "mean_seq_length": 157.28125,
+      "mean_reward": 1.1822916269302368
+    },
+    {
+      "_step": 680,
+      "mean_seq_length": 142.81640625,
+      "mean_reward": 1.0670573711395264,
+      "reward/correctness": 0.43359375,
+      "reward/entity_grounding": 0.6334635019302368
+    },
+    {
+      "_step": 682,
+      "reward/correctness": 0.30078125,
+      "reward/entity_grounding": 0.577938973903656,
+      "mean_seq_length": 132.22265625,
+      "mean_reward": 0.8787202835083008
+    },
+    {
+      "_step": 684,
+      "reward/correctness": 0.3203125,
+      "reward/entity_grounding": 0.8287760615348816,
+      "mean_seq_length": 134.99609375,
+      "mean_reward": 1.1490885019302368
+    },
+    {
+      "_step": 686,
+      "mean_seq_length": 162.06640625,
+      "mean_reward": 1.2278645038604736,
+      "reward/correctness": 0.36328125,
+      "reward/entity_grounding": 0.8645833134651184
+    },
+    {
+      "_step": 688,
+      "mean_reward": 1.123046875,
+      "reward/correctness": 0.37109375,
+      "reward/entity_grounding": 0.751953125,
+      "mean_seq_length": 148.01171875
+    },
+    {
+      "_step": 690,
+      "reward/correctness": 0.265625,
+      "reward/entity_grounding": 0.8123372793197632,
+      "mean_seq_length": 160,
+      "mean_reward": 1.0779622793197632
+    },
+    {
+      "_step": 692,
+      "reward/correctness": 0.3515625,
+      "reward/entity_grounding": 0.7877604365348816,
+      "mean_seq_length": 154.7109375,
+      "mean_reward": 1.1393229961395264
+    },
+    {
+      "_step": 694,
+      "mean_reward": 0.9605468511581421,
+      "reward/correctness": 0.40625,
+      "reward/entity_grounding": 0.5542968511581421,
+      "mean_seq_length": 147.8359375
+    },
+    {
+      "_step": 696,
+      "reward/entity_grounding": 0.615234375,
+      "mean_seq_length": 148.45703125,
+      "mean_reward": 0.998046875,
+      "reward/correctness": 0.3828125
+    },
+    {
+      "_step": 698,
+      "mean_reward": 1.3984375,
+      "reward/correctness": 0.55859375,
+      "reward/entity_grounding": 0.83984375,
+      "mean_seq_length": 150.9609375
+    },
+    {
+      "_step": 700,
+      "reward/entity_grounding": 0.703125,
+      "mean_seq_length": 173.953125,
+      "mean_reward": 1.05078125,
+      "reward/correctness": 0.34765625
+    },
+    {
+      "_step": 702,
+      "mean_reward": 1.0819010734558105,
+      "reward/correctness": 0.4375,
+      "reward/entity_grounding": 0.6444010734558105,
+      "mean_seq_length": 130.53515625
+    },
+    {
+      "_step": 704,
+      "mean_reward": 1.1393229961395264,
+      "reward/correctness": 0.359375,
+      "reward/entity_grounding": 0.7799479365348816,
+      "mean_seq_length": 149.171875
+    },
+    {
+      "_step": 706,
+      "reward/entity_grounding": 0.833984375,
+      "mean_seq_length": 173.78515625,
+      "mean_reward": 1.439453125,
+      "reward/correctness": 0.60546875
+    },
+    {
+      "_step": 708,
+      "reward/entity_grounding": 0.818359375,
+      "mean_seq_length": 154.1875,
+      "mean_reward": 1.291015625,
+      "reward/correctness": 0.47265625
+    },
+    {
+      "_step": 710,
+      "mean_reward": 1.3373697996139526,
+      "reward/correctness": 0.4609375,
+      "reward/entity_grounding": 0.8764322996139526,
+      "mean_seq_length": 169.1484375
+    },
+    {
+      "_step": 712,
+      "mean_reward": 1.3287761211395264,
+      "reward/correctness": 0.5234375,
+      "reward/entity_grounding": 0.8053385019302368,
+      "mean_seq_length": 166.64453125
+    },
+    {
+      "_step": 714,
+      "mean_reward": 1.3128254413604736,
+      "reward/correctness": 0.49609375,
+      "reward/entity_grounding": 0.8167317509651184,
+      "mean_seq_length": 141.65625
+    },
+    {
+      "_step": 716,
+      "reward/correctness": 0.4609375,
+      "reward/entity_grounding": 0.6904296875,
+      "mean_seq_length": 150.625,
+      "mean_reward": 1.1513671875
+    },
+    {
+      "_step": 718,
+      "reward/correctness": 0.390625,
+      "reward/entity_grounding": 0.7736979126930237,
+      "mean_seq_length": 157.6015625,
+      "mean_reward": 1.164322853088379
+    },
+    {
+      "_step": 720,
+      "reward/correctness": 0.4453125,
+      "reward/entity_grounding": 0.8280599117279053,
+      "mean_seq_length": 142.875,
+      "mean_reward": 1.2733724117279053
+    },
+    {
+      "_step": 722,
+      "reward/entity_grounding": 0.7513020634651184,
+      "mean_seq_length": 158.9609375,
+      "mean_reward": 1.0169270038604736,
+      "reward/correctness": 0.265625
+    },
+    {
+      "_step": 724,
+      "mean_seq_length": 144.61328125,
+      "mean_reward": 1.1962890625,
+      "reward/correctness": 0.41796875,
+      "reward/entity_grounding": 0.7783203125
+    },
+    {
+      "_step": 727,
+      "mean_reward": 1.0149738788604736,
+      "reward/correctness": 0.3515625,
+      "reward/entity_grounding": 0.6634114384651184,
+      "mean_seq_length": 140.59375
+    },
+    {
+      "_step": 729,
+      "reward/correctness": 0.40625,
+      "reward/entity_grounding": 0.779296875,
+      "mean_seq_length": 147.95703125,
+      "mean_reward": 1.185546875
+    },
+    {
+      "_step": 731,
+      "reward/entity_grounding": 0.8037109375,
+      "mean_seq_length": 131.62109375,
+      "mean_reward": 1.1357421875,
+      "reward/correctness": 0.33203125
+    },
+    {
+      "_step": 733,
+      "reward/entity_grounding": 0.794921875,
+      "mean_seq_length": 145.78515625,
+      "mean_reward": 1.228515625,
+      "reward/correctness": 0.43359375
+    },
+    {
+      "_step": 735,
+      "reward/entity_grounding": 0.7337239384651184,
+      "mean_seq_length": 150.25390625,
+      "mean_reward": 1.0540364980697632,
+      "reward/correctness": 0.3203125
+    },
+    {
+      "_step": 737,
+      "mean_reward": 1.2565103769302368,
+      "reward/correctness": 0.41796875,
+      "reward/entity_grounding": 0.8385416865348816,
+      "mean_seq_length": 156.46875
+    },
+    {
+      "_step": 739,
+      "reward/entity_grounding": 0.8199869990348816,
+      "mean_seq_length": 165.82421875,
+      "mean_reward": 1.3004556894302368,
+      "reward/correctness": 0.48046875
+    },
+    {
+      "_step": 741,
+      "mean_reward": 1.1416015625,
+      "reward/correctness": 0.3828125,
+      "reward/entity_grounding": 0.7587890625,
+      "mean_seq_length": 179.03515625
+    },
+    {
+      "_step": 743,
+      "mean_seq_length": 149.6953125,
+      "mean_reward": 1.0546875,
+      "reward/correctness": 0.37109375,
+      "reward/entity_grounding": 0.68359375
+    },
+    {
+      "_step": 745,
+      "reward/entity_grounding": 0.83203125,
+      "mean_seq_length": 158.453125,
+      "mean_reward": 1.359375,
+      "reward/correctness": 0.52734375
+    },
+    {
+      "_step": 747,
+      "mean_seq_length": 143.61328125,
+      "mean_reward": 0.8395833373069763,
+      "reward/correctness": 0.171875,
+      "reward/entity_grounding": 0.6677083373069763
+    },
+    {
+      "_step": 749,
+      "mean_reward": 1.052734375,
+      "reward/correctness": 0.31640625,
+      "reward/entity_grounding": 0.736328125,
+      "mean_seq_length": 143.265625
+    },
+    {
+      "_step": 751,
+      "reward/entity_grounding": 0.80859375,
+      "mean_seq_length": 157.25,
+      "mean_reward": 1.2265625,
+      "reward/correctness": 0.41796875
+    },
+    {
+      "_step": 753,
+      "reward/entity_grounding": 0.8313802480697632,
+      "mean_seq_length": 150.75390625,
+      "mean_reward": 1.1087238788604736,
+      "reward/correctness": 0.27734375
+    },
+    {
+      "_step": 755,
+      "reward/correctness": 0.421875,
+      "reward/entity_grounding": 0.7877603769302368,
+      "mean_seq_length": 134.5546875,
+      "mean_reward": 1.2096354961395264
+    },
+    {
+      "_step": 757,
+      "reward/correctness": 0.4765625,
+      "reward/entity_grounding": 0.8036457896232605,
+      "mean_seq_length": 154.19140625,
+      "mean_reward": 1.2802083492279053
+    },
+    {
+      "_step": 759,
+      "mean_seq_length": 148.03515625,
+      "mean_reward": 1.3251302242279053,
+      "reward/correctness": 0.46484375,
+      "reward/entity_grounding": 0.8602864742279053
+    },
+    {
+      "_step": 761,
+      "reward/correctness": 0.44921875,
+      "reward/entity_grounding": 0.806640625,
+      "mean_seq_length": 162.57421875,
+      "mean_reward": 1.255859375
+    },
+    {
+      "_step": 763,
+      "mean_reward": 1.15625,
+      "reward/correctness": 0.3515625,
+      "reward/entity_grounding": 0.8046875,
+      "mean_seq_length": 157.34765625
+    },
+    {
+      "_step": 765,
+      "mean_reward": 1.0794270038604736,
+      "reward/correctness": 0.3828125,
+      "reward/entity_grounding": 0.6966146230697632,
+      "mean_seq_length": 154.1015625
+    },
+    {
+      "_step": 767,
+      "reward/entity_grounding": 0.8170572519302368,
+      "mean_seq_length": 146.87109375,
+      "mean_reward": 1.2897136211395264,
+      "reward/correctness": 0.47265625
+    },
+    {
+      "_step": 769,
+      "mean_reward": 1.3841145038604736,
+      "reward/correctness": 0.47265625,
+      "reward/entity_grounding": 0.9114583730697632,
+      "mean_seq_length": 134.7734375
+    },
+    {
+      "_step": 771,
+      "mean_reward": 1.0517578125,
+      "reward/correctness": 0.2890625,
+      "reward/entity_grounding": 0.7626953125,
+      "mean_seq_length": 155.08203125
+    },
+    {
+      "_step": 773,
+      "reward/entity_grounding": 0.91796875,
+      "mean_seq_length": 147.078125,
+      "mean_reward": 1.21875,
+      "reward/correctness": 0.30078125
+    },
+    {
+      "_step": 775,
+      "reward/entity_grounding": 0.811895489692688,
+      "mean_seq_length": 155.87109375,
+      "mean_reward": 1.347051739692688,
+      "reward/correctness": 0.53515625
+    },
+    {
+      "_step": 777,
+      "reward/entity_grounding": 0.8444010615348816,
+      "mean_seq_length": 167.87890625,
+      "mean_reward": 1.2350261211395264,
+      "reward/correctness": 0.390625
+    },
+    {
+      "_step": 779,
+      "mean_reward": 1.1328125,
+      "reward/correctness": 0.34375,
+      "reward/entity_grounding": 0.7890625,
+      "mean_seq_length": 161.6328125
+    },
+    {
+      "_step": 781,
+      "reward/entity_grounding": 0.6337890625,
+      "mean_seq_length": 148.6484375,
+      "mean_reward": 1.0986328125,
+      "reward/correctness": 0.46484375
+    },
+    {
+      "_step": 783,
+      "reward/entity_grounding": 0.83203125,
+      "mean_seq_length": 150.8984375,
+      "mean_reward": 1.2734375,
+      "reward/correctness": 0.44140625
+    },
+    {
+      "_step": 785,
+      "mean_reward": 1.4912109375,
+      "reward/correctness": 0.56640625,
+      "reward/entity_grounding": 0.9248046875,
+      "mean_seq_length": 142.58203125
+    },
+    {
+      "_step": 787,
+      "mean_seq_length": 156.3359375,
+      "mean_reward": 1.0554687976837158,
+      "reward/correctness": 0.296875,
+      "reward/entity_grounding": 0.758593738079071
+    },
+    {
+      "_step": 789,
+      "reward/entity_grounding": 0.8307291865348816,
+      "mean_seq_length": 153.3046875,
+      "mean_reward": 1.1627603769302368,
+      "reward/correctness": 0.33203125
+    },
+    {
+      "_step": 791,
+      "reward/entity_grounding": 0.78515625,
+      "mean_seq_length": 156.2421875,
+      "mean_reward": 1.11328125,
+      "reward/correctness": 0.328125
+    },
+    {
+      "_step": 793,
+      "reward/entity_grounding": 0.763671875,
+      "mean_seq_length": 172.375,
+      "mean_reward": 1.158203125,
+      "reward/correctness": 0.39453125
+    },
+    {
+      "_step": 795,
+      "reward/correctness": 0.5078125,
+      "reward/entity_grounding": 0.7005208134651184,
+      "mean_seq_length": 166.62109375,
+      "mean_reward": 1.2083333730697632
+    },
+    {
+      "_step": 797,
+      "reward/correctness": 0.42578125,
+      "reward/entity_grounding": 0.5823567509651184,
+      "mean_seq_length": 179.73828125,
+      "mean_reward": 1.0081380605697632
+    },
+    {
+      "_step": 799,
+      "reward/entity_grounding": 0.869140625,
+      "mean_seq_length": 142.59765625,
+      "mean_reward": 1.294921875,
+      "reward/correctness": 0.42578125
+    },
+    {
+      "_step": 801,
+      "reward/correctness": 0.33203125,
+      "reward/entity_grounding": 0.6968749761581421,
+      "mean_seq_length": 150.60546875,
+      "mean_reward": 1.028906226158142
+    },
+    {
+      "_step": 803,
+      "mean_reward": 1.197265625,
+      "reward/correctness": 0.46484375,
+      "reward/entity_grounding": 0.732421875,
+      "mean_seq_length": 142.88671875
+    },
+    {
+      "_step": 805,
+      "reward/correctness": 0.2734375,
+      "reward/entity_grounding": 0.7774088382720947,
+      "mean_seq_length": 162.7890625,
+      "mean_reward": 1.0508463382720947
+    },
+    {
+      "_step": 807,
+      "reward/correctness": 0.5078125,
+      "reward/entity_grounding": 0.8059896230697632,
+      "mean_seq_length": 154.36328125,
+      "mean_reward": 1.3138020038604736
+    },
+    {
+      "_step": 809,
+      "reward/entity_grounding": 0.7916666865348816,
+      "mean_seq_length": 136.0703125,
+      "mean_reward": 1.4010416269302368,
+      "reward/correctness": 0.609375
+    },
+    {
+      "_step": 811,
+      "reward/entity_grounding": 0.8212890625,
+      "mean_seq_length": 151.9296875,
+      "mean_reward": 1.2119140625,
+      "reward/correctness": 0.390625
+    },
+    {
+      "_step": 813,
+      "reward/correctness": 0.359375,
+      "reward/entity_grounding": 0.7332899570465088,
+      "mean_seq_length": 167.015625,
+      "mean_reward": 1.0926649570465088
+    },
+    {
+      "_step": 815,
+      "mean_reward": 1.403906226158142,
+      "reward/correctness": 0.47265625,
+      "reward/entity_grounding": 0.9312499761581421,
+      "mean_seq_length": 163.89453125
+    },
+    {
+      "_step": 817,
+      "mean_seq_length": 152.80859375,
+      "mean_reward": 1.333984375,
+      "reward/correctness": 0.4453125,
+      "reward/entity_grounding": 0.8886719346046448
+    },
+    {
+      "_step": 819,
+      "reward/entity_grounding": 0.7603236436843872,
+      "mean_seq_length": 166.40625,
+      "mean_reward": 1.1157923936843872,
+      "reward/correctness": 0.35546875
+    },
+    {
+      "_step": 821,
+      "reward/entity_grounding": 0.6614583730697632,
+      "mean_seq_length": 155.87109375,
+      "mean_reward": 1.0052083730697632,
+      "reward/correctness": 0.34375
+    },
+    {
+      "_step": 823,
+      "reward/entity_grounding": 0.86328125,
+      "mean_seq_length": 148.38671875,
+      "mean_reward": 1.1953125,
+      "reward/correctness": 0.33203125
+    },
+    {
+      "_step": 825,
+      "reward/entity_grounding": 0.75390625,
+      "mean_seq_length": 146.828125,
+      "mean_reward": 1.1484376192092896,
+      "reward/correctness": 0.39453125
+    },
+    {
+      "_step": 827,
+      "mean_reward": 1.248046875,
+      "reward/correctness": 0.43359375,
+      "reward/entity_grounding": 0.814453125,
+      "mean_seq_length": 168.8671875
+    },
+    {
+      "_step": 829,
+      "mean_reward": 0.8466796875,
+      "reward/correctness": 0.31640625,
+      "reward/entity_grounding": 0.5302734375,
+      "mean_seq_length": 136.73046875
+    },
+    {
+      "_step": 831,
+      "mean_reward": 1.38671875,
+      "reward/correctness": 0.56640625,
+      "reward/entity_grounding": 0.8203125,
+      "mean_seq_length": 151.76171875
+    },
+    {
+      "_step": 833,
+      "reward/entity_grounding": 0.751953125,
+      "mean_seq_length": 150.72265625,
+      "mean_reward": 1.181640625,
+      "reward/correctness": 0.4296875
+    },
+    {
+      "_step": 835,
+      "reward/entity_grounding": 0.9518229365348816,
+      "mean_seq_length": 156.1015625,
+      "mean_reward": 1.2877603769302368,
+      "reward/correctness": 0.3359375
+    },
+    {
+      "_step": 837,
+      "reward/correctness": 0.3203125,
+      "reward/entity_grounding": 0.705859363079071,
+      "mean_seq_length": 136.91796875,
+      "mean_reward": 1.0261719226837158
+    },
+    {
+      "_step": 839,
+      "reward/correctness": 0.4375,
+      "reward/entity_grounding": 0.776171863079071,
+      "mean_seq_length": 161.3671875,
+      "mean_reward": 1.2136719226837158
+    },
+    {
+      "_step": 841,
+      "mean_reward": 1.2058035135269165,
+      "reward/correctness": 0.37109375,
+      "reward/entity_grounding": 0.8347098231315613,
+      "mean_seq_length": 147.80078125
+    },
+    {
+      "_step": 843,
+      "reward/correctness": 0.31640625,
+      "reward/entity_grounding": 0.7386718988418579,
+      "mean_seq_length": 152.78515625,
+      "mean_reward": 1.055078148841858
+    },
+    {
+      "_step": 845,
+      "reward/correctness": 0.4375,
+      "reward/entity_grounding": 0.7884114384651184,
+      "mean_seq_length": 168.0859375,
+      "mean_reward": 1.2259114980697632
+    },
+    {
+      "_step": 848,
+      "mean_seq_length": 144.078125,
+      "mean_reward": 1.291015625,
+      "reward/correctness": 0.41015625,
+      "reward/entity_grounding": 0.880859375
+    },
+    {
+      "_step": 850,
+      "reward/entity_grounding": 0.6178385615348816,
+      "mean_seq_length": 150.53515625,
+      "mean_reward": 1.0865885019302368,
+      "reward/correctness": 0.46875
+    },
+    {
+      "_step": 852,
+      "reward/correctness": 0.30859375,
+      "reward/entity_grounding": 0.6171875,
+      "mean_seq_length": 140.51171875,
+      "mean_reward": 0.92578125
+    },
+    {
+      "_step": 854,
+      "mean_reward": 0.8407552242279053,
+      "reward/correctness": 0.25390625,
+      "reward/entity_grounding": 0.5868489742279053,
+      "mean_seq_length": 154.57421875
+    },
+    {
+      "_step": 856,
+      "reward/correctness": 0.2890625,
+      "reward/entity_grounding": 0.755859375,
+      "mean_seq_length": 158.27734375,
+      "mean_reward": 1.044921875
+    },
+    {
+      "_step": 858,
+      "reward/entity_grounding": 0.78515625,
+      "mean_seq_length": 141.97265625,
+      "mean_reward": 1.29296875,
+      "reward/correctness": 0.5078125
+    },
+    {
+      "_step": 860,
+      "reward/entity_grounding": 0.7516276240348816,
+      "mean_seq_length": 145.46875,
+      "mean_reward": 1.0680339336395264,
+      "reward/correctness": 0.31640625
+    },
+    {
+      "_step": 862,
+      "reward/entity_grounding": 0.72265625,
+      "mean_seq_length": 172.30078125,
+      "mean_reward": 1.0703125,
+      "reward/correctness": 0.34765625
+    },
+    {
+      "_step": 864,
+      "reward/entity_grounding": 0.7854817509651184,
+      "mean_seq_length": 144.671875,
+      "mean_reward": 1.2659505605697632,
+      "reward/correctness": 0.48046875
+    },
+    {
+      "_step": 866,
+      "reward/correctness": 0.421875,
+      "reward/entity_grounding": 0.7572265863418579,
+      "mean_seq_length": 123.1328125,
+      "mean_reward": 1.179101586341858
+    },
+    {
+      "_step": 868,
+      "reward/correctness": 0.29296875,
+      "reward/entity_grounding": 0.7303059697151184,
+      "mean_seq_length": 143.80078125,
+      "mean_reward": 1.0232747793197632
+    },
+    {
+      "_step": 870,
+      "reward/entity_grounding": 0.771484375,
+      "mean_seq_length": 146.44921875,
+      "mean_reward": 1.185546875,
+      "reward/correctness": 0.4140625
+    },
+    {
+      "_step": 872,
+      "reward/entity_grounding": 0.6006324291229248,
+      "mean_seq_length": 154.05859375,
+      "mean_reward": 0.9404761791229248,
+      "reward/correctness": 0.33984375
+    },
+    {
+      "_step": 874,
+      "mean_reward": 0.8300781846046448,
+      "reward/correctness": 0.1875,
+      "reward/entity_grounding": 0.642578125,
+      "mean_seq_length": 148.27734375
+    },
+    {
+      "_step": 876,
+      "reward/entity_grounding": 0.779296875,
+      "mean_seq_length": 154.125,
+      "mean_reward": 1.232421875,
+      "reward/correctness": 0.453125
+    },
+    {
+      "_step": 878,
+      "mean_seq_length": 165.5078125,
+      "mean_reward": 1.068359375,
+      "reward/correctness": 0.34375,
+      "reward/entity_grounding": 0.724609375
+    },
+    {
+      "_step": 880,
+      "reward/correctness": 0.421875,
+      "reward/entity_grounding": 0.751171886920929,
+      "mean_seq_length": 151.59375,
+      "mean_reward": 1.1730468273162842
+    },
+    {
+      "_step": 882,
+      "reward/entity_grounding": 0.70703125,
+      "mean_seq_length": 147.3203125,
+      "mean_reward": 1.01171875,
+      "reward/correctness": 0.3046875
+    },
+    {
+      "_step": 884,
+      "reward/entity_grounding": 0.8055013418197632,
+      "mean_seq_length": 138.33984375,
+      "mean_reward": 1.2273762226104736,
+      "reward/correctness": 0.421875
+    },
+    {
+      "_step": 886,
+      "reward/entity_grounding": 0.8190104365348816,
+      "mean_seq_length": 156.1640625,
+      "mean_reward": 1.1822916269302368,
+      "reward/correctness": 0.36328125
+    },
+    {
+      "_step": 888,
+      "reward/correctness": 0.34765625,
+      "reward/entity_grounding": 0.5797526240348816,
+      "mean_seq_length": 143.34765625,
+      "mean_reward": 0.9274088740348816
+    },
+    {
+      "_step": 890,
+      "reward/entity_grounding": 0.7705078125,
+      "mean_seq_length": 142.89453125,
+      "mean_reward": 1.0634765625,
+      "reward/correctness": 0.29296875
+    },
+    {
+      "_step": 892,
+      "reward/correctness": 0.421875,
+      "reward/entity_grounding": 0.830078125,
+      "mean_seq_length": 149.4453125,
+      "mean_reward": 1.251953125
+    },
+    {
+      "_step": 894,
+      "mean_reward": 1.30078125,
+      "reward/correctness": 0.42578125,
+      "reward/entity_grounding": 0.875,
+      "mean_seq_length": 137.52734375
+    },
+    {
+      "_step": 896,
+      "reward/correctness": 0.2578125,
+      "reward/entity_grounding": 0.6168619990348816,
+      "mean_seq_length": 134.1796875,
+      "mean_reward": 0.8746744990348816
+    },
+    {
+      "_step": 898,
+      "reward/entity_grounding": 0.7445963621139526,
+      "mean_seq_length": 152.15234375,
+      "mean_reward": 1.1391276121139526,
+      "reward/correctness": 0.39453125
+    },
+    {
+      "_step": 900,
+      "mean_reward": 1.0945312976837158,
+      "reward/correctness": 0.40625,
+      "reward/entity_grounding": 0.688281238079071,
+      "mean_seq_length": 146.2734375
+    },
+    {
+      "_step": 902,
+      "reward/correctness": 0.46875,
+      "reward/entity_grounding": 0.5826823115348816,
+      "mean_seq_length": 143.3984375,
+      "mean_reward": 1.0514322519302368
+    },
+    {
+      "_step": 904,
+      "reward/entity_grounding": 0.7936198115348816,
+      "mean_seq_length": 144.99609375,
+      "mean_reward": 1.2779947519302368,
+      "reward/correctness": 0.484375
+    },
+    {
+      "_step": 906,
+      "mean_reward": 1.0259114503860474,
+      "reward/correctness": 0.33984375,
+      "reward/entity_grounding": 0.6860677003860474,
+      "mean_seq_length": 139.8359375
+    },
+    {
+      "_step": 908,
+      "mean_reward": 1.19921875,
+      "reward/correctness": 0.5234375,
+      "reward/entity_grounding": 0.6757813096046448,
+      "mean_seq_length": 152.72265625
+    },
+    {
+      "_step": 910,
+      "mean_seq_length": 148.13671875,
+      "mean_reward": 1.1002604961395264,
+      "reward/correctness": 0.3515625,
+      "reward/entity_grounding": 0.7486979365348816
+    },
+    {
+      "_step": 912,
+      "reward/entity_grounding": 0.85546875,
+      "mean_seq_length": 167.80078125,
+      "mean_reward": 1.09765625,
+      "reward/correctness": 0.2421875
+    },
+    {
+      "_step": 914,
+      "reward/entity_grounding": 0.8020833730697632,
+      "mean_seq_length": 150.9375,
+      "mean_reward": 1.3567708730697632,
+      "reward/correctness": 0.5546875
+    },
+    {
+      "_step": 916,
+      "reward/entity_grounding": 0.7298177480697632,
+      "mean_seq_length": 151.8125,
+      "mean_reward": 1.1087239980697632,
+      "reward/correctness": 0.37890625
+    },
+    {
+      "_step": 918,
+      "reward/correctness": 0.29296875,
+      "reward/entity_grounding": 0.82421875,
+      "mean_seq_length": 164.48046875,
+      "mean_reward": 1.1171875
+    },
+    {
+      "_step": 920,
+      "reward/correctness": 0.2578125,
+      "reward/entity_grounding": 0.708984375,
+      "mean_seq_length": 159.203125,
+      "mean_reward": 0.966796875
+    },
+    {
+      "_step": 922,
+      "reward/entity_grounding": 0.90234375,
+      "mean_seq_length": 134.140625,
+      "mean_reward": 1.3125,
+      "reward/correctness": 0.41015625
+    },
+    {
+      "_step": 924,
+      "reward/entity_grounding": 0.831250011920929,
+      "mean_seq_length": 150.46484375,
+      "mean_reward": 1.3546874523162842,
+      "reward/correctness": 0.5234375
+    },
+    {
+      "_step": 926,
+      "mean_seq_length": 138.703125,
+      "mean_reward": 1.189453125,
+      "reward/correctness": 0.4375,
+      "reward/entity_grounding": 0.751953125
+    },
+    {
+      "_step": 928,
+      "mean_seq_length": 150.5,
+      "mean_reward": 1.2054036855697632,
+      "reward/correctness": 0.40234375,
+      "reward/entity_grounding": 0.8030599355697632
+    },
+    {
+      "_step": 930,
+      "mean_seq_length": 149.05078125,
+      "mean_reward": 0.9752604365348816,
+      "reward/correctness": 0.3828125,
+      "reward/entity_grounding": 0.5924478769302368
+    },
+    {
+      "_step": 932,
+      "reward/entity_grounding": 0.7669270634651184,
+      "mean_seq_length": 147.61328125,
+      "mean_reward": 1.1809895038604736,
+      "reward/correctness": 0.4140625
+    },
+    {
+      "_step": 934,
+      "reward/entity_grounding": 0.83984375,
+      "mean_seq_length": 149.34765625,
+      "mean_reward": 1.40625,
+      "reward/correctness": 0.56640625
+    },
+    {
+      "_step": 936,
+      "reward/correctness": 0.3671875,
+      "reward/entity_grounding": 0.7981771230697632,
+      "mean_seq_length": 148.734375,
+      "mean_reward": 1.1653645038604736
+    },
+    {
+      "_step": 938,
+      "reward/entity_grounding": 0.62548828125,
+      "mean_seq_length": 157.77734375,
+      "mean_reward": 1.06298828125,
+      "reward/correctness": 0.4375
+    },
+    {
+      "_step": 940,
+      "mean_seq_length": 162.71484375,
+      "mean_reward": 1.3125,
+      "reward/correctness": 0.44140625,
+      "reward/entity_grounding": 0.87109375
+    }
+  ]
+}
