@@ -51,15 +51,27 @@ def classify_mistake(response_text: str, pred_num: str | None, ref_num: str, cor
     """Classify a single incorrect response using D9 taxonomy.
 
     Returns None if the response is correct (no mistake to classify).
-    Returns one of: 'no_answer', 'format_only', 'no_reasoning', 'arithmetic_error', 'wrong_setup', 'gibberish'
+    Returns one of: 'no_answer', 'format_only', 'no_reasoning', 'arithmetic_error', 'large_error', 'gibberish'
     """
     if correct:
         return None
 
-    # Gibberish: very short or incoherent
+    # Gibberish: degenerate text matching Reward C's anti-gibberish signals
     stripped = response_text.strip()
     if len(stripped) < 20:
         return "gibberish"
+    tokens = stripped.split()
+    if len(tokens) >= 3:
+        camel_count = sum(
+            1 for t in tokens
+            if len(re.sub(r'[^a-zA-Z]', '', t)) > 3
+            and sum(1 for c in re.sub(r'[^a-zA-Z]', '', t)[1:] if c.isupper()) >= 1
+        )
+        mega_count = sum(
+            1 for t in tokens if len(re.sub(r'[^a-zA-Z]', '', t)) > 15
+        )
+        if camel_count / len(tokens) > 0.25 or mega_count / len(tokens) > 0.20:
+            return "gibberish"
 
     # No answer: not parseable — no #### <number> marker
     has_format = GSM_RE.search(response_text) is not None
@@ -92,13 +104,13 @@ def classify_mistake(response_text: str, pred_num: str | None, ref_num: str, cor
 
     # Now we have format + reasoning. Classify based on proximity to gold.
     if pred_num is None:
-        return "wrong_setup"
+        return "large_error"
 
     try:
         pred_val = float(pred_num.replace(",", ""))
         ref_val = float(ref_num.replace(",", ""))
     except (ValueError, TypeError):
-        return "wrong_setup"
+        return "large_error"
 
     # Arithmetic error: calculator used, reasoning present, answer close to gold
     denominator = abs(ref_val) + 1.0
@@ -106,8 +118,8 @@ def classify_mistake(response_text: str, pred_num: str | None, ref_num: str, cor
     if relative_error < 0.5:
         return "arithmetic_error"
 
-    # Wrong setup: answer far from gold
-    return "wrong_setup"
+    # Large error: answer far from gold
+    return "large_error"
 
 
 def _reclassify_no_answer(response_text: str) -> str:
@@ -161,7 +173,7 @@ def process_run(eval_data: dict, run_name: str) -> dict:
     extraction_failures = 0
     mistake_counts = {
         "no_answer": 0, "format_only": 0, "no_reasoning": 0,
-        "arithmetic_error": 0, "wrong_setup": 0, "gibberish": 0,
+        "arithmetic_error": 0, "large_error": 0, "gibberish": 0,
     }
 
     for sample in samples:
