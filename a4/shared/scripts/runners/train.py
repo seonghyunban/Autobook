@@ -104,9 +104,14 @@ class Train:
 def _build_cli(args: dict) -> list[str]:
     """Convert underscore args to kebab-case CLI flags."""
     script = args.get("script", "scripts.base_train")
-    cmd = ["python", "-u", "-m", script]
+    nproc = int(args.get("nproc", 1))
+    if nproc > 1:
+        cmd = ["torchrun", "--standalone", f"--nproc_per_node={nproc}", "-m", script]
+    else:
+        cmd = ["python", "-u", "-m", script]
     reserved = {
         "script",
+        "nproc",
         "init_from_source",
         "init_from_tag",
         "init_from_step",
@@ -119,6 +124,10 @@ def _build_cli(args: dict) -> list[str]:
             # argparse store_true/store_false flags should be passed without "=value"
             if value:
                 cmd.append(f"--{cli_key}")
+            continue
+        if isinstance(value, list):
+            cmd.append(f"--{cli_key}")
+            cmd.extend(str(v) for v in value)
             continue
         cmd.append(f"--{cli_key}={value}")
     print(f"[train] Running: {' '.join(cmd)}")
@@ -213,8 +222,15 @@ def _sanitize_meta_model_config(meta_path: str):
     if not os.path.exists(meta_path):
         return
 
+    import sys
+    if NANOCHAT_DIR not in sys.path:
+        sys.path.insert(0, NANOCHAT_DIR)
     try:
-        from nanochat.gpt import GPTConfig  # type: ignore
+        # Reload in case a previous checkout cached a different version
+        import importlib
+        import nanochat.gpt as _gpt_mod
+        importlib.reload(_gpt_mod)
+        GPTConfig = _gpt_mod.GPTConfig
     except Exception as e:
         print(f"[train] WARNING: could not import GPTConfig for meta sanitization: {e}")
         return

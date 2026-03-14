@@ -1,12 +1,15 @@
 """Orchestrator — dispatches training stages and evals. Runs on Modal (no GPU)."""
 
-from shared.infra import app, image, setup, volume
+import json
+import os
+
+from shared.infra import CUSTOM_EVAL_SUBDIR, VOLUME_PATH, app, image, setup, volume
 from shared.helpers import partition_stages, resolve_eval_inputs
 from runners.train import Train
 from runners.evaluate import Evaluate
 
 
-@app.function(image=image, timeout=24 * 3600)
+@app.function(image=image, volumes={VOLUME_PATH: volume}, timeout=24 * 3600)
 def run(cfg: dict) -> dict:
     """
     1. Read config and set up tokenizer + data on the volume.
@@ -84,27 +87,69 @@ def run(cfg: dict) -> dict:
     eval_entries = cfg.get("eval", [])
     eval_inputs = resolve_eval_inputs(eval_entries, stage_results, nanochat_ref)
 
-    # [4.1] Dispatch: spawn all evals in parallel and collect results
+    # [4.1] Dispatch: spawn all evals in parallel, expanding shards
     eval_results = []
     if eval_inputs:
-        # [4.1.1] Log which evals are queued
-        _log_eval_queue(eval_inputs)
-
-        # [4.1.2] Spawn: kick off each eval on its own GPU container
-        handles = []
+        # [4.1.1] Expand sharded evals into individual dispatch items
+        dispatch_items = []  # (base_args, eval_env, output_name, shard_group_key)
         for inp in eval_inputs:
-            handles.append((inp, Evaluate.with_options(gpu=gpu, timeout=timeout)().run.spawn(*inp)))
+            num_shards = inp[7] if len(inp) > 7 else 1
+            config_env = inp[8] if len(inp) > 8 else {}
+            base_args = inp[:7]  # (nanochat_ref, checkpoint, step, standard_evals, custom_script, max_per_task, output_name)
 
-        # [4.1.3] Collect: wait for each eval, isolating failures so one crash doesn't kill the rest
-        for inp, handle in handles:
+            if num_shards > 1 and base_args[4]:  # has custom_eval_script
+                tag, ckpt_step = base_args[1], base_args[2]
+                group_key = f"{tag}@{ckpt_step}"
+                for shard_idx in range(num_shards):
+                    shard_output = f"{tag}_{ckpt_step:06d}_shard{shard_idx}of{num_shards}.json"
+                    shard_env = {**config_env, "P4_EVAL_SHARD_IDX": str(shard_idx), "P4_EVAL_NUM_SHARDS": str(num_shards)}
+                    dispatch_items.append((base_args, shard_env, shard_output, group_key))
+            else:
+                dispatch_items.append((base_args, config_env or None, base_args[6], None))
+
+        # [4.1.2] Log and spawn
+        print(f"\n[pipeline] Spawning {len(dispatch_items)} evals in parallel...")
+        handles = []
+        for base_args, eval_env, output_name, group_key in dispatch_items:
+            spawn_args = base_args[:6] + (output_name, eval_env)
+            eval_gpu = "H100"  # each eval shard runs on 1 GPU
+            handles.append((
+                base_args, group_key,
+                Evaluate.with_options(gpu=eval_gpu, timeout=timeout)().run.spawn(*spawn_args),
+            ))
+
+        # [4.1.3] Collect results, grouping shards for merging
+        shard_groups = {}  # group_key -> [result, ...]
+        for base_args, group_key, handle in handles:
             try:
                 result = handle.get()
-                eval_results.append(result)
-                _log_eval_result(result)
+                if group_key:
+                    shard_groups.setdefault(group_key, []).append(result)
+                else:
+                    eval_results.append(result)
+                    _log_eval_result(result)
             except Exception as e:
-                tag, step = inp[1], inp[2]
+                tag, step = base_args[1], base_args[2]
                 print(f"[pipeline] [eval] FAILED: {tag}@{step}: {e}")
-                eval_results.append({"checkpoint_tag": tag, "step": step, "error": str(e)})
+                if not group_key:
+                    eval_results.append({"checkpoint_tag": tag, "step": step, "error": str(e)})
+
+        # [4.1.4] Merge sharded eval results
+        for group_key, shard_results in shard_groups.items():
+            merged = _merge_shard_results(shard_results)
+            eval_results.append(merged)
+            _log_eval_result(merged)
+
+            # Save merged result to volume so collect.py can find it
+            tag = merged.get("checkpoint_tag", "unknown")
+            step = merged.get("step", 0)
+            custom_eval_dir = os.path.join(VOLUME_PATH, CUSTOM_EVAL_SUBDIR)
+            os.makedirs(custom_eval_dir, exist_ok=True)
+            merged_path = os.path.join(custom_eval_dir, f"{tag}_{step:06d}.json")
+            with open(merged_path, "w") as f:
+                json.dump(merged.get("custom_eval", merged), f, indent=2)
+            print(f"[pipeline] Saved merged eval: {merged_path}")
+            volume.commit()
 
     # [5] Summary: print final results
     _print_summary(experiment_name, stage_results, eval_results)
@@ -159,6 +204,40 @@ def _log_eval_result(result: dict):
         ppl = result["custom_eval"].get("aggregate_perplexity")
         if ppl is not None:
             print(f"[pipeline]   Positional PPL: {ppl:.2f}")
+
+
+def _merge_shard_results(shard_results: list[dict]) -> dict:
+    """Merge custom_eval results from multiple shards into one."""
+    if not shard_results:
+        return {"error": "No shard results to merge (empty shard list)"}
+    base = dict(shard_results[0])
+    custom = base.get("custom_eval")
+    if not isinstance(custom, dict) or "gsm8k_debug" not in custom:
+        return base
+
+    all_samples = []
+    for r in shard_results:
+        ce = r.get("custom_eval", {})
+        debug = ce.get("gsm8k_debug", {})
+        all_samples.extend(debug.get("samples", []))
+
+    all_samples.sort(key=lambda s: s["idx"])
+
+    merged_custom = dict(custom)
+    merged_custom["gsm8k_debug"] = {
+        "n": len(all_samples),
+        "sample_count": custom["gsm8k_debug"].get("sample_count", 8),
+        "samples": all_samples,
+    }
+    merged_custom.pop("shard_idx", None)
+    merged_custom.pop("num_shards", None)
+    merged_custom.pop("total_problems", None)
+
+    base["custom_eval"] = merged_custom
+    tag = base.get("checkpoint_tag", "?")
+    step = base.get("step", "?")
+    print(f"[pipeline] Merged {len(shard_results)} shards for {tag}@{step}: {len(all_samples)} problems")
+    return base
 
 
 def _print_summary(experiment_name: str, stage_results: dict, eval_results: list):

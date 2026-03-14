@@ -32,6 +32,7 @@ class Evaluate:
         custom_eval_script: str | None = None,
         max_per_task: int = -1,
         custom_eval_output_name: str | None = None,
+        eval_env: dict | None = None,
     ) -> dict:
         """Run standard evals and optionally a custom eval on one checkpoint.
 
@@ -71,7 +72,8 @@ class Evaluate:
             results.update(_run_standard_evals(checkpoint_tag, step, standard_evals, max_per_task))
 
         # [3.1] Rename CSV: add model_tag to prevent collisions across checkpoints
-        _rename_core_csv(checkpoint_tag, step)
+        if standard_evals:
+            _rename_core_csv(checkpoint_tag, step)
 
         # [3.2] Parse CSV: extract per-task CORE scores
         csv_path = os.path.join(VOLUME_PATH, EVAL_SUBDIR, f"{checkpoint_tag}_{step:06d}.csv")
@@ -81,6 +83,9 @@ class Evaluate:
 
         # [4] Custom eval: run user-provided eval script if specified
         if custom_eval_script:
+            if eval_env:
+                for k, v in eval_env.items():
+                    os.environ[k] = str(v)
             custom_result = _run_custom_eval(custom_eval_script, checkpoint_tag, step)
             results["custom_eval"] = custom_result
             if isinstance(custom_result, dict):
