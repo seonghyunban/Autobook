@@ -1,1 +1,1 @@
-export { parseTransaction, uploadTransactionsCsv } from "./client";
+export { parseTransaction, uploadTransactionFile } from "./client";

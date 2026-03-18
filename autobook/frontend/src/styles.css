@@ -264,6 +264,11 @@ button {
   margin-top: 0;
 }
 
+.file-type-note {
+  display: block;
+  margin-top: 10px;
+}
+
 .primary-button,
 .secondary-button,
 .segment {

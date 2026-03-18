@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { parseTransaction, uploadTransactionsCsv } from "../api/parse";
+import { parseTransaction, uploadTransactionFile } from "../api/parse";
 import type { ParseResponse } from "../api/types";
 import { ParseResultCard } from "../components/ParseResultCard";
 import { TransactionForm } from "../components/TransactionForm";
@@ -59,7 +59,7 @@ export function TransactionPage() {
     }
   }
 
-  async function handleCsvUpload() {
+  async function handleFileUpload() {
     if (!selectedFile) {
       return;
     }
@@ -67,12 +67,12 @@ export function TransactionPage() {
     try {
       setIsLoading(true);
       setError(null);
-      const response = await uploadTransactionsCsv(selectedFile);
+      const response = await uploadTransactionFile(selectedFile);
       setResult(response);
-      setUploadNotice(`Processed ${selectedFile.name} through the CSV intake path.`);
+      setUploadNotice(`Processed ${selectedFile.name} through the uploaded file intake path.`);
     } catch (submitError) {
       setError(
-        submitError instanceof Error ? submitError.message : "Unable to process uploaded CSV.",
+        submitError instanceof Error ? submitError.message : "Unable to process uploaded file.",
       );
     } finally {
       setIsLoading(false);
@@ -125,7 +125,7 @@ export function TransactionPage() {
         selectedFileName={selectedFile?.name ?? null}
         onFileChange={handleFileChange}
         onSubmit={handleSubmit}
-        onUploadCsv={handleCsvUpload}
+        onUploadFile={handleFileUpload}
         isLoading={isLoading}
       />
 

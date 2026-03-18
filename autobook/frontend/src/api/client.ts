@@ -38,9 +38,9 @@ export async function parseTransaction(input: ParseRequest): Promise<ParseRespon
   });
 }
 
-export async function uploadTransactionsCsv(file: File): Promise<ParseResponse> {
+export async function uploadTransactionFile(file: File): Promise<ParseResponse> {
   if (USE_MOCK_API) {
-    return mockApi.uploadTransactionsCsv(file);
+    return mockApi.uploadTransactionFile(file);
   }
 
   const formData = new FormData();

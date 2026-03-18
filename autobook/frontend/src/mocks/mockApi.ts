@@ -79,19 +79,33 @@ export const mockApi = {
     return structuredClone(parseAutoPostedFixture) as ParseResponse;
   },
 
-  async uploadTransactionsCsv(file: File): Promise<ParseResponse> {
+  async uploadTransactionFile(file: File): Promise<ParseResponse> {
     await delay();
 
+    const lowerName = file.name.toLowerCase();
+    const extension = lowerName.split(".").pop() ?? "";
     const fileText =
-      typeof file.text === "function" ? (await file.text()).toLowerCase() : file.name.toLowerCase();
+      typeof file.text === "function" ? (await file.text()).toLowerCase() : lowerName;
+    const needsClarification =
+      fileText.includes("transfer") ||
+      lowerName.includes("transfer") ||
+      extension === "png" ||
+      extension === "jpg" ||
+      extension === "jpeg";
     const response = structuredClone(
-      fileText.includes("transfer") ? parseNeedsClarificationFixture : parseAutoPostedFixture
+      needsClarification ? parseNeedsClarificationFixture : parseAutoPostedFixture
     ) as ParseResponse;
 
     response.parse_id = `upload_${file.name.replace(/[^a-z0-9]/gi, "_").toLowerCase()}`;
-    response.explanation = fileText.includes("transfer")
-      ? `Imported ${file.name} and flagged at least one transaction for clarification review.`
-      : `Imported ${file.name} and staged the transactions for automatic posting review.`;
+    if (extension === "pdf") {
+      response.explanation = `Imported ${file.name} through the PDF intake path and normalized the extracted text into the standard parsing flow.`;
+    } else if (extension === "png" || extension === "jpg" || extension === "jpeg") {
+      response.explanation = `Imported ${file.name} through the image receipt demo path. OCR is mocked for now, but the result is routed through the same parse contract.`;
+    } else {
+      response.explanation = needsClarification
+        ? `Imported ${file.name} and flagged at least one transaction for clarification review.`
+        : `Imported ${file.name} and staged the transactions for automatic posting review.`;
+    }
 
     return response;
   },

@@ -4,7 +4,7 @@ type TransactionFormProps = {
   selectedFileName: string | null;
   onFileChange: (file: File | null) => void;
   onSubmit: () => void;
-  onUploadCsv: () => void;
+  onUploadFile: () => void;
   isLoading: boolean;
 };
 
@@ -14,7 +14,7 @@ export function TransactionForm({
   selectedFileName,
   onFileChange,
   onSubmit,
-  onUploadCsv,
+  onUploadFile,
   isLoading,
 }: TransactionFormProps) {
   return (
@@ -44,21 +44,21 @@ export function TransactionForm({
 
       <div className="file-upload-grid">
         <div>
-          <label className="field-label" htmlFor="transaction-csv-upload">
-            Upload bank CSV
+          <label className="field-label" htmlFor="transaction-file-upload">
+            Upload transaction file
           </label>
           <p className="field-help">
-            Use this when you want to demo intake from exported bank activity instead of a single typed transaction.
+            Accepted demo formats: CSV, text-based PDF, PNG, and JPG. CSV is real in the current frontend flow; PDF and image uploads are mocked to preserve a single pipeline shape.
           </p>
           <input
-            id="transaction-csv-upload"
+            id="transaction-file-upload"
             className="text-input"
             type="file"
-            accept=".csv,text/csv"
+            accept=".csv,text/csv,.pdf,application/pdf,.png,image/png,.jpg,.jpeg,image/jpeg"
             onChange={(event) => onFileChange(event.target.files?.[0] ?? null)}
           />
           <span className="file-selection-copy">
-            {selectedFileName ? `Selected file: ${selectedFileName}` : "No CSV selected yet."}
+            {selectedFileName ? `Selected file: ${selectedFileName}` : "No file selected yet."}
           </span>
           <div className="sample-link-row">
             <a href="/sample-csv/clean-purchase.csv" target="_blank" rel="noreferrer">
@@ -67,7 +67,13 @@ export function TransactionForm({
             <a href="/sample-csv/ambiguous-transfer.csv" target="_blank" rel="noreferrer">
               Sample clarification CSV
             </a>
+            <a href="/sample-csv/invoice-demo.pdf" target="_blank" rel="noreferrer">
+              Sample PDF
+            </a>
           </div>
+          <span className="field-help file-type-note">
+            Image receipt upload is currently a mock/demo path only.
+          </span>
         </div>
       </div>
 
@@ -77,10 +83,10 @@ export function TransactionForm({
         </button>
         <button
           className="secondary-button"
-          onClick={onUploadCsv}
+          onClick={onUploadFile}
           disabled={isLoading || !selectedFileName}
         >
-          {isLoading ? "Processing..." : "Upload CSV"}
+          {isLoading ? "Processing..." : "Upload File"}
         </button>
       </div>
     </section>

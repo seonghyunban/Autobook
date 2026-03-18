@@ -126,6 +126,7 @@ Notes:
 Primary goal:
 
 - accept natural language transaction input
+- accept uploaded transaction files through one upload path
 - submit to parse API
 - display the parse result and next action
 
@@ -149,6 +150,13 @@ Displayed fields should include:
 - status
 - proposed journal entry preview
 - `parse_time_ms` if provided
+
+Upload behavior:
+
+- CSV is supported in the current frontend flow
+- PDF is exposed as a text-based upload path in the UI, but currently mocked
+- PNG/JPG is exposed as a receipt-style upload path in the UI, but currently mocked
+- all uploaded files still normalize into the same parse result contract
 
 ### Clarification Page
 
@@ -259,6 +267,7 @@ Frontend should not depend on:
 The frontend expects these endpoints to exist behind stable JSON contracts:
 
 - `POST /api/v1/parse`
+- `POST /api/v1/parse/upload`
 - `GET /api/v1/clarifications`
 - `POST /api/v1/clarifications/{id}/resolve`
 - `GET /api/v1/ledger`
@@ -397,6 +406,13 @@ Required fixtures:
 2. needs clarification transaction
 3. resolved clarification result
 4. statements sample response
+
+Current upload mock behavior:
+
+- CSV files return grounded demo results
+- PDF files return mocked text-extraction style results
+- PNG/JPG files return mocked OCR-style results
+- all file types still return the same `ParseResponse`
 
 Mock switching should be environment-based, for example:
 
