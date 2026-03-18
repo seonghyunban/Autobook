@@ -1,11 +1,24 @@
 *.secret.tfvars
 .env
+.env.local
+.env.*.local
 .terraform/
 errored.tfstate
 
 # Python
 __pycache__/
 *.pyc
+
+# Node
+node_modules/
+dist/
+.coverage
+coverage.xml
+htmlcov/
+.pytest_cache/
+pytest-cache-files-*/
+.tmp_pytest/
+autobook/a5_artifacts/profiling/scratch/
 
 # LaTeX build artifacts
 *.aux
