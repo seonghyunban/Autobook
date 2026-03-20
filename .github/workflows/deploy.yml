@@ -21,7 +21,8 @@ jobs:
   changes:
     runs-on: ubuntu-latest
     outputs:
-      services: ${{ steps.detect.outputs.services }}
+      api: ${{ steps.detect.outputs.api }}
+      workers: ${{ steps.detect.outputs.workers }}
     steps:
       - uses: actions/checkout@v4
         with:
@@ -31,8 +32,9 @@ jobs:
         id: detect
         run: |
           if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
-            # Manual trigger (prod) — deploy all services
-            echo 'services=["api","normalizer","precedent","ml_inference","agent","resolution","posting","flywheel"]' >> $GITHUB_OUTPUT
+            # Manual trigger (prod) — deploy everything
+            echo "api=true" >> $GITHUB_OUTPUT
+            echo 'workers=["normalizer","precedent","ml_inference","agent","resolution","posting","flywheel"]' >> $GITHUB_OUTPUT
             exit 0
           fi
 
@@ -49,22 +51,29 @@ jobs:
             "autobook/backend/accounting_engine/"
             "autobook/pyproject.toml"
             "autobook/uv.lock"
-            "autobook/Dockerfile"
           )
 
-          ALL_SERVICES='["api","normalizer","precedent","ml_inference","agent","resolution","posting","flywheel"]'
-
+          SHARED_CHANGED=false
           for pattern in "${SHARED_PATTERNS[@]}"; do
             if echo "$CHANGED" | grep -q "^${pattern}"; then
-              echo "services=${ALL_SERVICES}" >> $GITHUB_OUTPUT
-              exit 0
+              SHARED_CHANGED=true
+              break
             fi
           done
 
-          # Check individual service directories
-          SERVICES=()
+          # Dockerfile change only affects API (Lambda uses zip, not Docker)
+          API_CHANGED=false
+          if [ "$SHARED_CHANGED" = "true" ]; then
+            API_CHANGED=true
+          elif echo "$CHANGED" | grep -q "^autobook/Dockerfile"; then
+            API_CHANGED=true
+          elif echo "$CHANGED" | grep -q "^autobook/backend/api/"; then
+            API_CHANGED=true
+          fi
+
+          # Detect changed workers
+          WORKERS=()
           declare -A SERVICE_PATHS=(
-            ["api"]="autobook/backend/api/"
             ["normalizer"]="autobook/backend/services/normalizer/"
             ["precedent"]="autobook/backend/services/precedent/"
             ["ml_inference"]="autobook/backend/services/ml_inference/"
@@ -74,31 +83,34 @@ jobs:
             ["flywheel"]="autobook/backend/services/flywheel/"
           )
 
-          for svc in "${!SERVICE_PATHS[@]}"; do
-            if echo "$CHANGED" | grep -q "^${SERVICE_PATHS[$svc]}"; then
-              SERVICES+=("\"$svc\"")
-            fi
-          done
-
-          if [ ${#SERVICES[@]} -eq 0 ]; then
-            echo 'services=[]' >> $GITHUB_OUTPUT
+          if [ "$SHARED_CHANGED" = "true" ]; then
+            # Shared code changed — all workers need redeployment
+            WORKERS=("\"normalizer\"" "\"precedent\"" "\"ml_inference\"" "\"agent\"" "\"resolution\"" "\"posting\"" "\"flywheel\"")
           else
-            JOINED=$(IFS=,; echo "${SERVICES[*]}")
-            echo "services=[${JOINED}]" >> $GITHUB_OUTPUT
+            for svc in "${!SERVICE_PATHS[@]}"; do
+              if echo "$CHANGED" | grep -q "^${SERVICE_PATHS[$svc]}"; then
+                WORKERS+=("\"$svc\"")
+              fi
+            done
           fi
 
-  # ── Build and deploy changed services ──────────────────────────
-  deploy:
+          echo "api=${API_CHANGED}" >> $GITHUB_OUTPUT
+
+          if [ ${#WORKERS[@]} -eq 0 ]; then
+            echo 'workers=[]' >> $GITHUB_OUTPUT
+          else
+            JOINED=$(IFS=,; echo "${WORKERS[*]}")
+            echo "workers=[${JOINED}]" >> $GITHUB_OUTPUT
+          fi
+
+  # ── Deploy API (Docker → ECR → ECS) ──────────────────────────
+  deploy-api:
     needs: changes
-    if: needs.changes.outputs.services != '[]'
+    if: needs.changes.outputs.api == 'true'
     runs-on: ubuntu-latest
     permissions:
       id-token: write
       contents: read
-
-    strategy:
-      matrix:
-        service: ${{ fromJson(needs.changes.outputs.services) }}
 
     env:
       ENVIRONMENT: ${{ github.event_name == 'workflow_dispatch' && github.event.inputs.environment || 'dev' }}
@@ -108,20 +120,8 @@ jobs:
 
       - name: Set deploy variables
         run: |
-          # Map service name to Dockerfile target
-          declare -A TARGETS=(
-            ["api"]="autobook-api"
-            ["normalizer"]="autobook-normalizer"
-            ["precedent"]="autobook-precedent"
-            ["ml_inference"]="autobook-ml-inference"
-            ["agent"]="autobook-agent"
-            ["resolution"]="autobook-resolution"
-            ["posting"]="autobook-posting"
-            ["flywheel"]="autobook-flywheel"
-          )
-          echo "TARGET=${TARGETS[${{ matrix.service }}]}" >> $GITHUB_ENV
           echo "CLUSTER=autobook-${ENVIRONMENT}" >> $GITHUB_ENV
-          echo "SERVICE_NAME=autobook-${ENVIRONMENT}-${{ matrix.service }}" >> $GITHUB_ENV
+          echo "SERVICE_NAME=autobook-${ENVIRONMENT}-api" >> $GITHUB_ENV
 
       - name: Configure AWS credentials (OIDC)
         uses: aws-actions/configure-aws-credentials@v4
@@ -140,7 +140,7 @@ jobs:
 
           docker build \
             -f autobook/Dockerfile \
-            --target $TARGET \
+            --target autobook-api \
             -t $ECR_REPO:$IMAGE_TAG \
             -t $ECR_REPO:latest \
             autobook/
@@ -192,6 +192,89 @@ jobs:
             --query 'services[0].deployments[?status==`PRIMARY`].taskDefinition' \
             --output text)
           if [[ "$DEPLOYED" != "$NEW_TASK_DEF_ARN" ]]; then
-            echo "::error::Deploy of ${{ matrix.service }} rolled back by circuit breaker"
+            echo "::error::Deploy of api rolled back by circuit breaker"
             exit 1
           fi
+
+  # ── Deploy Workers (zip → Lambda) ──────────────────────────────
+  deploy-workers:
+    needs: changes
+    if: needs.changes.outputs.workers != '[]'
+    runs-on: ubuntu-latest
+    permissions:
+      id-token: write
+      contents: read
+
+    strategy:
+      matrix:
+        service: ${{ fromJson(needs.changes.outputs.workers) }}
+
+    env:
+      ENVIRONMENT: ${{ github.event_name == 'workflow_dispatch' && github.event.inputs.environment || 'dev' }}
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install Python 3.12
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Configure AWS credentials (OIDC)
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: arn:aws:iam::${{ secrets.AWS_ACCOUNT_ID }}:role/autobook-${{ env.ENVIRONMENT }}-github-actions
+          aws-region: ${{ env.AWS_REGION }}
+
+      - name: Package Lambda zip
+        run: |
+          pip install uv
+          cd autobook
+
+          # Map service name to pyproject.toml extra name (hyphens, not underscores)
+          # Workers without extras (precedent, resolution, posting) only get shared deps
+          declare -A EXTRA_MAP=(
+            ["normalizer"]="normalizer"
+            ["ml_inference"]="ml-inference"
+            ["agent"]="agent"
+            ["flywheel"]="flywheel"
+          )
+
+          EXTRA="${EXTRA_MAP[${{ matrix.service }}]:-}"
+
+          if [ -n "$EXTRA" ]; then
+            uv pip compile pyproject.toml \
+              --extra "$EXTRA" \
+              -o /tmp/requirements.txt
+          else
+            # No extra — shared deps only
+            uv pip compile pyproject.toml \
+              -o /tmp/requirements.txt
+          fi
+
+          # Install to flat target directory (no venv path fragility)
+          uv pip install --target /tmp/lambda-package -r /tmp/requirements.txt
+
+          # Copy shared application code (must match import paths)
+          cp backend/config.py /tmp/lambda-package/config.py
+          cp -r backend/db/ /tmp/lambda-package/db/
+          cp -r backend/queues/ /tmp/lambda-package/queues/
+          cp -r backend/cache/ /tmp/lambda-package/cache/
+          cp -r backend/utils/ /tmp/lambda-package/utils/
+          cp -r backend/schemas/ /tmp/lambda-package/schemas/
+          cp -r backend/accounting_engine/ /tmp/lambda-package/accounting_engine/
+
+          # Copy this worker's code (includes process.py + handler.py)
+          mkdir -p /tmp/lambda-package/services/
+          cp backend/services/__init__.py /tmp/lambda-package/services/
+          cp -r backend/services/${{ matrix.service }}/ \
+            /tmp/lambda-package/services/${{ matrix.service }}/
+
+          # Create zip
+          cd /tmp/lambda-package && zip -r /tmp/lambda.zip .
+
+      - name: Deploy to Lambda
+        run: |
+          aws lambda update-function-code \
+            --function-name autobook-${ENVIRONMENT}-${{ matrix.service }} \
+            --zip-file fileb:///tmp/lambda.zip
