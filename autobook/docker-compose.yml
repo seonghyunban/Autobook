@@ -1,6 +1,7 @@
 x-common-env: &common-env
   DATABASE_URL: postgresql://autobook:autobook@db:5432/autobook
   REDIS_URL: redis://redis:6379/0
+  SQS_ENDPOINT_URL: http://elasticmq:9324
   AWS_PROFILE: ${AWS_PROFILE:-default}
   AWS_DEFAULT_REGION: ca-central-1
   ENV: local
