@@ -5,6 +5,7 @@ from pydantic_settings import BaseSettings
 
 class Settings(BaseSettings):
     DATABASE_URL: str = "postgresql://autobook:autobook@localhost:5432/autobook"
+    DB_SECRET_ARN: str | None = None
     REDIS_URL: str = "redis://localhost:6379/0"
     AWS_DEFAULT_REGION: str = "ca-central-1"
     ENV: str = "local"
