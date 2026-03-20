@@ -57,6 +57,13 @@ resource "aws_route53_record" "www" {
 }
 
 # --- GitHub OIDC: lets GitHub Actions assume AWS roles without storing credentials ---
+# Import block: this OIDC provider already exists in the account.
+# Run `terraform apply` once, then remove this import block.
+import {
+  to = aws_iam_openid_connect_provider.github
+  id = "arn:aws:iam::609092547371:oidc-provider/token.actions.githubusercontent.com"
+}
+
 resource "aws_iam_openid_connect_provider" "github" {
   url             = "https://token.actions.githubusercontent.com"
   client_id_list  = ["sts.amazonaws.com"]                        # Required audience

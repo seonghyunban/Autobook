@@ -262,9 +262,9 @@ module "vector_search" {
 
   project         = var.project
   environment     = var.environment
-  number_of_nodes = 3       # PROD: 3 nodes for HA (dev = 1)
-  node_cpu        = "1000m" # PROD: 1 vCPU per node (dev = 500m)
-  node_ram        = "2Gi"   # PROD: 2 GB RAM per node (dev = 1Gi)
+  number_of_nodes = 1      # Using free2 tier (single node only)
+  node_cpu        = "500m" # free2 package
+  node_ram        = "1Gi"  # free2 package — upgrade to gpx1 (2Gi) when needed
 }
 
 # =============================================================================

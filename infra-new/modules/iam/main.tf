@@ -91,12 +91,9 @@ resource "aws_iam_role" "task" {
 # and endpoints, not IAM.
 
 # --- S3 policies (api, file, flywheel) ---
-# These are only created when s3_bucket_arn is provided (i.e., storage module exists)
 
 # API service: upload user files to S3
 resource "aws_iam_role_policy" "api_s3" {
-  count = var.s3_bucket_arn != null ? 1 : 0 # Skip if storage module not ready
-
   name = "s3-upload"
   role = aws_iam_role.task["api"].id
 
@@ -112,8 +109,6 @@ resource "aws_iam_role_policy" "api_s3" {
 
 # File worker: read raw files from S3, delete after processing
 resource "aws_iam_role_policy" "file_s3" {
-  count = var.s3_bucket_arn != null ? 1 : 0
-
   name = "s3-read"
   role = aws_iam_role.task["file"].id
 
@@ -129,8 +124,6 @@ resource "aws_iam_role_policy" "file_s3" {
 
 # Flywheel worker: read/write training data and model artifacts in S3
 resource "aws_iam_role_policy" "flywheel_s3" {
-  count = var.s3_bucket_arn != null ? 1 : 0
-
   name = "s3-training-data"
   role = aws_iam_role.task["flywheel"].id
 

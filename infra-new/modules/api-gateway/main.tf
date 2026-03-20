@@ -87,6 +87,33 @@ resource "aws_apigatewayv2_route_response" "connect" {
 }
 
 # =============================================================================
+# CLOUDWATCH LOGGING ROLE — account-level setting for API Gateway
+# =============================================================================
+# API Gateway requires an IAM role at the account level to write CloudWatch logs.
+# This is a one-time account setting, not per-API.
+resource "aws_iam_role" "apigateway_cloudwatch" {
+  name = "${local.name}-apigw-cloudwatch"
+
+  assume_role_policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [{
+      Effect    = "Allow"
+      Principal = { Service = "apigateway.amazonaws.com" }
+      Action    = "sts:AssumeRole"
+    }]
+  })
+}
+
+resource "aws_iam_role_policy_attachment" "apigateway_cloudwatch" {
+  role       = aws_iam_role.apigateway_cloudwatch.name
+  policy_arn = "arn:aws:iam::aws:policy/service-role/AmazonAPIGatewayPushToCloudWatchLogs"
+}
+
+resource "aws_api_gateway_account" "main" {
+  cloudwatch_role_arn = aws_iam_role.apigateway_cloudwatch.arn
+}
+
+# =============================================================================
 # STAGE — deployment environment (dev, prod)
 # =============================================================================
 # A stage is a named deployment of the API. The stage name appears in the URL:
@@ -122,6 +149,8 @@ resource "aws_apigatewayv2_stage" "main" {
   }
 
   tags = { Name = local.name }
+
+  depends_on = [aws_api_gateway_account.main] # Logging role must be set first
 }
 
 # =============================================================================

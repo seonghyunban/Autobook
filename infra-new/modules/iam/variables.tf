@@ -32,6 +32,5 @@ variable "github_repo" {
 # null = S3 policies are not created (useful when storage module hasn't been applied yet)
 variable "s3_bucket_arn" {
   type        = string
-  description = "S3 bucket ARN from storage module (null = skip S3 policies)"
-  default     = null
+  description = "S3 bucket ARN from storage module — used to scope S3 IAM policies"
 }

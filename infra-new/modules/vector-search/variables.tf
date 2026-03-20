@@ -15,11 +15,13 @@ variable "environment" {
 # --- Optional inputs (safe defaults provided) ---
 
 # AWS region where the Qdrant Cloud cluster runs
-# Should match your ECS region for lowest latency between workers and Qdrant
+# Qdrant Cloud is not available in all AWS regions. Verified available regions:
+#   us-east-1, us-west-2, eu-west-1, ap-northeast-1
+# ca-central-1 is NOT supported — use us-east-1 for lowest latency from ca-central-1
 variable "cloud_region" {
   type        = string
   description = "AWS region for the Qdrant Cloud cluster"
-  default     = "ca-central-1"
+  default     = "us-east-1"
 }
 
 # Number of Qdrant nodes in the cluster
@@ -42,6 +44,7 @@ variable "node_cpu" {
 # "1Gi" for dev (~100K vectors), "2Gi"+ for prod
 # Our embedding model (Cohere Embed v4) produces 1536-dim vectors
 # Each vector ≈ 6KB → 1GB RAM ≈ 150K vectors
+# Available packages: free2 (500m/1Gi), gpx1 (500m/2Gi), mx1 (500m/4Gi), ...
 variable "node_ram" {
   type        = string
   description = "RAM per node in Kubernetes notation (e.g. 1Gi, 2Gi)"

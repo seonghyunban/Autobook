@@ -131,7 +131,7 @@ resource "aws_route_table_association" "private" {
 # ALB: accepts HTTPS from the internet
 resource "aws_security_group" "alb" {
   name_prefix = "${local.name}-alb-" # name_prefix avoids conflicts on recreate
-  description = "ALB — allows HTTPS (443) from the internet"
+  description = "ALB - allows HTTPS (443) from the internet"
   vpc_id      = aws_vpc.main.id
 
   # Inbound: HTTPS only — port 80 is intentionally closed.
@@ -159,7 +159,7 @@ resource "aws_security_group" "alb" {
 # App (ECS): only accepts traffic from the ALB
 resource "aws_security_group" "app" {
   name_prefix = "${local.name}-app-"
-  description = "ECS services — allows port 8000 from ALB only"
+  description = "ECS services - allows port 8000 from ALB only"
   vpc_id      = aws_vpc.main.id
 
   # Inbound: port 8000 from ALB only (not the internet)
@@ -184,7 +184,7 @@ resource "aws_security_group" "app" {
 # Database (RDS): only accepts traffic from ECS services
 resource "aws_security_group" "db" {
   name_prefix = "${local.name}-db-"
-  description = "RDS — allows port 5432 (PostgreSQL) from ECS services only"
+  description = "RDS - allows port 5432 (PostgreSQL) from ECS services only"
   vpc_id      = aws_vpc.main.id
 
   # Inbound: PostgreSQL port from app containers only
@@ -209,7 +209,7 @@ resource "aws_security_group" "db" {
 # Redis (ElastiCache): only accepts traffic from ECS services
 resource "aws_security_group" "redis" {
   name_prefix = "${local.name}-redis-"
-  description = "Redis — allows port 6379 from ECS services only"
+  description = "Redis - allows port 6379 from ECS services only"
   vpc_id      = aws_vpc.main.id
 
   # Inbound: Redis port from app containers only
@@ -234,7 +234,7 @@ resource "aws_security_group" "redis" {
 # SageMaker: only accepts traffic from ECS services
 resource "aws_security_group" "sagemaker" {
   name_prefix = "${local.name}-sagemaker-"
-  description = "SageMaker — allows HTTPS (443) from ECS services only"
+  description = "SageMaker - allows HTTPS (443) from ECS services only"
   vpc_id      = aws_vpc.main.id
 
   # Inbound: HTTPS from app containers only
