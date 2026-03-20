@@ -3,50 +3,17 @@ locals {
   name = "${var.project}-${var.environment}" # e.g. "autobook-dev"
 
   # Service names derived from the IAM module's task_role_arns map keys
-  # This guarantees compute and IAM use the same service names
+  # After Lambda migration, this only contains ["api"]
   service_names = keys(var.task_role_arns)
 
-  # Which service sits behind the ALB (receives HTTP traffic from the internet)
-  # All other services are internal workers that consume from SQS queues
+  # The only ECS service — workers moved to Lambda
   api_service = "api"
 
-  # Per-service SQS queue URL environment variables.
-  # Each service only gets the queue URLs it actually reads from / writes to.
-  # Workers read their input queue URL to call ReceiveMessage, and their
-  # output queue URL(s) to call SendMessage after processing.
+  # SQS queue URL environment variables.
+  # API enqueues to the normalizer queue to kick off the pipeline.
   sqs_env = {
     api = [
       { name = "SQS_QUEUE_NORMALIZER", value = var.queue_urls["normalizer"] },
-    ]
-    normalizer = [
-      { name = "SQS_QUEUE_NORMALIZER", value = var.queue_urls["normalizer"] },
-      { name = "SQS_QUEUE_PRECEDENT", value = var.queue_urls["precedent"] },
-    ]
-    precedent = [
-      { name = "SQS_QUEUE_PRECEDENT", value = var.queue_urls["precedent"] },
-      { name = "SQS_QUEUE_ML_INFERENCE", value = var.queue_urls["ml_inference"] },
-      { name = "SQS_QUEUE_POSTING", value = var.queue_urls["posting"] },
-    ]
-    ml_inference = [
-      { name = "SQS_QUEUE_ML_INFERENCE", value = var.queue_urls["ml_inference"] },
-      { name = "SQS_QUEUE_AGENT", value = var.queue_urls["agent"] },
-      { name = "SQS_QUEUE_POSTING", value = var.queue_urls["posting"] },
-    ]
-    agent = [
-      { name = "SQS_QUEUE_AGENT", value = var.queue_urls["agent"] },
-      { name = "SQS_QUEUE_RESOLUTION", value = var.queue_urls["resolution"] },
-      { name = "SQS_QUEUE_POSTING", value = var.queue_urls["posting"] },
-    ]
-    resolution = [
-      { name = "SQS_QUEUE_RESOLUTION", value = var.queue_urls["resolution"] },
-      { name = "SQS_QUEUE_POSTING", value = var.queue_urls["posting"] },
-    ]
-    posting = [
-      { name = "SQS_QUEUE_POSTING", value = var.queue_urls["posting"] },
-      { name = "SQS_QUEUE_FLYWHEEL", value = var.queue_urls["flywheel"] },
-    ]
-    flywheel = [
-      { name = "SQS_QUEUE_FLYWHEEL", value = var.queue_urls["flywheel"] },
     ]
   }
 }
@@ -208,7 +175,7 @@ resource "aws_lb_listener" "https" {
 
 
 # =============================================================================
-# ECS TASK DEFINITIONS — container configuration (one per service)
+# ECS TASK DEFINITION — API container configuration
 # =============================================================================
 # A task definition is a blueprint for running a container. It specifies:
 #   - Which Docker image to use (from ECR)
@@ -295,13 +262,11 @@ resource "aws_ecs_task_definition" "main" {
 }
 
 # =============================================================================
-# ECS SERVICES — keep N copies of each task running (one service per worker)
+# ECS SERVICE — API service (workers moved to Lambda)
 # =============================================================================
 # A service ensures that the desired number of tasks are always running.
 # If a task dies (crash, health check failure), the service starts a new one.
-#
-# Only the API service is attached to the ALB (receives HTTP traffic).
-# Workers run in private subnets and consume from SQS queues — no ALB needed.
+# The API service is attached to the ALB to receive HTTP traffic.
 resource "aws_ecs_service" "main" {
   for_each = toset(local.service_names)
 

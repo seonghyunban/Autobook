@@ -193,17 +193,17 @@ module "secrets" {
 }
 
 # =============================================================================
-# COMPUTE — ECS cluster, 8 services, ALB, ECR repos
+# COMPUTE — ECS cluster, API service, ALB, ECR repo
 # =============================================================================
-# Creates the core application infrastructure:
+# Creates the API service infrastructure:
 #   - ECS cluster with Container Insights
-#   - 8 ECR repos (one per service, for Docker images)
-#   - 8 task definitions (container config, env vars, secrets)
-#   - 8 ECS services (Fargate, private subnets)
-#   - ALB with HTTPS listener (TLS termination, routes to API service)
-#   - CloudWatch log groups (one per service)
+#   - ECR repo for API Docker image
+#   - Task definition (container config, env vars, secrets)
+#   - ECS Fargate service behind ALB
+#   - ALB with HTTPS listener (TLS termination)
+#   - CloudWatch log group
 #
-# This is the most connected module — depends on 6 other modules.
+# Workers are handled by the lambda-workers module below.
 module "compute" {
   source = "../../modules/compute"
 
@@ -243,6 +243,47 @@ module "compute" {
 
   # Dev defaults: 0.25 vCPU, 512 MB memory, 0 desired count (CI/CD deploys first),
   # 30-day log retention, /health check path
+}
+
+# =============================================================================
+# LAMBDA WORKERS — 7 pipeline workers triggered by SQS
+# =============================================================================
+# Creates Lambda functions for the processing pipeline:
+#   normalizer → precedent → ml_inference → agent → resolution → posting → flywheel
+#
+# Each worker is triggered by its SQS queue via event source mapping.
+# Runs in VPC private subnets for DB/Redis access. Reads DB credentials
+# via the AWS Parameters and Secrets Lambda Extension.
+#
+# Depends on networking, IAM, queuing, secrets, cache, and storage.
+module "lambda_workers" {
+  source = "../../modules/lambda-workers"
+
+  project     = var.project
+  environment = var.environment
+
+  # --- From networking ---
+  private_subnet_ids = module.networking.private_subnet_ids # Same subnets as ECS
+  app_sg_id          = module.networking.app_sg_id          # Same SG — allows DB, Redis, NAT
+
+  # --- From IAM ---
+  lambda_role_arns = module.iam.lambda_role_arns # Per-worker least-privilege roles
+
+  # --- From queuing ---
+  queue_arns = module.queuing.queue_arns # SQS ARNs for event source mappings
+  queue_urls = module.queuing.queue_urls # SQS URLs for downstream sends
+
+  # --- From secrets ---
+  db_credentials_secret_arn = module.secrets.db_credentials_secret_arn # DB creds via extension
+
+  # --- From cache ---
+  redis_endpoint = module.cache.redis_endpoint
+  redis_port     = module.cache.redis_port
+
+  # --- From storage ---
+  s3_bucket_id = module.storage.bucket_id
+
+  # Dev defaults: 512 MB memory, 60s timeout, 30-day log retention, batch size 1
 }
 
 # =============================================================================
