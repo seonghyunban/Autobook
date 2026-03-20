@@ -19,18 +19,18 @@ async def get_statements(
                 {
                     "name": "Revenue",
                     "lines": [
-                        {"account_code": "4000", "account_name": "Sales Revenue", "amount": 12000},
+                        {"account_code": "4000", "account_name": "[BACKEND STUB] Sales Revenue", "amount": 6660.00},
                     ],
                 },
                 {
                     "name": "Expenses",
                     "lines": [
-                        {"account_code": "6100", "account_name": "Office Supplies", "amount": 49.99},
-                        {"account_code": "6200", "account_name": "Meals & Entertainment", "amount": 150},
+                        {"account_code": "6100", "account_name": "[BACKEND STUB] Office Supplies", "amount": 66.60},
+                        {"account_code": "6200", "account_name": "[BACKEND STUB] Meals & Entertainment", "amount": 666.00},
                     ],
                 },
             ],
-            totals={"total_revenue": 12000, "total_expenses": 199.99, "net_income": 11800.01},
+            totals={"total_revenue": 6660.00, "total_expenses": 732.60, "net_income": 5927.40},
         )
 
     return StatementResponse(
@@ -40,8 +40,8 @@ async def get_statements(
             {
                 "name": "Assets",
                 "lines": [
-                    {"account_code": "1000", "account_name": "Cash", "amount": 9550.01},
-                    {"account_code": "1500", "account_name": "Equipment", "amount": 2400},
+                    {"account_code": "1000", "account_name": "[BACKEND STUB] Cash", "amount": 5927.40},
+                    {"account_code": "1500", "account_name": "[BACKEND STUB] Equipment", "amount": 666.00},
                 ],
             },
             {
@@ -51,9 +51,9 @@ async def get_statements(
             {
                 "name": "Equity",
                 "lines": [
-                    {"account_code": "3000", "account_name": "Retained Earnings", "amount": 11950.01},
+                    {"account_code": "3000", "account_name": "[BACKEND STUB] Retained Earnings", "amount": 6593.40},
                 ],
             },
         ],
-        totals={"total_assets": 11950.01, "total_liabilities": 0, "total_equity": 11950.01},
+        totals={"total_assets": 6593.40, "total_liabilities": 0, "total_equity": 6593.40},
     )
