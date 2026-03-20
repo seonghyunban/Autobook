@@ -17,7 +17,8 @@ RUN --mount=type=cache,target=/root/.cache/uv \
 # Shared source
 COPY src/config.py src/config.py
 COPY src/db/ src/db/
-COPY src/queue/ src/queue/
+COPY src/queues/ src/queues/
+COPY src/cache/ src/cache/
 COPY src/utils/ src/utils/
 COPY src/schemas/ src/schemas/
 
