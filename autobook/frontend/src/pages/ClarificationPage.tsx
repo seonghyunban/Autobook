@@ -14,20 +14,46 @@ export function ClarificationPage() {
   const [message, setMessage] = useState<{ tone: "success" | "warning"; text: string } | null>(null);
 
   useEffect(() => {
-    void loadClarifications();
-    const unsub = subscribeToRealtimeUpdates((event) => {
-      if (event.type === "clarification.created" || event.type === "clarification.resolved") {
-        void loadClarifications();
-      }
+    let isMounted = true;
+
+    async function syncClarifications() {
+      await loadClarifications(isMounted);
+    }
+
+    void syncClarifications();
+    const unsubscribe = subscribeToRealtimeUpdates(() => {
+      void syncClarifications();
     });
-    return unsub;
+
+    return () => {
+      isMounted = false;
+      unsubscribe();
+    };
   }, []);
 
-  async function loadClarifications() {
+  async function loadClarifications(isMounted = true) {
+    if (!isMounted) {
+      return;
+    }
+
     setIsLoading(true);
     const response = await getClarifications();
+    if (!isMounted) {
+      return;
+    }
+
     setItems(response.items);
-    setSelectedItem(response.items[0] ?? null);
+    setSelectedItem((currentItem) => {
+      if (!currentItem) {
+        return response.items[0] ?? null;
+      }
+
+      return (
+        response.items.find((item) => item.clarification_id === currentItem.clarification_id) ??
+        response.items[0] ??
+        null
+      );
+    });
     setIsLoading(false);
   }
 

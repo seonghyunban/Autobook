@@ -49,9 +49,7 @@ export function LedgerTable({ entries }: LedgerTableProps) {
                     {entry.lines.map((line) => (
                       <li key={`${entry.journal_entry_id}-${line.account_code}-${line.type}`}>
                         {line.account_name}
-                        <span className="cell-subcopy">
-                          {line.account_code} · {line.type}
-                        </span>
+                        <span className="cell-subcopy">{`${line.account_code} - ${line.type}`}</span>
                       </li>
                     ))}
                   </ul>

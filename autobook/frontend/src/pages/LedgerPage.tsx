@@ -13,20 +13,25 @@ export function LedgerPage() {
   const [dateFrom, setDateFrom] = useState("");
   const [dateTo, setDateTo] = useState("");
 
-  function loadLedger() {
-    return getLedger().then((response) => {
-      setLedger(response);
-    });
-  }
-
   useEffect(() => {
-    void loadLedger();
-    const unsub = subscribeToRealtimeUpdates((event) => {
-      if (event.type === "entry.posted") {
-        void loadLedger();
+    let isMounted = true;
+
+    async function loadLedger() {
+      const response = await getLedger();
+      if (isMounted) {
+        setLedger(response);
       }
+    }
+
+    void loadLedger();
+    const unsubscribe = subscribeToRealtimeUpdates(() => {
+      void loadLedger();
     });
-    return unsub;
+
+    return () => {
+      isMounted = false;
+      unsubscribe();
+    };
   }, []);
 
   const accountOptions = useMemo(() => {

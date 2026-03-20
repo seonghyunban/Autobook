@@ -1,5 +1,6 @@
-import { fireEvent, render, screen, within } from "@testing-library/react";
+import { act, fireEvent, render, screen, within } from "@testing-library/react";
 import { MemoryRouter } from "react-router-dom";
+import { parseTransaction } from "../api/parse";
 import { LedgerPage } from "./LedgerPage";
 
 function renderLedgerPage() {
@@ -46,5 +47,21 @@ describe("ledger filters", () => {
     expect(within(table).getByText("Credits")).toBeInTheDocument();
     expect(within(table).getAllByText("$2400.00")).toHaveLength(2);
     expect(within(table).getAllByText("$1500.00")).toHaveLength(2);
+  });
+
+  test("refreshes the ledger when a posted entry arrives over the live update channel", async () => {
+    renderLedgerPage();
+
+    expect(await screen.findByText("Bought laptop for $2400")).toBeInTheDocument();
+
+    await act(async () => {
+      await parseTransaction({
+        input_text: "Purchased insurance policy",
+        source: "manual",
+        currency: "CAD",
+      });
+    });
+
+    expect(await screen.findByText("Purchased insurance policy")).toBeInTheDocument();
   });
 });
