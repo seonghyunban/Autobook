@@ -48,17 +48,16 @@ variable "vpc_id" {
 
 # --- From IAM module ---
 
-# Shared by all 8 services — lets the ECS agent pull images, write logs, read secrets
+# Lets the ECS agent pull images, write logs, read secrets
 variable "execution_role_arn" {
   type        = string
   description = "ECS execution role ARN (image pull, logs, secrets)"
 }
 
-# Map of service name → role ARN — each service gets its own least-privilege permissions
-# Example: {"api" = "arn:...", "file" = "arn:...", "llm" = "arn:...", ...}
+# After Lambda migration, this only contains {"api" = "arn:..."}
 variable "task_role_arns" {
   type        = map(string)
-  description = "Map of service name → task role ARN from IAM module"
+  description = "Map of ECS service name → task role ARN from IAM module (API only)"
 }
 
 # --- From global stack ---
@@ -112,13 +111,11 @@ variable "client_id" {
 
 # --- From queuing module ---
 
-# Map of queue name → SQS URL. Each service gets only the queue URLs it needs
-# as environment variables (e.g. API gets SQS_QUEUE_FILES_URL, File Worker gets
-# SQS_QUEUE_FILES_URL + SQS_QUEUE_PRECEDENT_URL).
-# Example: {"files" = "https://sqs.ca-central-1.amazonaws.com/123.../autobook-dev-files", ...}
+# API only needs the normalizer queue URL to enqueue uploaded files.
+# Workers get their queue URLs from the lambda-workers module.
 variable "queue_urls" {
   type        = map(string)
-  description = "Map of SQS queue name → URL from queuing module — injected as container env vars"
+  description = "Map of SQS queue name → URL from queuing module"
 }
 
 # =============================================================================

@@ -6,9 +6,9 @@ output "cluster_name" {
   value       = aws_ecs_cluster.main.name
 }
 
-# Monitoring module needs these to create per-service alarms
+# Monitoring module needs this to create per-service alarms (API only after Lambda migration)
 output "service_names" {
-  description = "List of ECS service names — used by monitoring for per-service alarms"
+  description = "List of ECS service names — API only, workers moved to Lambda"
   value       = [for s in aws_ecs_service.main : s.name]
 }
 
