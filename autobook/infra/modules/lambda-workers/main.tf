@@ -10,7 +10,7 @@
 
 locals {
   name      = "${var.project}-${var.environment}" # e.g. "autobook-dev"
-  redis_url = "redis://${var.redis_endpoint}:${var.redis_port}/0"
+  redis_url = var.redis_endpoint != null ? "redis://${var.redis_endpoint}:${var.redis_port}/0" : ""
 
   worker_names = ["normalizer", "precedent", "ml_inference", "agent",
     "resolution", "posting", "flywheel"]
