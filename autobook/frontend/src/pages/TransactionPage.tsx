@@ -81,7 +81,7 @@ export function TransactionPage() {
 
   return (
     <div className="page-grid">
-      <section className="panel hero-panel">
+      <section className="panel hero-panel workflow-hero">
         <div className="hero-copy">
           <div>
             <p className="eyebrow">Workflow</p>
