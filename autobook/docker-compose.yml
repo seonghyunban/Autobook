@@ -4,6 +4,7 @@ x-common-env: &common-env
   AWS_PROFILE: ${AWS_PROFILE:-default}
   AWS_DEFAULT_REGION: ca-central-1
   ENV: local
+  AUTH_ENABLED: "false"
 
 x-common: &common
   depends_on:
@@ -29,6 +30,11 @@ services:
     image: redis:7
     ports:
       - "6379:6379"
+
+  cloudbeaver:
+    image: dbeaver/cloudbeaver
+    ports:
+      - "8978:8978"
 
   # ── Application Services ────────────────────────────────────
   api:
