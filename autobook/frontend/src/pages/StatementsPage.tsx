@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { subscribeToRealtimeUpdates } from "../api/realtime";
 import { getStatements } from "../api/statements";
 import type { StatementsResponse } from "../api/types";
 import { downloadStatementsCsv, exportStatementsPdf } from "../utils/statementsExport";
@@ -7,9 +8,24 @@ export function StatementsPage() {
   const [statements, setStatements] = useState<StatementsResponse | null>(null);
 
   useEffect(() => {
-    void getStatements().then((response) => {
-      setStatements(response);
+    let isMounted = true;
+
+    async function loadStatements() {
+      const response = await getStatements();
+      if (isMounted) {
+        setStatements(response);
+      }
+    }
+
+    void loadStatements();
+    const unsubscribe = subscribeToRealtimeUpdates(() => {
+      void loadStatements();
     });
+
+    return () => {
+      isMounted = false;
+      unsubscribe();
+    };
   }, []);
 
   return (

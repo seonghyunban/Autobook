@@ -11,19 +11,74 @@ import type {
   LedgerResponse,
   ParseRequest,
   ParseResponse,
+  RealtimeEvent,
+  RealtimeListener,
   ResolveClarificationRequest,
   ResolveClarificationResponse,
-  StatementsResponse
+  StatementsResponse,
 } from "../api/types";
 
-let clarificationsStore: ClarificationItem[] = structuredClone(
-  clarificationsPendingFixture.items
-) as ClarificationItem[];
+function createInitialClarifications() {
+  return structuredClone(clarificationsPendingFixture.items) as ClarificationItem[];
+}
 
-let ledgerEntriesStore: LedgerEntry[] = structuredClone(ledgerFixture.entries) as LedgerEntry[];
+function createInitialLedgerEntries() {
+  return structuredClone(ledgerFixture.entries) as LedgerEntry[];
+}
+
+let clarificationsStore = createInitialClarifications();
+let ledgerEntriesStore = createInitialLedgerEntries();
+const realtimeListeners = new Set<RealtimeListener>();
+
+let parseSequence = 3000;
+let clarificationSequence = 3000;
+let journalEntrySequence = 3000;
 
 function delay(ms = 350) {
   return new Promise((resolve) => setTimeout(resolve, ms));
+}
+
+function getTodayDate() {
+  return new Date().toISOString().slice(0, 10);
+}
+
+function nextParseId() {
+  parseSequence += 1;
+  return `parse_${parseSequence}`;
+}
+
+function nextClarificationId() {
+  clarificationSequence += 1;
+  return `cl_${clarificationSequence}`;
+}
+
+function nextJournalEntryId() {
+  journalEntrySequence += 1;
+  return `je_${journalEntrySequence}`;
+}
+
+function emitRealtimeUpdate(event: RealtimeEvent) {
+  const snapshot = structuredClone(event) as RealtimeEvent;
+  for (const listener of realtimeListeners) {
+    listener(snapshot);
+  }
+}
+
+export function subscribeToRealtimeUpdates(listener: RealtimeListener) {
+  realtimeListeners.add(listener);
+
+  return () => {
+    realtimeListeners.delete(listener);
+  };
+}
+
+export function resetMockApiState() {
+  clarificationsStore = createInitialClarifications();
+  ledgerEntriesStore = createInitialLedgerEntries();
+  realtimeListeners.clear();
+  parseSequence = 3000;
+  clarificationSequence = 3000;
+  journalEntrySequence = 3000;
 }
 
 function computeLedgerSummary(entries: LedgerEntry[]): LedgerResponse["summary"] {
@@ -42,7 +97,7 @@ function computeLedgerSummary(entries: LedgerEntry[]): LedgerResponse["summary"]
 
   return {
     total_debits: totalDebits,
-    total_credits: totalCredits
+    total_credits: totalCredits,
   };
 }
 
@@ -54,7 +109,7 @@ function computeBalances(entries: LedgerEntry[]): LedgerResponse["balances"] {
       const current = balanceMap.get(line.account_code) ?? {
         account_code: line.account_code,
         account_name: line.account_name,
-        balance: 0
+        balance: 0,
       };
 
       current.balance += line.type === "debit" ? line.amount : -line.amount;
@@ -63,8 +118,106 @@ function computeBalances(entries: LedgerEntry[]): LedgerResponse["balances"] {
   }
 
   return Array.from(balanceMap.values()).sort((left, right) =>
-    left.account_code.localeCompare(right.account_code)
+    left.account_code.localeCompare(right.account_code),
   );
+}
+
+function buildStatementsFromLedger(entries: LedgerEntry[]): StatementsResponse {
+  const balances = computeBalances(entries);
+  const assetRows = ["1000", "1100", "1500"]
+    .map((accountCode) => balances.find((balance) => balance.account_code === accountCode))
+    .filter((balance): balance is NonNullable<typeof balance> => Boolean(balance))
+    .map((balance) => ({
+      label: balance.account_name,
+      amount: balance.balance,
+    }));
+
+  const fallbackAssets =
+    structuredClone(statementsFixture.sections.find((section) => section.title === "Assets")?.rows) ?? [];
+  const resolvedAssetRows = assetRows.length > 0 ? assetRows : fallbackAssets;
+  const assetsTotal = resolvedAssetRows.reduce((total, row) => total + row.amount, 0);
+
+  return {
+    statement_type: statementsFixture.statement_type as StatementsResponse["statement_type"],
+    period: {
+      as_of: getTodayDate(),
+    },
+    sections: [
+      {
+        title: "Assets",
+        rows: resolvedAssetRows,
+      },
+      {
+        title: "Equity",
+        rows: [
+          {
+            label: "Owner Equity",
+            amount: assetsTotal,
+          },
+        ],
+      },
+    ],
+    totals: {
+      assets: assetsTotal,
+      liabilities_and_equity: assetsTotal,
+    },
+  };
+}
+
+function queueClarification(sourceText: string, response: ParseResponse) {
+  const clarificationId = nextClarificationId();
+
+  clarificationsStore = [
+    {
+      clarification_id: clarificationId,
+      status: "pending",
+      source_text: sourceText,
+      explanation: response.explanation,
+      confidence: {
+        overall: response.confidence.overall,
+      },
+      proposed_entry: {
+        lines: structuredClone(response.proposed_entry.lines),
+      },
+    },
+    ...clarificationsStore,
+  ];
+
+  emitRealtimeUpdate({
+    type: "accounting.snapshot.updated",
+    reason: "clarification.queued",
+    occurred_at: new Date().toISOString(),
+  });
+
+  return clarificationId;
+}
+
+function postJournalEntry(
+  description: string,
+  lines: LedgerEntry["lines"],
+  reason: RealtimeEvent["reason"] = "journal_entry.posted",
+) {
+  const journalEntryId = nextJournalEntryId();
+
+  ledgerEntriesStore = [
+    {
+      journal_entry_id: journalEntryId,
+      date: getTodayDate(),
+      description,
+      status: "posted",
+      lines: structuredClone(lines),
+    },
+    ...ledgerEntriesStore,
+  ];
+
+  emitRealtimeUpdate({
+    type: "accounting.snapshot.updated",
+    reason,
+    journal_entry_id: journalEntryId,
+    occurred_at: new Date().toISOString(),
+  });
+
+  return journalEntryId;
 }
 
 export const mockApi = {
@@ -73,10 +226,20 @@ export const mockApi = {
 
     const normalized = input.input_text.toLowerCase();
     if (normalized.includes("transfer")) {
-      return structuredClone(parseNeedsClarificationFixture) as ParseResponse;
+      const response = structuredClone(parseNeedsClarificationFixture) as ParseResponse;
+      response.parse_id = nextParseId();
+      response.proposed_entry.journal_entry_id = null;
+      response.clarification_id = queueClarification(input.input_text, response);
+      return response;
     }
 
-    return structuredClone(parseAutoPostedFixture) as ParseResponse;
+    const response = structuredClone(parseAutoPostedFixture) as ParseResponse;
+    response.parse_id = nextParseId();
+    response.proposed_entry.journal_entry_id = postJournalEntry(
+      input.input_text,
+      response.proposed_entry.lines,
+    );
+    return response;
   },
 
   async uploadTransactionFile(file: File): Promise<ParseResponse> {
@@ -84,8 +247,7 @@ export const mockApi = {
 
     const lowerName = file.name.toLowerCase();
     const extension = lowerName.split(".").pop() ?? "";
-    const fileText =
-      typeof file.text === "function" ? (await file.text()).toLowerCase() : lowerName;
+    const fileText = typeof file.text === "function" ? (await file.text()).toLowerCase() : lowerName;
     const needsClarification =
       fileText.includes("transfer") ||
       lowerName.includes("transfer") ||
@@ -93,7 +255,7 @@ export const mockApi = {
       extension === "jpg" ||
       extension === "jpeg";
     const response = structuredClone(
-      needsClarification ? parseNeedsClarificationFixture : parseAutoPostedFixture
+      needsClarification ? parseNeedsClarificationFixture : parseAutoPostedFixture,
     ) as ParseResponse;
 
     response.parse_id = `upload_${file.name.replace(/[^a-z0-9]/gi, "_").toLowerCase()}`;
@@ -107,6 +269,17 @@ export const mockApi = {
         : `Imported ${file.name} and staged the transactions for automatic posting review.`;
     }
 
+    if (needsClarification) {
+      response.proposed_entry.journal_entry_id = null;
+      response.clarification_id = queueClarification(`Uploaded file: ${file.name}`, response);
+      return response;
+    }
+
+    response.proposed_entry.journal_entry_id = postJournalEntry(
+      `Imported transaction file: ${file.name}`,
+      response.proposed_entry.lines,
+    );
+    response.clarification_id = null;
     return response;
   },
 
@@ -114,40 +287,44 @@ export const mockApi = {
     await delay(250);
     return {
       items: structuredClone(clarificationsStore),
-      count: clarificationsStore.length
+      count: clarificationsStore.length,
     };
   },
 
   async resolveClarification(
     clarificationId: string,
-    input: ResolveClarificationRequest
+    input: ResolveClarificationRequest,
   ): Promise<ResolveClarificationResponse> {
     await delay();
 
-    clarificationsStore = clarificationsStore.filter(
-      (item) => item.clarification_id !== clarificationId
-    );
+    const currentItem = clarificationsStore.find((item) => item.clarification_id === clarificationId) ?? null;
+    clarificationsStore = clarificationsStore.filter((item) => item.clarification_id !== clarificationId);
 
     if (input.action === "approve" || input.action === "edit") {
-      ledgerEntriesStore = [
-        ...ledgerEntriesStore,
-        {
-          journal_entry_id: clarificationResolvedFixture.journal_entry_id,
-          date: "2026-03-17",
-          description: "Clarified transfer posting",
-          status: "posted",
-          lines:
-            input.edited_entry?.lines ??
-            (structuredClone(parseNeedsClarificationFixture.proposed_entry.lines) as LedgerEntry["lines"])
-        }
-      ];
+      const journalEntryId = postJournalEntry(
+        currentItem?.source_text ?? "Clarified transfer posting",
+        input.edited_entry?.lines ??
+          currentItem?.proposed_entry.lines ??
+          (structuredClone(parseNeedsClarificationFixture.proposed_entry.lines) as LedgerEntry["lines"]),
+        "clarification.resolved",
+      );
 
-      return structuredClone(clarificationResolvedFixture) as ResolveClarificationResponse;
+      return {
+        ...(structuredClone(clarificationResolvedFixture) as ResolveClarificationResponse),
+        clarification_id: clarificationId,
+        journal_entry_id: journalEntryId,
+      };
     }
+
+    emitRealtimeUpdate({
+      type: "accounting.snapshot.updated",
+      reason: "clarification.rejected",
+      occurred_at: new Date().toISOString(),
+    });
 
     return {
       clarification_id: clarificationId,
-      status: "rejected"
+      status: "rejected",
     };
   },
 
@@ -156,12 +333,12 @@ export const mockApi = {
     return {
       entries: structuredClone(ledgerEntriesStore),
       balances: computeBalances(ledgerEntriesStore),
-      summary: computeLedgerSummary(ledgerEntriesStore)
+      summary: computeLedgerSummary(ledgerEntriesStore),
     };
   },
 
   async getStatements(): Promise<StatementsResponse> {
     await delay(250);
-    return structuredClone(statementsFixture) as StatementsResponse;
-  }
+    return buildStatementsFromLedger(ledgerEntriesStore);
+  },
 };

@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { getClarifications, resolveClarification } from "../api/clarifications";
+import { subscribeToRealtimeUpdates } from "../api/realtime";
 import type { ClarificationItem } from "../api/types";
 import { ClarificationList } from "../components/ClarificationList";
 
@@ -13,14 +14,46 @@ export function ClarificationPage() {
   const [message, setMessage] = useState<{ tone: "success" | "warning"; text: string } | null>(null);
 
   useEffect(() => {
-    void loadClarifications();
+    let isMounted = true;
+
+    async function syncClarifications() {
+      await loadClarifications(isMounted);
+    }
+
+    void syncClarifications();
+    const unsubscribe = subscribeToRealtimeUpdates(() => {
+      void syncClarifications();
+    });
+
+    return () => {
+      isMounted = false;
+      unsubscribe();
+    };
   }, []);
 
-  async function loadClarifications() {
+  async function loadClarifications(isMounted = true) {
+    if (!isMounted) {
+      return;
+    }
+
     setIsLoading(true);
     const response = await getClarifications();
+    if (!isMounted) {
+      return;
+    }
+
     setItems(response.items);
-    setSelectedItem(response.items[0] ?? null);
+    setSelectedItem((currentItem) => {
+      if (!currentItem) {
+        return response.items[0] ?? null;
+      }
+
+      return (
+        response.items.find((item) => item.clarification_id === currentItem.clarification_id) ??
+        response.items[0] ??
+        null
+      );
+    });
     setIsLoading(false);
   }
 

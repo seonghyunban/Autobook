@@ -102,3 +102,16 @@ export type StatementsResponse = {
   sections: StatementSection[];
   totals: Record<string, number>;
 };
+
+export type RealtimeEvent = {
+  type: "accounting.snapshot.updated";
+  reason:
+    | "journal_entry.posted"
+    | "clarification.queued"
+    | "clarification.resolved"
+    | "clarification.rejected";
+  journal_entry_id?: string;
+  occurred_at: string;
+};
+
+export type RealtimeListener = (event: RealtimeEvent) => void;

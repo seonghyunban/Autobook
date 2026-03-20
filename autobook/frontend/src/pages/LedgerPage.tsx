@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { getLedger } from "../api/ledger";
+import { subscribeToRealtimeUpdates } from "../api/realtime";
 import type { LedgerResponse } from "../api/types";
 import { LedgerTable } from "../components/LedgerTable";
 
@@ -13,9 +14,24 @@ export function LedgerPage() {
   const [dateTo, setDateTo] = useState("");
 
   useEffect(() => {
-    void getLedger().then((response) => {
-      setLedger(response);
+    let isMounted = true;
+
+    async function loadLedger() {
+      const response = await getLedger();
+      if (isMounted) {
+        setLedger(response);
+      }
+    }
+
+    void loadLedger();
+    const unsubscribe = subscribeToRealtimeUpdates(() => {
+      void loadLedger();
     });
+
+    return () => {
+      isMounted = false;
+      unsubscribe();
+    };
   }, []);
 
   const accountOptions = useMemo(() => {

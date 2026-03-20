@@ -4,6 +4,11 @@
 
 This document defines the frontend scope for AI Accountant (Autobook), the planned React + TypeScript structure, the UI behavior we will implement first, and the assumptions we make about backend and other team-owned systems.
 
+Related frontend docs:
+
+- `FRONTEND_DEPLOYMENT.md`
+- `FRONTEND_REALTIME_UPDATES.md`
+
 This is a frontend-owned plan. It is intentionally minimal and optimized for:
 
 - a 2-week implementation window
@@ -204,6 +209,7 @@ Expected behavior:
 1. Show high-level metrics from clarifications, ledger, and statements
 2. Offer quick navigation into transaction intake, clarifications, ledger, and statements
 3. Surface recent activity so the app feels cohesive rather than page-based
+4. Refresh dashboard metrics when a realtime snapshot update arrives from the API layer
 
 ### Statements Page
 
@@ -465,13 +471,12 @@ The frontend team needs the following from backend and other implementation owne
 The first iteration will not include:
 
 - production auth flow
-- websocket-based real-time updates
 - advanced filtering and search
 - full accounting-editing UX
 - admin panels
 - infra dashboards
 
-If needed for the demo, polling is acceptable in place of real-time subscriptions.
+If the backend push channel is unavailable, polling remains an acceptable fallback for demo continuity.
 
 ## Implementation Sequence
 

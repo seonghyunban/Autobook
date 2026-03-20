@@ -1,4 +1,5 @@
-import { fireEvent, render, screen } from "@testing-library/react";
+import { act, fireEvent, render, screen } from "@testing-library/react";
+import { parseTransaction } from "../api/parse";
 import { StatementsPage } from "./StatementsPage";
 import { downloadStatementsCsv, exportStatementsPdf } from "../utils/statementsExport";
 
@@ -20,5 +21,22 @@ describe("statement export controls", () => {
 
     expect(vi.mocked(downloadStatementsCsv)).toHaveBeenCalledTimes(1);
     expect(vi.mocked(exportStatementsPdf)).toHaveBeenCalledTimes(1);
+  });
+
+  test("refreshes statement balances after a posted ledger update", async () => {
+    render(<StatementsPage />);
+
+    expect(await screen.findByText("$-2400.00")).toBeInTheDocument();
+
+    await act(async () => {
+      await parseTransaction({
+        input_text: "Purchased office chairs",
+        source: "manual",
+        currency: "CAD",
+      });
+    });
+
+    expect(await screen.findByText("$-4800.00")).toBeInTheDocument();
+    expect(screen.getByText("$4800.00")).toBeInTheDocument();
   });
 });
