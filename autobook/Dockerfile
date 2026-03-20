@@ -15,12 +15,12 @@ RUN --mount=type=cache,target=/root/.cache/uv \
     uv sync --frozen --no-dev --no-install-project
 
 # Shared source
-COPY src/config.py src/config.py
-COPY src/db/ src/db/
-COPY src/queues/ src/queues/
-COPY src/cache/ src/cache/
-COPY src/utils/ src/utils/
-COPY src/schemas/ src/schemas/
+COPY backend/config.py backend/config.py
+COPY backend/db/ backend/db/
+COPY backend/queues/ backend/queues/
+COPY backend/cache/ backend/cache/
+COPY backend/utils/ backend/utils/
+COPY backend/schemas/ backend/schemas/
 
 RUN groupadd -g 1001 app && useradd -u 1001 -g app -s /bin/false app
 ENV PATH="/app/.venv/bin:$PATH"
@@ -32,7 +32,7 @@ FROM autobook-base AS autobook-accounting
 RUN --mount=type=cache,target=/root/.cache/uv \
     uv sync --frozen --no-dev --no-install-project --extra accounting
 
-COPY src/accounting_engine/ src/accounting_engine/
+COPY backend/accounting_engine/ backend/accounting_engine/
 
 # ── API Service ────────────────────────────────────────────────
 FROM autobook-base AS autobook-api
@@ -40,7 +40,7 @@ FROM autobook-base AS autobook-api
 RUN --mount=type=cache,target=/root/.cache/uv \
     uv sync --frozen --no-dev --no-install-project --extra api
 
-COPY src/api/ src/api/
+COPY backend/api/ backend/api/
 USER app
 EXPOSE 8000
 CMD ["uvicorn", "api.main:app", "--host", "0.0.0.0", "--port", "8000"]
@@ -51,14 +51,14 @@ FROM autobook-base AS autobook-normalizer
 RUN --mount=type=cache,target=/root/.cache/uv \
     uv sync --frozen --no-dev --no-install-project --extra normalizer
 
-COPY src/services/normalizer/ src/services/normalizer/
+COPY backend/services/normalizer/ backend/services/normalizer/
 USER app
 CMD ["python", "-m", "services.normalizer"]
 
 # ── Precedent Matcher (Tier 1) ─────────────────────────────────
 FROM autobook-accounting AS autobook-precedent
 
-COPY src/services/precedent/ src/services/precedent/
+COPY backend/services/precedent/ backend/services/precedent/
 USER app
 CMD ["python", "-m", "services.precedent"]
 
@@ -68,7 +68,7 @@ FROM autobook-accounting AS autobook-ml-inference
 RUN --mount=type=cache,target=/root/.cache/uv \
     uv sync --frozen --no-dev --no-install-project --extra ml-inference
 
-COPY src/services/ml_inference/ src/services/ml_inference/
+COPY backend/services/ml_inference/ backend/services/ml_inference/
 USER app
 CMD ["python", "-m", "services.ml_inference"]
 
@@ -78,21 +78,21 @@ FROM autobook-accounting AS autobook-agent
 RUN --mount=type=cache,target=/root/.cache/uv \
     uv sync --frozen --no-dev --no-install-project --extra agent
 
-COPY src/services/agent/ src/services/agent/
+COPY backend/services/agent/ backend/services/agent/
 USER app
 CMD ["python", "-m", "services.agent"]
 
 # ── Resolution Worker (Tier 4) ─────────────────────────────────
 FROM autobook-accounting AS autobook-resolution
 
-COPY src/services/resolution/ src/services/resolution/
+COPY backend/services/resolution/ backend/services/resolution/
 USER app
 CMD ["python", "-m", "services.resolution"]
 
 # ── Posting Service ────────────────────────────────────────────
 FROM autobook-base AS autobook-posting
 
-COPY src/services/posting/ src/services/posting/
+COPY backend/services/posting/ backend/services/posting/
 USER app
 CMD ["python", "-m", "services.posting"]
 
@@ -102,6 +102,6 @@ FROM autobook-base AS autobook-flywheel
 RUN --mount=type=cache,target=/root/.cache/uv \
     uv sync --frozen --no-dev --no-install-project --extra flywheel
 
-COPY src/services/flywheel/ src/services/flywheel/
+COPY backend/services/flywheel/ backend/services/flywheel/
 USER app
 CMD ["python", "-m", "services.flywheel"]
