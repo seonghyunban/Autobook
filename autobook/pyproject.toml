@@ -20,6 +20,7 @@ accounting = []  # rule-based accounting engine (tax, CoA, validation)
 api = [
     "fastapi>=0.115,<1",
     "uvicorn>=0.34,<1",
+    "python-multipart>=0.0.18,<1",
     "cognitojwt>=1.4,<2",
 ]
 normalizer = [  # S3 → normalize → write transactions

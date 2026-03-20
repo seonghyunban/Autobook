@@ -29,4 +29,6 @@ app.add_middleware(
 )
 
 from api.routes.health import router as health_router
+from api.routes.parse import router as parse_router
 app.include_router(health_router)
+app.include_router(parse_router)
