@@ -43,14 +43,14 @@ module "networking" {
 }
 
 module "iam" {
-  source               = "./modules/iam"
-  account_id           = data.aws_caller_identity.current.account_id
-  env                  = var.env
-  region               = var.aws_region
-  bucket_name_prefix   = var.bucket_name_prefix
-  secret_name_prefix   = var.secret_name_prefix
-  service_name_prefix  = var.service_name_prefix
-  github_repo          = var.github_repo
+  source              = "./modules/iam"
+  account_id          = data.aws_caller_identity.current.account_id
+  env                 = var.env
+  region              = var.aws_region
+  bucket_name_prefix  = var.bucket_name_prefix
+  secret_name_prefix  = var.secret_name_prefix
+  service_name_prefix = var.service_name_prefix
+  github_repo         = var.github_repo
 }
 
 module "auth" {

@@ -22,9 +22,9 @@ resource "aws_iam_role_policy" "ecs_execution_secrets" {
   policy = jsonencode({
     Version = "2012-10-17"
     Statement = [{
-      Effect    = "Allow"
-      Action    = ["secretsmanager:GetSecretValue"]
-      Resource  = ["arn:aws:secretsmanager:${var.region}:${var.account_id}:secret:${var.secret_name_prefix}-*"]
+      Effect   = "Allow"
+      Action   = ["secretsmanager:GetSecretValue"]
+      Resource = ["arn:aws:secretsmanager:${var.region}:${var.account_id}:secret:${var.secret_name_prefix}-*"]
     }]
   })
 }
