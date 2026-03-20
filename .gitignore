@@ -36,6 +36,11 @@ missfont.log
 
 a4/p2/wandb/
 
+# Markdown (keep READMEs)
+autobook/*.md
+!autobook/readme.md
+!autobook/README.md
+
 # Claude Code
 .claude/
 
