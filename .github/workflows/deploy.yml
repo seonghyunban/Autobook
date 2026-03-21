@@ -176,7 +176,8 @@ jobs:
           aws ecs update-service \
             --cluster $CLUSTER \
             --service $SERVICE_NAME \
-            --task-definition $NEW_TASK_DEF_ARN
+            --task-definition $NEW_TASK_DEF_ARN \
+            --desired-count 1
 
       - name: Wait for deployment
         run: |
@@ -275,6 +276,10 @@ jobs:
 
       - name: Deploy to Lambda
         run: |
+          S3_BUCKET="autobook-tfstate-${{ secrets.AWS_ACCOUNT_ID }}"
+          S3_KEY="lambda-deploy/autobook-${ENVIRONMENT}-${{ matrix.service }}.zip"
+          aws s3 cp /tmp/lambda.zip "s3://${S3_BUCKET}/${S3_KEY}"
           aws lambda update-function-code \
             --function-name autobook-${ENVIRONMENT}-${{ matrix.service }} \
-            --zip-file fileb:///tmp/lambda.zip
+            --s3-bucket "${S3_BUCKET}" \
+            --s3-key "${S3_KEY}"

@@ -24,17 +24,15 @@ normalizer = [  # S3 → normalize → write transactions
     "pandas>=3.0,<4",
     "pyarrow>=23.0,<24",
 ]
-ml-inference = [  # SageMaker inference (tier 2)
-    "sagemaker>=2.200,<3",
+ml-inference = [  # SageMaker inference (tier 2) — uses boto3 (pre-installed in Lambda)
 ]
 agent = [  # LangGraph LLM pipeline (tier 3)
     "langgraph>=0.2,<1",
     "langchain-aws>=0.2,<1",
     "qdrant-client>=1.12,<2",
 ]
-flywheel = [  # caches, RAG indexing, ML retrain triggers
+flywheel = [  # caches, RAG indexing, ML retrain triggers — uses boto3 for SageMaker
     "qdrant-client>=1.12,<2",
-    "sagemaker>=2.200,<3",
 ]
 
 [dependency-groups]
