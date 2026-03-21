@@ -34,17 +34,12 @@ function parseRealtimeEvent(payload: string) {
   try {
     const parsed = JSON.parse(payload) as Partial<RealtimeEvent>;
     if (
-      parsed.type === "accounting.snapshot.updated" &&
-      typeof parsed.reason === "string" &&
+      (parsed.type === "entry.posted" ||
+        parsed.type === "clarification.created" ||
+        parsed.type === "clarification.resolved") &&
       typeof parsed.occurred_at === "string"
     ) {
-      return {
-        type: parsed.type,
-        reason: parsed.reason,
-        journal_entry_id:
-          typeof parsed.journal_entry_id === "string" ? parsed.journal_entry_id : undefined,
-        occurred_at: parsed.occurred_at,
-      } as RealtimeEvent;
+      return parsed as RealtimeEvent;
     }
   } catch {
     return null;
