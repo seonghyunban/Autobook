@@ -1,4 +1,6 @@
+# Infra
 *.secret.tfvars
+placeholder.zip
 .env
 .env.local
 .env.*.local
@@ -12,6 +14,9 @@ __pycache__/
 
 # Node
 node_modules/
+
+# Build artifacts
+*.tsbuildinfo
 
 # Node
 node_modules/
