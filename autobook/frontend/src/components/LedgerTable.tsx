@@ -1,4 +1,5 @@
 import type { LedgerEntry } from "../api/types";
+import { formatIsoDateTime } from "../utils/dateTime";
 
 type LedgerTableProps = {
   entries: LedgerEntry[];
@@ -26,7 +27,7 @@ export function LedgerTable({ entries }: LedgerTableProps) {
         <thead>
           <tr>
             <th>Entry ID</th>
-            <th>Date</th>
+            <th>Generated</th>
             <th>Description</th>
             <th>Accounts</th>
             <th>Debits</th>
@@ -42,7 +43,10 @@ export function LedgerTable({ entries }: LedgerTableProps) {
                 <td>
                   <span className="ledger-entry-id">{entry.journal_entry_id}</span>
                 </td>
-                <td>{entry.date}</td>
+                <td>
+                  <span>{formatIsoDateTime(entry.occurred_at ?? entry.date)}</span>
+                  <span className="cell-subcopy">Posting date {entry.date}</span>
+                </td>
                 <td>{entry.description}</td>
                 <td>
                   <ul className="line-list">

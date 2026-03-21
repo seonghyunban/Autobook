@@ -13,6 +13,7 @@ function renderTransactionPage() {
 describe("transaction file upload", () => {
   test("accepts a csv file and shows upload processing feedback", async () => {
     renderTransactionPage();
+    expect(screen.getByText(/pipeline updated/i)).toBeInTheDocument();
 
     const file = new File(
       ["date,description,amount\n2026-03-17,Bank payment,2400"],
@@ -28,12 +29,9 @@ describe("transaction file upload", () => {
 
     fireEvent.click(screen.getByRole("button", { name: /upload file/i }));
 
-    expect(
-      await screen.findByText(/processed march-bank\.csv through the uploaded file intake path/i),
-    ).toBeInTheDocument();
-    expect(
-      await screen.findByRole("heading", { name: /posting recommendation/i }),
-    ).toBeInTheDocument();
+    expect(await screen.findByText(/submitted march-bank\.csv for processing/i)).toBeInTheDocument();
+    expect(await screen.findByRole("heading", { name: /entry posted/i })).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: /view ledger/i })).toBeInTheDocument();
   });
 
   test("accepts a pdf file and routes it through the mocked pdf intake path", async () => {
@@ -49,12 +47,8 @@ describe("transaction file upload", () => {
 
     fireEvent.click(screen.getByRole("button", { name: /upload file/i }));
 
-    expect(
-      await screen.findByText(/processed invoice-demo\.pdf through the uploaded file intake path/i),
-    ).toBeInTheDocument();
-    expect(
-      await screen.findByText(/pdf intake path and normalized the extracted text/i),
-    ).toBeInTheDocument();
+    expect(await screen.findByText(/submitted invoice-demo\.pdf for processing/i)).toBeInTheDocument();
+    expect(await screen.findByRole("heading", { name: /entry posted/i })).toBeInTheDocument();
   });
 
   test("accepts an image file and routes it through the mocked image intake path", async () => {
@@ -70,10 +64,8 @@ describe("transaction file upload", () => {
 
     fireEvent.click(screen.getByRole("button", { name: /upload file/i }));
 
-    expect(
-      await screen.findByText(/processed receipt-demo\.png through the uploaded file intake path/i),
-    ).toBeInTheDocument();
-    expect(await screen.findByText(/image receipt demo path/i)).toBeInTheDocument();
-    expect(await screen.findByText(/human review needed/i)).toBeInTheDocument();
+    expect(await screen.findByText(/submitted receipt-demo\.png for processing/i)).toBeInTheDocument();
+    expect(await screen.findByRole("heading", { name: /human review needed/i })).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: /open clarifications/i })).toBeInTheDocument();
   });
 });

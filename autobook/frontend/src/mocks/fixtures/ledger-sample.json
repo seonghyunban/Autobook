@@ -3,6 +3,7 @@
     {
       "journal_entry_id": "je_1001",
       "date": "2026-03-17",
+      "occurred_at": "2026-03-17T14:08:12Z",
       "description": "Bought laptop for $2400",
       "status": "posted",
       "lines": [
@@ -23,6 +24,7 @@
     {
       "journal_entry_id": "je_1002",
       "date": "2026-03-16",
+      "occurred_at": "2026-03-16T09:42:31Z",
       "description": "Recorded client retainer invoice",
       "status": "posted",
       "lines": [

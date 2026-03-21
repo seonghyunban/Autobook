@@ -1,11 +1,5 @@
 export type Status = "auto_posted" | "needs_clarification" | "rejected" | "accepted";
 
-export type RealtimeEvent = {
-  type: "entry.posted" | "clarification.created" | "clarification.resolved";
-  journal_entry_id: string;
-  occurred_at: string;
-};
-
 export type ParseAccepted = {
   parse_id: string;
   status: "accepted";
@@ -75,6 +69,7 @@ export type ResolveClarificationResponse = {
 export type LedgerEntry = {
   journal_entry_id: string;
   date: string;
+  occurred_at?: string;
   description: string;
   status: "posted";
   lines: JournalLine[];

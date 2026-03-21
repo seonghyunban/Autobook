@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { getLedger } from "../api/ledger";
 import { subscribeToRealtimeUpdates } from "../api/realtime";
 import type { LedgerResponse } from "../api/types";
+import { FreshnessStatus } from "../components/FreshnessStatus";
 import { LedgerTable } from "../components/LedgerTable";
 
 export function LedgerPage() {
@@ -12,6 +13,7 @@ export function LedgerPage() {
   const [accountFilter, setAccountFilter] = useState("all");
   const [dateFrom, setDateFrom] = useState("");
   const [dateTo, setDateTo] = useState("");
+  const [lastUpdatedAt, setLastUpdatedAt] = useState<Date | null>(null);
 
   useEffect(() => {
     let isMounted = true;
@@ -20,6 +22,7 @@ export function LedgerPage() {
       const response = await getLedger();
       if (isMounted) {
         setLedger(response);
+        setLastUpdatedAt(new Date());
       }
     }
 
@@ -98,10 +101,13 @@ export function LedgerPage() {
             <p className="eyebrow">Accounting Output</p>
             <h2>Ledger</h2>
           </div>
-          <div className="panel-actions panel-actions-tight">
-            <button className="secondary-button" onClick={() => navigate("/statements")}>
-              Open Statements
-            </button>
+          <div className="panel-meta-cluster">
+            <FreshnessStatus label="Ledger Synced" lastUpdatedAt={lastUpdatedAt} />
+            <div className="panel-actions panel-actions-tight">
+              <button className="secondary-button" onClick={() => navigate("/statements")}>
+                Open Statements
+              </button>
+            </div>
           </div>
         </div>
         <p className="body-copy ledger-intro">

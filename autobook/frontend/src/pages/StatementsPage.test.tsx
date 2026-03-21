@@ -15,6 +15,7 @@ describe("statement export controls", () => {
     expect(
       await screen.findByText(/isolates the financial statement view/i),
     ).toBeInTheDocument();
+    expect(screen.getByText(/statements synced/i)).toBeInTheDocument();
 
     fireEvent.click(screen.getByRole("button", { name: /export csv/i }));
     fireEvent.click(screen.getByRole("button", { name: /export pdf/i }));

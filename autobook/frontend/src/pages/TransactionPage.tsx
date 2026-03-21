@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { parseTransaction, uploadTransactionFile } from "../api/parse";
 import { subscribeToRealtimeUpdates } from "../api/realtime";
 import type { RealtimeEvent } from "../api/types";
+import { FreshnessStatus } from "../components/FreshnessStatus";
 import { TransactionForm } from "../components/TransactionForm";
 
 const sampleTransactions = [
@@ -20,6 +21,7 @@ export function TransactionPage() {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [uploadNotice, setUploadNotice] = useState<string | null>(null);
+  const [lastUpdatedAt, setLastUpdatedAt] = useState<Date | null>(null);
   const isMockMode = import.meta.env.VITE_USE_MOCK_API !== "false";
 
   function handleInputChange(value: string) {
@@ -28,6 +30,7 @@ export function TransactionPage() {
     setResolvedEvent(null);
     setError(null);
     setUploadNotice(null);
+    setLastUpdatedAt(null);
   }
 
   function applyExample(value: string) {
@@ -40,6 +43,7 @@ export function TransactionPage() {
     setResolvedEvent(null);
     setError(null);
     setUploadNotice(null);
+    setLastUpdatedAt(null);
   }
 
   async function handleSubmit() {
@@ -87,9 +91,15 @@ export function TransactionPage() {
   useEffect(() => {
     if (!processingId) return;
     const unsub = subscribeToRealtimeUpdates((event) => {
-      if (event.type === "entry.posted" || event.type === "clarification.created") {
+      if (
+        event.type === "accounting.snapshot.updated" &&
+        (event.reason === "journal_entry.posted" ||
+          event.reason === "clarification.queued" ||
+          event.reason === "clarification.resolved")
+      ) {
         setResolvedEvent(event);
         setProcessingId(null);
+        setLastUpdatedAt(new Date());
       }
     });
     return unsub;
@@ -116,6 +126,11 @@ export function TransactionPage() {
           <span className="hero-pill hero-pill-muted">
             Demo user: {import.meta.env.VITE_DEMO_USER_ID}
           </span>
+          <FreshnessStatus
+            label="Pipeline Updated"
+            lastUpdatedAt={lastUpdatedAt}
+            variant="hero"
+          />
         </div>
       </section>
 
@@ -194,7 +209,8 @@ export function TransactionPage() {
       {resolvedEvent ? (
         <section
           className={
-            resolvedEvent.type === "entry.posted"
+            resolvedEvent.reason === "journal_entry.posted" ||
+            resolvedEvent.reason === "clarification.resolved"
               ? "panel outcome-panel outcome-success"
               : "panel outcome-panel outcome-warning"
           }
@@ -202,11 +218,17 @@ export function TransactionPage() {
           <div className="panel-header">
             <div>
               <p className="eyebrow">Next Step</p>
-              <h2>{resolvedEvent.type === "entry.posted" ? "Entry Posted" : "Human Review Needed"}</h2>
+              <h2>
+                {resolvedEvent.reason === "journal_entry.posted" ||
+                resolvedEvent.reason === "clarification.resolved"
+                  ? "Entry Posted"
+                  : "Human Review Needed"}
+              </h2>
             </div>
           </div>
           <p className="body-copy">
-            {resolvedEvent.type === "entry.posted"
+            {resolvedEvent.reason === "journal_entry.posted" ||
+            resolvedEvent.reason === "clarification.resolved"
               ? "This transaction cleared the confidence threshold and can be inspected in the ledger."
               : "This transaction needs clarification before posting to the ledger."}
           </p>
@@ -214,10 +236,18 @@ export function TransactionPage() {
             <button
               className="primary-button"
               onClick={() =>
-                navigate(resolvedEvent.type === "entry.posted" ? "/ledger" : "/clarifications")
+                navigate(
+                  resolvedEvent.reason === "journal_entry.posted" ||
+                    resolvedEvent.reason === "clarification.resolved"
+                    ? "/ledger"
+                    : "/clarifications",
+                )
               }
             >
-              {resolvedEvent.type === "entry.posted" ? "View Ledger" : "Open Clarifications"}
+              {resolvedEvent.reason === "journal_entry.posted" ||
+              resolvedEvent.reason === "clarification.resolved"
+                ? "View Ledger"
+                : "Open Clarifications"}
             </button>
           </div>
         </section>

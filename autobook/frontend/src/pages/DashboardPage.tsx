@@ -4,7 +4,9 @@ import { getClarifications } from "../api/clarifications";
 import { getLedger } from "../api/ledger";
 import { subscribeToRealtimeUpdates } from "../api/realtime";
 import { getStatements } from "../api/statements";
+import { FreshnessStatus } from "../components/FreshnessStatus";
 import type { ClarificationsResponse, LedgerResponse, StatementsResponse } from "../api/types";
+import { formatIsoDateTime } from "../utils/dateTime";
 
 type DashboardState = {
   clarifications: ClarificationsResponse | null;
@@ -26,6 +28,7 @@ export function DashboardPage() {
     ledger: null,
     statements: null,
   });
+  const [lastUpdatedAt, setLastUpdatedAt] = useState<Date | null>(null);
 
   useEffect(() => {
     let isMounted = true;
@@ -39,6 +42,7 @@ export function DashboardPage() {
 
       if (isMounted) {
         setState({ clarifications, ledger, statements });
+        setLastUpdatedAt(new Date());
       }
     }
 
@@ -107,6 +111,11 @@ export function DashboardPage() {
         <div className="hero-meta">
           <span className="hero-pill">Workflow live in mock-first mode</span>
           <span className="hero-pill hero-pill-muted">Three views ready for review</span>
+          <FreshnessStatus
+            label="Snapshot Synced"
+            lastUpdatedAt={lastUpdatedAt}
+            variant="hero"
+          />
         </div>
       </section>
 
@@ -196,7 +205,8 @@ export function DashboardPage() {
               <span className="ledger-entry-id">{latestEntry.journal_entry_id}</span>
               <p className="review-title">{latestEntry.description}</p>
               <p className="body-copy">
-                Posted on {latestEntry.date} with {latestEntry.lines.length} journal lines.
+                Posted at {formatIsoDateTime(latestEntry.occurred_at ?? latestEntry.date)} with{" "}
+                {latestEntry.lines.length} journal lines.
               </p>
             </div>
           ) : (

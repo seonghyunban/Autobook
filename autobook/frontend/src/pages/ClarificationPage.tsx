@@ -4,6 +4,7 @@ import { getClarifications, resolveClarification } from "../api/clarifications";
 import { subscribeToRealtimeUpdates } from "../api/realtime";
 import type { ClarificationItem } from "../api/types";
 import { ClarificationList } from "../components/ClarificationList";
+import { FreshnessStatus } from "../components/FreshnessStatus";
 
 export function ClarificationPage() {
   const navigate = useNavigate();
@@ -12,6 +13,7 @@ export function ClarificationPage() {
   const [isLoading, setIsLoading] = useState(true);
   const [isResolving, setIsResolving] = useState(false);
   const [message, setMessage] = useState<{ tone: "success" | "warning"; text: string } | null>(null);
+  const [lastUpdatedAt, setLastUpdatedAt] = useState<Date | null>(null);
 
   useEffect(() => {
     let isMounted = true;
@@ -55,6 +57,7 @@ export function ClarificationPage() {
       );
     });
     setIsLoading(false);
+    setLastUpdatedAt(new Date());
   }
 
   async function handleResolve(action: "approve" | "reject") {
@@ -89,7 +92,10 @@ export function ClarificationPage() {
             <p className="eyebrow">Queue</p>
             <h2>Clarifications</h2>
           </div>
-          <span className="count-pill">{items.length} pending</span>
+          <div className="panel-meta-cluster">
+            <span className="count-pill">{items.length} pending</span>
+            <FreshnessStatus label="Queue Synced" lastUpdatedAt={lastUpdatedAt} />
+          </div>
         </div>
         <p className="body-copy queue-intro">
           Review low-confidence transactions before they touch the ledger. This is the human-in-the-loop control point.

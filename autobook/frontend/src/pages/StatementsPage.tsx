@@ -2,10 +2,12 @@ import { useEffect, useState } from "react";
 import { subscribeToRealtimeUpdates } from "../api/realtime";
 import { getStatements } from "../api/statements";
 import type { StatementsResponse } from "../api/types";
+import { FreshnessStatus } from "../components/FreshnessStatus";
 import { downloadStatementsCsv, exportStatementsPdf } from "../utils/statementsExport";
 
 export function StatementsPage() {
   const [statements, setStatements] = useState<StatementsResponse | null>(null);
+  const [lastUpdatedAt, setLastUpdatedAt] = useState<Date | null>(null);
 
   useEffect(() => {
     let isMounted = true;
@@ -14,6 +16,7 @@ export function StatementsPage() {
       const response = await getStatements();
       if (isMounted) {
         setStatements(response);
+        setLastUpdatedAt(new Date());
       }
     }
 
@@ -36,21 +39,24 @@ export function StatementsPage() {
             <p className="eyebrow">Financial Output</p>
             <h2>Statements</h2>
           </div>
-          <div className="panel-actions panel-actions-tight">
-            <button
-              className="secondary-button"
-              onClick={() => statements && downloadStatementsCsv(statements)}
-              disabled={!statements}
-            >
-              Export CSV
-            </button>
-            <button
-              className="secondary-button"
-              onClick={() => exportStatementsPdf()}
-              disabled={!statements}
-            >
-              Export PDF
-            </button>
+          <div className="panel-meta-cluster">
+            <FreshnessStatus label="Statements Synced" lastUpdatedAt={lastUpdatedAt} />
+            <div className="panel-actions panel-actions-tight">
+              <button
+                className="secondary-button"
+                onClick={() => statements && downloadStatementsCsv(statements)}
+                disabled={!statements}
+              >
+                Export CSV
+              </button>
+              <button
+                className="secondary-button"
+                onClick={() => exportStatementsPdf()}
+                disabled={!statements}
+              >
+                Export PDF
+              </button>
+            </div>
           </div>
         </div>
 

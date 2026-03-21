@@ -1,6 +1,7 @@
 import { act, fireEvent, render, screen, within } from "@testing-library/react";
 import { MemoryRouter } from "react-router-dom";
 import { parseTransaction } from "../api/parse";
+import { formatIsoDateTime } from "../utils/dateTime";
 import { LedgerPage } from "./LedgerPage";
 
 function renderLedgerPage() {
@@ -42,9 +43,12 @@ describe("ledger filters", () => {
   test("shows debit and credit columns for each ledger row", async () => {
     renderLedgerPage();
 
+    expect(await screen.findByText(/ledger synced/i)).toBeInTheDocument();
     const table = await screen.findByRole("table");
+    expect(within(table).getByText("Generated")).toBeInTheDocument();
     expect(within(table).getByText("Debits")).toBeInTheDocument();
     expect(within(table).getByText("Credits")).toBeInTheDocument();
+    expect(within(table).getByText(formatIsoDateTime("2026-03-17T14:08:12Z"))).toBeInTheDocument();
     expect(within(table).getAllByText("$2400.00")).toHaveLength(2);
     expect(within(table).getAllByText("$1500.00")).toHaveLength(2);
   });

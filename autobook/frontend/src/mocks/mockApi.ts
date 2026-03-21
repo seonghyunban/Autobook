@@ -9,6 +9,7 @@ import type {
   ClarificationsResponse,
   LedgerEntry,
   LedgerResponse,
+  ParseAccepted,
   ParseRequest,
   ParseResponse,
   RealtimeEvent,
@@ -42,6 +43,10 @@ function getTodayDate() {
   return new Date().toISOString().slice(0, 10);
 }
 
+function getCurrentTimestamp() {
+  return new Date().toISOString();
+}
+
 function nextParseId() {
   parseSequence += 1;
   return `parse_${parseSequence}`;
@@ -62,6 +67,13 @@ function emitRealtimeUpdate(event: RealtimeEvent) {
   for (const listener of realtimeListeners) {
     listener(snapshot);
   }
+}
+
+function scheduleRealtimeUpdate(event: RealtimeEvent) {
+  const snapshot = structuredClone(event) as RealtimeEvent;
+  setTimeout(() => {
+    emitRealtimeUpdate(snapshot);
+  }, 10);
 }
 
 export function subscribeToRealtimeUpdates(listener: RealtimeListener) {
@@ -183,7 +195,7 @@ function queueClarification(sourceText: string, response: ParseResponse) {
     ...clarificationsStore,
   ];
 
-  emitRealtimeUpdate({
+  scheduleRealtimeUpdate({
     type: "accounting.snapshot.updated",
     reason: "clarification.queued",
     occurred_at: new Date().toISOString(),
@@ -198,11 +210,13 @@ function postJournalEntry(
   reason: RealtimeEvent["reason"] = "journal_entry.posted",
 ) {
   const journalEntryId = nextJournalEntryId();
+  const occurredAt = getCurrentTimestamp();
 
   ledgerEntriesStore = [
     {
       journal_entry_id: journalEntryId,
       date: getTodayDate(),
+      occurred_at: occurredAt,
       description,
       status: "posted",
       lines: structuredClone(lines),
@@ -210,39 +224,47 @@ function postJournalEntry(
     ...ledgerEntriesStore,
   ];
 
-  emitRealtimeUpdate({
+  scheduleRealtimeUpdate({
     type: "accounting.snapshot.updated",
     reason,
     journal_entry_id: journalEntryId,
-    occurred_at: new Date().toISOString(),
+    occurred_at: occurredAt,
   });
 
   return journalEntryId;
 }
 
 export const mockApi = {
-  async parseTransaction(input: ParseRequest): Promise<ParseResponse> {
+  async parseTransaction(input: ParseRequest): Promise<ParseAccepted> {
     await delay();
 
     const normalized = input.input_text.toLowerCase();
     if (normalized.includes("transfer")) {
       const response = structuredClone(parseNeedsClarificationFixture) as ParseResponse;
-      response.parse_id = nextParseId();
+      const parseId = nextParseId();
+      response.parse_id = parseId;
       response.proposed_entry.journal_entry_id = null;
       response.clarification_id = queueClarification(input.input_text, response);
-      return response;
+      return {
+        parse_id: parseId,
+        status: "accepted",
+      };
     }
 
     const response = structuredClone(parseAutoPostedFixture) as ParseResponse;
-    response.parse_id = nextParseId();
+    const parseId = nextParseId();
+    response.parse_id = parseId;
     response.proposed_entry.journal_entry_id = postJournalEntry(
       input.input_text,
       response.proposed_entry.lines,
     );
-    return response;
+    return {
+      parse_id: parseId,
+      status: "accepted",
+    };
   },
 
-  async uploadTransactionFile(file: File): Promise<ParseResponse> {
+  async uploadTransactionFile(file: File): Promise<ParseAccepted> {
     await delay();
 
     const lowerName = file.name.toLowerCase();
@@ -258,7 +280,8 @@ export const mockApi = {
       needsClarification ? parseNeedsClarificationFixture : parseAutoPostedFixture,
     ) as ParseResponse;
 
-    response.parse_id = `upload_${file.name.replace(/[^a-z0-9]/gi, "_").toLowerCase()}`;
+    const parseId = `upload_${file.name.replace(/[^a-z0-9]/gi, "_").toLowerCase()}`;
+    response.parse_id = parseId;
     if (extension === "pdf") {
       response.explanation = `Imported ${file.name} through the PDF intake path and normalized the extracted text into the standard parsing flow.`;
     } else if (extension === "png" || extension === "jpg" || extension === "jpeg") {
@@ -272,7 +295,10 @@ export const mockApi = {
     if (needsClarification) {
       response.proposed_entry.journal_entry_id = null;
       response.clarification_id = queueClarification(`Uploaded file: ${file.name}`, response);
-      return response;
+      return {
+        parse_id: parseId,
+        status: "accepted",
+      };
     }
 
     response.proposed_entry.journal_entry_id = postJournalEntry(
@@ -280,7 +306,10 @@ export const mockApi = {
       response.proposed_entry.lines,
     );
     response.clarification_id = null;
-    return response;
+    return {
+      parse_id: parseId,
+      status: "accepted",
+    };
   },
 
   async getClarifications(): Promise<ClarificationsResponse> {
@@ -316,7 +345,7 @@ export const mockApi = {
       };
     }
 
-    emitRealtimeUpdate({
+    scheduleRealtimeUpdate({
       type: "accounting.snapshot.updated",
       reason: "clarification.rejected",
       occurred_at: new Date().toISOString(),

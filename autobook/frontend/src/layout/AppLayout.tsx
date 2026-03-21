@@ -1,5 +1,6 @@
 import type { ReactNode } from "react";
 import { NavLink } from "react-router-dom";
+import { RealtimeClock } from "../components/RealtimeClock";
 
 type AppLayoutProps = {
   children: ReactNode;
@@ -24,6 +25,9 @@ export function AppLayout({ children }: AppLayoutProps) {
         <p className="topbar-copy">
           Natural language bookkeeping with confidence-gated review.
         </p>
+        <div className="topbar-clock">
+          <RealtimeClock variant="surface" />
+        </div>
       </header>
 
       <nav className="nav">
