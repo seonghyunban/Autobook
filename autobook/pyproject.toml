@@ -1,20 +1,14 @@
-[tool.poetry]
+[project]
 name = "autobook"
 version = "0.1.0"
 description = "Data processing pipeline for automated accounting"
-authors = ["Robert <144620265+Robertlyhh@users.noreply.github.com>"]
-
+requires-python = ">=3.11,<3.13"
 readme = "README.md"
-package-mode = false
 
-[tool.poetry.dependencies]
-python = ">=3.11,<3.13"
-pydantic = ">=2.12.5,<3.0.0"
-pyarrow = ">=23.0.1,<24.0.0"
-boto3 = ">=1.42.52,<2.0.0"
-pandas = ">=3.0.1,<4.0.0"
-fastapi = ">=0.115.0,<1.0.0"
-uvicorn = ">=0.34.0,<1.0.0"
+dependencies = [
+    "pydantic>=2.12.5,<3",
+    "boto3>=1.42,<2",
+]
 
 # Per-service extras — each Dockerfile target installs its group
 [project.optional-dependencies]
@@ -43,9 +37,11 @@ flywheel = [  # caches, RAG indexing, ML retrain triggers
     "sagemaker>=2.200,<3",
 ]
 
-[tool.poetry.group.dev.dependencies]
-pytest = "^8.0"
-pytest-cov = "^6.1.1"
+[dependency-groups]
+dev = [
+    "pytest>=8.0",
+    "pytest-cov>=6.1.1",
+]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
@@ -60,5 +56,5 @@ show_missing = true
 skip_empty = true
 
 [build-system]
-requires = ["poetry-core>=2.0.0,<3.0.0"]
-build-backend = "poetry.core.masonry.api"
+requires = ["hatchling"]
+build-backend = "hatchling.build"
