@@ -15,7 +15,6 @@ RUN --mount=type=cache,target=/root/.cache/uv \
     uv sync --frozen --no-dev --no-install-project
 
 # Shared source
-COPY backend/__init__.py backend/__init__.py
 COPY backend/config.py backend/config.py
 COPY backend/db/ backend/db/
 COPY backend/queues/ backend/queues/
