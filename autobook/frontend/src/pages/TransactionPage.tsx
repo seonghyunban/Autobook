@@ -232,6 +232,56 @@ export function TransactionPage() {
               ? "This transaction cleared the confidence threshold and can be inspected in the ledger."
               : "This transaction needs clarification before posting to the ledger."}
           </p>
+
+          {(resolvedEvent.confidence || resolvedEvent.explanation || resolvedEvent.proposed_entry) && (
+            <div className="event-details">
+              {resolvedEvent.status && (
+                <div className="detail-row">
+                  <span className="detail-label">Status</span>
+                  <span className="detail-value">{resolvedEvent.status}</span>
+                </div>
+              )}
+              {resolvedEvent.confidence && (
+                <div className="detail-row">
+                  <span className="detail-label">Confidence</span>
+                  <span className="detail-value">{resolvedEvent.confidence.overall}</span>
+                </div>
+              )}
+              {resolvedEvent.explanation && (
+                <div className="detail-row">
+                  <span className="detail-label">Explanation</span>
+                  <span className="detail-value">{resolvedEvent.explanation}</span>
+                </div>
+              )}
+              {resolvedEvent.parse_time_ms != null && (
+                <div className="detail-row">
+                  <span className="detail-label">Parse Time</span>
+                  <span className="detail-value">{resolvedEvent.parse_time_ms} ms</span>
+                </div>
+              )}
+              {resolvedEvent.proposed_entry && resolvedEvent.proposed_entry.lines.length > 0 && (
+                <table className="proposed-entry-table">
+                  <thead>
+                    <tr>
+                      <th>Account</th>
+                      <th>Type</th>
+                      <th>Amount</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {resolvedEvent.proposed_entry.lines.map((line, i) => (
+                      <tr key={i}>
+                        <td>{line.account_name}</td>
+                        <td>{line.type}</td>
+                        <td>${line.amount.toFixed(2)}</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              )}
+            </div>
+          )}
+
           <div className="panel-actions">
             <button
               className="primary-button"

@@ -1525,3 +1525,49 @@ input[type="file"].text-input::file-selector-button {
     transition: none;
   }
 }
+
+/* ── Event detail rows (transaction outcome panel) ── */
+.event-details {
+  margin: 16px 0;
+  padding: 16px;
+  background: var(--bg-surface);
+  border-radius: var(--radius-card);
+  border: 1px solid var(--border-soft);
+}
+.detail-row {
+  display: flex;
+  justify-content: space-between;
+  padding: 6px 0;
+  border-bottom: 1px solid var(--border-soft);
+}
+.detail-row:last-of-type {
+  border-bottom: none;
+}
+.detail-label {
+  font-weight: 600;
+  color: var(--ink-soft);
+  font-size: 0.85rem;
+}
+.detail-value {
+  color: var(--ink-strong);
+  font-size: 0.85rem;
+  text-align: right;
+  max-width: 65%;
+}
+.proposed-entry-table {
+  width: 100%;
+  margin-top: 12px;
+  border-collapse: collapse;
+  font-size: 0.85rem;
+}
+.proposed-entry-table th {
+  text-align: left;
+  padding: 6px 8px;
+  border-bottom: 2px solid var(--border-soft);
+  color: var(--ink-soft);
+  font-weight: 600;
+}
+.proposed-entry-table td {
+  padding: 6px 8px;
+  border-bottom: 1px solid var(--border-soft);
+}

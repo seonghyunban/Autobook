@@ -118,6 +118,13 @@ export type RealtimeEvent = {
     | "clarification.rejected";
   journal_entry_id?: string;
   occurred_at: string;
+  parse_id?: string;
+  input_text?: string;
+  confidence?: { overall: number };
+  explanation?: string;
+  status?: string;
+  proposed_entry?: { lines: JournalLine[] };
+  parse_time_ms?: number;
 };
 
 export type RealtimeListener = (event: RealtimeEvent) => void;
