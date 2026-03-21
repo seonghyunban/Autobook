@@ -1,5 +1,6 @@
 import uuid
 import logging
+from datetime import datetime, timezone
 
 from fastapi import APIRouter, Request, UploadFile
 
@@ -19,6 +20,7 @@ async def parse(body: ParseRequest, request: Request):
         "input_text": body.input_text,
         "source": body.source,
         "currency": body.currency,
+        "submitted_at": datetime.now(timezone.utc).isoformat(),
     })
     return ParseAccepted(parse_id=parse_id)
 
@@ -33,5 +35,6 @@ async def parse_upload(file: UploadFile, request: Request):
         "parse_id": parse_id,
         "source": "upload",
         "filename": file.filename,
+        "submitted_at": datetime.now(timezone.utc).isoformat(),
     })
     return ParseAccepted(parse_id=parse_id)
