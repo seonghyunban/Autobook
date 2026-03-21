@@ -14,7 +14,7 @@ class Settings(BaseSettings):
         "https://autobook.tech",
         "https://www.autobook.tech",
     ]
-    AUTO_POST_THRESHOLD: float = 0.95
+    AUTO_POST_THRESHOLD: float = 0.95  # confidence >= this → auto-post
     SQS_ENDPOINT_URL: str | None = None
     SQS_QUEUE_NORMALIZER: str = "http://elasticmq:9324/queue/normalizer"
     SQS_QUEUE_PRECEDENT: str = "http://elasticmq:9324/queue/precedent"
