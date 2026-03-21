@@ -7,7 +7,7 @@ from queues import subscribe
 logger = logging.getLogger(__name__)
 router = APIRouter()
 
-CHANNELS = ("entry.posted", "clarification.created", "clarification.resolved")
+CHANNELS = ("accounting.snapshot.updated",)
 
 
 @router.websocket("/ws")
