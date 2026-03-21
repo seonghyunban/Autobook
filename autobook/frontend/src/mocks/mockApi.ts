@@ -196,8 +196,7 @@ function queueClarification(sourceText: string, response: ParseResponse) {
   ];
 
   scheduleRealtimeUpdate({
-    type: "accounting.snapshot.updated",
-    reason: "clarification.queued",
+    type: "clarification.created",
     occurred_at: new Date().toISOString(),
   });
 
@@ -207,7 +206,7 @@ function queueClarification(sourceText: string, response: ParseResponse) {
 function postJournalEntry(
   description: string,
   lines: LedgerEntry["lines"],
-  reason: RealtimeEvent["reason"] = "journal_entry.posted",
+  eventType: RealtimeEvent["type"] = "entry.posted",
 ) {
   const journalEntryId = nextJournalEntryId();
   const occurredAt = getCurrentTimestamp();
@@ -225,8 +224,7 @@ function postJournalEntry(
   ];
 
   scheduleRealtimeUpdate({
-    type: "accounting.snapshot.updated",
-    reason,
+    type: eventType,
     journal_entry_id: journalEntryId,
     occurred_at: occurredAt,
   });
@@ -346,8 +344,7 @@ export const mockApi = {
     }
 
     scheduleRealtimeUpdate({
-      type: "accounting.snapshot.updated",
-      reason: "clarification.rejected",
+      type: "clarification.resolved",
       occurred_at: new Date().toISOString(),
     });
 
