@@ -90,24 +90,18 @@ export function TransactionPage() {
 
   useEffect(() => {
     if (!processingId) return;
-    let timer: ReturnType<typeof setTimeout> | null = null;
     const unsub = subscribeToRealtimeUpdates((event) => {
       if (
         event.type === "entry.posted" ||
         event.type === "clarification.created" ||
         event.type === "clarification.resolved"
       ) {
-        timer = setTimeout(() => {
-          setResolvedEvent(event);
-          setProcessingId(null);
-          setLastUpdatedAt(new Date());
-        }, 1500);
+        setResolvedEvent(event);
+        setProcessingId(null);
+        setLastUpdatedAt(new Date());
       }
     });
-    return () => {
-      unsub();
-      if (timer) clearTimeout(timer);
-    };
+    return unsub;
   }, [processingId]);
 
   const isPosted =
