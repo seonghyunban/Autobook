@@ -70,3 +70,4 @@ def ensure_transaction_for_message(db: Session, message: dict) -> tuple[User, Tr
         cca_class_match=message.get("cca_class_match"),
     )
     return user, transaction
+

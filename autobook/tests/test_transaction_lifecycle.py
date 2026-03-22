@@ -4,7 +4,7 @@ from types import SimpleNamespace
 from uuid import uuid4
 
 from normalization.service import NormalizationService
-from pipeline_persistence import ensure_transaction_for_message
+from services.shared.transaction_persistence import ensure_transaction_for_message
 from services.normalizer import process as normalizer_process
 
 
@@ -93,13 +93,13 @@ def test_pipeline_persistence_updates_existing_transaction_instead_of_reinsertin
     updated: dict = {}
     enrichment: dict = {}
 
-    monkeypatch.setattr("pipeline_persistence.resolve_local_user", lambda _db, _external_user_id: user)
+    monkeypatch.setattr("services.shared.transaction_persistence.resolve_local_user", lambda _db, _external_user_id: user)
     monkeypatch.setattr(
-        "pipeline_persistence.TransactionDAO.get_by_id",
+        "services.shared.transaction_persistence.TransactionDAO.get_by_id",
         staticmethod(lambda _db, transaction_id: existing_transaction if str(transaction_id) == str(existing_transaction.id) else None),
     )
     monkeypatch.setattr(
-        "pipeline_persistence.TransactionDAO.insert",
+        "services.shared.transaction_persistence.TransactionDAO.insert",
         staticmethod(lambda **_kwargs: (_ for _ in ()).throw(AssertionError("insert should not be called"))),
     )
 
@@ -109,7 +109,7 @@ def test_pipeline_persistence_updates_existing_transaction_instead_of_reinsertin
         return existing_transaction
 
     monkeypatch.setattr(
-        "pipeline_persistence.TransactionDAO.update_normalized_fields",
+        "services.shared.transaction_persistence.TransactionDAO.update_normalized_fields",
         staticmethod(fake_update_normalized_fields),
     )
 
@@ -122,7 +122,7 @@ def test_pipeline_persistence_updates_existing_transaction_instead_of_reinsertin
         return existing_transaction
 
     monkeypatch.setattr(
-        "pipeline_persistence.TransactionDAO.update_ml_enrichment",
+        "services.shared.transaction_persistence.TransactionDAO.update_ml_enrichment",
         staticmethod(fake_update_ml_enrichment),
     )
 
