@@ -30,10 +30,10 @@ def get_llm(agent_name: str, config: RunnableConfig | None = None) -> ChatBedroc
     settings = get_settings()
     configurable = (config or {}).get("configurable", {})
 
-    # Model: experiment override or deployment default from config.py
+    # Model: experiment override or per-agent deployment config from config.py
     model = (
         configurable.get("model_per_agent", {}).get(agent_name)
-        or settings.BEDROCK_DEFAULT_MODEL
+        or settings.BEDROCK_MODEL_ROUTING[agent_name]
     )
 
     # Thinking effort: experiment override only, omitted in production
