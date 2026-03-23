@@ -7,22 +7,31 @@ from services.agent.graph.state import PipelineState
 
 _CACHE_POINT = {"cachePoint": {"type": "default"}}
 
+# ── 1. Preamble ──────────────────────────────────────────────────────────
+
 _PREAMBLE = """\
 You are an accounting classifier in a Canadian automated bookkeeping system."""
 
+# ── 2. Role ──────────────────────────────────────────────────────────────
+
 _ROLE = """
-## Your Role
+## Role
 
 Given a transaction description, classify the DEBIT side only. Count how many \
-debit-side journal lines fall into each of the 6 directional categories. \
-Output a 6-tuple of non-negative integers."""
+debit-side journal lines fall into each of the 6 directional categories.
 
-_RULES = """
-## Double-Entry Bookkeeping
+You do NOT:
+- Classify the credit side (separate agent handles that)
+- Assign account names or dollar amounts
+- Check arithmetic balance"""
+
+# ── 3. Domain Knowledge ──────────────────────────────────────────────────
+
+_DOMAIN = """
+## Domain Knowledge
 
 Every transaction has debit lines and credit lines. Total debits = total credits \
-in dollar amounts. You are classifying the DEBIT side only — a separate agent \
-handles the credit side.
+in dollar amounts.
 
 Account types and their debit behavior:
 | Account Type | Debit Effect |
@@ -32,12 +41,16 @@ Account types and their debit behavior:
 | Expense     | Increase    |
 | Liability   | Decrease    |
 | Equity      | Decrease    |
-| Revenue     | Decrease    |"""
+| Revenue     | Decrease    |
 
-_TUPLE_DEF = """
-## Debit Tuple (a, b, c, d, e, f)
+Dividends (owner withdrawals) behave like expenses: increased by debit."""
 
-Each slot counts the number of debit-side journal lines in that category:
+# ── 4. System Knowledge ──────────────────────────────────────────────────
+
+_SYSTEM = """
+## System Knowledge
+
+Debit Tuple (a, b, c, d, e, f) — each slot counts debit-side journal lines:
 
 | Slot | Category            | Meaning                        |
 |------|--------------------|---------------------------------|
@@ -50,73 +63,91 @@ Each slot counts the number of debit-side journal lines in that category:
 
 Each value is a LINE COUNT, not a dollar amount."""
 
+# ── 5. Procedure ─────────────────────────────────────────────────────────
+
+_PROCEDURE = """
+## Procedure
+
+1. Read the transaction description.
+2. Identify each debit-side journal line implied by the transaction.
+3. For each debit line, determine which directional category it falls into.
+4. Count the lines per category and output the 6-tuple."""
+
+# ── 6. Examples ──────────────────────────────────────────────────────────
+
 _EXAMPLES = """
 ## Examples
 
 <example>
 Transaction: "Sell inventory (cost $100k) for $150k cash"
-Debit tuple: (1,0,1,0,0,0)
-— 1 asset increase (Cash receives $150k), 1 expense increase (COGS $100k)
+Reasoning: Cash received = asset increase (slot a). COGS = expense increase (slot c).
+Output: (1,0,1,0,0,0)
 </example>
 
 <example>
 Transaction: "Pay monthly rent $2,000"
-Debit tuple: (0,0,1,0,0,0)
-— 1 expense increase (Rent Expense)
+Reasoning: Rent = expense increase (slot c).
+Output: (0,0,1,0,0,0)
 </example>
 
 <example>
 Transaction: "Owner withdraws $5,000 from business"
-Debit tuple: (0,1,0,0,0,0)
-— 1 dividend increase (Owner's Draw)
+Reasoning: Owner draw = dividend increase (slot b), NOT expense.
+Output: (0,1,0,0,0,0)
 </example>
 
 <example>
 Transaction: "Pay off $10,000 bank loan"
-Debit tuple: (0,0,0,1,0,0)
-— 1 liability decrease (Loan Payable)
+Reasoning: Loan payoff = liability decrease (slot d).
+Output: (0,0,0,1,0,0)
 </example>
 
 <example>
-Transaction: "Issue refund of $500 to customer"
-Debit tuple: (0,0,0,0,0,1)
-— 1 revenue decrease (Sales Returns)
+Transaction: "Purchase equipment $20,000 cash plus $30,000 loan"
+Reasoning: Equipment = 1 asset increase (slot a). This is one debit line despite two funding sources.
+Output: (1,0,0,0,0,0)
 </example>
 
 <example>
-Transaction: "Purchase equipment for $20,000 on credit"
-Debit tuple: (1,0,0,0,0,0)
-— 1 asset increase (Equipment)
+Transaction: "Pay employee wages $3,000 and employer CPP $200"
+Reasoning: Wages = expense increase. CPP = expense increase. Two separate expense lines.
+Output: (0,0,2,0,0,0)
+</example>
+
+<example>
+Transaction: "Issue refund $500 to customer and write off $100 bad debt"
+Reasoning: Refund = revenue decrease (slot f). Bad debt = expense increase (slot c).
+Output: (0,0,1,0,0,1)
 </example>"""
+
+# ── 7. Output Format ─────────────────────────────────────────────────────
 
 _OUTPUT_FORMAT = """
 ## Output Format
 
-Return ONLY the 6-tuple as (a,b,c,d,e,f) with no explanation. \
-Each value must be a non-negative integer. Verify that each slot \
-corresponds to the correct category before outputting."""
+Return ONLY the 6-tuple as (a,b,c,d,e,f). Each value must be a non-negative \
+integer. No explanation."""
 
 SYSTEM_INSTRUCTION = "\n".join([
-    _PREAMBLE, _ROLE, _RULES, _TUPLE_DEF, _EXAMPLES, _OUTPUT_FORMAT,
+    _PREAMBLE, _ROLE, _DOMAIN, _SYSTEM, _PROCEDURE, _EXAMPLES, _OUTPUT_FORMAT,
 ])
 
 
-def build_prompt(state: PipelineState, rag_examples: list[dict]) -> dict:
+def build_prompt(state: PipelineState, rag_examples: list[dict],
+                 fix_context: str | None = None) -> dict:
     """Build the debit classifier prompt with cache breakpoints."""
     system = [{"text": SYSTEM_INSTRUCTION}, _CACHE_POINT]
 
     text = state.get("enriched_text") or state["transaction_text"]
-    transaction_block = f"<transaction>{text}</transaction>"
+    parts = [{"text": f"<transaction>{text}</transaction>"}, _CACHE_POINT]
 
-    parts = [{"text": transaction_block}, _CACHE_POINT]
+    if fix_context:
+        parts.append({"text": f"<fix_context>{fix_context}</fix_context>"})
 
     if rag_examples:
-        examples_text = "These are similar past transactions with correct debit tuples for reference:\n<examples>\n"
+        examples_text = "These are similar past transactions with correct debit tuples:\n<examples>\n"
         for ex in rag_examples:
-            examples_text += (
-                f"  Transaction: {ex.get('transaction', '')}\n"
-                f"  Debit tuple: {ex.get('debit_tuple', '')}\n\n"
-            )
+            examples_text += f"  Transaction: {ex.get('transaction', '')}\n  Output: {ex.get('debit_tuple', '')}\n\n"
         examples_text += "</examples>"
         parts.append({"text": examples_text})
 

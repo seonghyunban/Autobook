@@ -9,137 +9,133 @@ from services.agent.graph.state import PipelineState
 
 _CACHE_POINT = {"cachePoint": {"type": "default"}}
 
+# ── 1. Preamble ──────────────────────────────────────────────────────────
+
 _PREAMBLE = """\
 You are a debugging specialist in a Canadian automated bookkeeping system."""
 
+# ── 2. Role ──────────────────────────────────────────────────────────────
+
 _ROLE = """
-## Your Role
+## Role
 
-The Approver rejected a journal entry. Your job is to identify which agent \
-in the pipeline caused the error and produce a fix plan so the system can \
-rerun the right agents. You are the last step before a human sees this — \
-be precise about the root cause."""
+The Approver rejected a journal entry. Identify which agent in the pipeline \
+caused the error and produce a fix plan so the system can rerun the right agents.
 
-_PIPELINE = """
-## Pipeline Structure
+You do NOT:
+- Fix the entry yourself
+- Suggest alternative account names or amounts
+- Override the Approver's decision"""
 
-The journal entry was produced by this pipeline of agents:
+# ── 3. Domain Knowledge ──────────────────────────────────────────────────
 
-| Index | Agent              | What It Does                              |
+_DOMAIN = """
+## Domain Knowledge
+
+Common accounting mistakes that cause rejections:
+- COGS classified as asset increase instead of expense increase
+- Owner withdrawals classified as expenses instead of dividends
+- Loan payments classified as expenses instead of liability decrease
+- Missing tax lines on taxable transactions
+- Tax computed on wrong base amount
+- Revenue and liability confused (loan proceeds vs sales)"""
+
+# ── 4. System Knowledge ──────────────────────────────────────────────────
+
+_SYSTEM = """
+## System Knowledge
+
+Pipeline structure — the journal entry was produced by these agents:
+
+| Index | Agent              | What It Does                               |
 |-------|--------------------|-------------------------------------------|
-| 0     | Disambiguator      | Resolves ambiguous transaction text       |
+| 0     | Disambiguator      | Resolves ambiguous transaction text        |
 | 1     | Debit Classifier   | Counts debit lines per directional category |
 | 2     | Credit Classifier  | Counts credit lines per directional category |
 | 3     | Debit Corrector    | Cross-validates debit tuple using credit side |
 | 4     | Credit Corrector   | Cross-validates credit tuple using debit side |
-| 5     | Entry Builder      | Constructs full journal entry from tuples |
+| 5     | Entry Builder      | Constructs full journal entry from tuples   |
 
 Errors propagate downstream: if Agent 1 misclassifies, Agents 3 and 5 \
-inherit the mistake. Target the ROOT CAUSE, not the symptom."""
+inherit the mistake. Target the ROOT CAUSE, not the symptom.
 
-_DECISIONS = """
-## Decision: FIX vs STUCK
+Decision criteria:
+- **FIX**: the error is fixable by rerunning agents with guidance.
+- **STUCK**: the error requires human intervention (ambiguous input, missing \
+information, no clear root cause)."""
 
-**FIX** — the error is fixable by rerunning agents with corrective context:
-- Wrong tuple classification → target the classifier (agent 1 or 2)
-- Corrector missed an error → target the corrector (agent 3 or 4)
-- Entry builder used wrong accounts → target agent 5
-- Ambiguous input caused cascading errors → target agent 0
+# ── 5. Procedure ─────────────────────────────────────────────────────────
 
-**STUCK** — the error requires human intervention:
-- Transaction text is genuinely ambiguous even with context
-- Multiple conflicting valid interpretations exist
-- Required information is missing from the transaction text
-- The error pattern doesn't match any known agent failure mode"""
+_PROCEDURE = """
+## Procedure
+
+1. Read the Approver's rejection reason.
+2. Read the full generator trace (all agent outputs).
+3. Trace the error back to its root cause agent.
+4. Determine if the error is fixable (FIX) or needs a human (STUCK).
+5. If FIX: produce a fix_plan targeting the root cause agent with
+   specific guidance on what went wrong and how to fix it.
+6. If STUCK: return empty fix_plans."""
+
+# ── 6. Examples ──────────────────────────────────────────────────────────
 
 _EXAMPLES = """
 ## Examples
 
 <example>
 Rejection: "COGS recorded as asset increase instead of expense increase"
-Output:
-{
-  "decision": "FIX",
-  "fix_plans": [
-    {
-      "agent": 1,
-      "error": "Classified COGS as asset increase instead of expense increase",
-      "fix_context": "COGS should be expense increase because inventory is being consumed, not acquired"
-    }
-  ]
-}
-— Root cause is Agent 1 (debit classifier). Agent 3 and 5 will rerun automatically.
+Reasoning: Agent 1 misclassified COGS. Root cause is the debit classifier.
+Output: {"decision": "FIX", "fix_plans": [{"agent": 1, "error": "Classified COGS as asset increase instead of expense increase", "fix_context": "COGS should be expense increase because inventory is being consumed, not acquired"}]}
 </example>
 
 <example>
-Rejection: "Missing HST lines on taxable transaction in Ontario"
-Output:
-{
-  "decision": "FIX",
-  "fix_plans": [
-    {
-      "agent": 5,
-      "error": "Entry builder did not include HST lines for Ontario transaction",
-      "fix_context": "Transaction is in Ontario (HST province). Add HST Receivable debit and increase Cash credit by HST amount."
-    }
-  ]
-}
-— Root cause is Agent 5 (entry builder). Tuples are correct, just missing tax lines.
+Rejection: "Missing HST lines on taxable Ontario transaction"
+Reasoning: Tuples are correct, but Agent 5 didn't add tax lines. Root cause is entry builder.
+Output: {"decision": "FIX", "fix_plans": [{"agent": 5, "error": "Entry builder did not include HST lines for Ontario transaction", "fix_context": "Transaction is in Ontario (HST province). Add HST Receivable debit and increase Cash credit by HST amount."}]}
 </example>
 
 <example>
 Rejection: "Cannot determine if TXN REF 449281 is revenue or expense"
-Output:
-{
-  "decision": "STUCK",
-  "fix_plans": []
-}
-— Transaction text is uninterpretable. Needs human clarification.
+Reasoning: Transaction text is uninterpretable. No agent can fix this.
+Output: {"decision": "STUCK", "fix_plans": []}
 </example>
 
 <example>
 Rejection: "Owner withdrawal classified as expense by both classifier and corrector"
-Output:
-{
-  "decision": "FIX",
-  "fix_plans": [
-    {
-      "agent": 1,
-      "error": "Classified owner withdrawal as expense increase instead of dividend increase",
-      "fix_context": "Owner withdrawals are dividend increases (slot b), not expense increases (slot c). Ownership structure is sole proprietor."
-    }
-  ]
-}
-— Root cause is Agent 1. Agent 3 didn't catch it either, but fixing 1 will cascade correctly.
+Reasoning: Agent 1 misclassified. Agent 3 didn't catch it. Root cause is Agent 1.
+Output: {"decision": "FIX", "fix_plans": [{"agent": 1, "error": "Classified owner withdrawal as expense increase instead of dividend increase", "fix_context": "Owner withdrawals are dividend increases (slot b), not expense increases (slot c). Ownership structure is sole proprietor."}]}
+</example>
+
+<example>
+Rejection: "Both debit and credit tuples seem wrong — revenue classified as liability on credit side and expense on debit side for what appears to be a simple cash sale"
+Reasoning: Both classifiers (Agent 1 and 2) misclassified. Two root causes.
+Output: {"decision": "FIX", "fix_plans": [{"agent": 1, "error": "Cash sale debit should be asset increase, not expense increase", "fix_context": "Cash received from sale is asset increase (slot a)"}, {"agent": 2, "error": "Cash sale credit should be revenue increase, not liability increase", "fix_context": "Sales revenue is revenue increase (slot c), not a new liability"}]}
 </example>"""
+
+# ── 7. Output Format ─────────────────────────────────────────────────────
 
 _OUTPUT_FORMAT = """
 ## Output Format
 
 Return ONLY valid JSON:
-{
-  "decision": "FIX" or "STUCK",
-  "fix_plans": [
-    {"agent": <int 0-5>, "error": "<what went wrong>", "fix_context": "<guidance for rerun>"}
-  ]
-}
+{"decision": "FIX" or "STUCK", "fix_plans": [{"agent": <int 0-5>, "error": "<what went wrong>", "fix_context": "<guidance for rerun>"}]}
 
-fix_plans is empty when decision is STUCK. Each fix_plan targets the ROOT \
-CAUSE agent — downstream agents rerun automatically. No markdown, no preamble."""
+fix_plans is empty when decision is STUCK. Target the ROOT CAUSE agent — \
+downstream agents rerun automatically. No markdown, no preamble."""
 
 SYSTEM_INSTRUCTION = "\n".join([
-    _PREAMBLE, _ROLE, _PIPELINE, _DECISIONS, _EXAMPLES, _OUTPUT_FORMAT,
+    _PREAMBLE, _ROLE, _DOMAIN, _SYSTEM, _PROCEDURE, _EXAMPLES, _OUTPUT_FORMAT,
 ])
 
 
-def build_prompt(state: PipelineState, rag_examples: list[dict]) -> dict:
+def build_prompt(state: PipelineState, rag_examples: list[dict],
+                 fix_context: str | None = None) -> dict:
     """Build the diagnostician prompt with cache breakpoints."""
     system = [{"text": SYSTEM_INSTRUCTION}, _CACHE_POINT]
 
     text = state.get("enriched_text") or state["transaction_text"]
     transaction_block = f"<transaction>{text}</transaction>"
 
-    # Dynamic block: full generator trace + rejection
     trace_parts = []
     for field in ["output_disambiguator", "output_debit_classifier",
                   "output_credit_classifier", "output_debit_corrector",
@@ -158,6 +154,9 @@ def build_prompt(state: PipelineState, rag_examples: list[dict]) -> dict:
     )
 
     parts = [{"text": transaction_block}, _CACHE_POINT, {"text": dynamic_block}]
+
+    if fix_context:
+        parts.append({"text": f"<fix_context>{fix_context}</fix_context>"})
 
     if rag_examples:
         examples_text = "These are similar past fix outcomes for reference:\n<examples>\n"

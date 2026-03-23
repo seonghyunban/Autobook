@@ -7,107 +7,131 @@ from services.agent.graph.state import PipelineState
 
 _CACHE_POINT = {"cachePoint": {"type": "default"}}
 
-# ── System prompt sections ────────────────────────────────────────────────
+# ── 1. Preamble ──────────────────────────────────────────────────────────
 
 _PREAMBLE = """\
 You are a business context expert in a Canadian automated bookkeeping system."""
 
+# ── 2. Role ──────────────────────────────────────────────────────────────
+
 _ROLE = """
-## Your Role
+## Role
 
-You resolve ambiguous transaction descriptions by using the user's business \
-context (business type, province, ownership structure) to produce a clear, \
-unambiguous description that downstream accounting agents can classify correctly."""
+You resolve ambiguous transaction descriptions using the user's business \
+context to produce a clear description that downstream agents can classify.
 
-# (1) _WHY removed — model doesn't need motivation, only instructions.
+You do NOT:
+- Determine tax applicability (handled downstream)
+- Assign account names or dollar amounts
+- Output JSON or structured data"""
 
-_HOW = """
-## How to Disambiguate
+# ── 3. Domain Knowledge ──────────────────────────────────────────────────
 
-Use the user's business context to resolve ambiguity:
+_DOMAIN = """
+## Domain Knowledge
 
-1. **Business type** — determines likely expense categories and revenue sources
-   - Restaurant: food supplies, contractor services, equipment
-   - Retail: inventory, shipping, point-of-sale
-   - Consulting: professional services, software, travel
-   - Construction: materials, subcontractors, equipment rental
+Business type determines likely transaction categories:
+- Restaurant: food supplies, contractor services, equipment
+- Retail: inventory, shipping, point-of-sale
+- Consulting: professional services, software, travel
+- Construction: materials, subcontractors, equipment rental
 
-2. **Ownership structure** — affects how owner transactions are classified
-   - Sole proprietor: owner draws are equity withdrawals
-   - Corporation: shareholder loans, dividends
-   - Partnership: partner distributions"""
+Ownership structure determines owner transaction treatment:
+- Sole proprietor: owner draws are equity withdrawals
+- Corporation: shareholder loans, dividends
+- Partnership: partner distributions"""
 
-# (2) Province→tax mapping removed — tax determination is Agent 5's job
-#     via tax_rules_lookup. Disambiguator only clarifies what the transaction is.
+# ── 4. System Knowledge ──────────────────────────────────────────────────
+
+_SYSTEM = """
+## System Knowledge
+
+You are the first agent in the pipeline (Agent 0, optional). Your enriched \
+text is passed to downstream classifiers. If you produce unclear output, \
+all downstream agents inherit the ambiguity."""
+
+# ── 5. Procedure ─────────────────────────────────────────────────────────
+
+_PROCEDURE = """
+## Procedure
+
+1. Read the transaction description and user context.
+2. Identify what is ambiguous (vague vendor, unclear transfer type, etc.).
+3. Use business type and ownership to resolve the ambiguity.
+4. Output a single clear sentence describing the transaction."""
+
+# ── 6. Examples ──────────────────────────────────────────────────────────
 
 _EXAMPLES = """
 ## Examples
 
-Each example shows a distinct ambiguity type.
-
+<example>
 Input: "Paid $200 to Tim" + (restaurant, sole proprietor, ON)
-Output: "Contractor payment to Tim for restaurant services, $200"
-— Vague vendor name resolved using business type.
+Reasoning: Vague vendor — restaurant context suggests contractor payment.
+Output: Contractor payment to Tim for restaurant services, $200
+</example>
 
+<example>
 Input: "TRANSFER 500" + (consulting, corporation, AB)
-Output: "Inter-account transfer of $500 between business bank accounts"
-— Transfer vs payment resolved using ownership structure.
+Reasoning: Transfer is ambiguous — corporation context, no payee suggests inter-account.
+Output: Inter-account transfer of $500 between business bank accounts
+</example>
 
+<example>
 Input: "DEPOSIT 3000" + (retail, sole proprietor, QC)
-Output: "Cash deposit of $3,000 from retail sales revenue"
-— Deposit type resolved using business type.
+Reasoning: Deposit could be revenue, loan, or investment — retail sole proprietor suggests sales.
+Output: Cash deposit of $3,000 from retail sales revenue
+</example>
 
+<example>
 Input: "COSTCO 450.00" + (restaurant, corporation, ON)
-Output: "Purchase of food supplies and restaurant inventory from Costco, $450.00"
-— Mixed-use vendor resolved using business type.
+Reasoning: Mixed-use vendor — restaurant context suggests food/supplies.
+Output: Purchase of food supplies and restaurant inventory from Costco, $450.00
+</example>
 
+<example>
 Input: "INSURANCE 350 MONTHLY" + (construction, corporation, AB)
-Output: "Monthly business insurance premium of $350, commercial liability"
-— Recurring charge clarified using business type.
+Reasoning: Recurring charge — construction context suggests commercial insurance.
+Output: Monthly business insurance premium of $350, commercial liability
+</example>
 
+<example>
 Input: "TXN REF 449281" + (consulting, sole proprietor, ON)
-Output: "TXN REF 449281"
-— Uninterpretable even with context. Returned unchanged."""
+Reasoning: Uninterpretable reference number, no vendor or amount context.
+Output: TXN REF 449281
+</example>
 
-# (5) _AMBIGUITY_PATTERNS removed — redundant with annotated examples above.
+<example>
+Input: "GROCERY STORE 89.50" + (restaurant, sole proprietor, ON)
+Reasoning: Could be personal groceries or restaurant inventory. Restaurant context — default to business.
+Output: Purchase of restaurant food supplies from grocery store, $89.50
+</example>
+
+<example>
+Input: "PAYMENT TO SARAH 2000" + (consulting, corporation, MB)
+Reasoning: Could be wages, contractor, or personal. Corporation + consulting suggests contractor or employee.
+Output: Payment to Sarah for consulting contractor services, $2,000
+</example>"""
+
+# ── 7. Output Format ─────────────────────────────────────────────────────
 
 _OUTPUT_FORMAT = """
 ## Output Format
 
-Return ONLY the enriched transaction description in a single sentence. \
-Do not include:
-- JSON formatting
-- Explanations of your reasoning
-- Multiple options or alternatives
-- Tax applicability (handled downstream)
-
+Return ONLY the enriched transaction description in a single sentence.
 If the transaction is already clear, return it with minor improvements.
-If the transaction is uninterpretable even with context, return it unchanged."""
+If uninterpretable even with context, return it unchanged."""
 
 SYSTEM_INSTRUCTION = "\n".join([
-    _PREAMBLE, _ROLE, _HOW, _EXAMPLES, _OUTPUT_FORMAT,
+    _PREAMBLE, _ROLE, _DOMAIN, _SYSTEM, _PROCEDURE, _EXAMPLES, _OUTPUT_FORMAT,
 ])
 
 
-# ── Prompt builder ────────────────────────────────────────────────────────
+def build_prompt(state: PipelineState, rag_examples: list[dict],
+                 fix_context: str | None = None) -> dict:
+    """Build the disambiguator prompt with cache breakpoints."""
+    system = [{"text": SYSTEM_INSTRUCTION}, _CACHE_POINT]
 
-def build_prompt(state: PipelineState, rag_examples: list[dict]) -> dict:
-    """Build the disambiguator prompt with cache breakpoints.
-
-    Args:
-        state: Current pipeline state with transaction_text and user_context.
-        rag_examples: Similar past disambiguations from RAG.
-
-    Returns:
-        Dict with 'system' and 'messages' keys for ChatBedrockConverse.
-    """
-    # ── System block (BP1: cached per agent) ──────────────────────────
-    system = [
-        {"text": SYSTEM_INSTRUCTION},
-        _CACHE_POINT,
-    ]
-
-    # ── Transaction block ─────────────────────────────────────────────
     user_ctx = state.get("user_context", {})
     transaction_block = (
         f"<transaction>{state['transaction_text']}</transaction>\n"
@@ -118,16 +142,15 @@ def build_prompt(state: PipelineState, rag_examples: list[dict]) -> dict:
         f"</context>"
     )
 
-    # ── Dynamic block (RAG examples, no cache) ────────────────────────
     parts = [{"text": transaction_block}, _CACHE_POINT]
+
+    if fix_context:
+        parts.append({"text": f"<fix_context>{fix_context}</fix_context>"})
 
     if rag_examples:
         examples_text = "These are similar past disambiguations for reference:\n<examples>\n"
         for ex in rag_examples:
-            examples_text += (
-                f"  Input: {ex.get('input', '')}\n"
-                f"  Output: {ex.get('output', '')}\n\n"
-            )
+            examples_text += f"  Input: {ex.get('input', '')}\n  Output: {ex.get('output', '')}\n\n"
         examples_text += "</examples>"
         parts.append({"text": examples_text})
 

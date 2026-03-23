@@ -7,22 +7,31 @@ from services.agent.graph.state import PipelineState
 
 _CACHE_POINT = {"cachePoint": {"type": "default"}}
 
+# ── 1. Preamble ──────────────────────────────────────────────────────────
+
 _PREAMBLE = """\
 You are an accounting classifier in a Canadian automated bookkeeping system."""
 
+# ── 2. Role ──────────────────────────────────────────────────────────────
+
 _ROLE = """
-## Your Role
+## Role
 
 Given a transaction description, classify the CREDIT side only. Count how many \
-credit-side journal lines fall into each of the 6 directional categories. \
-Output a 6-tuple of non-negative integers."""
+credit-side journal lines fall into each of the 6 directional categories.
 
-_RULES = """
-## Double-Entry Bookkeeping
+You do NOT:
+- Classify the debit side (separate agent handles that)
+- Assign account names or dollar amounts
+- Check arithmetic balance"""
+
+# ── 3. Domain Knowledge ──────────────────────────────────────────────────
+
+_DOMAIN = """
+## Domain Knowledge
 
 Every transaction has debit lines and credit lines. Total debits = total credits \
-in dollar amounts. You are classifying the CREDIT side only — a separate agent \
-handles the debit side.
+in dollar amounts.
 
 Account types and their credit behavior:
 | Account Type | Credit Effect |
@@ -32,12 +41,16 @@ Account types and their credit behavior:
 | Revenue     | Increase     |
 | Asset       | Decrease     |
 | Dividend    | Decrease     |
-| Expense     | Decrease     |"""
+| Expense     | Decrease     |
 
-_TUPLE_DEF = """
-## Credit Tuple (a, b, c, d, e, f)
+Dividends (owner withdrawals) behave like expenses: decreased by credit."""
 
-Each slot counts the number of credit-side journal lines in that category:
+# ── 4. System Knowledge ──────────────────────────────────────────────────
+
+_SYSTEM = """
+## System Knowledge
+
+Credit Tuple (a, b, c, d, e, f) — each slot counts credit-side journal lines:
 
 | Slot | Category             | Meaning                         |
 |------|---------------------|---------------------------------|
@@ -50,73 +63,91 @@ Each slot counts the number of credit-side journal lines in that category:
 
 Each value is a LINE COUNT, not a dollar amount."""
 
+# ── 5. Procedure ─────────────────────────────────────────────────────────
+
+_PROCEDURE = """
+## Procedure
+
+1. Read the transaction description.
+2. Identify each credit-side journal line implied by the transaction.
+3. For each credit line, determine which directional category it falls into.
+4. Count the lines per category and output the 6-tuple."""
+
+# ── 6. Examples ──────────────────────────────────────────────────────────
+
 _EXAMPLES = """
 ## Examples
 
 <example>
 Transaction: "Sell inventory (cost $100k) for $150k cash"
-Credit tuple: (0,0,1,1,0,0)
-— 1 revenue increase (Sales Revenue $150k), 1 asset decrease (Inventory $100k)
+Reasoning: Sales Revenue = revenue increase (slot c). Inventory leaving = asset decrease (slot d).
+Output: (0,0,1,1,0,0)
 </example>
 
 <example>
 Transaction: "Pay monthly rent $2,000"
-Credit tuple: (0,0,0,1,0,0)
-— 1 asset decrease (Cash paid out)
+Reasoning: Cash leaving = asset decrease (slot d).
+Output: (0,0,0,1,0,0)
 </example>
 
 <example>
 Transaction: "Owner invests $50,000 into business"
-Credit tuple: (0,1,0,0,0,0)
-— 1 equity increase (Owner's Capital)
+Reasoning: Owner's Capital = equity increase (slot b).
+Output: (0,1,0,0,0,0)
 </example>
 
 <example>
 Transaction: "Take out $25,000 bank loan"
-Credit tuple: (1,0,0,0,0,0)
-— 1 liability increase (Loan Payable)
+Reasoning: Loan = liability increase (slot a).
+Output: (1,0,0,0,0,0)
 </example>
 
 <example>
-Transaction: "Purchase equipment for $20,000 on credit"
-Credit tuple: (1,0,0,0,0,0)
-— 1 liability increase (Accounts Payable)
+Transaction: "Purchase equipment $20,000 cash plus $30,000 loan"
+Reasoning: Cash leaving = asset decrease (slot d). Loan = liability increase (slot a). Two credit lines.
+Output: (1,0,0,1,0,0)
 </example>
 
 <example>
-Transaction: "Receive refund of $300 for returned supplies"
-Credit tuple: (0,0,0,0,0,1)
-— 1 expense decrease (Supplies Expense reversed)
+Transaction: "Receive refund $300 for returned office supplies"
+Reasoning: Supplies expense reversed = expense decrease (slot f).
+Output: (0,0,0,0,0,1)
+</example>
+
+<example>
+Transaction: "Client pays $5,000 invoice and $650 HST"
+Reasoning: Both go to cash (asset increase on debit side). Credit side: revenue increase (slot c) for the service, liability increase (slot a) for HST Payable. Two credit lines.
+Output: (1,0,1,0,0,0)
 </example>"""
+
+# ── 7. Output Format ─────────────────────────────────────────────────────
 
 _OUTPUT_FORMAT = """
 ## Output Format
 
-Return ONLY the 6-tuple as (a,b,c,d,e,f) with no explanation. \
-Each value must be a non-negative integer. Verify that each slot \
-corresponds to the correct category before outputting."""
+Return ONLY the 6-tuple as (a,b,c,d,e,f). Each value must be a non-negative \
+integer. No explanation."""
 
 SYSTEM_INSTRUCTION = "\n".join([
-    _PREAMBLE, _ROLE, _RULES, _TUPLE_DEF, _EXAMPLES, _OUTPUT_FORMAT,
+    _PREAMBLE, _ROLE, _DOMAIN, _SYSTEM, _PROCEDURE, _EXAMPLES, _OUTPUT_FORMAT,
 ])
 
 
-def build_prompt(state: PipelineState, rag_examples: list[dict]) -> dict:
+def build_prompt(state: PipelineState, rag_examples: list[dict],
+                 fix_context: str | None = None) -> dict:
     """Build the credit classifier prompt with cache breakpoints."""
     system = [{"text": SYSTEM_INSTRUCTION}, _CACHE_POINT]
 
     text = state.get("enriched_text") or state["transaction_text"]
-    transaction_block = f"<transaction>{text}</transaction>"
+    parts = [{"text": f"<transaction>{text}</transaction>"}, _CACHE_POINT]
 
-    parts = [{"text": transaction_block}, _CACHE_POINT]
+    if fix_context:
+        parts.append({"text": f"<fix_context>{fix_context}</fix_context>"})
 
     if rag_examples:
-        examples_text = "These are similar past transactions with correct credit tuples for reference:\n<examples>\n"
+        examples_text = "These are similar past transactions with correct credit tuples:\n<examples>\n"
         for ex in rag_examples:
-            examples_text += (
-                f"  Transaction: {ex.get('transaction', '')}\n"
-                f"  Credit tuple: {ex.get('credit_tuple', '')}\n\n"
-            )
+            examples_text += f"  Transaction: {ex.get('transaction', '')}\n  Output: {ex.get('credit_tuple', '')}\n\n"
         examples_text += "</examples>"
         parts.append({"text": examples_text})
 

@@ -7,44 +7,52 @@ from services.agent.graph.state import PipelineState
 
 _CACHE_POINT = {"cachePoint": {"type": "default"}}
 
+# ── 1. Preamble ──────────────────────────────────────────────────────────
+
 _PREAMBLE = """\
 You are an accounting reviewer in a Canadian automated bookkeeping system."""
 
+# ── 2. Role ──────────────────────────────────────────────────────────────
+
 _ROLE = """
-## Your Role
+## Role
 
-A previous classifier produced a debit tuple for this transaction. Your job is \
-to review and correct it using the credit tuple as cross-validation context. \
-The credit tuple was produced independently by a separate classifier.
+Review and correct a debit tuple produced by a previous classifier. Use the \
+credit tuple as cross-validation context.
 
-You correct the DEBIT tuple only. A separate agent corrects the credit side."""
-
-_WHAT_TO_CORRECT = """
-## What to Correct
-
-1. **Misclassification**: A debit line was placed in the wrong category.
-   Example: COGS classified as "asset increase" instead of "expense increase."
-   Cross-validation: if the credit side shows "asset decrease" (inventory leaving),
-   the debit side should have "expense increase" (COGS), not "asset increase."
-
-2. **Missing lines**: A debit category that the transaction and credit side
-   together reveal should exist, but was missed by the initial classifier.
-   Detection is based on TRANSACTION SEMANTICS, not line count matching.
-   Debit and credit line counts are independent — they do NOT need to match."""
-
-_WHAT_NOT_TO_DO = """
-## What You Do NOT Do
-
-- Arithmetic balance check (Agent 5's job)
+You do NOT:
+- Perform arithmetic balance checks (Agent 5's job)
 - Assign account titles or names (Agent 5's job)
 - Assign dollar amounts (Agent 5's job)
 - Match debit line count to credit line count (they are independent)
+- Correct the credit tuple (separate agent handles that)"""
 
-You ONLY output a corrected 6-tuple. Nothing else."""
+# ── 3. Domain Knowledge ──────────────────────────────────────────────────
 
-_TUPLE_DEF = """
-## Debit Tuple (a, b, c, d, e, f)
+_DOMAIN = """
+## Domain Knowledge
 
+Account types and their debit behavior:
+| Account Type | Debit Effect |
+|-------------|-------------|
+| Asset       | Increase    |
+| Dividend    | Increase    |
+| Expense     | Increase    |
+| Liability   | Decrease    |
+| Equity      | Decrease    |
+| Revenue     | Decrease    |
+
+Common misclassifications:
+- COGS as asset increase instead of expense increase
+- Owner withdrawals as expense instead of dividend increase
+- Loan payments as expense instead of liability decrease"""
+
+# ── 4. System Knowledge ──────────────────────────────────────────────────
+
+_SYSTEM = """
+## System Knowledge
+
+Debit Tuple (a, b, c, d, e, f):
 | Slot | Category            |
 |------|---------------------|
 | a    | Asset increase      |
@@ -52,42 +60,73 @@ _TUPLE_DEF = """
 | c    | Expense increase    |
 | d    | Liability decrease  |
 | e    | Equity decrease     |
-| f    | Revenue decrease    |"""
+| f    | Revenue decrease    |
+
+IMPORTANT: The cross-validation tuple (credit side) may itself contain errors. \
+It was produced by a separate classifier that can also make mistakes. Use it as \
+a signal, not as ground truth. Prioritize transaction semantics over tuple \
+consistency."""
+
+# ── 5. Procedure ─────────────────────────────────────────────────────────
+
+_PROCEDURE = """
+## Procedure
+
+1. Read the transaction description.
+2. Read the initial debit tuple and the credit tuple.
+3. Check each debit slot against the transaction semantics.
+4. Use the credit tuple as a cross-validation signal:
+   - If credit shows "asset decrease" (inventory leaving), debit should likely
+     have "expense increase" (COGS), not "asset increase."
+5. Correct any misclassifications or missing lines.
+6. If the initial tuple is already correct, return it unchanged."""
+
+# ── 6. Examples ──────────────────────────────────────────────────────────
 
 _EXAMPLES = """
-## Correction Examples
+## Examples
 
 <example>
 Transaction: "Sell inventory (cost $100k) for $150k cash"
-Initial debit tuple: (2,0,0,0,0,0) — classifier put both as asset increase
-Credit tuple: (0,0,1,1,0,0) — revenue increase + asset decrease (inventory)
-Corrected debit tuple: (1,0,1,0,0,0)
-— Credit shows inventory leaving (asset decrease) → debit COGS is expense increase, not asset increase.
+Initial debit tuple: (2,0,0,0,0,0)
+Credit tuple: (0,0,1,1,0,0)
+Reasoning: Credit has asset decrease (inventory leaving) — debit COGS should be expense increase, not second asset increase.
+Output: (1,0,1,0,0,0)
 </example>
 
 <example>
 Transaction: "Pay off accounts payable $5,000"
-Initial debit tuple: (0,0,1,0,0,0) — classifier put as expense increase
-Credit tuple: (0,0,0,1,0,0) — asset decrease (cash leaving)
-Corrected debit tuple: (0,0,0,1,0,0)
-— Paying AP is liability decrease, not expense increase.
+Initial debit tuple: (0,0,1,0,0,0)
+Credit tuple: (0,0,0,1,0,0)
+Reasoning: Paying AP is liability decrease, not expense increase.
+Output: (0,0,0,1,0,0)
 </example>
 
 <example>
 Transaction: "Owner withdraws $3,000"
-Initial debit tuple: (0,0,1,0,0,0) — classifier put as expense
-Credit tuple: (0,0,0,1,0,0) — asset decrease (cash)
-Corrected debit tuple: (0,1,0,0,0,0)
-— Owner withdrawal is dividend increase, not expense.
+Initial debit tuple: (0,0,1,0,0,0)
+Credit tuple: (0,0,0,1,0,0)
+Reasoning: Owner withdrawal is dividend increase (slot b), not expense.
+Output: (0,1,0,0,0,0)
 </example>
 
 <example>
 Transaction: "Pay monthly rent $2,000"
-Initial debit tuple: (0,0,1,0,0,0) — correct
-Credit tuple: (0,0,0,1,0,0) — asset decrease (cash)
-Corrected debit tuple: (0,0,1,0,0,0)
-— No correction needed. Initial classification was correct.
+Initial debit tuple: (0,0,1,0,0,0)
+Credit tuple: (0,0,0,1,0,0)
+Reasoning: Correct. Rent is expense increase.
+Output: (0,0,1,0,0,0)
+</example>
+
+<example>
+Transaction: "Pay employee wages $3,000 and remit source deductions $800"
+Initial debit tuple: (0,0,1,0,0,0)
+Credit tuple: (0,0,0,1,0,0)
+Reasoning: Two separate debit lines — wages expense AND source deductions expense. Initial missed one.
+Output: (0,0,2,0,0,0)
 </example>"""
+
+# ── 7. Output Format ─────────────────────────────────────────────────────
 
 _OUTPUT_FORMAT = """
 ## Output Format
@@ -96,12 +135,12 @@ Return ONLY the corrected 6-tuple as (a,b,c,d,e,f). If the initial tuple \
 is already correct, return it unchanged. No explanation."""
 
 SYSTEM_INSTRUCTION = "\n".join([
-    _PREAMBLE, _ROLE, _WHAT_TO_CORRECT, _WHAT_NOT_TO_DO, _TUPLE_DEF,
-    _EXAMPLES, _OUTPUT_FORMAT,
+    _PREAMBLE, _ROLE, _DOMAIN, _SYSTEM, _PROCEDURE, _EXAMPLES, _OUTPUT_FORMAT,
 ])
 
 
-def build_prompt(state: PipelineState, rag_examples: list[dict]) -> dict:
+def build_prompt(state: PipelineState, rag_examples: list[dict],
+                 fix_context: str | None = None) -> dict:
     """Build the debit corrector prompt with cache breakpoints."""
     system = [{"text": SYSTEM_INSTRUCTION}, _CACHE_POINT]
 
@@ -115,14 +154,13 @@ def build_prompt(state: PipelineState, rag_examples: list[dict]) -> dict:
 
     parts = [{"text": transaction_block}, _CACHE_POINT, {"text": dynamic_block}]
 
+    if fix_context:
+        parts.append({"text": f"<fix_context>{fix_context}</fix_context>"})
+
     if rag_examples:
         examples_text = "These are similar past corrections for reference:\n<examples>\n"
         for ex in rag_examples:
-            examples_text += (
-                f"  Transaction: {ex.get('transaction', '')}\n"
-                f"  Before: {ex.get('before', '')}\n"
-                f"  After: {ex.get('after', '')}\n\n"
-            )
+            examples_text += f"  Transaction: {ex.get('transaction', '')}\n  Before: {ex.get('before', '')}\n  After: {ex.get('after', '')}\n\n"
         examples_text += "</examples>"
         parts.append({"text": examples_text})
 
