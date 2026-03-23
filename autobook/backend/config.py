@@ -34,6 +34,7 @@ class Settings(BaseSettings):
     SQS_QUEUE_FLYWHEEL: str = "http://elasticmq:9324/queue/flywheel"
     QDRANT_URL: str = "http://localhost:6333"
     QDRANT_API_KEY: str | None = None
+    BEDROCK_DEFAULT_MODEL: str = "us.anthropic.claude-sonnet-4-6-20251001-v1:0"
 
     model_config = {"env_file": ".env", "case_sensitive": False}
 
