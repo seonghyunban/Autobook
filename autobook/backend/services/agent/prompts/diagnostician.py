@@ -134,28 +134,30 @@ SYSTEM_INSTRUCTION = "\n".join([
 def build_prompt(state: PipelineState, rag_examples: list[dict],
                  fix_context: str | None = None) -> dict:
     """Build the diagnostician prompt with cache breakpoints."""
+    # ── Build parts ─────────────────────────────────────────────────
     system = [{"text": SYSTEM_INSTRUCTION}, _CACHE_POINT]
 
     text = state.get("enriched_text") or state["transaction_text"]
-    transaction_block = f"<transaction>{text}</transaction>"
+    transaction = [{"text": f"<transaction>{text}</transaction>"}, _CACHE_POINT]
 
-    trace_text = compile_reasoning_trace(state)
-    rejection_text = json.dumps(state["approval"], indent=2)
+    reasoning = [{"text": (
+        f"<generator_reasoning>\n{compile_reasoning_trace(state)}\n</generator_reasoning>"
+    )}]
 
-    dynamic_block = (
-        f"<generator_trace>\n{trace_text}\n</generator_trace>\n"
-        f"<rejection>\n{rejection_text}\n</rejection>"
-    )
+    rejection = [{"text": (
+        f"<rejection>\n{json.dumps(state['approval'], indent=2)}\n</rejection>"
+    )}]
 
-    content = [{"text": transaction_block}, _CACHE_POINT, {"text": dynamic_block}]
-    content += build_fix_context(fix_context=fix_context)
-    content += build_rag_examples(
+    fix = build_fix_context(fix_context=fix_context)
+    rag = build_rag_examples(
         rag_examples=rag_examples,
         label="similar past fix outcomes for reference",
         fields=["rejection", "decision", "fix_plans"],
     )
 
+    # ── Join ──────────────────────────────────────────────────────
+    message = transaction + reasoning + rejection + fix + rag
     return {
         "system": system,
-        "messages": [{"role": "user", "content": content}],
+        "messages": [{"role": "user", "content": message}],
     }

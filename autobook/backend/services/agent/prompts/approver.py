@@ -129,27 +129,30 @@ SYSTEM_INSTRUCTION = "\n".join([
 def build_prompt(state: PipelineState, rag_examples: list[dict],
                  fix_context: str | None = None) -> dict:
     """Build the approver prompt with cache breakpoints."""
+    # ── Build parts ─────────────────────────────────────────────────
     system = [{"text": SYSTEM_INSTRUCTION}, _CACHE_POINT]
 
     text = state.get("enriched_text") or state["transaction_text"]
-    transaction_block = f"<transaction>{text}</transaction>"
+    transaction = [{"text": f"<transaction>{text}</transaction>"}, _CACHE_POINT]
 
-    journal_text = json.dumps(state["journal_entry"], indent=2)
-    trace_text = compile_reasoning_trace(state)
+    journal = [{"text": (
+        f"<journal_entry>\n{json.dumps(state['journal_entry'], indent=2)}\n</journal_entry>"
+    )}]
 
-    dynamic_block = (
-        f"<journal_entry>\n{journal_text}\n</journal_entry>\n"
-        f"<generator_trace>\n{trace_text}\n</generator_trace>"
+    reasoning = [{"text": (
+        f"<generator_reasoning>\n{compile_reasoning_trace(state)}\n</generator_reasoning>"
+    )}]
+
+    fix = build_fix_context(fix_context=fix_context)
+    rag = build_rag_examples(
+        rag_examples=rag_examples,
+        label="similar past corrections for reference",
+        fields=["entry", "error", "correction"],
     )
 
-    content = [{"text": transaction_block}, _CACHE_POINT, {"text": dynamic_block}]
-    content += build_fix_context(fix_context=fix_context)
-    content += build_rag_examples(rag_examples=rag_examples,
-                                  label="similar past corrections for reference",
-                                  fields=["entry", "error", "correction"],
-    )
-
+    # ── Join ──────────────────────────────────────────────────────
+    message = transaction + journal + reasoning + fix + rag
     return {
         "system": system,
-        "messages": [{"role": "user", "content": content}],
+        "messages": [{"role": "user", "content": message}],
     }

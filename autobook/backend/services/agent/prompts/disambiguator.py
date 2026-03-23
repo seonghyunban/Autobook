@@ -131,27 +131,29 @@ SYSTEM_INSTRUCTION = "\n".join([
 def build_prompt(state: PipelineState, rag_examples: list[dict],
                  fix_context: str | None = None) -> dict:
     """Build the disambiguator prompt with cache breakpoints."""
+    # ── Build parts ─────────────────────────────────────────────────
     system = [{"text": SYSTEM_INSTRUCTION}, _CACHE_POINT]
 
     user_ctx = state.get("user_context", {})
-    transaction_block = (
+    transaction = [{"text": (
         f"<transaction>{state['transaction_text']}</transaction>\n"
         f"<context>\n"
         f"  Business type: {user_ctx.get('business_type', 'unknown')}\n"
         f"  Province: {user_ctx.get('province', 'unknown')}\n"
         f"  Ownership: {user_ctx.get('ownership', 'unknown')}\n"
         f"</context>"
-    )
+    )}, _CACHE_POINT]
 
-    content = [{"text": transaction_block}, _CACHE_POINT]
-    content += build_fix_context(fix_context=fix_context)
-    content += build_rag_examples(
+    fix = build_fix_context(fix_context=fix_context)
+    rag = build_rag_examples(
         rag_examples=rag_examples,
         label="similar past disambiguations for reference",
         fields=["input", "output"],
     )
 
+    # ── Join ──────────────────────────────────────────────────────
+    message = transaction + fix + rag
     return {
         "system": system,
-        "messages": [{"role": "user", "content": content}],
+        "messages": [{"role": "user", "content": message}],
     }

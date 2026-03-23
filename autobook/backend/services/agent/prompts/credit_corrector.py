@@ -143,26 +143,27 @@ SYSTEM_INSTRUCTION = "\n".join([
 def build_prompt(state: PipelineState, rag_examples: list[dict],
                  fix_context: str | None = None) -> dict:
     """Build the credit corrector prompt with cache breakpoints."""
+    # ── Build parts ─────────────────────────────────────────────────
     system = [{"text": SYSTEM_INSTRUCTION}, _CACHE_POINT]
 
     text = state.get("enriched_text") or state["transaction_text"]
-    transaction_block = f"<transaction>{text}</transaction>"
+    transaction = [{"text": f"<transaction>{text}</transaction>"}, _CACHE_POINT]
 
-    dynamic_block = (
-        f"<debit_tuple>{state.get('initial_debit_tuple', '')}</debit_tuple>\n"
+    initial_tuples = [{"text": (
+        f"<initial_debit_tuple>{state.get('initial_debit_tuple', '')}</initial_debit_tuple>\n"
         f"<initial_credit_tuple>{state.get('initial_credit_tuple', '')}</initial_credit_tuple>"
-    )
+    )}]
 
-    content = [{"text": transaction_block}, _CACHE_POINT, {"text": dynamic_block}]
-
-    content += build_fix_context(fix_context=fix_context)
-    content += build_rag_examples(
+    fix = build_fix_context(fix_context=fix_context)
+    rag = build_rag_examples(
         rag_examples=rag_examples,
         label="similar past corrections for reference",
         fields=["transaction", "before", "after"],
     )
 
+    # ── Join ──────────────────────────────────────────────────────
+    message = transaction + initial_tuples + fix + rag
     return {
         "system": system,
-        "messages": [{"role": "user", "content": content}],
+        "messages": [{"role": "user", "content": message}],
     }

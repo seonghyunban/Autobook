@@ -130,48 +130,50 @@ def build_prompt(state: PipelineState, rag_examples: list[dict],
                  vendor_results: list[dict] | None = None,
                  fix_context: str | None = None) -> dict:
     """Build the entry builder prompt with cache breakpoints."""
+    # ── Build parts ─────────────────────────────────────────────────
     system = [{"text": SYSTEM_INSTRUCTION}, _CACHE_POINT]
 
     text = state.get("enriched_text") or state["transaction_text"]
-    transaction_block = f"<transaction>{text}</transaction>"
+    transaction = [{"text": f"<transaction>{text}</transaction>"}, _CACHE_POINT]
 
-    dynamic_parts = [
-        f"<refined_debit_tuple>{state.get('refined_debit_tuple', '')}</refined_debit_tuple>",
-        f"<refined_credit_tuple>{state.get('refined_credit_tuple', '')}</refined_credit_tuple>",
-    ]
+    refined_tuples = [{"text": (
+        f"<refined_debit_tuple>{state.get('refined_debit_tuple', '')}</refined_debit_tuple>\n"
+        f"<refined_credit_tuple>{state.get('refined_credit_tuple', '')}</refined_credit_tuple>"
+    )}]
 
+    coa = []
     if coa_results:
         coa_text = "\n".join(
             f"  {a['account_code']} — {a['account_name']} ({a['account_type']})"
             for a in coa_results
         )
-        dynamic_parts.append(f"<chart_of_accounts>\n{coa_text}\n</chart_of_accounts>")
+        coa = [{"text": f"<chart_of_accounts>\n{coa_text}\n</chart_of_accounts>"}]
 
+    tax = []
     if tax_results:
-        dynamic_parts.append(
+        tax = [{"text": (
             f"<tax_rules>rate={tax_results.get('rate', 0)}, "
             f"taxable={tax_results.get('taxable', False)}</tax_rules>"
-        )
+        )}]
 
+    vendor = []
     if vendor_results:
         vendor_text = "\n".join(
             f"  {v.get('account_name', '')} — {v.get('type', '')} ${v.get('amount', '')}"
             for v in vendor_results
         )
-        dynamic_parts.append(f"<vendor_history>\n{vendor_text}\n</vendor_history>")
+        vendor = [{"text": f"<vendor_history>\n{vendor_text}\n</vendor_history>"}]
 
-    dynamic_block = "\n".join(dynamic_parts)
-
-    content = [{"text": transaction_block}, _CACHE_POINT, {"text": dynamic_block}]
-
-    content += build_fix_context(fix_context=fix_context)
-    content += build_rag_examples(
+    fix = build_fix_context(fix_context=fix_context)
+    rag = build_rag_examples(
         rag_examples=rag_examples,
         label="similar past journal entries for reference",
         fields=["transaction", "entry"],
     )
 
+    # ── Join ──────────────────────────────────────────────────────
+    message = transaction + refined_tuples + coa + tax + vendor + fix + rag
     return {
         "system": system,
-        "messages": [{"role": "user", "content": content}],
+        "messages": [{"role": "user", "content": message}],
     }

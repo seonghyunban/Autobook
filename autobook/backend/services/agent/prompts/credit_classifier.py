@@ -137,19 +137,22 @@ SYSTEM_INSTRUCTION = "\n".join([
 def build_prompt(state: PipelineState, rag_examples: list[dict],
                  fix_context: str | None = None) -> dict:
     """Build the credit classifier prompt with cache breakpoints."""
+    # ── Build parts ─────────────────────────────────────────────────
     system = [{"text": SYSTEM_INSTRUCTION}, _CACHE_POINT]
 
     text = state.get("enriched_text") or state["transaction_text"]
-    content = [{"text": f"<transaction>{text}</transaction>"}, _CACHE_POINT]
+    transaction = [{"text": f"<transaction>{text}</transaction>"}, _CACHE_POINT]
 
-    content += build_fix_context(fix_context=fix_context)
-    content += build_rag_examples(
+    fix = build_fix_context(fix_context=fix_context)
+    rag = build_rag_examples(
         rag_examples=rag_examples,
         label="similar past transactions with correct credit tuples",
         fields=["transaction", "credit_tuple"],
     )
 
+    # ── Join ──────────────────────────────────────────────────────
+    message = transaction + fix + rag
     return {
         "system": system,
-        "messages": [{"role": "user", "content": content}],
+        "messages": [{"role": "user", "content": message}],
     }
