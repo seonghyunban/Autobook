@@ -16,11 +16,14 @@ RUN --mount=type=cache,target=/root/.cache/uv \
 
 # Shared source
 COPY backend/config.py backend/config.py
+COPY backend/local_identity.py backend/local_identity.py
+COPY backend/auth/ backend/auth/
 COPY backend/db/ backend/db/
 COPY backend/queues/ backend/queues/
 COPY backend/cache/ backend/cache/
 COPY backend/utils/ backend/utils/
 COPY backend/schemas/ backend/schemas/
+COPY backend/reporting/ backend/reporting/
 COPY backend/services/__init__.py backend/services/__init__.py
 
 RUN groupadd -g 1001 app && useradd -u 1001 -g app -s /bin/false app
