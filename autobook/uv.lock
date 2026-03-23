@@ -74,6 +74,7 @@ agent = [
 api = [
     { name = "cognitojwt" },
     { name = "fastapi" },
+    { name = "httpx" },
     { name = "python-multipart" },
     { name = "uvicorn" },
     { name = "websockets" },
@@ -100,6 +101,7 @@ requires-dist = [
     { name = "cognitojwt", marker = "extra == 'api'", specifier = ">=1.4,<2" },
     { name = "cryptography", specifier = ">=45.0,<46" },
     { name = "fastapi", marker = "extra == 'api'", specifier = ">=0.115,<1" },
+    { name = "httpx", marker = "extra == 'api'", specifier = ">=0.28,<1" },
     { name = "langchain-aws", marker = "extra == 'agent'", specifier = ">=0.2,<1" },
     { name = "langgraph", marker = "extra == 'agent'", specifier = ">=0.2,<1" },
     { name = "pandas", marker = "extra == 'normalizer'", specifier = ">=3.0,<4" },
