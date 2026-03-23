@@ -7,6 +7,8 @@ from services.agent.graph.state import PipelineState
 
 _CACHE_POINT = {"cachePoint": {"type": "default"}}
 
+# ── System prompt sections ────────────────────────────────────────────────
+
 _PREAMBLE = """\
 You are a business context expert in a Canadian automated bookkeeping system."""
 
@@ -17,20 +19,7 @@ You resolve ambiguous transaction descriptions by using the user's business \
 context (business type, province, ownership structure) to produce a clear, \
 unambiguous description that downstream accounting agents can classify correctly."""
 
-_WHY = """
-## Why This Matters
-
-Raw bank transaction descriptions are often cryptic or ambiguous. The same \
-description can mean different things depending on the business. For example:
-- "PAYMENT TO TIM" could be a contractor payment (restaurant) or employee \
-wages (retail) or a personal withdrawal (sole proprietor)
-- "TRANSFER $500" could be an inter-account transfer, a loan payment, or an \
-owner withdrawal
-- "AMAZON" could be office supplies (consulting firm), inventory (retail), or \
-advertising (marketing agency)
-
-Without disambiguation, downstream classifiers may assign the wrong account \
-categories, leading to incorrect journal entries."""
+# (1) _WHY removed — model doesn't need motivation, only instructions.
 
 _HOW = """
 ## How to Disambiguate
@@ -43,96 +32,64 @@ Use the user's business context to resolve ambiguity:
    - Consulting: professional services, software, travel
    - Construction: materials, subcontractors, equipment rental
 
-2. **Province** — affects tax treatment (HST vs GST+PST)
-   - ON, NB, NL, NS, PE: HST provinces (single combined tax)
-   - BC, SK, MB: GST + provincial sales tax
-   - AB: GST only (no provincial tax)
-   - QC: GST + QST
-
-3. **Ownership structure** — affects how owner transactions are classified
+2. **Ownership structure** — affects how owner transactions are classified
    - Sole proprietor: owner draws are equity withdrawals
    - Corporation: shareholder loans, dividends
    - Partnership: partner distributions"""
 
+# (2) Province→tax mapping removed — tax determination is Agent 5's job
+#     via tax_rules_lookup. Disambiguator only clarifies what the transaction is.
+
 _EXAMPLES = """
 ## Examples
 
+Each example shows a distinct ambiguity type.
+
 Input: "Paid $200 to Tim" + (restaurant, sole proprietor, ON)
-Output: "Contractor payment to Tim for restaurant services, $200, HST applicable"
+Output: "Contractor payment to Tim for restaurant services, $200"
+— Vague vendor name resolved using business type.
 
 Input: "TRANSFER 500" + (consulting, corporation, AB)
 Output: "Inter-account transfer of $500 between business bank accounts"
-
-Input: "AMAZON 89.99" + (consulting, sole proprietor, BC)
-Output: "Purchase of office supplies from Amazon for $89.99, GST+PST applicable"
-
-Input: "E-TRANSFER FROM CLIENT" + (consulting, sole proprietor, ON)
-Output: "Client payment received via e-transfer for consulting services"
-
-Input: "COSTCO 450.00" + (restaurant, corporation, ON)
-Output: "Purchase of food supplies and restaurant inventory from Costco for $450.00, HST applicable"
-
-Input: "CHEQUE 1500" + (construction, corporation, SK)
-Output: "Cheque payment of $1,500 for construction subcontractor services, GST+PST applicable"
+— Transfer vs payment resolved using ownership structure.
 
 Input: "DEPOSIT 3000" + (retail, sole proprietor, QC)
-Output: "Cash deposit of $3,000 from retail sales revenue, GST+QST applicable"
+Output: "Cash deposit of $3,000 from retail sales revenue"
+— Deposit type resolved using business type.
 
-Input: "INTERAC PURCHASE 75.50" + (consulting, sole proprietor, ON)
-Output: "Business purchase of $75.50 via Interac, likely office or client-related expense, HST applicable"
+Input: "COSTCO 450.00" + (restaurant, corporation, ON)
+Output: "Purchase of food supplies and restaurant inventory from Costco, $450.00"
+— Mixed-use vendor resolved using business type.
 
 Input: "INSURANCE 350 MONTHLY" + (construction, corporation, AB)
-Output: "Monthly business insurance premium of $350, commercial liability or vehicle insurance"
+Output: "Monthly business insurance premium of $350, commercial liability"
+— Recurring charge clarified using business type.
 
-Input: "LOAN PMT 1200" + (retail, corporation, MB)
-Output: "Monthly business loan payment of $1,200, split between principal (liability decrease) and interest (expense)\""""
+Input: "TXN REF 449281" + (consulting, sole proprietor, ON)
+Output: "TXN REF 449281"
+— Uninterpretable even with context. Returned unchanged."""
 
-_AMBIGUITY_PATTERNS = """
-## Common Ambiguity Patterns
-
-Watch for these patterns that frequently cause misclassification:
-
-1. **Personal vs business**: Sole proprietors often mix personal and business \
-transactions. "GROCERY STORE" might be inventory (restaurant) or personal \
-(non-deductible). Default to business if the vendor aligns with the business type.
-
-2. **Transfer vs payment**: "TRANSFER" alone is ambiguous — could be \
-inter-account (no journal entry needed), loan payment (liability decrease), \
-or owner withdrawal (equity decrease). Use ownership structure to decide.
-
-3. **Vague vendor names**: "PAYMENT TO [NAME]" — is this wages, contractor, \
-or personal? Use business type to infer the most likely relationship.
-
-4. **Deposits**: "DEPOSIT" could be client payment (revenue), loan proceeds \
-(liability increase), or owner investment (equity increase). Use business type \
-and amount to infer.
-
-5. **Recurring charges**: "MONTHLY [AMOUNT]" — could be rent, insurance, \
-subscription, or loan payment. Use amount and business type for context.
-
-6. **Mixed-use purchases**: "WALMART" or "COSTCO" — could be office supplies, \
-inventory, or personal. Use business type: restaurant → likely food/supplies, \
-retail → likely inventory, consulting → likely office supplies."""
+# (5) _AMBIGUITY_PATTERNS removed — redundant with annotated examples above.
 
 _OUTPUT_FORMAT = """
 ## Output Format
 
-Return ONLY the enriched transaction description as plain text. Do not include:
+Return ONLY the enriched transaction description in a single sentence. \
+Do not include:
 - JSON formatting
 - Explanations of your reasoning
 - Multiple options or alternatives
-- The original transaction text
+- Tax applicability (handled downstream)
 
-If the transaction is already clear and unambiguous, return it with minor \
-formatting improvements (e.g., adding tax applicability based on province).
-
-If the transaction is completely uninterpretable even with context, return \
-the original text unchanged."""
+If the transaction is already clear, return it with minor improvements.
+If the transaction is uninterpretable even with context, return it unchanged."""
 
 SYSTEM_INSTRUCTION = "\n".join([
-    _PREAMBLE, _ROLE, _WHY, _HOW, _EXAMPLES, _AMBIGUITY_PATTERNS, _OUTPUT_FORMAT,
+    _PREAMBLE, _ROLE, _HOW, _EXAMPLES, _OUTPUT_FORMAT,
 ])
 
+
+# ── Prompt builder ────────────────────────────────────────────────────────
 
 def build_prompt(state: PipelineState, rag_examples: list[dict]) -> dict:
     """Build the disambiguator prompt with cache breakpoints.
@@ -144,7 +101,7 @@ def build_prompt(state: PipelineState, rag_examples: list[dict]) -> dict:
     Returns:
         Dict with 'system' and 'messages' keys for ChatBedrockConverse.
     """
-    # ── System block (BP1: cached per agent, 1hr effective) ───────────
+    # ── System block (BP1: cached per agent) ──────────────────────────
     system = [
         {"text": SYSTEM_INSTRUCTION},
         _CACHE_POINT,
@@ -165,7 +122,7 @@ def build_prompt(state: PipelineState, rag_examples: list[dict]) -> dict:
     parts = [{"text": transaction_block}, _CACHE_POINT]
 
     if rag_examples:
-        examples_text = "<examples>\n"
+        examples_text = "These are similar past disambiguations for reference:\n<examples>\n"
         for ex in rag_examples:
             examples_text += (
                 f"  Input: {ex.get('input', '')}\n"
