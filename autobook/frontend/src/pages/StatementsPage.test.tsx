@@ -32,7 +32,7 @@ describe("statement export controls", () => {
     await act(async () => {
       await parseTransaction({
         input_text: "Purchased office chairs",
-        source: "manual",
+        source: "manual_text",
         currency: "CAD",
       });
     });
