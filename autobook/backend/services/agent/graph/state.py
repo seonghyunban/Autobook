@@ -55,7 +55,5 @@ class PipelineState(TypedDict):
     output_approver: str | None
     output_diagnostician: str | None
 
-    # ── Ablation config ────────────────────────────────────────────────────
-    ablation: AblationConfig
 
 
