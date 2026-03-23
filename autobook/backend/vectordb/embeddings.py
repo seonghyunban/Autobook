@@ -5,14 +5,7 @@ import boto3
 from config import get_settings
 
 _MODEL_ID = "us.cohere.embed-v4:0"
-
-
-def _client():
-    settings = get_settings()
-    return boto3.client(
-        "bedrock-runtime",
-        region_name=settings.AWS_DEFAULT_REGION,
-    )
+_bedrock = boto3.client("bedrock-runtime", region_name=get_settings().AWS_DEFAULT_REGION)
 
 
 def embed_text(text: str, input_type: str = "search_query") -> list[float]:
@@ -44,7 +37,7 @@ def embed_texts(texts: list[str], input_type: str = "search_query") -> list[list
         "input_type": input_type,
         "embedding_types": ["float"],
     })
-    response = _client().invoke_model(
+    response = _bedrock.invoke_model(
         modelId=_MODEL_ID,
         body=body,
         accept="*/*",

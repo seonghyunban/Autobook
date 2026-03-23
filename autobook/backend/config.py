@@ -44,6 +44,7 @@ class Settings(BaseSettings):
         "approver":          "us.anthropic.claude-sonnet-4-6-20251001-v1:0",
         "diagnostician":     "us.anthropic.claude-sonnet-4-6-20251001-v1:0",
     }
+    BEDROCK_THINKING_EFFORT: dict[str, str] = {}  # empty = no thinking; post-ablation: set per agent
 
     model_config = {"env_file": ".env", "case_sensitive": False}
 

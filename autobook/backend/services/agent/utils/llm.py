@@ -36,8 +36,11 @@ def get_llm(agent_name: str, config: RunnableConfig | None = None) -> ChatBedroc
         or settings.BEDROCK_MODEL_ROUTING[agent_name]
     )
 
-    # Thinking effort: experiment override only, omitted in production
-    effort = configurable.get("thinking_effort_per_agent", {}).get(agent_name)
+    # Thinking effort: experiment override → config.py → omit (standard mode)
+    effort = (
+        configurable.get("thinking_effort_per_agent", {}).get(agent_name)
+        or settings.BEDROCK_THINKING_EFFORT.get(agent_name)
+    )
     additional_fields = {"thinking": {"type": "adaptive", "effort": effort}} if effort else None
 
     return ChatBedrockConverse(
