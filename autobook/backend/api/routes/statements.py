@@ -3,14 +3,10 @@ from __future__ import annotations
 from fastapi import APIRouter, Depends, HTTPException, Query, status
 from sqlalchemy.orm import Session
 
-from api.dependencies import get_current_local_user
+from auth.deps import AuthContext, get_current_user
 from db.connection import get_db
 from reporting.statements import build_balance_sheet, build_income_statement, build_trial_balance
 from schemas.statements import StatementResponse
-from fastapi import APIRouter, Depends, Query
-
-from auth.deps import AuthContext, get_current_user
-from schemas.statements import StatementResponse, Period
 
 router = APIRouter(prefix="/api/v1")
 
@@ -24,11 +20,11 @@ async def get_statements(
 ):
     normalized_type = statement_type.lower()
     if normalized_type == "balance_sheet":
-        payload = build_balance_sheet(db, current_user.id, as_of)
+        payload = build_balance_sheet(db, current_user.user.id, as_of)
     elif normalized_type == "income_statement":
-        payload = build_income_statement(db, current_user.id, as_of)
+        payload = build_income_statement(db, current_user.user.id, as_of)
     elif normalized_type == "trial_balance":
-        payload = build_trial_balance(db, current_user.id, as_of)
+        payload = build_trial_balance(db, current_user.user.id, as_of)
     else:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,

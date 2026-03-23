@@ -5,14 +5,10 @@ from decimal import Decimal
 from fastapi import APIRouter, Depends
 from sqlalchemy.orm import Session
 
-from api.dependencies import get_current_local_user
+from auth.deps import AuthContext, get_current_user
 from db.connection import get_db
 from db.dao.journal_entries import JournalEntryDAO
 from db.models.journal import JournalEntry
-from fastapi import APIRouter, Depends
-
-from auth.deps import AuthContext, get_current_user
-from config import get_settings
 from schemas.ledger import LedgerResponse, LedgerSummary
 
 router = APIRouter(prefix="/api/v1")
@@ -49,11 +45,11 @@ def _serialize_entry(entry: JournalEntry) -> dict:
 @router.get("/ledger", response_model=LedgerResponse)
 async def get_ledger(
     db: Session = Depends(get_db),
-    current_user=Depends(get_current_local_user),
+    current_user: AuthContext = Depends(get_current_user),
 ):
-    entries = JournalEntryDAO.list_by_user(db, current_user.id)
-    balances = JournalEntryDAO.compute_balances(db, current_user.id)
-    summary = JournalEntryDAO.compute_summary(db, current_user.id)
+    entries = JournalEntryDAO.list_by_user(db, current_user.user.id)
+    balances = JournalEntryDAO.compute_balances(db, current_user.user.id)
+    summary = JournalEntryDAO.compute_summary(db, current_user.user.id)
 
     return LedgerResponse(
         entries=[_serialize_entry(entry) for entry in entries],

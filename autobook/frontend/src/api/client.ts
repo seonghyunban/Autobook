@@ -1,121 +1,124 @@
-// import { mockApi } from "../mocks/mockApi";
-// import { getAccessToken } from "./auth";
-// import type {
-//   ClarificationsResponse,
-//   LedgerResponse,
-//   ParseAccepted,
-//   ParseRequest,
-//   ResolveClarificationRequest,
-//   ResolveClarificationResponse,
-//   StatementsResponse,
-//   TransactionInputSource,
-// } from "./types";
+import { mockApi } from "../mocks/mockApi";
+import { getAccessToken } from "./auth";
+import type {
+  ClarificationsResponse,
+  LedgerResponse,
+  ParseAccepted,
+  ParseRequest,
+  ResolveClarificationRequest,
+  ResolveClarificationResponse,
+  StatementsResponse,
+  TransactionInputSource,
+} from "./types";
 
-// const API_BASE_URL = import.meta.env.VITE_API_BASE_URL ?? "http://localhost:8000/api/v1";
-// const USE_MOCK_API = import.meta.env.VITE_USE_MOCK_API !== "false";
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL ?? "http://localhost:8000/api/v1";
+const USE_MOCK_API = import.meta.env.VITE_USE_MOCK_API !== "false";
 
+function deriveUploadSource(file: File): Extract<TransactionInputSource, "csv_upload" | "pdf_upload"> {
+  const fileName = file.name.toLowerCase();
+  if (file.type === "text/csv" || fileName.endsWith(".csv")) {
+    return "csv_upload";
+  }
 
-// function buildHeaders(extraHeaders?: HeadersInit) {
-//   const token = getAccessToken();
-//   const headers = new Headers(extraHeaders);
-//   headers.set("Content-Type", "application/json");
-//   if (token) {
-//     headers.set("Authorization", `Bearer ${token}`);
-//   }
-//   return headers;
-// }
+  if (file.type === "application/pdf" || fileName.endsWith(".pdf")) {
+    return "pdf_upload";
+  }
 
-// async function request<T>(path: string, init?: RequestInit): Promise<T> {
-//   const response = await fetch(`${API_BASE_URL}${path}`, {
-//     headers: {
-//       "Content-Type": "application/json",
-//     },
-//     ...init,
-//   });
+  throw new Error("Unsupported file type. Upload a CSV or text-based PDF.");
+}
 
-//   if (!response.ok) {
-//     throw new Error(`Request failed: ${response.status}`);
-//   }
+function buildHeaders(extraHeaders?: HeadersInit) {
+  const token = getAccessToken();
+  const headers = new Headers(extraHeaders);
+  headers.set("Content-Type", "application/json");
+  if (token) {
+    headers.set("Authorization", `Bearer ${token}`);
+  }
+  return headers;
+}
 
-//   return (await response.json()) as T;
-// }
+async function request<T>(path: string, init?: RequestInit): Promise<T> {
+  const response = await fetch(`${API_BASE_URL}${path}`, {
+    headers: buildHeaders(init?.headers),
+    ...init,
+  });
 
-// export async function parseTransaction(input: ParseRequest): Promise<ParseAccepted> {
-//   if (USE_MOCK_API) {
-//     return mockApi.parseTransaction(input);
-//   }
+  if (!response.ok) {
+    throw new Error(`Request failed: ${response.status}`);
+  }
 
-//   return request<ParseAccepted>("/parse", {
-//     method: "POST",
-//     body: JSON.stringify(input),
-//   });
-// }
+  return (await response.json()) as T;
+}
 
-// export async function uploadTransactionFile(file: File): Promise<ParseAccepted> {
-//   if (USE_MOCK_API) {
-//     return mockApi.uploadTransactionFile(file);
-//   }
+export async function parseTransaction(input: ParseRequest): Promise<ParseAccepted> {
+  if (USE_MOCK_API) {
+    return mockApi.parseTransaction(input);
+  }
 
-//   const source = deriveUploadSource(file);
-//   const formData = new FormData();
-//   formData.append("file", file);
-//   formData.append("user_id", getUserId());
-//   formData.append("source", source);
+  return request<ParseAccepted>("/parse", {
+    method: "POST",
+    body: JSON.stringify(input),
+  });
+}
 
-//   const response = await fetch(`${API_BASE_URL}/parse/upload`, {
-//     method: "POST",
-//     headers: (() => {
-//       const token = getAccessToken();
-//       return token ? { Authorization: `Bearer ${token}` } : undefined;
-//     })(),
-//     body: formData,
-//   });
+export async function uploadTransactionFile(file: File): Promise<ParseAccepted> {
+  if (USE_MOCK_API) {
+    return mockApi.uploadTransactionFile(file);
+  }
 
-//   if (!response.ok) {
-//     throw new Error(`Request failed: ${response.status}`);
-//   }
+  const source = deriveUploadSource(file);
+  const formData = new FormData();
+  formData.append("file", file);
+  formData.append("source", source);
 
-//   return (await response.json()) as ParseAccepted;
-// }
+  const token = getAccessToken();
+  const response = await fetch(`${API_BASE_URL}/parse/upload`, {
+    method: "POST",
+    headers: token ? { Authorization: `Bearer ${token}` } : undefined,
+    body: formData,
+  });
 
-// export async function getClarifications(): Promise<ClarificationsResponse> {
-//   if (USE_MOCK_API) {
-//     return mockApi.getClarifications();
-//   }
+  if (!response.ok) {
+    throw new Error(`Request failed: ${response.status}`);
+  }
 
-//   return request<ClarificationsResponse>("/clarifications", undefined, true);
-// }
+  return (await response.json()) as ParseAccepted;
+}
 
-// export async function resolveClarification(
-//   clarificationId: string,
-//   input: ResolveClarificationRequest,
-// ): Promise<ResolveClarificationResponse> {
-//   if (USE_MOCK_API) {
-//     return mockApi.resolveClarification(clarificationId, input);
-//   }
+export async function getClarifications(): Promise<ClarificationsResponse> {
+  if (USE_MOCK_API) {
+    return mockApi.getClarifications();
+  }
 
-//   return request<ResolveClarificationResponse>(
-//     `/clarifications/${clarificationId}/resolve`,
-//     {
-//       method: "POST",
-//       body: JSON.stringify(input),
-//     },
-//     true,
-//   );
-// }
+  return request<ClarificationsResponse>("/clarifications");
+}
 
-// export async function getLedger(): Promise<LedgerResponse> {
-//   if (USE_MOCK_API) {
-//     return mockApi.getLedger();
-//   }
+export async function resolveClarification(
+  clarificationId: string,
+  input: ResolveClarificationRequest,
+): Promise<ResolveClarificationResponse> {
+  if (USE_MOCK_API) {
+    return mockApi.resolveClarification(clarificationId, input);
+  }
 
-//   return request<LedgerResponse>("/ledger", undefined, true);
-// }
+  return request<ResolveClarificationResponse>(`/clarifications/${clarificationId}/resolve`, {
+    method: "POST",
+    body: JSON.stringify(input),
+  });
+}
 
-// export async function getStatements(): Promise<StatementsResponse> {
-//   if (USE_MOCK_API) {
-//     return mockApi.getStatements();
-//   }
+export async function getLedger(): Promise<LedgerResponse> {
+  if (USE_MOCK_API) {
+    return mockApi.getLedger();
+  }
 
-//   return request<StatementsResponse>("/statements", undefined, true);
-// }
+  return request<LedgerResponse>("/ledger");
+}
+
+export async function getStatements(): Promise<StatementsResponse> {
+  if (USE_MOCK_API) {
+    return mockApi.getStatements();
+  }
+
+  return request<StatementsResponse>("/statements");
+}
