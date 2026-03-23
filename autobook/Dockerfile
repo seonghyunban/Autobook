@@ -22,6 +22,7 @@ COPY backend/cache/ backend/cache/
 COPY backend/utils/ backend/utils/
 COPY backend/schemas/ backend/schemas/
 COPY backend/services/__init__.py backend/services/__init__.py
+COPY backend/vectordb/ backend/vectordb/
 
 RUN groupadd -g 1001 app && useradd -u 1001 -g app -s /bin/false app
 ENV PATH="/app/.venv/bin:$PATH" \

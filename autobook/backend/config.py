@@ -32,6 +32,8 @@ class Settings(BaseSettings):
     SQS_QUEUE_RESOLUTION: str = "http://elasticmq:9324/queue/resolution"
     SQS_QUEUE_POSTING: str = "http://elasticmq:9324/queue/posting"
     SQS_QUEUE_FLYWHEEL: str = "http://elasticmq:9324/queue/flywheel"
+    QDRANT_URL: str = "http://localhost:6333"
+    QDRANT_API_KEY: str | None = None
 
     model_config = {"env_file": ".env", "case_sensitive": False}
 
