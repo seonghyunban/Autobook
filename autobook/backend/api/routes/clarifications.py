@@ -1,8 +1,6 @@
 from __future__ import annotations
 
-from datetime import datetime, timezone
 from decimal import Decimal
-from uuid import UUID
 
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session
@@ -12,7 +10,9 @@ from config import get_settings
 from db.connection import get_db
 from db.dao.clarifications import ClarificationDAO
 from db.models.clarification import ClarificationTask
-from queues.redis import publish_sync
+
+from auth.deps import AuthContext, require_role
+from auth.schemas import UserRole
 from schemas.clarifications import (
     ClarificationItem,
     ClarificationsResponse,
@@ -91,42 +91,18 @@ async def resolve_clarification(
     clarification_id: str,
     body: ResolveRequest,
     db: Session = Depends(get_db),
-    current_user=Depends(get_current_local_user),
+    current_user: AuthContext = Depends(require_role(UserRole.MANAGER)),
 ):
     action, edited_entry = _normalize_resolve_payload(body)
     try:
-        task_uuid = UUID(clarification_id)
+        task, journal_entry = ClarificationDAO.resolve(db, clarification_id, action, edited_entry)
     except ValueError as exc:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="clarification not found") from exc
-
-    try:
-        task, journal_entry = ClarificationDAO.resolve(db, task_uuid, action, edited_entry=edited_entry)
-    except ValueError as exc:
-        db.rollback()
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(exc)) from exc
 
     if task is None:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="clarification not found")
-    if task.user_id != current_user.id:
-        db.rollback()
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="clarification not found")
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Clarification not found")
 
     db.commit()
-
-    publish_sync(
-        "clarification.resolved",
-        {
-            "type": "clarification.resolved",
-            "clarification_id": clarification_id,
-            "user_id": str(current_user.id),
-            "input_text": task.source_text,
-            "occurred_at": datetime.now(timezone.utc).isoformat(),
-            "status": task.status,
-            "confidence": {"overall": float(task.confidence)},
-            "explanation": task.explanation,
-            "proposed_entry": task.proposed_entry,
-        },
-    )
 
     return ResolveResponse(
         clarification_id=clarification_id,

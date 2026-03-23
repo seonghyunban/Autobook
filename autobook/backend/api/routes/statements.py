@@ -7,6 +7,10 @@ from api.dependencies import get_current_local_user
 from db.connection import get_db
 from reporting.statements import build_balance_sheet, build_income_statement, build_trial_balance
 from schemas.statements import StatementResponse
+from fastapi import APIRouter, Depends, Query
+
+from auth.deps import AuthContext, get_current_user
+from schemas.statements import StatementResponse, Period
 
 router = APIRouter(prefix="/api/v1")
 
@@ -16,7 +20,7 @@ async def get_statements(
     statement_type: str = Query(default="balance_sheet"),
     as_of: str | None = Query(default=None),
     db: Session = Depends(get_db),
-    current_user=Depends(get_current_local_user),
+    current_user: AuthContext = Depends(get_current_user),
 ):
     normalized_type = statement_type.lower()
     if normalized_type == "balance_sheet":

@@ -9,6 +9,10 @@ from api.dependencies import get_current_local_user
 from db.connection import get_db
 from db.dao.journal_entries import JournalEntryDAO
 from db.models.journal import JournalEntry
+from fastapi import APIRouter, Depends
+
+from auth.deps import AuthContext, get_current_user
+from config import get_settings
 from schemas.ledger import LedgerResponse, LedgerSummary
 
 router = APIRouter(prefix="/api/v1")

@@ -3,7 +3,9 @@ import logging
 from datetime import datetime, timezone
 
 from fastapi import APIRouter, Form, Request, UploadFile
+from fastapi import APIRouter, Depends, Request, UploadFile
 
+from auth.deps import AuthContext, get_current_user
 from schemas.parse import ParseRequest, ParseAccepted
 from config import get_settings
 from queues import enqueue
@@ -25,14 +27,18 @@ def _infer_upload_source(filename: str | None) -> str:
 
 
 @router.post("/parse", response_model=ParseAccepted)
-async def parse(body: ParseRequest, request: Request):
+async def parse(
+    body: ParseRequest,
+    request: Request,
+    current_user: AuthContext = Depends(get_current_user),
+):
     parse_id = f"parse_{uuid.uuid4().hex[:12]}"
     enqueue(get_settings().SQS_QUEUE_NORMALIZER, {
         "parse_id": parse_id,
         "input_text": body.input_text,
         "source": body.source,
         "currency": body.currency,
-        "user_id": body.user_id,
+        "user_id": str(current_user.user.id),
         "submitted_at": datetime.now(timezone.utc).isoformat(),
     })
     return ParseAccepted(parse_id=parse_id)
@@ -44,6 +50,7 @@ async def parse_upload(
     request: Request,
     user_id: str | None = Form(default=None),
     source: str | None = Form(default=None),
+    current_user: AuthContext = Depends(get_current_user),
 ):
     parse_id = f"parse_{uuid.uuid4().hex[:12]}"
     contents = await file.read()
@@ -53,7 +60,7 @@ async def parse_upload(
         "parse_id": parse_id,
         "source": source or _infer_upload_source(file.filename),
         "filename": file.filename,
-        "user_id": user_id,
+        "user_id": str(current_user.user.id),
         "submitted_at": datetime.now(timezone.utc).isoformat(),
     })
     return ParseAccepted(parse_id=parse_id)
