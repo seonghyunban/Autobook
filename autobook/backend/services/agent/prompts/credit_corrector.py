@@ -152,19 +152,19 @@ def build_prompt(state: PipelineState, rag_examples: list[dict],
         f"<initial_credit_tuple>{state.get('initial_credit_tuple', '')}</initial_credit_tuple>"
     )
 
-    parts = [{"text": transaction_block}, _CACHE_POINT, {"text": dynamic_block}]
+    content = [{"text": transaction_block}, _CACHE_POINT, {"text": dynamic_block}]
 
     if fix_context:
-        parts.append({"text": f"<fix_context>{fix_context}</fix_context>"})
+        content.append({"text": f"<fix_context>{fix_context}</fix_context>"})
 
     if rag_examples:
         examples_text = "These are similar past corrections for reference:\n<examples>\n"
         for ex in rag_examples:
             examples_text += f"  Transaction: {ex.get('transaction', '')}\n  Before: {ex.get('before', '')}\n  After: {ex.get('after', '')}\n\n"
         examples_text += "</examples>"
-        parts.append({"text": examples_text})
+        content.append({"text": examples_text})
 
     return {
         "system": system,
-        "messages": [{"role": "user", "content": parts}],
+        "messages": [{"role": "user", "content": content}],
     }

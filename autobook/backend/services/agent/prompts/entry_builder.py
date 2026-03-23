@@ -161,19 +161,19 @@ def build_prompt(state: PipelineState, rag_examples: list[dict],
 
     dynamic_block = "\n".join(dynamic_parts)
 
-    parts = [{"text": transaction_block}, _CACHE_POINT, {"text": dynamic_block}]
+    content = [{"text": transaction_block}, _CACHE_POINT, {"text": dynamic_block}]
 
     if fix_context:
-        parts.append({"text": f"<fix_context>{fix_context}</fix_context>"})
+        content.append({"text": f"<fix_context>{fix_context}</fix_context>"})
 
     if rag_examples:
         examples_text = "These are similar past journal entries for reference:\n<examples>\n"
         for ex in rag_examples:
             examples_text += f"  {ex}\n\n"
         examples_text += "</examples>"
-        parts.append({"text": examples_text})
+        content.append({"text": examples_text})
 
     return {
         "system": system,
-        "messages": [{"role": "user", "content": parts}],
+        "messages": [{"role": "user", "content": content}],
     }

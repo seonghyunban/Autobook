@@ -143,29 +143,29 @@ def build_prompt(state: PipelineState, rag_examples: list[dict],
         val = state.get(field)
         if val is not None:
             trace_parts.append(f"{field}: {val}")
-    trace_text = "\n".join(trace_parts) if trace_parts else "No trace available."
+    trace_text = "\n".join(trace_parts)
 
-    approval = state.get("approval", {})
-    rejection_text = json.dumps(approval, indent=2) if approval else "No rejection details."
+    approval = state["approval"]
+    rejection_text = json.dumps(approval, indent=2)
 
     dynamic_block = (
         f"<generator_trace>\n{trace_text}\n</generator_trace>\n"
         f"<rejection>\n{rejection_text}\n</rejection>"
     )
 
-    parts = [{"text": transaction_block}, _CACHE_POINT, {"text": dynamic_block}]
+    content = [{"text": transaction_block}, _CACHE_POINT, {"text": dynamic_block}]
 
     if fix_context:
-        parts.append({"text": f"<fix_context>{fix_context}</fix_context>"})
+        content.append({"text": f"<fix_context>{fix_context}</fix_context>"})
 
     if rag_examples:
         examples_text = "These are similar past fix outcomes for reference:\n<examples>\n"
         for ex in rag_examples:
             examples_text += f"  {ex}\n\n"
         examples_text += "</examples>"
-        parts.append({"text": examples_text})
+        content.append({"text": examples_text})
 
     return {
         "system": system,
-        "messages": [{"role": "user", "content": parts}],
+        "messages": [{"role": "user", "content": content}],
     }

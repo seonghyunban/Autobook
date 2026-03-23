@@ -131,8 +131,8 @@ def build_prompt(state: PipelineState, rag_examples: list[dict],
     text = state.get("enriched_text") or state["transaction_text"]
     transaction_block = f"<transaction>{text}</transaction>"
 
-    journal = state.get("journal_entry", {})
-    journal_text = json.dumps(journal, indent=2) if journal else "No journal entry produced."
+    journal = state["journal_entry"]
+    journal_text = json.dumps(journal, indent=2)
 
     trace_parts = []
     for field in ["output_disambiguator", "output_debit_classifier",
@@ -141,26 +141,26 @@ def build_prompt(state: PipelineState, rag_examples: list[dict],
         val = state.get(field)
         if val is not None:
             trace_parts.append(f"{field}: {val}")
-    trace_text = "\n".join(trace_parts) if trace_parts else "No trace available."
+    trace_text = "\n".join(trace_parts)
 
     dynamic_block = (
         f"<journal_entry>\n{journal_text}\n</journal_entry>\n"
         f"<generator_trace>\n{trace_text}\n</generator_trace>"
     )
 
-    parts = [{"text": transaction_block}, _CACHE_POINT, {"text": dynamic_block}]
+    content = [{"text": transaction_block}, _CACHE_POINT, {"text": dynamic_block}]
 
     if fix_context:
-        parts.append({"text": f"<fix_context>{fix_context}</fix_context>"})
+        content.append({"text": f"<fix_context>{fix_context}</fix_context>"})
 
     if rag_examples:
         examples_text = "These are similar past corrections for reference:\n<examples>\n"
         for ex in rag_examples:
             examples_text += f"  {ex}\n\n"
         examples_text += "</examples>"
-        parts.append({"text": examples_text})
+        content.append({"text": examples_text})
 
     return {
         "system": system,
-        "messages": [{"role": "user", "content": parts}],
+        "messages": [{"role": "user", "content": content}],
     }
