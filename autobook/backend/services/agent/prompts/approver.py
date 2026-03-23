@@ -3,11 +3,10 @@
 Judges whether the journal entry produced by the generator is correct.
 Output: JSON with approved (bool), confidence (float), reason (str).
 """
-import json
-
 from services.agent.graph.state import PipelineState
 from services.agent.utils.prompt import (
-    compile_reasoning_trace, build_fix_context, build_rag_examples,
+    build_transaction, build_journal, build_reasoning,
+    build_fix_context, build_rag_examples,
 )
 
 _CACHE_POINT = {"cachePoint": {"type": "default"}}
@@ -129,20 +128,10 @@ SYSTEM_INSTRUCTION = "\n".join([
 def build_prompt(state: PipelineState, rag_examples: list[dict],
                  fix_context: str | None = None) -> dict:
     """Build the approver prompt with cache breakpoints."""
-    # ── Build parts ─────────────────────────────────────────────────
-    system = [{"text": SYSTEM_INSTRUCTION}, _CACHE_POINT]
-
-    text = state.get("enriched_text") or state["transaction_text"]
-    transaction = [{"text": f"<transaction>{text}</transaction>"}, _CACHE_POINT]
-
-    journal = [{"text": (
-        f"<journal_entry>\n{json.dumps(state['journal_entry'], indent=2)}\n</journal_entry>"
-    )}]
-
-    reasoning = [{"text": (
-        f"<generator_reasoning>\n{compile_reasoning_trace(state)}\n</generator_reasoning>"
-    )}]
-
+    # ── Build message parts ──────────────────────────────────────────
+    transaction = build_transaction(state=state)
+    journal = build_journal(state=state)
+    reasoning = build_reasoning(state=state)
     fix = build_fix_context(fix_context=fix_context)
     rag = build_rag_examples(
         rag_examples=rag_examples,
@@ -151,6 +140,7 @@ def build_prompt(state: PipelineState, rag_examples: list[dict],
     )
 
     # ── Join ──────────────────────────────────────────────────────
+    system = [{"text": SYSTEM_INSTRUCTION}, _CACHE_POINT]
     message = transaction + journal + reasoning + fix + rag
     return {
         "system": system,

@@ -4,7 +4,9 @@ Re-evaluates the initial debit tuple using the credit side as cross-validation.
 Fixes misclassifications and missing lines. Output: refined 6-tuple.
 """
 from services.agent.graph.state import PipelineState
-from services.agent.utils.prompt import build_fix_context, build_rag_examples
+from services.agent.utils.prompt import (
+    build_transaction, build_tuples, build_fix_context, build_rag_examples,
+)
 
 _CACHE_POINT = {"cachePoint": {"type": "default"}}
 
@@ -143,17 +145,9 @@ SYSTEM_INSTRUCTION = "\n".join([
 def build_prompt(state: PipelineState, rag_examples: list[dict],
                  fix_context: str | None = None) -> dict:
     """Build the debit corrector prompt with cache breakpoints."""
-    # ── Build parts ─────────────────────────────────────────────────
-    system = [{"text": SYSTEM_INSTRUCTION}, _CACHE_POINT]
-
-    text = state.get("enriched_text") or state["transaction_text"]
-    transaction = [{"text": f"<transaction>{text}</transaction>"}, _CACHE_POINT]
-
-    initial_tuples = [{"text": (
-        f"<initial_debit_tuple>{state.get('initial_debit_tuple', '')}</initial_debit_tuple>\n"
-        f"<initial_credit_tuple>{state.get('initial_credit_tuple', '')}</initial_credit_tuple>"
-    )}]
-
+    # ── Build message parts ──────────────────────────────────────────
+    transaction = build_transaction(state=state)
+    initial = build_tuples(state=state, debit_key="initial_debit_tuple", credit_key="initial_credit_tuple")
     fix = build_fix_context(fix_context=fix_context)
     rag = build_rag_examples(
         rag_examples=rag_examples,
@@ -162,7 +156,8 @@ def build_prompt(state: PipelineState, rag_examples: list[dict],
     )
 
     # ── Join ──────────────────────────────────────────────────────
-    message = transaction + initial_tuples + fix + rag
+    system = [{"text": SYSTEM_INSTRUCTION}, _CACHE_POINT]
+    message = transaction + initial + fix + rag
     return {
         "system": system,
         "messages": [{"role": "user", "content": message}],

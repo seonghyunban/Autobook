@@ -4,7 +4,9 @@ Classifies how many credit-side journal lines fall into each of the 6
 directional categories. Output: 6-tuple (a,b,c,d,e,f).
 """
 from services.agent.graph.state import PipelineState
-from services.agent.utils.prompt import build_fix_context, build_rag_examples
+from services.agent.utils.prompt import (
+    build_transaction, build_fix_context, build_rag_examples,
+)
 
 _CACHE_POINT = {"cachePoint": {"type": "default"}}
 
@@ -137,12 +139,8 @@ SYSTEM_INSTRUCTION = "\n".join([
 def build_prompt(state: PipelineState, rag_examples: list[dict],
                  fix_context: str | None = None) -> dict:
     """Build the credit classifier prompt with cache breakpoints."""
-    # ── Build parts ─────────────────────────────────────────────────
-    system = [{"text": SYSTEM_INSTRUCTION}, _CACHE_POINT]
-
-    text = state.get("enriched_text") or state["transaction_text"]
-    transaction = [{"text": f"<transaction>{text}</transaction>"}, _CACHE_POINT]
-
+    # ── Build message parts ──────────────────────────────────────────
+    transaction = build_transaction(state=state)
     fix = build_fix_context(fix_context=fix_context)
     rag = build_rag_examples(
         rag_examples=rag_examples,
@@ -151,6 +149,7 @@ def build_prompt(state: PipelineState, rag_examples: list[dict],
     )
 
     # ── Join ──────────────────────────────────────────────────────
+    system = [{"text": SYSTEM_INSTRUCTION}, _CACHE_POINT]
     message = transaction + fix + rag
     return {
         "system": system,

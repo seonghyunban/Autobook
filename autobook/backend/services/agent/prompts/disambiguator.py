@@ -4,7 +4,10 @@ Resolves ambiguous transactions using user context before tuple classification.
 Output: enriched text string (plain text, no JSON).
 """
 from services.agent.graph.state import PipelineState
-from services.agent.utils.prompt import build_fix_context, build_rag_examples
+from services.agent.utils.prompt import (
+    build_transaction, build_user_context,
+    build_fix_context, build_rag_examples,
+)
 
 _CACHE_POINT = {"cachePoint": {"type": "default"}}
 
@@ -131,28 +134,21 @@ SYSTEM_INSTRUCTION = "\n".join([
 def build_prompt(state: PipelineState, rag_examples: list[dict],
                  fix_context: str | None = None) -> dict:
     """Build the disambiguator prompt with cache breakpoints."""
-    # ── Build parts ─────────────────────────────────────────────────
-    system = [{"text": SYSTEM_INSTRUCTION}, _CACHE_POINT]
-
-    user_ctx = state.get("user_context", {})
-    transaction = [{"text": (
-        f"<transaction>{state['transaction_text']}</transaction>\n"
-        f"<context>\n"
-        f"  Business type: {user_ctx.get('business_type', 'unknown')}\n"
-        f"  Province: {user_ctx.get('province', 'unknown')}\n"
-        f"  Ownership: {user_ctx.get('ownership', 'unknown')}\n"
-        f"</context>"
-    )}, _CACHE_POINT]
-
-    fix = build_fix_context(fix_context=fix_context)
-    rag = build_rag_examples(
-        rag_examples=rag_examples,
-        label="similar past disambiguations for reference",
-        fields=["input", "output"],
-    )
+    # ── Build message parts ──────────────────────────────────────────
+    transaction = build_transaction(state=state)
+    user_ctx    = build_user_context(state=state)
+    fix         = build_fix_context(fix_context=fix_context)
+    rag         = build_rag_examples(rag_examples=rag_examples,
+                                    label="similar past disambiguations for reference",
+                                    fields=["input", "output"])
 
     # ── Join ──────────────────────────────────────────────────────
-    message = transaction + fix + rag
+    system = [{"text": SYSTEM_INSTRUCTION}, _CACHE_POINT]
+    message = transaction \
+            + user_ctx \
+            + fix \
+            + rag
+    
     return {
         "system": system,
         "messages": [{"role": "user", "content": message}],

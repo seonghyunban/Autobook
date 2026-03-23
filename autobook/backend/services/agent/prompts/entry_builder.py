@@ -4,7 +4,10 @@ Constructs the complete journal entry from refined tuples, transaction text,
 and tool results. Output: JSON with date, description, rationale, lines.
 """
 from services.agent.graph.state import PipelineState
-from services.agent.utils.prompt import build_fix_context, build_rag_examples
+from services.agent.utils.prompt import (
+    build_transaction, build_tuples, build_coa, build_tax, build_vendor,
+    build_fix_context, build_rag_examples,
+)
 
 _CACHE_POINT = {"cachePoint": {"type": "default"}}
 
@@ -130,40 +133,12 @@ def build_prompt(state: PipelineState, rag_examples: list[dict],
                  vendor_results: list[dict] | None = None,
                  fix_context: str | None = None) -> dict:
     """Build the entry builder prompt with cache breakpoints."""
-    # ── Build parts ─────────────────────────────────────────────────
-    system = [{"text": SYSTEM_INSTRUCTION}, _CACHE_POINT]
-
-    text = state.get("enriched_text") or state["transaction_text"]
-    transaction = [{"text": f"<transaction>{text}</transaction>"}, _CACHE_POINT]
-
-    refined_tuples = [{"text": (
-        f"<refined_debit_tuple>{state.get('refined_debit_tuple', '')}</refined_debit_tuple>\n"
-        f"<refined_credit_tuple>{state.get('refined_credit_tuple', '')}</refined_credit_tuple>"
-    )}]
-
-    coa = []
-    if coa_results:
-        coa_text = "\n".join(
-            f"  {a['account_code']} — {a['account_name']} ({a['account_type']})"
-            for a in coa_results
-        )
-        coa = [{"text": f"<chart_of_accounts>\n{coa_text}\n</chart_of_accounts>"}]
-
-    tax = []
-    if tax_results:
-        tax = [{"text": (
-            f"<tax_rules>rate={tax_results.get('rate', 0)}, "
-            f"taxable={tax_results.get('taxable', False)}</tax_rules>"
-        )}]
-
-    vendor = []
-    if vendor_results:
-        vendor_text = "\n".join(
-            f"  {v.get('account_name', '')} — {v.get('type', '')} ${v.get('amount', '')}"
-            for v in vendor_results
-        )
-        vendor = [{"text": f"<vendor_history>\n{vendor_text}\n</vendor_history>"}]
-
+    # ── Build message parts ──────────────────────────────────────────
+    transaction = build_transaction(state=state)
+    refined = build_tuples(state=state, debit_key="refined_debit_tuple", credit_key="refined_credit_tuple")
+    coa = build_coa(coa_results=coa_results)
+    tax = build_tax(tax_results=tax_results)
+    vendor = build_vendor(vendor_results=vendor_results)
     fix = build_fix_context(fix_context=fix_context)
     rag = build_rag_examples(
         rag_examples=rag_examples,
@@ -172,7 +147,8 @@ def build_prompt(state: PipelineState, rag_examples: list[dict],
     )
 
     # ── Join ──────────────────────────────────────────────────────
-    message = transaction + refined_tuples + coa + tax + vendor + fix + rag
+    system = [{"text": SYSTEM_INSTRUCTION}, _CACHE_POINT]
+    message = transaction + refined + coa + tax + vendor + fix + rag
     return {
         "system": system,
         "messages": [{"role": "user", "content": message}],
