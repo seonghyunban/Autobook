@@ -1,5 +1,26 @@
 from typing import TypedDict
 
+# ── Agent name constants (single source of truth) ─────────────────────────
+DISAMBIGUATOR = "disambiguator"
+DEBIT_CLASSIFIER = "debit_classifier"
+CREDIT_CLASSIFIER = "credit_classifier"
+DEBIT_CORRECTOR = "debit_corrector"
+CREDIT_CORRECTOR = "credit_corrector"
+ENTRY_BUILDER = "entry_builder"
+APPROVER = "approver"
+DIAGNOSTICIAN = "diagnostician"
+
+AGENT_NAMES = [
+    DISAMBIGUATOR, DEBIT_CLASSIFIER, CREDIT_CLASSIFIER,
+    DEBIT_CORRECTOR, CREDIT_CORRECTOR, ENTRY_BUILDER,
+    APPROVER, DIAGNOSTICIAN,
+]
+
+# ── Agent status constants ────────────────────────────────────────────────
+NOT_RUN = 0
+COMPLETE = 1
+RERUN = 2
+
 
 class PipelineState(TypedDict):
     # ── Input ──────────────────────────────────────────────────────────────
@@ -45,6 +66,16 @@ class PipelineState(TypedDict):
     output_entry_builder: str | None
     output_approver: str | None
     output_diagnostician: str | None
+
+    # ── Agent status — dirty propagation for fix loop (0=NOT_RUN, 1=COMPLETE, 2=RERUN)
+    status_disambiguator: int
+    status_debit_classifier: int
+    status_credit_classifier: int
+    status_debit_corrector: int
+    status_credit_corrector: int
+    status_entry_builder: int
+    status_approver: int
+    status_diagnostician: int
 
 
 
