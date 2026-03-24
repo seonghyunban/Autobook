@@ -43,6 +43,7 @@ jobs:
           # Check if shared code changed — triggers all services
           SHARED_PATTERNS=(
             "autobook/backend/config.py"
+            "autobook/backend/auth/"
             "autobook/backend/db/"
             "autobook/backend/queues/"
             "autobook/backend/cache/"
