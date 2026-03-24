@@ -1,4 +1,5 @@
 import { render, screen } from "@testing-library/react";
+import React from "react";
 import { MemoryRouter } from "react-router-dom";
 import { afterEach, vi } from "vitest";
 import App from "./App";
@@ -79,5 +80,51 @@ describe("app routing", () => {
 
     expect(await screen.findByRole("heading", { name: /sign in/i })).toBeInTheDocument();
     expect(screen.getByRole("status")).toHaveTextContent(/account verified\. sign in to continue\./i);
+  });
+
+  test("processes the auth callback only once in strict mode", async () => {
+    vi.stubEnv("VITE_USE_MOCK_API", "false");
+
+    const completeHostedLogin = vi.fn(async () => ({
+      id: "user-1",
+      cognito_sub: "sub-1",
+      email: "user@example.com",
+      role: "regular",
+      role_source: "cognito:groups",
+      token_use: "access",
+    }));
+
+    vi.doMock("./api/auth", async () => {
+      const actual = await vi.importActual<typeof import("./api/auth")>("./api/auth");
+      return {
+        ...actual,
+        fetchAuthMe: vi.fn(async () => ({
+          id: "user-1",
+          cognito_sub: "sub-1",
+          email: "user@example.com",
+          role: "regular",
+          role_source: "cognito:groups",
+          token_use: "access",
+        })),
+        completeHostedLogin,
+      };
+    });
+
+    vi.resetModules();
+    const StrictApp = (await import("./App")).default;
+    const { AuthProvider: StrictAuthProvider } = await import("./auth/AuthProvider");
+
+    render(
+      <React.StrictMode>
+        <MemoryRouter initialEntries={["/auth/callback?code=abc&state=state-123"]}>
+          <StrictAuthProvider>
+            <StrictApp />
+          </StrictAuthProvider>
+        </MemoryRouter>
+      </React.StrictMode>,
+    );
+
+    expect(await screen.findByRole("heading", { name: /operations snapshot/i })).toBeInTheDocument();
+    expect(completeHostedLogin).toHaveBeenCalledTimes(1);
   });
 });

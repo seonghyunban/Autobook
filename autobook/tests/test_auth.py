@@ -136,6 +136,20 @@ def test_auth_me_accepts_valid_cognito_token(client: TestClient) -> None:
     assert body["token_use"] == "access"
 
 
+def test_auth_me_accepts_access_tokens_with_at_jwt_header_type(client: TestClient) -> None:
+    token = MOCK_COGNITO.issue_token(
+        sub="cognito-user-1",
+        email="user@example.com",
+        groups=["regular"],
+        header_typ="at+jwt",
+    )
+
+    response = client.get("/api/v1/auth/me", headers=_auth_headers(token))
+
+    assert response.status_code == 200, response.text
+    assert response.json()["email"] == "user@example.com"
+
+
 def test_private_route_rejects_missing_token(client: TestClient) -> None:
     response = client.get("/api/v1/ledger")
     assert response.status_code == 401, response.text
