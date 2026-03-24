@@ -25,7 +25,7 @@ DEPENDENCY_TABLE: dict[int, dict] = {
     5: {"downstream": [5],                 "parallel_with": []},
 }
 
-
+ 
 def compute_rerun_statuses(fix_plans: list[dict]) -> dict[str, int]:
     """Compute which agents need rerunning based on diagnostician output.
 

@@ -139,7 +139,7 @@ def _stub_classify(message: dict) -> dict:
     }
 
 
-def process(message: dict) -> None:
+def execute(message: dict) -> None:
     logger.info("Processing: %s", message.get("parse_id"))
     # TODO: call Bedrock LLM for classification (tier 3)
     classification = _stub_classify(message)

@@ -1,7 +1,7 @@
 import json
 import logging
 
-from services.ml_inference.process import process
+from services.posting.service import execute
 
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.INFO)
@@ -9,4 +9,4 @@ logger.setLevel(logging.INFO)
 
 def handler(event, context):
     for record in event["Records"]:
-        process(json.loads(record["body"]))
+        execute(json.loads(record["body"]))

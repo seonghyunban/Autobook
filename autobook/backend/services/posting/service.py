@@ -66,7 +66,7 @@ def _serialize_proposed_entry(proposed_entry: dict | None, journal_entry_id: str
     }
 
 
-def process(message: dict) -> None:
+def execute(message: dict) -> None:
     logger.info("Processing: %s", message.get("parse_id"))
     parse_time_ms = _compute_parse_time_ms(message)
     db = SessionLocal()

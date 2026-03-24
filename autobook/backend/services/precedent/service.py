@@ -15,7 +15,7 @@ def enrich_message(message: dict) -> dict:
     return {**message, "precedent_match": precedent_match}
 
 
-def process(message: dict) -> None:
+def execute(message: dict) -> None:
     logger.info("Processing: %s", message.get("parse_id"))
     # TODO: match transaction against precedent patterns (tier 1)
     # On hit: enqueue to posting. On miss: enqueue to ml_inference.

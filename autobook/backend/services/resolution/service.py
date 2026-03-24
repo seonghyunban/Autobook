@@ -51,7 +51,7 @@ def _persist_pending_clarification(message: dict) -> str:
         db.close()
 
 
-def process(message: dict) -> None:
+def execute(message: dict) -> None:
     logger.info("Processing: %s", message.get("parse_id"))
     clarification = dict(message.get("clarification") or {})
 
