@@ -5,11 +5,9 @@ Only runs when Agent 6 rejects. Output: JSON with decision and fix_plans.
 """
 from services.agent.graph.state import PipelineState
 from services.agent.utils.prompt import (
-    build_transaction, build_reasoning, build_rejection,
+    CACHE_POINT, build_transaction, build_reasoning, build_rejection,
     build_fix_context, build_rag_examples,
 )
-
-_CACHE_POINT = {"cachePoint": {"type": "default"}}
 
 # ── 1. Preamble ──────────────────────────────────────────────────────────
 
@@ -143,8 +141,9 @@ def build_prompt(state: PipelineState, rag_examples: list[dict],
                                     fields=["rejection", "decision", "fix_plans"])
 
     # ── Join ──────────────────────────────────────────────────────
-    system = [{"text": SYSTEM_INSTRUCTION}, _CACHE_POINT]
+    system = [{"text": SYSTEM_INSTRUCTION}, CACHE_POINT]
     message = transaction \
+            + [CACHE_POINT] \
             + reasoning \
             + rejection \
             + fix \

@@ -7,13 +7,13 @@ import json
 
 from services.agent.utils.prompt.reasoning import compile_reasoning_trace
 
-_CACHE_POINT = {"cachePoint": {"type": "default"}}
+CACHE_POINT = {"cachePoint": {"type": "default"}}
 
 
 def build_transaction(state: dict) -> list[dict]:
-    """Transaction text with cache breakpoint. Uses enriched text if available."""
+    """Transaction text. Uses enriched text if available."""
     text = state.get("enriched_text") or state["transaction_text"]
-    return [{"text": f"<transaction>{text}</transaction>"}, _CACHE_POINT]
+    return [{"text": f"<transaction>{text}</transaction>"}]
 
 
 def build_user_context(state: dict) -> list[dict]:

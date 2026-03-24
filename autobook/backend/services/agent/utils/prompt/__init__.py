@@ -1,5 +1,5 @@
-from services.agent.utils.prompt.reasoning import compile_reasoning_trace
 from services.agent.utils.prompt.helpers import (
+    CACHE_POINT,
     build_transaction, build_user_context, build_tuples,
     build_journal, build_reasoning, build_rejection,
     build_coa, build_tax, build_vendor,
@@ -7,7 +7,7 @@ from services.agent.utils.prompt.helpers import (
 )
 
 __all__ = [
-    "compile_reasoning_trace",
+    "CACHE_POINT",
     "build_transaction", "build_user_context", "build_tuples",
     "build_journal", "build_reasoning", "build_rejection",
     "build_coa", "build_tax", "build_vendor",

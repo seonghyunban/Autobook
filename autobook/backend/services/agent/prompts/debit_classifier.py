@@ -5,10 +5,8 @@ directional categories. Output: 6-tuple (a,b,c,d,e,f).
 """
 from services.agent.graph.state import PipelineState
 from services.agent.utils.prompt import (
-    build_transaction, build_fix_context, build_rag_examples,
+    CACHE_POINT, build_transaction, build_fix_context, build_rag_examples,
 )
-
-_CACHE_POINT = {"cachePoint": {"type": "default"}}
 
 # ── 1. Preamble ──────────────────────────────────────────────────────────
 
@@ -147,8 +145,9 @@ def build_prompt(state: PipelineState, rag_examples: list[dict],
                                     fields=["transaction", "debit_tuple"])
 
     # ── Join ──────────────────────────────────────────────────────
-    system = [{"text": SYSTEM_INSTRUCTION}, _CACHE_POINT]
+    system = [{"text": SYSTEM_INSTRUCTION}, CACHE_POINT]
     message = transaction \
+            + [CACHE_POINT] \
             + fix \
             + rag
 

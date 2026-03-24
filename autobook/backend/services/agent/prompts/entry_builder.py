@@ -5,11 +5,9 @@ and tool results. Output: JSON with date, description, rationale, lines.
 """
 from services.agent.graph.state import PipelineState
 from services.agent.utils.prompt import (
-    build_transaction, build_tuples, build_coa, build_tax, build_vendor,
+    CACHE_POINT, build_transaction, build_tuples, build_coa, build_tax, build_vendor,
     build_fix_context, build_rag_examples,
 )
-
-_CACHE_POINT = {"cachePoint": {"type": "default"}}
 
 # ── 1. Preamble ──────────────────────────────────────────────────────────
 
@@ -145,8 +143,9 @@ def build_prompt(state: PipelineState, rag_examples: list[dict],
                                     fields=["transaction", "entry"])
 
     # ── Join ──────────────────────────────────────────────────────
-    system = [{"text": SYSTEM_INSTRUCTION}, _CACHE_POINT]
+    system = [{"text": SYSTEM_INSTRUCTION}, CACHE_POINT]
     message = transaction \
+            + [CACHE_POINT] \
             + refined \
             + coa \
             + tax \

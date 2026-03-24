@@ -5,11 +5,9 @@ Output: JSON with approved (bool), confidence (float), reason (str).
 """
 from services.agent.graph.state import PipelineState
 from services.agent.utils.prompt import (
-    build_transaction, build_journal, build_reasoning,
+    CACHE_POINT, build_transaction, build_journal, build_reasoning,
     build_fix_context, build_rag_examples,
 )
-
-_CACHE_POINT = {"cachePoint": {"type": "default"}}
 
 # ── 1. Preamble ──────────────────────────────────────────────────────────
 
@@ -138,8 +136,9 @@ def build_prompt(state: PipelineState, rag_examples: list[dict],
                                     fields=["entry", "error", "correction"])
 
     # ── Join ──────────────────────────────────────────────────────
-    system = [{"text": SYSTEM_INSTRUCTION}, _CACHE_POINT]
+    system = [{"text": SYSTEM_INSTRUCTION}, CACHE_POINT]
     message = transaction \
+            + [CACHE_POINT] \
             + journal \
             + reasoning \
             + fix \

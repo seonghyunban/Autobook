@@ -5,11 +5,9 @@ Output: enriched text string (plain text, no JSON).
 """
 from services.agent.graph.state import PipelineState
 from services.agent.utils.prompt import (
-    build_transaction, build_user_context,
+    CACHE_POINT, build_transaction, build_user_context,
     build_fix_context, build_rag_examples,
 )
-
-_CACHE_POINT = {"cachePoint": {"type": "default"}}
 
 # ── 1. Preamble ──────────────────────────────────────────────────────────
 
@@ -143,9 +141,10 @@ def build_prompt(state: PipelineState, rag_examples: list[dict],
                                     fields=["input", "output"])
 
     # ── Join ──────────────────────────────────────────────────────
-    system = [{"text": SYSTEM_INSTRUCTION}, _CACHE_POINT]
+    system = [{"text": SYSTEM_INSTRUCTION}, CACHE_POINT]
     message = transaction \
             + user_ctx \
+            + [CACHE_POINT] \
             + fix \
             + rag
     
