@@ -60,14 +60,12 @@ class ApproverOutput(BaseModel):
 
 class FixPlan(BaseModel):
     agent: int = Field(description="Agent index 0-5")
-    error: str = Field(description="One sentence: what went wrong")
-    fix_context: str = Field(description="One sentence: how to fix it")
+    fix_context: str = Field(description="One sentence: what to fix and how")
 
 
 class DiagnosticianOutput(BaseModel):
     decision: Literal["FIX", "STUCK"]
     fix_plans: list[FixPlan]
-    reason: str = Field(description="One sentence: root cause agent and what it got wrong")
 
 
 _MODELS: dict[str, type[BaseModel]] = {
