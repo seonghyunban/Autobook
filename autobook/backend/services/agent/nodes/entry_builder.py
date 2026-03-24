@@ -14,7 +14,6 @@ from services.agent.rag.transaction import retrieve_transaction_examples
 from services.agent.utils.llm import get_llm
 from services.agent.utils.parsers.json_output import EntryBuilderOutput
 from accounting_engine.tools import coa_lookup, tax_rules_lookup, vendor_history_lookup
-from accounting_engine.validators import validate_journal_entry, validate_tax
 
 
 def entry_builder_node(state: PipelineState, config: RunnableConfig) -> dict:
@@ -56,22 +55,7 @@ def entry_builder_node(state: PipelineState, config: RunnableConfig) -> dict:
     )
     structured_llm = get_llm(ENTRY_BUILDER, config).with_structured_output(EntryBuilderOutput)
     result = structured_llm.invoke(messages)
-    output = result.model_dump()
-
-    # ── Validate business rules ───────────────────────────────────
-    validation = validate_journal_entry(output)
-    if not validation["valid"]:
-        raise ValueError(f"Journal entry validation failed: {validation['errors']}")
-
-    tax_validation = validate_tax(
-        output,
-        province=user_ctx.get("province", "ON"),
-        tax_rate=tax_results.get("rate", 0.13),
-    )
-    if not tax_validation["valid"]:
-        raise ValueError(f"Tax validation failed: {tax_validation['errors']}")
-
-    history.append(output)
+    history.append(result.model_dump())
 
     # ── Return state update ───────────────────────────────────────
     return {
