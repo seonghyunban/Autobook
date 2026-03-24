@@ -29,6 +29,11 @@ class PipelineState(TypedDict):
     ml_enrichment: dict | None  # intent_label, entities (optional, ablation)
 
     # ── Fix loop ───────────────────────────────────────────────────────────
+    # iteration is the index into output_* and fix_context_* lists.
+    # Incremented by the scheduler ONLY (never by individual nodes).
+    # Nodes read state["iteration"] to know which index to write to.
+    # LangGraph dependency order guarantees upstream output_*[i] exists
+    # before downstream reads it in the same iteration.
     iteration: int
 
     # ── Agent outputs — typed, indexed by iteration (output_*[i] = iteration i)
