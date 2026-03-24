@@ -54,6 +54,7 @@ dev = [
     "fastapi>=0.115,<1",
     "python-multipart>=0.0.18,<1",
     "cognitojwt>=1.4,<2",
+    "rich>=14.3.3",
 ]
 
 [tool.pytest.ini_options]

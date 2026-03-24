@@ -1,20 +1,24 @@
-"""Experiment runner — execute test cases against a variant, collect 3-level metrics.
+"""Experiment runner — execute test cases in parallel, collect 3-level metrics.
 
 Usage:
-    python -m llm_experiment.run --variant full_pipeline
-    python -m llm_experiment.run --variant full_pipeline --test-case 04_sell_inventory
+    python run.py --variant full_pipeline
+    python run.py --variant full_pipeline --test-case 04_sell_inventory
 """
 from __future__ import annotations
 
 import argparse
+import asyncio
 import json
-import os
 import sys
 import time
 from pathlib import Path
 
 # Add backend to path
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent / "backend"))
+
+from rich.console import Console
+from rich.live import Live
+from rich.table import Table
 
 from services.agent.graph.state import NOT_RUN, AGENT_NAMES
 from accounting_engine.validators import validate_journal_entry
@@ -25,6 +29,7 @@ from metrics import (
     AgentMetrics, CommonResult, TestCaseMetrics, PerNodeUsageCallback,
 )
 
+console = Console()
 
 # ── Sonnet pricing (per million tokens) ───────────────────────────────────
 _INPUT_RATE = 3.00 / 1_000_000
@@ -41,13 +46,11 @@ def _build_initial_state(test_case: TestCase) -> dict:
         "ml_enrichment": None,
         "iteration": 0,
     }
-    # Initialize all per-agent fields as empty
     for name in AGENT_NAMES:
         state[f"output_{name}"] = []
         state[f"status_{name}"] = NOT_RUN
         state[f"fix_context_{name}"] = []
         state[f"rag_cache_{name}"] = []
-    # Embedding cache
     state["embedding_transaction"] = None
     state["embedding_error"] = None
     state["embedding_rejection"] = None
@@ -77,17 +80,14 @@ def _extract_common_result(state: dict, variant_name: str,
     """Extract standardized result from final state."""
     i = state["iteration"]
 
-    # Final tuples — read from corrector output (passthrough copies classifier if needed)
     debit_out = state.get("output_debit_corrector", [])
     credit_out = state.get("output_credit_corrector", [])
     debit_tuple = tuple(debit_out[i]["tuple"]) if i < len(debit_out) and debit_out[i] else None
     credit_tuple = tuple(credit_out[i]["tuple"]) if i < len(credit_out) and credit_out[i] else None
 
-    # Journal entry
     entry_out = state.get("output_entry_builder", [])
     journal_entry = entry_out[i] if i < len(entry_out) else None
 
-    # Total tokens from callback
     total_input = sum(u.get("input_tokens", 0) for u in callback.usage_by_node.values())
     total_output = sum(u.get("output_tokens", 0) for u in callback.usage_by_node.values())
     total_cost = sum(_compute_agent_cost(u) for u in callback.usage_by_node.values())
@@ -105,7 +105,6 @@ def _extract_common_result(state: dict, variant_name: str,
 
 
 def _compute_slot_accuracy(actual: tuple | None, expected: tuple) -> float:
-    """Fraction of 6 tuple slots that match."""
     if actual is None:
         return 0.0
     return sum(1 for a, e in zip(actual, expected) if a == e) / 6
@@ -122,7 +121,6 @@ def _extract_test_case_metrics(state: dict, test_case: TestCase,
         common=common,
     )
 
-    # ── Accuracy ──────────────────────────────────────────────────
     m.debit_tuple_exact_match = common.debit_tuple == test_case.expected_debit_tuple
     m.credit_tuple_exact_match = common.credit_tuple == test_case.expected_credit_tuple
     m.debit_tuple_slot_accuracy = _compute_slot_accuracy(common.debit_tuple, test_case.expected_debit_tuple)
@@ -131,19 +129,16 @@ def _extract_test_case_metrics(state: dict, test_case: TestCase,
     if common.journal_entry:
         validation = validate_journal_entry(common.journal_entry)
         m.entry_valid = validation["valid"]
-        m.entry_balance_correct = validation["valid"]  # balance is part of validation
+        m.entry_balance_correct = validation["valid"]
     else:
-        # No entry — valid only if expected tuples are all zeros
         m.entry_valid = test_case.expected_debit_tuple == (0, 0, 0, 0, 0, 0)
 
-    # ── Pipeline ──────────────────────────────────────────────────
     m.iteration_count = i + 1
 
     approver_out = state.get("output_approver", [])
     if approver_out and i < len(approver_out):
         m.approver_confidence = approver_out[i].get("confidence")
 
-    # ── Fix loop ──────────────────────────────────────────────────
     if i > 0:
         m.fix_attempted = True
         m.fix_succeeded = approver_out[i].get("approved", False) if i < len(approver_out) else False
@@ -164,7 +159,6 @@ def _extract_test_case_metrics(state: dict, test_case: TestCase,
             m.fix_root_cause_agent = [p["agent"] for p in diag.get("fix_plans", [])]
             m.rejection_reason = approver_out[0].get("reason") if approver_out else None
 
-    # ── Per-agent metrics ─────────────────────────────────────────
     for node_name, usage in callback.usage_by_node.items():
         agent_out = state.get(f"output_{node_name}", [])
         latest = agent_out[i] if i < len(agent_out) else None
@@ -182,53 +176,102 @@ def _extract_test_case_metrics(state: dict, test_case: TestCase,
     return m
 
 
-def run_variant(variant_name: str, test_cases: list[TestCase]) -> list[TestCaseMetrics]:
-    """Run all test cases against a variant, return metrics."""
-    # Load graph
+# ── Status tracking for live display ──────────────────────────────────────
+
+STATUS_PENDING = "⏳ pending"
+STATUS_RUNNING = "🔄 running..."
+STATUS_DONE = "✅"
+STATUS_ERROR = "❌"
+
+
+def _build_table(variant_name: str, statuses: dict[str, str]) -> Table:
+    """Build a rich table showing current status of all test cases."""
+    table = Table(title=f"Variant: {variant_name}", show_lines=False)
+    table.add_column("Test Case", style="cyan", width=38)
+    table.add_column("Status", width=14)
+    table.add_column("D", width=3)
+    table.add_column("C", width=3)
+    table.add_column("Cost", width=10)
+    table.add_column("Latency", width=10)
+
+    for tc_id, info in statuses.items():
+        if isinstance(info, str):
+            table.add_row(tc_id, info, "", "", "", "")
+        else:
+            status, d, c, cost, latency = info
+            table.add_row(tc_id, status, d, c, cost, latency)
+
+    return table
+
+
+# ── Async runner ──────────────────────────────────────────────────────────
+
+async def _run_one(app, tc: TestCase, config_dict: dict,
+                   variant_name: str, statuses: dict) -> TestCaseMetrics:
+    """Run a single test case asynchronously."""
+    statuses[tc.id] = STATUS_RUNNING
+
+    callback = PerNodeUsageCallback()
+    config = {
+        "configurable": config_dict or {},
+        "callbacks": [callback],
+    }
+    state = _build_initial_state(tc)
+
+    try:
+        start = time.perf_counter()
+        final_state = await app.ainvoke(state, config=config)
+        elapsed_ms = int((time.perf_counter() - start) * 1000)
+
+        common = _extract_common_result(final_state, variant_name, callback, elapsed_ms)
+        metrics = _extract_test_case_metrics(final_state, tc, variant_name, common, callback)
+
+        d = "✓" if metrics.debit_tuple_exact_match else "✗"
+        c = "✓" if metrics.credit_tuple_exact_match else "✗"
+        statuses[tc.id] = (STATUS_DONE, d, c, f"${common.total_cost_usd:.4f}", f"{elapsed_ms}ms")
+        return metrics
+
+    except Exception as e:
+        elapsed_ms = int((time.perf_counter() - start) * 1000)
+        statuses[tc.id] = (STATUS_ERROR, "", "", "", str(e)[:30])
+        return TestCaseMetrics(
+            test_case_id=tc.id,
+            variant_name=variant_name,
+            error=str(e),
+        )
+
+
+async def run_variant_async(variant_name: str, test_cases: list[TestCase]) -> list[TestCaseMetrics]:
+    """Run all test cases in parallel with live progress display."""
     if variant_name == "single_agent":
         from single_agent.graph import app
     else:
         from services.agent.graph.graph import app
 
-    # Build config
     config_dict = VARIANTS.get(variant_name)
     if config_dict is None and variant_name != "single_agent":
         raise ValueError(f"Unknown variant: {variant_name}")
 
-    results: list[TestCaseMetrics] = []
+    # Initialize statuses
+    statuses: dict[str, str | tuple] = {tc.id: STATUS_PENDING for tc in test_cases}
 
-    for tc in test_cases:
-        print(f"  Running {tc.id}...", end=" ", flush=True)
-        callback = PerNodeUsageCallback()
-        config = {
-            "configurable": config_dict or {},
-            "callbacks": [callback],
-        }
-        state = _build_initial_state(tc)
+    # Run all test cases in parallel with live display
+    with Live(_build_table(variant_name, statuses), console=console, refresh_per_second=2) as live:
+        tasks = [
+            _run_one(app, tc, config_dict, variant_name, statuses)
+            for tc in test_cases
+        ]
 
-        try:
-            start = time.perf_counter()
-            final_state = app.invoke(state, config=config)
-            elapsed_ms = int((time.perf_counter() - start) * 1000)
-
-            common = _extract_common_result(final_state, variant_name, callback, elapsed_ms)
-            metrics = _extract_test_case_metrics(final_state, tc, variant_name, common, callback)
-            print(f"D={'✓' if metrics.debit_tuple_exact_match else '✗'} "
-                  f"C={'✓' if metrics.credit_tuple_exact_match else '✗'} "
-                  f"${common.total_cost_usd:.4f} {elapsed_ms}ms")
-        except Exception as e:
-            elapsed_ms = int((time.perf_counter() - start) * 1000)
-            metrics = TestCaseMetrics(
-                test_case_id=tc.id,
-                variant_name=variant_name,
-                error=str(e),
-            )
-            print(f"ERROR: {e}")
-
-        results.append(metrics)
+        results = []
+        for coro in asyncio.as_completed(tasks):
+            result = await coro
+            results.append(result)
+            live.update(_build_table(variant_name, statuses))
 
     return results
 
+
+# ── Save results ──────────────────────────────────────────────────────────
 
 def _save_results(results: list[TestCaseMetrics], variant_name: str) -> Path:
     """Save results to JSON."""
@@ -238,7 +281,6 @@ def _save_results(results: list[TestCaseMetrics], variant_name: str) -> Path:
 
     data = []
     for m in results:
-        # Convert tuples to lists for JSON serialization
         def _serialize(v):
             if isinstance(v, tuple):
                 return list(v)
@@ -247,27 +289,22 @@ def _save_results(results: list[TestCaseMetrics], variant_name: str) -> Path:
         d = {
             "test_case_id": m.test_case_id,
             "variant_name": m.variant_name,
-            # ── Accuracy ──
             "debit_tuple_exact_match": m.debit_tuple_exact_match,
             "credit_tuple_exact_match": m.credit_tuple_exact_match,
             "debit_tuple_slot_accuracy": m.debit_tuple_slot_accuracy,
             "credit_tuple_slot_accuracy": m.credit_tuple_slot_accuracy,
             "entry_valid": m.entry_valid,
-            # ── Actual outputs ──
             "debit_tuple": _serialize(m.common.debit_tuple),
             "credit_tuple": _serialize(m.common.credit_tuple),
             "journal_entry": m.common.journal_entry,
-            # ── Cost / latency ──
             "total_cost_usd": m.common.total_cost_usd,
             "total_latency_ms": m.common.total_latency_ms,
             "total_input_tokens": m.common.total_input_tokens,
             "total_output_tokens": m.common.total_output_tokens,
-            # ── Pipeline ──
             "iteration_count": m.iteration_count,
             "final_decision": m.common.final_decision,
             "fix_attempted": m.fix_attempted,
             "fix_succeeded": m.fix_succeeded,
-            # ── Per-agent outputs + reasoning ──
             "agent_outputs": {
                 name: {
                     "output": am.output,
@@ -278,7 +315,6 @@ def _save_results(results: list[TestCaseMetrics], variant_name: str) -> Path:
                 }
                 for name, am in m.agent_metrics.items()
             },
-            # ── Fix loop detail ──
             "pre_fix_debit_tuple": _serialize(m.pre_fix_debit_tuple),
             "post_fix_debit_tuple": _serialize(m.post_fix_debit_tuple),
             "pre_fix_credit_tuple": _serialize(m.pre_fix_credit_tuple),
@@ -286,15 +322,16 @@ def _save_results(results: list[TestCaseMetrics], variant_name: str) -> Path:
             "fix_root_cause_agent": m.fix_root_cause_agent,
             "rejection_reason": m.rejection_reason,
             "diagnostician_decision": m.diagnostician_decision,
-            # ── Error ──
             "error": m.error,
         }
         data.append(d)
 
-    out_path.write_text(json.dumps(data, indent=2))
-    print(f"\nResults saved to {out_path}")
+    out_path.write_text(json.dumps(data, indent=2, default=str))
+    console.print(f"\nResults saved to [bold]{out_path}[/bold]")
     return out_path
 
+
+# ── Main ──────────────────────────────────────────────────────────────────
 
 def main():
     parser = argparse.ArgumentParser(description="Run ablation experiment")
@@ -306,20 +343,20 @@ def main():
     if args.test_case:
         cases = [tc for tc in TEST_CASES if tc.id == args.test_case]
         if not cases:
-            print(f"Test case not found: {args.test_case}")
+            console.print(f"[red]Test case not found: {args.test_case}[/red]")
             sys.exit(1)
 
-    print(f"Running variant: {args.variant} ({len(cases)} test cases)")
-    results = run_variant(args.variant, cases)
+    console.print(f"\n[bold]Running variant: {args.variant}[/bold] ({len(cases)} test cases)\n")
+    results = asyncio.run(run_variant_async(args.variant, cases))
     _save_results(results, args.variant)
 
-    # Quick summary
+    # Summary
     exact = sum(1 for m in results if m.debit_tuple_exact_match and m.credit_tuple_exact_match)
     total_cost = sum(m.common.total_cost_usd for m in results)
     errors = sum(1 for m in results if m.error)
-    print(f"\nExact match: {exact}/{len(results)} ({exact/len(results)*100:.0f}%)")
-    print(f"Total cost: ${total_cost:.4f}")
-    print(f"Errors: {errors}")
+    console.print(f"\n[bold]Exact match:[/bold] {exact}/{len(results)} ({exact/len(results)*100:.0f}%)")
+    console.print(f"[bold]Total cost:[/bold] ${total_cost:.4f}")
+    console.print(f"[bold]Errors:[/bold] {errors}")
 
 
 if __name__ == "__main__":
