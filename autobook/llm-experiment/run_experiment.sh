@@ -30,12 +30,12 @@ if [ "$ALL" = true ]; then
         echo "============================================"
         echo "  Variant: $v"
         echo "============================================"
-        python run.py --variant "$v"
+        /opt/anaconda3/bin/uv run --extra agent python run.py --variant "$v"
     done
 elif [ -n "$VARIANT" ]; then
     RUN_ARGS="--variant $VARIANT"
     [ -n "$TEST_CASE" ] && RUN_ARGS="$RUN_ARGS --test-case $TEST_CASE"
-    python run.py $RUN_ARGS
+    /opt/anaconda3/bin/uv run --extra agent python run.py $RUN_ARGS
 else
     echo "Usage: ./run_experiment.sh --variant <name> | --all"
 fi

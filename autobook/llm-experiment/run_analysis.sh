@@ -22,9 +22,9 @@ while [[ $# -gt 0 ]]; do
 done
 
 if [ "$ALL" = true ]; then
-    python analysis.py --results results/stage1/
+    /opt/anaconda3/bin/uv run --extra agent python analysis.py --results results/stage1/
 elif [ -n "$VARIANT" ]; then
-    python analysis.py --results results/stage1/ --variant "$VARIANT"
+    /opt/anaconda3/bin/uv run --extra agent python analysis.py --results results/stage1/ --variant "$VARIANT"
 else
     echo "Usage: ./run_analysis.sh --variant <name> | --all"
 fi
