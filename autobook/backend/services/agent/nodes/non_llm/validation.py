@@ -15,6 +15,9 @@ def validation_node(state: PipelineState) -> dict:
     # No-entry case (e.g. "Board resolution") — skip validation
     if entry is None or not entry.get("lines"):
         return {}
+    # All-zero amounts = LLM produced placeholder lines with no real entry
+    if all(line.get("amount", 0) == 0 for line in entry.get("lines", [])):
+        return {}
 
     validation = validate_journal_entry(entry)
     if not validation["valid"]:

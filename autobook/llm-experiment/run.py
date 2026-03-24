@@ -187,58 +187,62 @@ STATUS_ERROR = "❌"
 def _build_table(variant_name: str, statuses: dict[str, str]) -> Table:
     """Build a rich table showing current status of all test cases."""
     table = Table(title=f"Variant: {variant_name}", show_lines=False)
-    table.add_column("Test Case", style="cyan", width=38)
-    table.add_column("Status", width=14)
+    table.add_column("Test Case", style="cyan", width=35)
+    table.add_column("Status", width=10)
     table.add_column("D", width=3)
     table.add_column("C", width=3)
     table.add_column("Cost", width=10)
     table.add_column("Latency", width=10)
+    table.add_column("Note", width=50, no_wrap=False)
 
     for tc_id, info in statuses.items():
         if isinstance(info, str):
-            table.add_row(tc_id, info, "", "", "", "")
+            table.add_row(tc_id, info, "", "", "", "", "")
         else:
-            status, d, c, cost, latency = info
-            table.add_row(tc_id, status, d, c, cost, latency)
+            status, d, c, cost, latency, note = info
+            table.add_row(tc_id, status, d, c, cost, latency, note)
 
     return table
 
 
 # ── Async runner ──────────────────────────────────────────────────────────
 
+_CONCURRENCY = asyncio.Semaphore(3)  # max 3 test cases at a time
+
 async def _run_one(app, tc: TestCase, config_dict: dict,
                    variant_name: str, statuses: dict) -> TestCaseMetrics:
-    """Run a single test case asynchronously."""
-    statuses[tc.id] = STATUS_RUNNING
+    """Run a single test case asynchronously (concurrency limited by semaphore)."""
+    async with _CONCURRENCY:
+        statuses[tc.id] = STATUS_RUNNING
 
-    callback = PerNodeUsageCallback()
-    config = {
-        "configurable": config_dict or {},
-        "callbacks": [callback],
-    }
-    state = _build_initial_state(tc)
+        callback = PerNodeUsageCallback()
+        config = {
+            "configurable": config_dict or {},
+            "callbacks": [callback],
+        }
+        state = _build_initial_state(tc)
 
-    try:
-        start = time.perf_counter()
-        final_state = await app.ainvoke(state, config=config)
-        elapsed_ms = int((time.perf_counter() - start) * 1000)
+        try:
+            start = time.perf_counter()
+            final_state = await app.ainvoke(state, config=config)
+            elapsed_ms = int((time.perf_counter() - start) * 1000)
 
-        common = _extract_common_result(final_state, variant_name, callback, elapsed_ms)
-        metrics = _extract_test_case_metrics(final_state, tc, variant_name, common, callback)
+            common = _extract_common_result(final_state, variant_name, callback, elapsed_ms)
+            metrics = _extract_test_case_metrics(final_state, tc, variant_name, common, callback)
 
-        d = "✓" if metrics.debit_tuple_exact_match else "✗"
-        c = "✓" if metrics.credit_tuple_exact_match else "✗"
-        statuses[tc.id] = (STATUS_DONE, d, c, f"${common.total_cost_usd:.4f}", f"{elapsed_ms}ms")
-        return metrics
+            d = "✓" if metrics.debit_tuple_exact_match else "✗"
+            c = "✓" if metrics.credit_tuple_exact_match else "✗"
+            statuses[tc.id] = (f"{STATUS_DONE} done", d, c, f"${common.total_cost_usd:.4f}", f"{elapsed_ms}ms", "")
+            return metrics
 
-    except Exception as e:
-        elapsed_ms = int((time.perf_counter() - start) * 1000)
-        statuses[tc.id] = (STATUS_ERROR, "", "", "", str(e)[:30])
-        return TestCaseMetrics(
-            test_case_id=tc.id,
-            variant_name=variant_name,
-            error=str(e),
-        )
+        except Exception as e:
+            elapsed_ms = int((time.perf_counter() - start) * 1000)
+            statuses[tc.id] = (f"{STATUS_ERROR} failed", "", "", "", f"{elapsed_ms}ms", str(e))
+            return TestCaseMetrics(
+                test_case_id=tc.id,
+                variant_name=variant_name,
+                error=str(e),
+            )
 
 
 async def run_variant_async(variant_name: str, test_cases: list[TestCase]) -> list[TestCaseMetrics]:
