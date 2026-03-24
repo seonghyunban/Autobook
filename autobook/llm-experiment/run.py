@@ -238,22 +238,55 @@ def _save_results(results: list[TestCaseMetrics], variant_name: str) -> Path:
 
     data = []
     for m in results:
+        # Convert tuples to lists for JSON serialization
+        def _serialize(v):
+            if isinstance(v, tuple):
+                return list(v)
+            return v
+
         d = {
             "test_case_id": m.test_case_id,
             "variant_name": m.variant_name,
+            # ── Accuracy ──
             "debit_tuple_exact_match": m.debit_tuple_exact_match,
             "credit_tuple_exact_match": m.credit_tuple_exact_match,
             "debit_tuple_slot_accuracy": m.debit_tuple_slot_accuracy,
             "credit_tuple_slot_accuracy": m.credit_tuple_slot_accuracy,
             "entry_valid": m.entry_valid,
-            "iteration_count": m.iteration_count,
+            # ── Actual outputs ──
+            "debit_tuple": _serialize(m.common.debit_tuple),
+            "credit_tuple": _serialize(m.common.credit_tuple),
+            "journal_entry": m.common.journal_entry,
+            # ── Cost / latency ──
             "total_cost_usd": m.common.total_cost_usd,
             "total_latency_ms": m.common.total_latency_ms,
             "total_input_tokens": m.common.total_input_tokens,
             "total_output_tokens": m.common.total_output_tokens,
+            # ── Pipeline ──
+            "iteration_count": m.iteration_count,
             "final_decision": m.common.final_decision,
             "fix_attempted": m.fix_attempted,
             "fix_succeeded": m.fix_succeeded,
+            # ── Per-agent outputs + reasoning ──
+            "agent_outputs": {
+                name: {
+                    "output": am.output,
+                    "reason": am.reason,
+                    "input_tokens": am.input_tokens,
+                    "output_tokens": am.output_tokens,
+                    "cost_usd": am.cost_usd,
+                }
+                for name, am in m.agent_metrics.items()
+            },
+            # ── Fix loop detail ──
+            "pre_fix_debit_tuple": _serialize(m.pre_fix_debit_tuple),
+            "post_fix_debit_tuple": _serialize(m.post_fix_debit_tuple),
+            "pre_fix_credit_tuple": _serialize(m.pre_fix_credit_tuple),
+            "post_fix_credit_tuple": _serialize(m.post_fix_credit_tuple),
+            "fix_root_cause_agent": m.fix_root_cause_agent,
+            "rejection_reason": m.rejection_reason,
+            "diagnostician_decision": m.diagnostician_decision,
+            # ── Error ──
             "error": m.error,
         }
         data.append(d)
