@@ -5,7 +5,8 @@
 #   ./run_experiment.sh --variant full_pipeline
 #   ./run_experiment.sh --variant full_pipeline --test-case 12_pay_salaries
 #   ./run_experiment.sh --all                    # run all 5 variants
-#   ./run_experiment.sh --analyze                # show results only
+#   ./run_experiment.sh --analyze                # compare all variants
+#   ./run_experiment.sh --analyze full_pipeline  # single variant detail
 
 set -e
 
@@ -27,7 +28,11 @@ if [ "$1" = "--all" ]; then
     echo "============================================"
     python analysis.py --results results/stage1/
 elif [ "$1" = "--analyze" ]; then
-    python analysis.py --results results/stage1/
+    if [ -n "$2" ]; then
+        python analysis.py --results results/stage1/ --variant "$2"
+    else
+        python analysis.py --results results/stage1/
+    fi
 else
     python run.py "$@"
     echo ""
