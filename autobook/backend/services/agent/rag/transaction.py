@@ -29,7 +29,7 @@ def retrieve_transaction_examples(state: PipelineState, cache_key: str) -> list[
 
     vector = state.get("embedding_transaction")
     if vector is None:
-        text = state.get("enriched_text") or state["transaction_text"]
+        text = state["transaction_text"]
         vector = embed_text(text)
 
     results = get_qdrant_client().query_points(
