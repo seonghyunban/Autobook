@@ -30,10 +30,11 @@ def retrieve_correction_examples(state: PipelineState, cache_key: str) -> list[d
 
     vector = state.get("embedding_error")
     if vector is None:
-        diagnosis = state.get("diagnosis")
-        if not diagnosis or not diagnosis.get("fix_plans"):
+        i = state["iteration"]
+        diag_outputs = state.get("output_diagnostician", [])
+        if i >= len(diag_outputs) or not diag_outputs[i]:
             return []
-        error_text = diagnosis["fix_plans"][0]["error"]
+        error_text = diag_outputs[i]["fix_plans"][0]["error"]
         vector = embed_text(error_text)
 
     results = get_qdrant_client().query_points(

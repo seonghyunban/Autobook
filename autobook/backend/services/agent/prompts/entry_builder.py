@@ -132,8 +132,9 @@ def build_prompt(state: PipelineState, rag_examples: list[dict],
                  fix_context: str | None = None) -> dict:
     """Build the entry builder prompt with cache breakpoints."""
     # ── Build message parts ──────────────────────────────────────────
+    i           = state["iteration"]
     transaction = build_transaction(state=state)
-    refined     = build_tuples(state=state, debit_key="refined_debit_tuple", credit_key="refined_credit_tuple")
+    refined     = build_tuples(debit=state["output_debit_corrector"][i], credit=state["output_credit_corrector"][i])
     coa         = build_coa(coa_results=coa_results)
     tax         = build_tax(tax_results=tax_results)
     vendor      = build_vendor(vendor_results=vendor_results)

@@ -1,6 +1,6 @@
 """Compile the generator reasoning trace from pipeline state.
 
-Rule-based: the agent output fields and their order are known at design time.
+Formats all iterations' outputs into a labeled timeline.
 Used by Approver (Agent 6) and Diagnostician (Agent 7).
 """
 from services.agent.graph.state import (
@@ -19,19 +19,25 @@ _AGENT_LABELS: list[tuple[str, str]] = [
 ]
 
 
-def compile_reasoning_trace(state: PipelineState) -> str:
+def compile_reasoning_trace(state: PipelineState, iteration: int) -> str:
     """Compile a labeled reasoning trace from all generator agent outputs.
 
+    Formats all iterations 0..iteration as a timeline.
+
     Args:
-        state: Pipeline state containing output_* fields.
+        state: Pipeline state containing output_* list fields.
+        iteration: Current iteration index.
 
     Returns:
-        Formatted string with each agent's output labeled, e.g.:
-        "Agent 1 (Debit Classifier): (1,0,1,0,0,0)"
+        Formatted string with each iteration's agent outputs labeled.
     """
     lines = []
-    for field, label in _AGENT_LABELS:
-        val = state.get(field)
-        if val is not None:
-            lines.append(f"{label}: {val}")
-    return "\n".join(lines)
+    for i in range(iteration + 1):
+        lines.append(f"--- Iteration {i} ---")
+        for field, label in _AGENT_LABELS:
+            outputs = state.get(field, [])
+            if i < len(outputs) and outputs[i] is not None:
+                lines.append(f"{label}: {outputs[i]}")
+        lines.append("")
+
+    return "\n".join(lines).rstrip()

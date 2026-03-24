@@ -11,9 +11,8 @@ CACHE_POINT = {"cachePoint": {"type": "default"}}
 
 
 def build_transaction(state: dict) -> list[dict]:
-    """Transaction text. Uses enriched text if available."""
-    text = state.get("enriched_text") or state["transaction_text"]
-    return [{"text": f"<transaction>{text}</transaction>"}]
+    """Transaction text (always raw, not enriched — stable for RAG + caching)."""
+    return [{"text": f"<transaction>{state['transaction_text']}</transaction>"}]
 
 
 def build_user_context(state: dict) -> list[dict]:
@@ -28,32 +27,32 @@ def build_user_context(state: dict) -> list[dict]:
     )}]
 
 
-def build_tuples(state: dict, debit_key: str, credit_key: str) -> list[dict]:
-    """Debit and credit tuples from state."""
+def build_tuples(debit, credit) -> list[dict]:
+    """Debit and credit tuples. Takes values directly (not state keys)."""
     return [{"text": (
-        f"<{debit_key}>{state.get(debit_key, '')}</{debit_key}>\n"
-        f"<{credit_key}>{state.get(credit_key, '')}</{credit_key}>"
+        f"<debit_tuple>{debit}</debit_tuple>\n"
+        f"<credit_tuple>{credit}</credit_tuple>"
     )}]
 
 
-def build_journal(state: dict) -> list[dict]:
+def build_journal(journal: dict) -> list[dict]:
     """Journal entry as formatted JSON."""
     return [{"text": (
-        f"<journal_entry>\n{json.dumps(state['journal_entry'], indent=2)}\n</journal_entry>"
+        f"<journal_entry>\n{json.dumps(journal, indent=2)}\n</journal_entry>"
     )}]
 
 
-def build_reasoning(state: dict) -> list[dict]:
-    """Labeled reasoning trace from all generator agents."""
+def build_reasoning(state: dict, iteration: int) -> list[dict]:
+    """Labeled reasoning trace from all generator agents, full history."""
     return [{"text": (
-        f"<generator_reasoning>\n{compile_reasoning_trace(state)}\n</generator_reasoning>"
+        f"<generator_reasoning>\n{compile_reasoning_trace(state, iteration)}\n</generator_reasoning>"
     )}]
 
 
-def build_rejection(state: dict) -> list[dict]:
+def build_rejection(approval: dict) -> list[dict]:
     """Approver rejection output."""
     return [{"text": (
-        f"<rejection>\n{json.dumps(state['approval'], indent=2)}\n</rejection>"
+        f"<rejection>\n{json.dumps(approval, indent=2)}\n</rejection>"
     )}]
 
 

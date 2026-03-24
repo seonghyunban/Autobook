@@ -132,9 +132,10 @@ def build_prompt(state: PipelineState, rag_examples: list[dict],
                  fix_context: str | None = None) -> dict:
     """Build the diagnostician prompt with cache breakpoints."""
     # ── Build message parts ──────────────────────────────────────────
+    i           = state["iteration"]
     transaction = build_transaction(state=state)
-    reasoning   = build_reasoning(state=state)
-    rejection   = build_rejection(state=state)
+    reasoning   = build_reasoning(state=state, iteration=i)
+    rejection   = build_rejection(approval=state["output_approver"][i])
     fix         = build_fix_context(fix_context=fix_context)
     rag         = build_rag_examples(rag_examples=rag_examples,
                                     label="similar past fix outcomes for reference",

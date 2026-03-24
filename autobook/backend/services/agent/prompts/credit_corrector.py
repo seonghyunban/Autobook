@@ -144,8 +144,9 @@ def build_prompt(state: PipelineState, rag_examples: list[dict],
                  fix_context: str | None = None) -> dict:
     """Build the credit corrector prompt with cache breakpoints."""
     # ── Build message parts ──────────────────────────────────────────
+    i           = state["iteration"]
     transaction = build_transaction(state=state)
-    initial     = build_tuples(state=state, debit_key="initial_debit_tuple", credit_key="initial_credit_tuple")
+    initial     = build_tuples(debit=state["output_debit_classifier"][i], credit=state["output_credit_classifier"][i])
     fix         = build_fix_context(fix_context=fix_context)
     rag         = build_rag_examples(rag_examples=rag_examples,
                                     label="similar past corrections for reference",

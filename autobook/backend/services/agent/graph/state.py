@@ -28,44 +28,18 @@ class PipelineState(TypedDict):
     user_context: dict          # business_type, province, ownership
     ml_enrichment: dict | None  # intent_label, entities (optional, ablation)
 
-    # ── Disambiguator (Agent 0) ────────────────────────────────────────────
-    enriched_text: str | None
-
-    # ── Tuple classification ───────────────────────────────────────────────
-    initial_debit_tuple: tuple[int, ...]
-    initial_credit_tuple: tuple[int, ...]
-    refined_debit_tuple: tuple[int, ...]
-    refined_credit_tuple: tuple[int, ...]
-
-    # ── Journal entry (Agent 5) ────────────────────────────────────────────
-    journal_entry: dict | None  # {date, description, rationale, lines}
-
-    # ── Evaluator ──────────────────────────────────────────────────────────
-    approval: dict | None       # {approved, confidence, reason}
-    diagnosis: dict | None      # {decision, fix_plans}
-
     # ── Fix loop ───────────────────────────────────────────────────────────
     iteration: int
 
-    # ── RAG cache — one field per agent (separate keys = no parallel write conflict)
-    rag_cache_disambiguator: list
-    rag_cache_debit_classifier: list
-    rag_cache_credit_classifier: list
-    rag_cache_debit_corrector: list
-    rag_cache_credit_corrector: list
-    rag_cache_entry_builder: list
-    rag_cache_approver: list
-    rag_cache_diagnostician: list
-
-    # ── Agent outputs — one field per agent (separate keys = no parallel write conflict)
-    output_disambiguator: str | None
-    output_debit_classifier: str | None
-    output_credit_classifier: str | None
-    output_debit_corrector: str | None
-    output_credit_corrector: str | None
-    output_entry_builder: str | None
-    output_approver: str | None
-    output_diagnostician: str | None
+    # ── Agent outputs — typed, indexed by iteration (output_*[i] = iteration i)
+    output_disambiguator: list        # [str]            enriched text
+    output_debit_classifier: list     # [tuple[int,...]]  debit 6-tuple
+    output_credit_classifier: list    # [tuple[int,...]]  credit 6-tuple
+    output_debit_corrector: list      # [tuple[int,...]]  refined debit 6-tuple
+    output_credit_corrector: list     # [tuple[int,...]]  refined credit 6-tuple
+    output_entry_builder: list        # [dict]            journal entry
+    output_approver: list             # [dict]            {approved, confidence, reason}
+    output_diagnostician: list        # [dict]            {decision, fix_plans}
 
     # ── Agent status — dirty propagation for fix loop (0=NOT_RUN, 1=COMPLETE, 2=RERUN)
     status_disambiguator: int
@@ -77,10 +51,27 @@ class PipelineState(TypedDict):
     status_approver: int
     status_diagnostician: int
 
+    # ── Fix context per agent — diagnostician guidance history, indexed by fix iteration
+    fix_context_disambiguator: list       # [str]
+    fix_context_debit_classifier: list    # [str]
+    fix_context_credit_classifier: list   # [str]
+    fix_context_debit_corrector: list     # [str]
+    fix_context_credit_corrector: list    # [str]
+    fix_context_entry_builder: list       # [str]
+    fix_context_approver: list            # [str]
+    fix_context_diagnostician: list       # [str]
+
+    # ── RAG cache — one field per agent (separate keys = no parallel write conflict)
+    rag_cache_disambiguator: list
+    rag_cache_debit_classifier: list
+    rag_cache_credit_classifier: list
+    rag_cache_debit_corrector: list
+    rag_cache_credit_corrector: list
+    rag_cache_entry_builder: list
+    rag_cache_approver: list
+    rag_cache_diagnostician: list
+
     # ── Embedding cache — computed once, reused by all agents
     embedding_transaction: list[float] | None   # embed(transaction_text), used by agents 0-6
     embedding_error: list[float] | None         # embed(fix_plans[].error), fix loop only
     embedding_rejection: list[float] | None     # embed(approval.reason), rejection only
-
-
-

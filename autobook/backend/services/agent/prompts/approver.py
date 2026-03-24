@@ -127,9 +127,10 @@ def build_prompt(state: PipelineState, rag_examples: list[dict],
                  fix_context: str | None = None) -> dict:
     """Build the approver prompt with cache breakpoints."""
     # ── Build message parts ──────────────────────────────────────────
+    i           = state["iteration"]
     transaction = build_transaction(state=state)
-    journal     = build_journal(state=state)
-    reasoning   = build_reasoning(state=state)
+    journal     = build_journal(journal=state["output_entry_builder"][i])
+    reasoning   = build_reasoning(state=state, iteration=i)
     fix         = build_fix_context(fix_context=fix_context)
     rag         = build_rag_examples(rag_examples=rag_examples,
                                     label="similar past corrections for reference",
