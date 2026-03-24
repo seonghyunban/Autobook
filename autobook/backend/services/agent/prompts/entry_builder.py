@@ -134,7 +134,7 @@ def build_prompt(state: PipelineState, rag_examples: list[dict],
     # ── Build message parts ──────────────────────────────────────────
     i           = state["iteration"]
     transaction = build_transaction(state=state)
-    refined     = build_tuples(debit=state["output_debit_corrector"][i], credit=state["output_credit_corrector"][i])
+    refined     = build_tuples(debit=state["output_debit_corrector"][i]["tuple"], credit=state["output_credit_corrector"][i]["tuple"])
     coa         = build_coa(coa_results=coa_results)
     tax         = build_tax(tax_results=tax_results)
     vendor      = build_vendor(vendor_results=vendor_results)

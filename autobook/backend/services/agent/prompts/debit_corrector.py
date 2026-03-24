@@ -131,7 +131,7 @@ def build_prompt(state: PipelineState, rag_examples: list[dict],
     # ── Build message parts ──────────────────────────────────────────
     i           = state["iteration"]
     transaction = build_transaction(state=state)
-    initial     = build_tuples(debit=state["output_debit_classifier"][i], credit=state["output_credit_classifier"][i])
+    initial     = build_tuples(debit=state["output_debit_classifier"][i]["tuple"], credit=state["output_credit_classifier"][i]["tuple"])
     fix         = build_fix_context(fix_context=fix_context)
     rag         = build_rag_examples(rag_examples=rag_examples,
                                     label="similar past corrections for reference",
