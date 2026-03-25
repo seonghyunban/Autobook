@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { parseTransaction, uploadTransactionFile } from "../api/parse";
-import { subscribeToRealtimeUpdates } from "../api/realtime";
+import { subscribeToRealtimeUpdates, waitForRealtimeConnection } from "../api/realtime";
 import type { RealtimeEvent } from "../api/types";
 import { FreshnessStatus } from "../components/FreshnessStatus";
 import { TransactionForm } from "../components/TransactionForm";
@@ -11,6 +11,7 @@ const sampleTransactions = [
   "Transferred money",
   "Paid contractor 600 for website work",
 ];
+const PENDING_PARSE_ID_KEY = "autobook_pending_parse_id";
 
 export function TransactionPage() {
   const navigate = useNavigate();
@@ -23,6 +24,22 @@ export function TransactionPage() {
   const [uploadNotice, setUploadNotice] = useState<string | null>(null);
   const [lastUpdatedAt, setLastUpdatedAt] = useState<Date | null>(null);
   const isMockMode = import.meta.env.VITE_USE_MOCK_API !== "false";
+
+  useEffect(() => {
+    const pendingParseId = sessionStorage.getItem(PENDING_PARSE_ID_KEY);
+    if (pendingParseId) {
+      setProcessingId(pendingParseId);
+    }
+  }, []);
+
+  useEffect(() => {
+    if (processingId) {
+      sessionStorage.setItem(PENDING_PARSE_ID_KEY, processingId);
+      return;
+    }
+
+    sessionStorage.removeItem(PENDING_PARSE_ID_KEY);
+  }, [processingId]);
 
   function handleInputChange(value: string) {
     setInput(value);
@@ -52,6 +69,7 @@ export function TransactionPage() {
       setError(null);
       setUploadNotice(null);
       setResolvedEvent(null);
+      await waitForRealtimeConnection();
       const response = await parseTransaction({
         input_text: input,
         source: "manual_text",
@@ -76,6 +94,7 @@ export function TransactionPage() {
       setIsLoading(true);
       setError(null);
       setResolvedEvent(null);
+      await waitForRealtimeConnection();
       const response = await uploadTransactionFile(selectedFile);
       setProcessingId(response.parse_id);
       setUploadNotice(`Submitted ${selectedFile.name} for processing.`);
@@ -91,6 +110,9 @@ export function TransactionPage() {
   useEffect(() => {
     if (!processingId) return;
     const unsub = subscribeToRealtimeUpdates((event) => {
+      if (event.parse_id !== processingId) {
+        return;
+      }
       if (
         event.type === "entry.posted" ||
         event.type === "clarification.created" ||

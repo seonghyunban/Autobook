@@ -211,6 +211,7 @@ function queueClarification(sourceText: string, response: ParseResponse) {
 
   scheduleRealtimeUpdate({
     type: "clarification.created",
+    parse_id: response.parse_id,
     occurred_at: new Date().toISOString(),
   });
 
@@ -218,6 +219,7 @@ function queueClarification(sourceText: string, response: ParseResponse) {
 }
 
 function postJournalEntry(
+  parseId: string | undefined,
   description: string,
   lines: LedgerEntry["lines"],
   eventType: RealtimeEvent["type"] = "entry.posted",
@@ -240,6 +242,7 @@ function postJournalEntry(
   scheduleRealtimeUpdate({
     type: eventType,
     journal_entry_id: journalEntryId,
+    parse_id: parseId,
     occurred_at: occurredAt,
   });
 
@@ -267,6 +270,7 @@ export const mockApi = {
     const parseId = nextParseId();
     response.parse_id = parseId;
     response.proposed_entry.journal_entry_id = postJournalEntry(
+      parseId,
       input.input_text,
       response.proposed_entry.lines,
     );
@@ -308,6 +312,7 @@ export const mockApi = {
     }
 
     response.proposed_entry.journal_entry_id = postJournalEntry(
+      parseId,
       `Imported transaction file: ${file.name}`,
       response.proposed_entry.lines,
     );

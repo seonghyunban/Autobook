@@ -16,6 +16,7 @@ import {
   getAccessToken,
   refreshAuthSession,
 } from "../api/auth";
+import { disconnectRealtimeUpdates, ensureSocketConnection, setRealtimeIdentity } from "../api/realtime";
 import { isMockApiEnabled, isMockAuthEnabled } from "../config/env";
 import type { AuthUser } from "../api/types";
 
@@ -43,6 +44,17 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   useEffect(() => {
     void bootstrapAuth();
   }, []);
+
+  useEffect(() => {
+    if (status === "authenticated") {
+      setRealtimeIdentity(user?.id ?? null);
+      void ensureSocketConnection();
+      return;
+    }
+
+    setRealtimeIdentity(null);
+    disconnectRealtimeUpdates();
+  }, [status, user?.id]);
 
   async function bootstrapAuth() {
     if (isMockApiEnabled()) {

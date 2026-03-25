@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import uuid
 from unittest.mock import MagicMock, patch
 
 from local_identity import (
@@ -49,3 +50,18 @@ def test_resolve_creates_new():
     mock_dao.create.assert_called_once_with(
         db, email="user-123@autobook.local", password_hash="cognito-pending"
     )
+
+
+def test_resolve_uses_real_user_id_when_present():
+    existing = MagicMock()
+    db = MagicMock()
+    user_id = uuid.uuid4()
+
+    with patch("local_identity.UserDAO") as mock_dao:
+        mock_dao.get_by_id.return_value = existing
+        result = resolve_local_user(db, str(user_id))
+
+    assert result is existing
+    mock_dao.get_by_id.assert_called_once_with(db, user_id)
+    mock_dao.get_by_email.assert_not_called()
+    mock_dao.create.assert_not_called()

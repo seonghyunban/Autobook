@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import re
+from uuid import UUID
 
 from sqlalchemy.orm import Session
 
@@ -22,7 +23,21 @@ def build_local_user_email(external_user_id: str | None) -> str:
     return f"{slug}@autobook.local"
 
 
+def _parse_user_uuid(external_user_id: str | None) -> UUID | None:
+    value = normalize_external_user_id(external_user_id)
+    try:
+        return UUID(value)
+    except ValueError:
+        return None
+
+
 def resolve_local_user(db: Session, external_user_id: str | None) -> User:
+    user_uuid = _parse_user_uuid(external_user_id)
+    if user_uuid is not None:
+        user = UserDAO.get_by_id(db, user_uuid)
+        if user is not None:
+            return user
+
     email = build_local_user_email(external_user_id)
     user = UserDAO.get_by_email(db, email)
     if user is not None:
