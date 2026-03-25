@@ -13,7 +13,7 @@ from config import get_settings
 from db.connection import get_db
 from db.dao.clarifications import ClarificationDAO
 from db.models.clarification import ClarificationTask
-from queues.redis import publish_sync
+from queues.pubsub import pub
 from schemas.clarifications import (
     ClarificationItem,
     ClarificationsResponse,
@@ -111,19 +111,14 @@ async def resolve_clarification(
 
     db.commit()
 
-    publish_sync(
-        "clarification.resolved",
-        {
-            "type": "clarification.resolved",
-            "clarification_id": clarification_id,
-            "user_id": str(task.user_id),
-            "input_text": task.source_text,
-            "occurred_at": datetime.now(timezone.utc).isoformat(),
-            "status": task.status,
-            "confidence": {"overall": float(task.confidence)},
-            "explanation": task.explanation,
-            "proposed_entry": task.proposed_entry,
-        },
+    pub.clarification_resolved(
+        parse_id=clarification_id,
+        user_id=str(task.user_id),
+        status=task.status,
+        input_text=task.source_text,
+        confidence={"overall": float(task.confidence)},
+        explanation=task.explanation,
+        proposed_entry=task.proposed_entry,
     )
 
     return ResolveResponse(

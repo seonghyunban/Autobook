@@ -5,7 +5,7 @@ from config import get_settings
 from db.connection import SessionLocal
 from db.dao.clarifications import ClarificationDAO
 from queues import sqs
-from queues.redis import publish_sync
+from queues.pubsub import pub
 from services.shared.parse_status import set_status_sync
 from services.shared.transaction_persistence import ensure_transaction_for_message
 
@@ -71,14 +71,12 @@ def execute(message: dict) -> None:
             stage="resolution",
             input_text=message.get("input_text"),
         )
-        publish_sync("clarification.resolved", {
-            "type": "clarification.resolved",
-            "parse_id": message.get("parse_id"),
-            "user_id": message.get("user_id"),
-            "input_text": message.get("input_text"),
-            "occurred_at": datetime.now(timezone.utc).isoformat(),
-            "status": "rejected",
-        })
+        pub.clarification_resolved(
+            parse_id=message.get("parse_id"),
+            user_id=message.get("user_id"),
+            status="rejected",
+            input_text=message.get("input_text"),
+        )
         return
 
     if not _is_resolved(message):
@@ -104,17 +102,15 @@ def execute(message: dict) -> None:
     clarification["status"] = "resolved"
     result = {**message, "clarification": clarification}
 
-    publish_sync("clarification.resolved", {
-        "type": "clarification.resolved",
-        "parse_id": message.get("parse_id"),
-        "user_id": message.get("user_id"),
-        "input_text": message.get("input_text"),
-        "occurred_at": datetime.now(timezone.utc).isoformat(),
-        "status": "resolved",
-        "confidence": message.get("confidence"),
-        "explanation": message.get("explanation"),
-        "proposed_entry": message.get("proposed_entry"),
-    })
+    pub.clarification_resolved(
+        parse_id=message.get("parse_id"),
+        user_id=message.get("user_id"),
+        status="resolved",
+        input_text=message.get("input_text"),
+        confidence=message.get("confidence"),
+        explanation=message.get("explanation"),
+        proposed_entry=message.get("proposed_entry"),
+    )
     set_status_sync(
         parse_id=message["parse_id"],
         user_id=message["user_id"],

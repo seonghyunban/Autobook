@@ -5,7 +5,7 @@ from config import get_settings
 from db.connection import SessionLocal
 from db.dao.journal_entries import JournalEntryDAO
 from queues import sqs
-from queues.redis import publish_sync
+from queues.pubsub import pub
 from services.shared.parse_status import set_status_sync
 from services.shared.transaction_persistence import ensure_transaction_for_message
 
@@ -101,19 +101,16 @@ def execute(message: dict) -> None:
     journal_entry_id = str(journal_entry.id)
     proposed_entry = _serialize_proposed_entry(proposed_entry, journal_entry_id=journal_entry_id)
 
-    publish_sync("entry.posted", {
-        "type": "entry.posted",
-        "journal_entry_id": journal_entry_id,
-        "parse_id": message.get("parse_id"),
-        "input_text": message.get("input_text"),
-        "user_id": message.get("user_id"),
-        "occurred_at": datetime.now(timezone.utc).isoformat(),
-        "confidence": message.get("confidence"),
-        "explanation": message.get("explanation"),
-        "status": "auto_posted",
-        "proposed_entry": proposed_entry,
-        "parse_time_ms": parse_time_ms,
-    })
+    pub.entry_posted(
+        journal_entry_id=journal_entry_id,
+        parse_id=message.get("parse_id"),
+        user_id=message.get("user_id"),
+        input_text=message.get("input_text"),
+        confidence=message.get("confidence"),
+        explanation=message.get("explanation"),
+        proposed_entry=proposed_entry,
+        parse_time_ms=parse_time_ms,
+    )
     set_status_sync(
         parse_id=message["parse_id"],
         user_id=message["user_id"],

@@ -7,7 +7,7 @@ logging.basicConfig(level=logging.INFO)
 from fastapi.middleware.cors import CORSMiddleware
 
 from config import get_settings
-from queues import get_redis
+from queues.pubsub.client import get_redis
 
 
 @asynccontextmanager

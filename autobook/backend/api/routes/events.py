@@ -8,13 +8,10 @@ from sqlalchemy.orm import Session
 
 from auth.deps import resolve_auth_context_from_request
 from db.connection import SessionLocal
-from queues import subscribe
+from queues.pubsub import sub
 
 logger = logging.getLogger(__name__)
 router = APIRouter()
-
-CHANNELS = ("entry.posted", "clarification.created", "clarification.resolved")
-
 
 @router.get("/api/v1/events")
 async def events(request: Request):
@@ -26,7 +23,7 @@ async def events(request: Request):
         db.close()
 
     async def event_stream():
-        async for event in subscribe(redis, *CHANNELS):
+        async for event in sub.events(redis):
             if await request.is_disconnected():
                 break
 

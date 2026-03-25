@@ -3,7 +3,7 @@ from datetime import datetime, timezone
 
 from config import get_settings
 from queues import sqs
-from queues.redis import publish_sync
+from queues.pubsub import pub
 from services.agent.graph.graph import app
 from services.agent.graph.state import NOT_RUN, AGENT_NAMES
 from services.shared.parse_status import set_status_sync
@@ -112,14 +112,12 @@ def execute(message: dict) -> None:
         confidence=enriched.get("confidence"),
         proposed_entry=enriched.get("proposed_entry"),
     )
-    publish_sync("clarification.created", {
-        "type": "clarification.created",
-        "parse_id": enriched.get("parse_id"),
-        "input_text": enriched.get("input_text"),
-        "user_id": enriched.get("user_id"),
-        "occurred_at": datetime.now(timezone.utc).isoformat(),
-        "confidence": enriched.get("confidence"),
-        "explanation": enriched.get("explanation"),
-        "proposed_entry": enriched.get("proposed_entry"),
-    })
+    pub.clarification_created(
+        parse_id=enriched.get("parse_id"),
+        user_id=enriched.get("user_id"),
+        input_text=enriched.get("input_text"),
+        confidence=enriched.get("confidence"),
+        explanation=enriched.get("explanation"),
+        proposed_entry=enriched.get("proposed_entry"),
+    )
     sqs.enqueue.resolution(enriched)
