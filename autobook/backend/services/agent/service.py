@@ -97,9 +97,23 @@ def execute(message: dict) -> None:
     final_state = app.invoke(initial_state, config)
 
     enriched = _extract_result(final_state, message)
+    run_type = message.get("run_type", "full_pipeline")
+    auto_post = message.get("auto_post", True)
+
+    if run_type == "llm":
+        pub.pipeline_result(
+            parse_id=message["parse_id"],
+            user_id=message["user_id"],
+            stage="llm",
+            result=enriched,
+        )
+        if auto_post and not enriched["clarification"]["required"]:
+            sqs.enqueue.posting(enriched)
+        return
 
     if not enriched["clarification"]["required"]:
-        sqs.enqueue.posting(enriched)
+        if auto_post:
+            sqs.enqueue.posting(enriched)
         return
 
     set_status_sync(
