@@ -10,6 +10,7 @@ from schemas.parse import ParseAccepted, ParseRequest, ParseStatusResponse
 from services.shared.parse_status import load_status, set_status
 
 logger = logging.getLogger(__name__)
+
 router = APIRouter(prefix="/api/v1")
 
 

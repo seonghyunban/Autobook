@@ -10,6 +10,7 @@ from services.shared.parse_status import set_status_sync
 from services.shared.transaction_persistence import ensure_transaction_for_message
 
 logger = logging.getLogger(__name__)
+
 settings = get_settings()
 
 
