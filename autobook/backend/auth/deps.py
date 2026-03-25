@@ -4,7 +4,7 @@ from collections.abc import Callable
 from dataclasses import dataclass
 from datetime import datetime, timedelta, timezone
 
-from fastapi import Depends, HTTPException, Request, WebSocket, status
+from fastapi import Depends, HTTPException, Request, status
 from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
 from sqlalchemy.orm import Session
 
@@ -79,13 +79,6 @@ def resolve_auth_context_from_request(request: Request, db: Session) -> AuthCont
     )
     return resolve_auth_context(token, db)
 
-
-def resolve_auth_context_from_websocket(websocket: WebSocket, db: Session) -> AuthContext:
-    token = _extract_token(
-        websocket.headers.get("authorization"),
-        websocket.query_params.get("access_token"),
-    )
-    return resolve_auth_context(token, db)
 
 
 def _extract_token(authorization_header: str | None, query_token: str | None) -> str:

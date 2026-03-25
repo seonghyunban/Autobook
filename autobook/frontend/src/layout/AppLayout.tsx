@@ -1,7 +1,7 @@
 import { type ReactNode, useEffect } from "react";
 import { NavLink } from "react-router-dom";
 import { RealtimeClock } from "../components/RealtimeClock";
-import { ensureSocketConnection } from "../api/realtime";
+import { ensureConnection } from "../api/realtime";
 import { useAuth } from "../auth/AuthProvider";
 
 type AppLayoutProps = {
@@ -20,7 +20,7 @@ export function AppLayout({ children }: AppLayoutProps) {
   const { user, logout } = useAuth();
 
   useEffect(() => {
-    ensureSocketConnection();
+    ensureConnection();
   }, []);
   return (
     <div className="app-shell">
