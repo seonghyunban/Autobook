@@ -431,14 +431,21 @@ resource "aws_iam_role_policy" "agent_bedrock" {
 
   policy = jsonencode({
     Version = "2012-10-17"
-    Statement = [{
-      Effect = "Allow"
-      Action = [
-        "bedrock:InvokeModel",
-        "bedrock:InvokeModelWithResponseStream"
-      ]
-      Resource = "arn:aws:bedrock:${data.aws_region.current.region}::foundation-model/*"
-    }]
+    Statement = [
+      {
+        Effect = "Allow"
+        Action = [
+          "bedrock:InvokeModel",
+          "bedrock:InvokeModelWithResponseStream",
+          "bedrock:Converse",
+          "bedrock:ConverseStream"
+        ]
+        Resource = [
+          "arn:aws:bedrock:${data.aws_region.current.region}::foundation-model/*",
+          "arn:aws:bedrock:${data.aws_region.current.region}:${data.aws_caller_identity.current.account_id}:inference-profile/*"
+        ]
+      }
+    ]
   })
 }
 
