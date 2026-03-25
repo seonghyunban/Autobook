@@ -115,6 +115,8 @@ class PerNodeUsageCallback(BaseCallbackHandler):
 
     def __init__(self):
         self.usage_by_node: dict[str, dict] = {}
+        self.stop_reasons: dict[str, str] = {}
+        self.llm_calls: list[dict] = []  # every LLM call in order
         self._current_node: str | None = None
 
     def on_chain_start(self, serialized: Any, inputs: Any, *,
@@ -124,11 +126,30 @@ class PerNodeUsageCallback(BaseCallbackHandler):
             self._current_node = name
 
     def on_llm_end(self, response: Any, **kwargs) -> None:
-        if self._current_node and response.generations:
+        if response.generations:
             msg = response.generations[0][0].message
-            if hasattr(msg, "usage_metadata") and msg.usage_metadata:
-                self.usage_by_node[self._current_node] = dict(msg.usage_metadata)
+            node = self._current_node or "unknown"
+
+            # Capture stop reason — runs BEFORE Pydantic validation
+            stop_reason = msg.response_metadata.get("stopReason", "unknown")
+            self.stop_reasons[node] = stop_reason
+
+            # Capture usage
+            usage = dict(msg.usage_metadata) if hasattr(msg, "usage_metadata") and msg.usage_metadata else {}
+
+            # Log every LLM call
+            self.llm_calls.append({
+                "node": node,
+                "stop_reason": stop_reason,
+                "input_tokens": usage.get("input_tokens", 0),
+                "output_tokens": usage.get("output_tokens", 0),
+            })
+
+            if node and usage:
+                self.usage_by_node[node] = usage
 
     def reset(self) -> None:
         self.usage_by_node.clear()
+        self.stop_reasons.clear()
+        self.llm_calls.clear()
         self._current_node = None

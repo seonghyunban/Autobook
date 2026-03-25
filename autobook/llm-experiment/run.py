@@ -247,6 +247,8 @@ async def _run_one(app, tc: TestCase, config_dict: dict,
             common = _extract_common_result(final_state, variant_name, callback, elapsed_ms)
             metrics = _extract_test_case_metrics(final_state, tc, variant_name, common, callback)
             metrics.pipeline_state = _extract_state_snapshot(final_state)
+            metrics.pipeline_state["llm_calls"] = callback.llm_calls
+            metrics.pipeline_state["stop_reasons"] = callback.stop_reasons
 
             d = "🔵" if metrics.debit_tuple_exact_match else "🔴"
             c = "🔵" if metrics.credit_tuple_exact_match else "🔴"
@@ -264,9 +266,13 @@ async def _run_one(app, tc: TestCase, config_dict: dict,
             metrics.common.total_latency_ms = elapsed_ms
             total_cost = sum(_compute_agent_cost(u) for u in callback.usage_by_node.values())
             metrics.common.total_cost_usd = total_cost
-            # Save whatever pipeline state exists for debugging
+            # Save whatever exists for debugging
             if final_state:
                 metrics.pipeline_state = _extract_state_snapshot(final_state)
+            # Save LLM call log + stop reasons (captured before Pydantic validation)
+            metrics.pipeline_state = metrics.pipeline_state or {}
+            metrics.pipeline_state["llm_calls"] = callback.llm_calls
+            metrics.pipeline_state["stop_reasons"] = callback.stop_reasons
             return metrics
 
 
