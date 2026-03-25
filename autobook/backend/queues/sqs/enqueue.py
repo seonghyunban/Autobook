@@ -32,6 +32,9 @@ def normalization(
     currency: str | None = None,
     filename: str | None = None,
     submitted_at: str | None = None,
+    run_type: str = "full_pipeline",
+    store_transaction: bool = True,
+    auto_post: bool = True,
 ) -> str:
     msg = NormalizationTask(
         parse_id=parse_id,
@@ -41,6 +44,9 @@ def normalization(
         currency=currency,
         filename=filename,
         submitted_at=submitted_at,
+        run_type=run_type,
+        store_transaction=store_transaction,
+        auto_post=auto_post,
     )
     return send(settings.SQS_QUEUE_NORMALIZER, msg.model_dump(exclude_none=True))
 
