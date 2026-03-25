@@ -104,6 +104,16 @@ def _extract_common_result(state: dict, variant_name: str,
     )
 
 
+def _extract_state_snapshot(state: dict) -> dict:
+    """Extract all output_* and status_* fields for debugging."""
+    snapshot = {"iteration": state.get("iteration", 0)}
+    for key, val in state.items():
+        if key.startswith("output_") or key.startswith("status_") or key.startswith("fix_context_"):
+            snapshot[key] = val
+    snapshot["route"] = state.get("route", "error")
+    return snapshot
+
+
 def _compute_slot_accuracy(actual: tuple | None, expected: tuple) -> float:
     if actual is None:
         return 0.0
@@ -228,13 +238,15 @@ async def _run_one(app, tc: TestCase, config_dict: dict,
         }
         state = _build_initial_state(tc)
 
+        start = time.perf_counter()
+        final_state = None
         try:
-            start = time.perf_counter()
             final_state = await app.ainvoke(state, config=config)
             elapsed_ms = int((time.perf_counter() - start) * 1000)
 
             common = _extract_common_result(final_state, variant_name, callback, elapsed_ms)
             metrics = _extract_test_case_metrics(final_state, tc, variant_name, common, callback)
+            metrics.pipeline_state = _extract_state_snapshot(final_state)
 
             d = "🔵" if metrics.debit_tuple_exact_match else "🔴"
             c = "🔵" if metrics.credit_tuple_exact_match else "🔴"
@@ -244,11 +256,18 @@ async def _run_one(app, tc: TestCase, config_dict: dict,
         except Exception as e:
             elapsed_ms = int((time.perf_counter() - start) * 1000)
             statuses[tc.id] = (f"{STATUS_ERROR} failed", "", "", "", f"{elapsed_ms}ms", str(e))
-            return TestCaseMetrics(
+            metrics = TestCaseMetrics(
                 test_case_id=tc.id,
                 variant_name=variant_name,
                 error=str(e),
             )
+            metrics.common.total_latency_ms = elapsed_ms
+            total_cost = sum(_compute_agent_cost(u) for u in callback.usage_by_node.values())
+            metrics.common.total_cost_usd = total_cost
+            # Save whatever pipeline state exists for debugging
+            if final_state:
+                metrics.pipeline_state = _extract_state_snapshot(final_state)
+            return metrics
 
 
 async def run_variant_async(variant_name: str, test_cases: list[TestCase]) -> list[TestCaseMetrics]:
@@ -340,6 +359,7 @@ def _save_results(results: list[TestCaseMetrics], variant_name: str) -> Path:
             "rejection_reason": m.rejection_reason,
             "diagnostician_decision": m.diagnostician_decision,
             "error": m.error,
+            "pipeline_state": m.pipeline_state,
         }
         data.append(d)
 

@@ -82,6 +82,9 @@ class TestCaseMetrics:
     # ── Error tracking
     error: str | None = None
 
+    # ── Full pipeline state for debugging (all output_* lists)
+    pipeline_state: dict | None = None
+
 
 # ── Per-variant metrics (aggregated) ──────────────────────────────────────
 
