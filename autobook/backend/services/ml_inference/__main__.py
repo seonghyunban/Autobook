@@ -2,7 +2,7 @@ import logging
 
 from config import get_settings
 from queues import dequeue
-from services.ml_inference.service import execute
+from services.ml_inference.process import process
 
 logging.basicConfig(level=logging.INFO, format="%(asctime)s %(name)s %(levelname)s %(message)s")
 logger = logging.getLogger("ml_inference")

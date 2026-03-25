@@ -4,77 +4,104 @@
   "type": "object",
   "required": [
     "record_id",
-    "input_text",
-    "source",
-    "currency",
-    "transaction_date",
+    "features",
     "labels"
   ],
   "properties": {
     "record_id": {
       "type": "string"
     },
-    "input_text": {
-      "type": "string"
-    },
-    "normalized_text": {
-      "type": [
-        "string",
-        "null"
-      ]
-    },
-    "source": {
-      "type": "string",
-      "enum": [
-        "manual_text",
-        "csv_upload",
-        "pdf_upload",
-        "upload",
-        "bank_feed"
-      ]
-    },
-    "currency": {
-      "type": "string"
-    },
-    "transaction_date": {
-      "type": "string",
-      "format": "date"
-    },
-    "amount_mentions": {
-      "type": [
-        "array",
-        "null"
+    "features": {
+      "type": "object",
+      "required": [
+        "input_text",
+        "source",
+        "currency",
+        "transaction_date"
       ],
-      "items": {
-        "type": "object"
-      }
-    },
-    "date_mentions": {
-      "type": [
-        "array",
-        "null"
-      ],
-      "items": {
-        "type": "object"
-      }
-    },
-    "party_mentions": {
-      "type": [
-        "array",
-        "null"
-      ],
-      "items": {
-        "type": "object"
-      }
-    },
-    "quantity_mentions": {
-      "type": [
-        "array",
-        "null"
-      ],
-      "items": {
-        "type": "object"
-      }
+      "properties": {
+        "input_text": {
+          "type": "string"
+        },
+        "normalized_text": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "source": {
+          "type": "string",
+          "enum": [
+            "manual_text",
+            "csv_upload",
+            "pdf_upload",
+            "upload",
+            "bank_feed"
+          ]
+        },
+        "currency": {
+          "type": "string"
+        },
+        "transaction_date": {
+          "type": "string",
+          "format": "date"
+        },
+        "amount_mentions": {
+          "type": [
+            "array",
+            "null"
+          ],
+          "items": {
+            "type": "object"
+          }
+        },
+        "date_mentions": {
+          "type": [
+            "array",
+            "null"
+          ],
+          "items": {
+            "type": "object"
+          }
+        },
+        "party_mentions": {
+          "type": [
+            "array",
+            "null"
+          ],
+          "items": {
+            "type": "object"
+          }
+        },
+        "quantity_mentions": {
+          "type": [
+            "array",
+            "null"
+          ],
+          "items": {
+            "type": "object"
+          }
+        },
+        "amount": {
+          "type": [
+            "number",
+            "null"
+          ]
+        },
+        "counterparty": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "normalized_description": {
+          "type": [
+            "string",
+            "null"
+          ]
+        }
+      },
+      "additionalProperties": true
     },
     "labels": {
       "type": "object",
@@ -172,6 +199,38 @@
             }
           },
           "additionalProperties": true
+        },
+        "entity_spans": {
+          "type": [
+            "array",
+            "null"
+          ],
+          "items": {
+            "type": "object",
+            "required": [
+              "label",
+              "text",
+              "start",
+              "end"
+            ],
+            "properties": {
+              "label": {
+                "type": "string"
+              },
+              "text": {
+                "type": "string"
+              },
+              "start": {
+                "type": "integer",
+                "minimum": 0
+              },
+              "end": {
+                "type": "integer",
+                "minimum": 0
+              }
+            },
+            "additionalProperties": true
+          }
         }
       },
       "additionalProperties": true

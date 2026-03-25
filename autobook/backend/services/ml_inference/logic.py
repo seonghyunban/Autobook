@@ -57,13 +57,24 @@ class HybridInferenceService(BaselineInferenceService):
         return super().match_cca_class(intent_label, asset_name)
 
     def extract_entities(self, message: dict, text: str) -> EntityExtractionResult:
+        baseline = super().extract_entities(message, text)
         extractor = self.entity_extractor
         if extractor is not None and extractor.is_ready:
             try:
-                return extractor.extract_entities(message, text)
+                extracted = extractor.extract_entities(message, text)
+                merged_entities = dict(baseline.entities)
+                for key, value in dict(extracted.entities).items():
+                    if value not in {None, "", [], {}}:
+                        merged_entities[key] = value
+                return EntityExtractionResult(
+                    amount=extracted.amount if extracted.amount is not None else baseline.amount,
+                    vendor=extracted.vendor or baseline.vendor,
+                    asset_name=extracted.asset_name or baseline.asset_name,
+                    entities=merged_entities,
+                )
             except ModelNotReadyError:
                 pass
-        return super().extract_entities(message, text)
+        return baseline
 
 
 def build_inference_service(provider_name: str | None = None):

@@ -1,12 +1,27 @@
 import logging
 
 from config import get_settings
-from services.ml_inference.logic import get_inference_service
+from services.ml_inference.logic import (
+    HybridInferenceService,
+    build_inference_service,
+    enrich_message,
+    get_inference_service,
+)
+from services.ml_inference.providers.heuristic import BaselineInferenceService
 from queues import sqs
 from services.shared.parse_status import set_status_sync
 
 logger = logging.getLogger(__name__)
 settings = get_settings()
+
+__all__ = [
+    "BaselineInferenceService",
+    "HybridInferenceService",
+    "build_inference_service",
+    "enrich_message",
+    "execute",
+    "get_inference_service",
+]
 
 
 def execute(message: dict) -> None:
