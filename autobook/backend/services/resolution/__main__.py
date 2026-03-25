@@ -2,7 +2,7 @@ import logging
 
 from config import get_settings
 from queues import dequeue
-from services.resolution.process import process
+from services.resolution.service import execute
 
 logging.basicConfig(level=logging.INFO, format="%(asctime)s %(name)s %(levelname)s %(message)s")
 logger = logging.getLogger("resolution")

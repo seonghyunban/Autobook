@@ -2,7 +2,7 @@ import logging
 
 from config import get_settings
 from queues import dequeue
-from services.agent.process import process
+from services.agent.service import execute
 
 logging.basicConfig(level=logging.INFO, format="%(asctime)s %(name)s %(levelname)s %(message)s")
 logger = logging.getLogger("agent")

@@ -25,6 +25,7 @@ COPY backend/utils/ backend/utils/
 COPY backend/schemas/ backend/schemas/
 COPY backend/reporting/ backend/reporting/
 COPY backend/services/__init__.py backend/services/__init__.py
+COPY backend/vectordb/ backend/vectordb/
 
 RUN groupadd -g 1001 app && useradd -u 1001 -g app -s /bin/false app
 ENV PATH="/app/.venv/bin:$PATH" \
@@ -87,7 +88,7 @@ RUN --mount=type=cache,target=/root/.cache/uv \
 
 COPY backend/services/agent/ backend/services/agent/
 ENTRYPOINT ["python", "-m", "awslambdaric"]
-CMD ["services.agent.handler.handler"]
+CMD ["services.agent.aws.handler"]
 
 # ── Resolution Worker (Tier 4) ─────────────────────────────────
 FROM autobook-accounting AS autobook-resolution

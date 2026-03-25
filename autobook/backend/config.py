@@ -40,6 +40,19 @@ class Settings(BaseSettings):
     SQS_QUEUE_RESOLUTION: str = "http://elasticmq:9324/queue/resolution"
     SQS_QUEUE_POSTING: str = "http://elasticmq:9324/queue/posting"
     SQS_QUEUE_FLYWHEEL: str = "http://elasticmq:9324/queue/flywheel"
+    QDRANT_URL: str = "http://localhost:6333"
+    QDRANT_API_KEY: str | None = None
+    BEDROCK_MODEL_ROUTING: dict[str, str] = {
+        "disambiguator":     "us.anthropic.claude-sonnet-4-6",
+        "debit_classifier":  "us.anthropic.claude-sonnet-4-6",
+        "credit_classifier": "us.anthropic.claude-sonnet-4-6",
+        "debit_corrector":   "us.anthropic.claude-sonnet-4-6",
+        "credit_corrector":  "us.anthropic.claude-sonnet-4-6",
+        "entry_builder":     "us.anthropic.claude-sonnet-4-6",
+        "approver":          "us.anthropic.claude-sonnet-4-6",
+        "diagnostician":     "us.anthropic.claude-sonnet-4-6",
+    }
+    BEDROCK_THINKING_EFFORT: dict[str, str] = {}  # empty = no thinking; post-ablation: set per agent
 
     model_config = {"env_file": ".env", "case_sensitive": False}
 
