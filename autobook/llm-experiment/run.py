@@ -60,7 +60,7 @@ def _build_initial_state(test_case: TestCase) -> dict:
 
 
 def _compute_agent_cost(usage: dict) -> float:
-    """Compute USD cost from usage_metadata dict."""
+    """Compute actual USD cost (with cache pricing)."""
     input_tokens = usage.get("input_tokens", 0)
     output_tokens = usage.get("output_tokens", 0)
     details = usage.get("input_token_details", {})
@@ -73,6 +73,11 @@ def _compute_agent_cost(usage: dict) -> float:
         + cache_creation * _CACHE_WRITE_RATE
         + output_tokens * _OUTPUT_RATE
     )
+
+
+def _compute_raw_cost(usage: dict) -> float:
+    """Compute raw USD cost (no cache discount) for fair experiment comparison."""
+    return usage.get("input_tokens", 0) * _INPUT_RATE + usage.get("output_tokens", 0) * _OUTPUT_RATE
 
 
 def _extract_common_result(state: dict, variant_name: str,
@@ -93,12 +98,13 @@ def _extract_common_result(state: dict, variant_name: str,
     total_input = sum(c.get("input_tokens", 0) for c in callback.llm_calls)
     total_output = sum(c.get("output_tokens", 0) for c in callback.llm_calls)
     total_cost = sum(_compute_agent_cost(c) for c in callback.llm_calls)
+    raw_cost = sum(_compute_raw_cost(c) for c in callback.llm_calls)
 
     return CommonResult(
         debit_tuple=debit_tuple,
         credit_tuple=credit_tuple,
         journal_entry=journal_entry,
-        total_cost_usd=total_cost,
+        total_cost_usd=raw_cost,
         total_latency_ms=elapsed_ms,
         total_input_tokens=total_input,
         total_output_tokens=total_output,
@@ -267,8 +273,7 @@ async def _run_one(app, tc: TestCase, config_dict: dict,
                 error=str(e),
             )
             metrics.common.total_latency_ms = elapsed_ms
-            total_cost = sum(_compute_agent_cost(c) for c in callback.llm_calls)
-            metrics.common.total_cost_usd = total_cost
+            metrics.common.total_cost_usd = sum(_compute_raw_cost(c) for c in callback.llm_calls)
             # Save whatever exists for debugging
             if final_state:
                 metrics.pipeline_state = _extract_state_snapshot(final_state)

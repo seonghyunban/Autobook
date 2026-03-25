@@ -7,7 +7,7 @@ import json
 
 from services.agent.utils.prompt.reasoning import compile_reasoning_trace
 
-CACHE_POINT = {"cachePoint": {"type": "default"}}
+CACHE_POINT = {"cachePoint": {"type": "default", "ttl": "1h"}}
 
 
 def build_transaction(state: dict) -> list[dict]:
