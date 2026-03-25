@@ -6,13 +6,15 @@ Output: JSON with approved (bool), confidence (float), reason (str).
 from services.agent.graph.state import PipelineState
 from services.agent.utils.prompt import (
     CACHE_POINT, build_transaction, build_journal, build_reasoning,
-    build_fix_context, build_rag_examples, to_bedrock_messages,
+    build_fix_context, build_rag_examples,
+    build_context_section, build_input_section, to_bedrock_messages,
 )
 
 # ── 1. Preamble ──────────────────────────────────────────────────────────
 
 _PREAMBLE = """\
-You are an accounting auditor in a Canadian automated bookkeeping system."""
+You are an accounting auditor in a Canadian automated bookkeeping system. \
+All evaluations follow IFRS standards."""
 
 # ── 2. Role ──────────────────────────────────────────────────────────────
 
@@ -30,7 +32,7 @@ You do NOT:
 # ── 3. Domain Knowledge ──────────────────────────────────────────────────
 
 _DOMAIN = """
-## Domain Knowledge
+## Domain Knowledge (IFRS)
 
 What makes a journal entry correct:
 1. Total debits = total credits (balance).
@@ -38,7 +40,7 @@ What makes a journal entry correct:
 3. Dollar amounts are reasonable given the transaction text.
 4. All necessary lines present (no missing tax, expense, or revenue lines).
 5. Debits and credits on correct sides for each account type.
-6. Tax lines correct: rate × base amount = tax line amount.
+6. Tax lines correct: rate x base amount = tax line amount.
 
 Common errors to watch for:
 - COGS classified as asset increase instead of expense increase
@@ -108,41 +110,58 @@ Situation: Entry looks correct but uses unusual account name.
 Output: {"approved": true, "confidence": 0.82, "reason": "Entry balances and accounts are directionally correct. 'Office Sundries' is uncommon but acceptable for miscellaneous office expenses."}
 </example>"""
 
-# ── 7. Output Format ─────────────────────────────────────────────────────
+# ── 7. Input Format ─────────────────────────────────────────────────────
 
-_OUTPUT_FORMAT = """
-## Output Format
+_INPUT_FORMAT = """
+## Input Format
 
-Return ONLY valid JSON:
-{"approved": true/false, "confidence": 0.0-1.0, "reason": "brief explanation"}
+You will receive these blocks in the user message:
 
-No markdown, no preamble."""
+1. <transaction> — The raw transaction description.
+2. <journal_entry> — The journal entry to review (JSON with lines).
+3. <generator_reasoning> — Full trace of all upstream agent outputs, showing \
+how the entry was constructed.
+4. <fix_context> (optional) — If present, a previous review rejected this \
+entry. Contains guidance on what was wrong.
+5. <examples> (optional) — Similar past corrections retrieved for reference."""
+
+# ── 8. Task Reminder (appended to end of HumanMessage) ─────────────────
+
+_TASK_REMINDER = """
+## Task
+
+Review the journal entry against the transaction description. Apply IFRS \
+standards, check balance, accounts, amounts, completeness, and directionality. \
+Output your approval decision with confidence and reason."""
 
 SYSTEM_INSTRUCTION = "\n".join([
-    _PREAMBLE, _ROLE, _DOMAIN, _SYSTEM, _PROCEDURE, _EXAMPLES,
+    _PREAMBLE, _ROLE, _DOMAIN, _SYSTEM, _PROCEDURE, _EXAMPLES, _INPUT_FORMAT,
 ])
 
 
 def build_prompt(state: PipelineState, rag_examples: list[dict],
                  fix_context: str | None = None) -> dict:
     """Build the approver prompt with cache breakpoints."""
-    # ── Build message parts ──────────────────────────────────────────
-    i           = state["iteration"]
+    i = state["iteration"]
+
+    # ── § Context (optional reference material) ───────────────────
+    fix = build_fix_context(fix_context=fix_context)
+    rag = build_rag_examples(rag_examples=rag_examples,
+                             label="similar past corrections for reference",
+                             fields=["entry", "error", "correction"])
+    context = build_context_section(fix, rag)
+
+    # ── § Input (what to review) ──────────────────────────────────
     transaction = build_transaction(state=state)
-    journal     = build_journal(journal=state["output_entry_builder"][i])
-    reasoning   = build_reasoning(state=state, iteration=i)
-    fix         = build_fix_context(fix_context=fix_context)
-    rag         = build_rag_examples(rag_examples=rag_examples,
-                                    label="similar past corrections for reference",
-                                    fields=["entry", "error", "correction"])
+    journal = build_journal(journal=state["output_entry_builder"][i])
+    reasoning = build_reasoning(state=state, iteration=i)
+    input_section = build_input_section(transaction, journal, reasoning)
+
+    # ── § Task (last thing before model generates) ────────────────
+    task = [{"text": _TASK_REMINDER}]
 
     # ── Join ──────────────────────────────────────────────────────
     system_blocks = [{"text": SYSTEM_INSTRUCTION}, CACHE_POINT]
-    message_blocks = transaction \
-                   + [CACHE_POINT] \
-                   + journal \
-                   + reasoning \
-                   + fix \
-                   + rag
+    message_blocks = context + input_section + task
 
     return to_bedrock_messages(system_blocks, message_blocks)
