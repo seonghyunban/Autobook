@@ -40,7 +40,7 @@ class SingleAgentOutput(BaseModel):
 
 def single_agent_node(state: PipelineState, config: RunnableConfig) -> dict:
     """One LLM call: classify + build entry."""
-    from llm_experiment.single_agent.prompt import build_prompt
+    from single_agent.prompt import build_prompt
 
     i = state["iteration"]
 
