@@ -8,6 +8,7 @@ from db.connection import SessionLocal, set_current_user_context
 from db.models.journal import JournalEntry
 from local_identity import resolve_local_user
 from queues import sqs
+from queues.pubsub import pub
 from services.precedent.logic import PrecedentCandidate, find_precedent_match
 from services.shared.parse_status import set_status_sync
 
@@ -111,23 +112,37 @@ def execute(message: dict) -> None:
         "confidence": confidence,
     }
 
+    run_type = message.get("run_type", "full_pipeline")
+    auto_post = message.get("auto_post", True)
+
+    if run_type == "precedent":
+        pub.pipeline_result(
+            parse_id=message["parse_id"],
+            user_id=message["user_id"],
+            stage="precedent",
+            result=result,
+        )
+        if match.matched and auto_post and (match.confidence or 0) >= settings.AUTO_POST_THRESHOLD:
+            result = {
+                **result,
+                "confidence": {**confidence, "overall": match.confidence},
+                "proposed_entry": _build_precedent_proposed_entry(message, match),
+                "explanation": f"Matched a prior posted journal entry via precedent ({match.reasoning}).",
+                "clarification": {"required": False, "clarification_id": None, "reason": None, "status": None},
+            }
+            sqs.enqueue.posting(result)
+        return
+
     if match.matched and (match.confidence or 0) >= settings.AUTO_POST_THRESHOLD:
         result = {
             **result,
-            "confidence": {
-                **confidence,
-                "overall": match.confidence,
-            },
+            "confidence": {**confidence, "overall": match.confidence},
             "proposed_entry": _build_precedent_proposed_entry(message, match),
             "explanation": f"Matched a prior posted journal entry via precedent ({match.reasoning}).",
-            "clarification": {
-                "required": False,
-                "clarification_id": None,
-                "reason": None,
-                "status": None,
-            },
+            "clarification": {"required": False, "clarification_id": None, "reason": None, "status": None},
         }
-        sqs.enqueue.posting(result)
+        if auto_post:
+            sqs.enqueue.posting(result)
         return
 
     sqs.enqueue.ml_inference(result)
