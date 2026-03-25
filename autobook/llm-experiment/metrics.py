@@ -137,12 +137,13 @@ class PerNodeUsageCallback(BaseCallbackHandler):
             # Capture usage
             usage = dict(msg.usage_metadata) if hasattr(msg, "usage_metadata") and msg.usage_metadata else {}
 
-            # Log every LLM call
+            # Log every LLM call (include cache details for accurate cost)
             self.llm_calls.append({
                 "node": node,
                 "stop_reason": stop_reason,
                 "input_tokens": usage.get("input_tokens", 0),
                 "output_tokens": usage.get("output_tokens", 0),
+                "input_token_details": usage.get("input_token_details", {}),
             })
 
             if node and usage:

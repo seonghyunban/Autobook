@@ -89,9 +89,10 @@ def _extract_common_result(state: dict, variant_name: str,
     entry_out = state.get("output_entry_builder", [])
     journal_entry = entry_out[i] if i < len(entry_out) else None
 
-    total_input = sum(u.get("input_tokens", 0) for u in callback.usage_by_node.values())
-    total_output = sum(u.get("output_tokens", 0) for u in callback.usage_by_node.values())
-    total_cost = sum(_compute_agent_cost(u) for u in callback.usage_by_node.values())
+    # Sum from llm_calls (append-only) — correct even with fix loop reruns
+    total_input = sum(c.get("input_tokens", 0) for c in callback.llm_calls)
+    total_output = sum(c.get("output_tokens", 0) for c in callback.llm_calls)
+    total_cost = sum(_compute_agent_cost(c) for c in callback.llm_calls)
 
     return CommonResult(
         debit_tuple=debit_tuple,
@@ -266,7 +267,7 @@ async def _run_one(app, tc: TestCase, config_dict: dict,
                 error=str(e),
             )
             metrics.common.total_latency_ms = elapsed_ms
-            total_cost = sum(_compute_agent_cost(u) for u in callback.usage_by_node.values())
+            total_cost = sum(_compute_agent_cost(c) for c in callback.llm_calls)
             metrics.common.total_cost_usd = total_cost
             # Save whatever exists for debugging
             if final_state:

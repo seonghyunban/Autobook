@@ -20,23 +20,23 @@ class DisambiguatorOutput(BaseModel):
 
 
 class DebitClassifierOutput(BaseModel):
-    tuple: tuple[int, int, int, int, int, int]
     reason: str = Field(description="For each debit line, what account type it falls under and why")
+    tuple: tuple[int, int, int, int, int, int]
 
 
 class CreditClassifierOutput(BaseModel):
-    tuple: tuple[int, int, int, int, int, int]
     reason: str = Field(description="For each credit line, what account type it falls under and why")
+    tuple: tuple[int, int, int, int, int, int]
 
 
 class DebitCorrectorOutput(BaseModel):
-    tuple: tuple[int, int, int, int, int, int]
     reason: str = Field(description="What was wrong with the initial tuple and how you fixed it, or why it was already correct")
+    tuple: tuple[int, int, int, int, int, int]
 
 
 class CreditCorrectorOutput(BaseModel):
-    tuple: tuple[int, int, int, int, int, int]
     reason: str = Field(description="What was wrong with the initial tuple and how you fixed it, or why it was already correct")
+    tuple: tuple[int, int, int, int, int, int]
 
 
 class JournalLine(BaseModel):
