@@ -5,6 +5,7 @@ import type {
   ClarificationsResponse,
   LedgerResponse,
   ParseAccepted,
+  ParseStatus,
   ParseRequest,
   ResolveClarificationRequest,
   ResolveClarificationResponse,
@@ -83,6 +84,14 @@ export async function uploadTransactionFile(file: File): Promise<ParseAccepted> 
   }
 
   return (await response.json()) as ParseAccepted;
+}
+
+export async function getParseStatus(parseId: string): Promise<ParseStatus> {
+  if (isMockApiEnabled()) {
+    throw new Error("Parse status polling is unavailable in mock mode.");
+  }
+
+  return request<ParseStatus>(`/parse/${parseId}`);
 }
 
 export async function getClarifications(): Promise<ClarificationsResponse> {

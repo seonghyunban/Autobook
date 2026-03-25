@@ -6,6 +6,7 @@ from queues import sqs
 from queues.redis import publish_sync
 from services.agent.graph.graph import app
 from services.agent.graph.state import NOT_RUN, AGENT_NAMES
+from services.shared.parse_status import set_status_sync
 
 logger = logging.getLogger(__name__)
 settings = get_settings()
@@ -82,6 +83,13 @@ def _extract_result(final_state: dict, message: dict) -> dict:
 
 def execute(message: dict) -> None:
     logger.info("Processing: %s", message.get("parse_id"))
+    set_status_sync(
+        parse_id=message["parse_id"],
+        user_id=message["user_id"],
+        status="processing",
+        stage="agent",
+        input_text=message.get("input_text") or message.get("description"),
+    )
 
     initial_state = _build_initial_state(message)
     config = {"configurable": DEFAULT_PIPELINE_CONFIG}
@@ -94,6 +102,16 @@ def execute(message: dict) -> None:
         sqs.enqueue.posting(enriched)
         return
 
+    set_status_sync(
+        parse_id=message["parse_id"],
+        user_id=message["user_id"],
+        status="processing",
+        stage="clarification_pending",
+        input_text=enriched.get("input_text"),
+        explanation=enriched.get("explanation"),
+        confidence=enriched.get("confidence"),
+        proposed_entry=enriched.get("proposed_entry"),
+    )
     publish_sync("clarification.created", {
         "type": "clarification.created",
         "parse_id": enriched.get("parse_id"),

@@ -24,6 +24,34 @@ export type ParseAccepted = {
   status: "accepted";
 };
 
+export type ParseStatus = {
+  parse_id: string;
+  status:
+    | "accepted"
+    | "processing"
+    | "auto_posted"
+    | "needs_clarification"
+    | "resolved"
+    | "rejected"
+    | "failed";
+  stage?: string | null;
+  occurred_at: string;
+  updated_at: string;
+  input_text?: string | null;
+  explanation?: string | null;
+  confidence?: {
+    overall: number;
+    auto_post_threshold?: number;
+  } | null;
+  proposed_entry?: {
+    journal_entry_id?: string | null;
+    lines: JournalLine[];
+  } | null;
+  clarification_id?: string | null;
+  journal_entry_id?: string | null;
+  error?: string | null;
+};
+
 export type JournalLine = {
   account_code: string;
   account_name: string;

@@ -37,3 +37,18 @@ class ParseResponse(BaseModel):
 class ParseAccepted(BaseModel):
     parse_id: str
     status: str = "accepted"
+
+
+class ParseStatusResponse(BaseModel):
+    parse_id: str
+    status: str
+    stage: str | None = None
+    occurred_at: str
+    updated_at: str
+    input_text: str | None = None
+    explanation: str | None = None
+    confidence: Confidence | None = None
+    proposed_entry: ProposedEntry | None = None
+    clarification_id: str | None = None
+    journal_entry_id: str | None = None
+    error: str | None = None

@@ -1,1 +1,1 @@
-export { parseTransaction, uploadTransactionFile } from "./client";
+export { getParseStatus, parseTransaction, uploadTransactionFile } from "./client";

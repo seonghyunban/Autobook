@@ -1,8 +1,8 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { parseTransaction, uploadTransactionFile } from "../api/parse";
+import { getParseStatus, parseTransaction, uploadTransactionFile } from "../api/parse";
 import { subscribeToRealtimeUpdates, waitForRealtimeConnection } from "../api/realtime";
-import type { RealtimeEvent } from "../api/types";
+import type { ParseStatus, RealtimeEvent } from "../api/types";
 import { FreshnessStatus } from "../components/FreshnessStatus";
 import { TransactionForm } from "../components/TransactionForm";
 
@@ -12,6 +12,7 @@ const sampleTransactions = [
   "Paid contractor 600 for website work",
 ];
 const PENDING_PARSE_ID_KEY = "autobook_pending_parse_id";
+const FINAL_PARSE_STATUSES = new Set(["auto_posted", "needs_clarification", "resolved", "rejected"]);
 
 export function TransactionPage() {
   const navigate = useNavigate();
@@ -125,6 +126,47 @@ export function TransactionPage() {
     });
     return unsub;
   }, [processingId]);
+
+  useEffect(() => {
+    if (!processingId || isMockMode) {
+      return;
+    }
+
+    let isActive = true;
+
+    const poll = async () => {
+      try {
+        const nextStatus = await getParseStatus(processingId);
+        if (!isActive) {
+          return;
+        }
+
+        if (nextStatus.status === "failed") {
+          setError(nextStatus.error ?? "Transaction processing failed.");
+          setProcessingId(null);
+          return;
+        }
+
+        if (FINAL_PARSE_STATUSES.has(nextStatus.status)) {
+          setResolvedEvent(buildResolvedEvent(nextStatus));
+          setProcessingId(null);
+          setLastUpdatedAt(new Date());
+        }
+      } catch {
+        // Keep waiting. The status endpoint is a fallback for missed realtime events.
+      }
+    };
+
+    void poll();
+    const intervalId = window.setInterval(() => {
+      void poll();
+    }, 3000);
+
+    return () => {
+      isActive = false;
+      window.clearInterval(intervalId);
+    };
+  }, [isMockMode, processingId]);
 
   const isPosted =
     resolvedEvent?.type === "entry.posted" || resolvedEvent?.type === "clarification.resolved";
@@ -337,4 +379,23 @@ export function TransactionPage() {
       ) : null}
     </div>
   );
+}
+
+function buildResolvedEvent(status: ParseStatus): RealtimeEvent {
+  return {
+    type:
+      status.status === "auto_posted"
+        ? "entry.posted"
+        : status.status === "needs_clarification"
+          ? "clarification.created"
+          : "clarification.resolved",
+    journal_entry_id: status.journal_entry_id ?? status.proposed_entry?.journal_entry_id ?? undefined,
+    parse_id: status.parse_id,
+    input_text: status.input_text ?? undefined,
+    occurred_at: status.updated_at,
+    confidence: status.confidence ?? undefined,
+    explanation: status.explanation ?? undefined,
+    status: status.status,
+    proposed_entry: status.proposed_entry ?? undefined,
+  };
 }

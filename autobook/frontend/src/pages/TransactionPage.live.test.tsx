@@ -4,11 +4,13 @@ import { afterEach, beforeEach, describe, expect, test, vi } from "vitest";
 import { TransactionPage } from "./TransactionPage";
 
 const {
+  getParseStatus,
   parseTransaction,
   uploadTransactionFile,
   subscribeToRealtimeUpdates,
   waitForRealtimeConnection,
 } = vi.hoisted(() => ({
+  getParseStatus: vi.fn(),
   parseTransaction: vi.fn(),
   uploadTransactionFile: vi.fn(),
   subscribeToRealtimeUpdates: vi.fn(),
@@ -16,6 +18,7 @@ const {
 }));
 
 vi.mock("../api/parse", () => ({
+  getParseStatus,
   parseTransaction,
   uploadTransactionFile,
 }));
@@ -37,10 +40,17 @@ beforeEach(() => {
   vi.stubEnv("VITE_USE_MOCK_API", "false");
   parseTransaction.mockReset();
   uploadTransactionFile.mockReset();
+  getParseStatus.mockReset();
   subscribeToRealtimeUpdates.mockReset();
   waitForRealtimeConnection.mockReset();
   subscribeToRealtimeUpdates.mockReturnValue(() => {});
   waitForRealtimeConnection.mockResolvedValue(undefined);
+  getParseStatus.mockResolvedValue({
+    parse_id: "parse_live_default",
+    status: "processing",
+    occurred_at: new Date().toISOString(),
+    updated_at: new Date().toISOString(),
+  });
 });
 
 afterEach(() => {
@@ -111,5 +121,25 @@ describe("transaction page live realtime flow", () => {
     });
 
     expect(await screen.findByRole("heading", { name: /entry posted/i })).toBeInTheDocument();
+  });
+
+  test("recovers through parse status polling when realtime completion is missed", async () => {
+    sessionStorage.setItem("autobook_pending_parse_id", "parse_live_3");
+    getParseStatus.mockResolvedValue({
+      parse_id: "parse_live_3",
+      status: "auto_posted",
+      occurred_at: new Date().toISOString(),
+      updated_at: new Date().toISOString(),
+      explanation: "Posted from polling fallback",
+      proposed_entry: {
+        journal_entry_id: "je_123",
+        lines: [],
+      },
+    });
+
+    renderTransactionPage();
+
+    expect(await screen.findByRole("heading", { name: /entry posted/i })).toBeInTheDocument();
+    expect(getParseStatus).toHaveBeenCalledWith("parse_live_3");
   });
 });

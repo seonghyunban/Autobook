@@ -2,11 +2,12 @@ import logging
 import uuid
 from datetime import datetime, timezone
 
-from fastapi import APIRouter, Depends, Form, UploadFile
+from fastapi import APIRouter, Depends, Form, HTTPException, Request, UploadFile, status
 
 from auth.deps import AuthContext, get_current_user
 from queues import sqs
-from schemas.parse import ParseAccepted, ParseRequest
+from schemas.parse import ParseAccepted, ParseRequest, ParseStatusResponse
+from services.shared.parse_status import load_status, set_status
 
 logger = logging.getLogger(__name__)
 router = APIRouter(prefix="/api/v1")
@@ -27,6 +28,7 @@ def _infer_upload_source(filename: str | None) -> str:
 @router.post("/parse", response_model=ParseAccepted)
 async def parse(
     body: ParseRequest,
+    request: Request,
     current_user: AuthContext = Depends(get_current_user),
 ):
     parse_id = f"parse_{uuid.uuid4().hex[:12]}"
@@ -38,12 +40,21 @@ async def parse(
         user_id=str(current_user.user.id),
         submitted_at=datetime.now(timezone.utc).isoformat(),
     )
+    await set_status(
+        request.app.state.redis,
+        parse_id=parse_id,
+        user_id=str(current_user.user.id),
+        status="accepted",
+        stage="queued",
+        input_text=body.input_text,
+    )
     return ParseAccepted(parse_id=parse_id)
 
 
 @router.post("/parse/upload", response_model=ParseAccepted)
 async def parse_upload(
     file: UploadFile,
+    request: Request,
     source: str | None = Form(default=None),
     current_user: AuthContext = Depends(get_current_user),
 ):
@@ -58,4 +69,24 @@ async def parse_upload(
         user_id=str(current_user.user.id),
         submitted_at=datetime.now(timezone.utc).isoformat(),
     )
+    await set_status(
+        request.app.state.redis,
+        parse_id=parse_id,
+        user_id=str(current_user.user.id),
+        status="accepted",
+        stage="queued",
+        input_text=file.filename,
+    )
     return ParseAccepted(parse_id=parse_id)
+
+
+@router.get("/parse/{parse_id}", response_model=ParseStatusResponse)
+async def get_parse_status(
+    parse_id: str,
+    request: Request,
+    current_user: AuthContext = Depends(get_current_user),
+):
+    payload = await load_status(request.app.state.redis, parse_id)
+    if payload is None or payload.get("user_id") != str(current_user.user.id):
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="parse not found")
+    return ParseStatusResponse(**payload)

@@ -6,6 +6,7 @@ from db.connection import SessionLocal
 from db.dao.journal_entries import JournalEntryDAO
 from queues import sqs
 from queues.redis import publish_sync
+from services.shared.parse_status import set_status_sync
 from services.shared.transaction_persistence import ensure_transaction_for_message
 
 logger = logging.getLogger(__name__)
@@ -68,6 +69,13 @@ def _serialize_proposed_entry(proposed_entry: dict | None, journal_entry_id: str
 
 def execute(message: dict) -> None:
     logger.info("Processing: %s", message.get("parse_id"))
+    set_status_sync(
+        parse_id=message["parse_id"],
+        user_id=message["user_id"],
+        status="processing",
+        stage="posting",
+        input_text=message.get("input_text"),
+    )
     parse_time_ms = _compute_parse_time_ms(message)
     db = SessionLocal()
     try:
@@ -105,6 +113,17 @@ def execute(message: dict) -> None:
         "proposed_entry": proposed_entry,
         "parse_time_ms": parse_time_ms,
     })
+    set_status_sync(
+        parse_id=message["parse_id"],
+        user_id=message["user_id"],
+        status="auto_posted",
+        stage="posting",
+        input_text=message.get("input_text"),
+        explanation=message.get("explanation"),
+        confidence=message.get("confidence"),
+        proposed_entry=proposed_entry,
+        journal_entry_id=journal_entry_id,
+    )
 
     result = {
         **message,

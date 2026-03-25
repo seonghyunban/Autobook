@@ -9,6 +9,7 @@ from db.models.journal import JournalEntry
 from local_identity import resolve_local_user
 from queues import sqs
 from services.precedent.logic import PrecedentCandidate, find_precedent_match
+from services.shared.parse_status import set_status_sync
 
 logger = logging.getLogger(__name__)
 settings = get_settings()
@@ -91,6 +92,13 @@ def _load_candidates(message: dict) -> list[PrecedentCandidate]:
 
 def execute(message: dict) -> None:
     logger.info("Processing: %s", message.get("parse_id"))
+    set_status_sync(
+        parse_id=message["parse_id"],
+        user_id=message["user_id"],
+        status="processing",
+        stage="precedent",
+        input_text=message.get("input_text") or message.get("description"),
+    )
     candidates = _load_candidates(message)
     match = find_precedent_match(message, candidates)
 

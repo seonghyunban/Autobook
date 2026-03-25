@@ -6,6 +6,7 @@ from db.connection import SessionLocal
 from db.dao.clarifications import ClarificationDAO
 from queues import sqs
 from queues.redis import publish_sync
+from services.shared.parse_status import set_status_sync
 from services.shared.transaction_persistence import ensure_transaction_for_message
 
 logger = logging.getLogger(__name__)
@@ -53,9 +54,23 @@ def _persist_pending_clarification(message: dict) -> str:
 
 def execute(message: dict) -> None:
     logger.info("Processing: %s", message.get("parse_id"))
+    set_status_sync(
+        parse_id=message["parse_id"],
+        user_id=message["user_id"],
+        status="processing",
+        stage="resolution",
+        input_text=message.get("input_text"),
+    )
     clarification = dict(message.get("clarification") or {})
 
     if _is_rejected(message):
+        set_status_sync(
+            parse_id=message["parse_id"],
+            user_id=message["user_id"],
+            status="rejected",
+            stage="resolution",
+            input_text=message.get("input_text"),
+        )
         publish_sync("clarification.resolved", {
             "type": "clarification.resolved",
             "parse_id": message.get("parse_id"),
@@ -72,6 +87,17 @@ def execute(message: dict) -> None:
         clarification_id = _persist_pending_clarification(message)
         clarification["clarification_id"] = clarification_id
         clarification["status"] = "pending"
+        set_status_sync(
+            parse_id=message["parse_id"],
+            user_id=message["user_id"],
+            status="needs_clarification",
+            stage="resolution",
+            input_text=message.get("input_text"),
+            explanation=message.get("explanation"),
+            confidence=message.get("confidence"),
+            proposed_entry=message.get("proposed_entry"),
+            clarification_id=clarification_id,
+        )
         return
 
     clarification["required"] = False
@@ -89,4 +115,14 @@ def execute(message: dict) -> None:
         "explanation": message.get("explanation"),
         "proposed_entry": message.get("proposed_entry"),
     })
+    set_status_sync(
+        parse_id=message["parse_id"],
+        user_id=message["user_id"],
+        status="resolved",
+        stage="resolution",
+        input_text=message.get("input_text"),
+        explanation=message.get("explanation"),
+        confidence=message.get("confidence"),
+        proposed_entry=message.get("proposed_entry"),
+    )
     sqs.enqueue.posting(result)
