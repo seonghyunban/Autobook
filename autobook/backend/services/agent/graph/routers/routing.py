@@ -24,8 +24,10 @@ def route_before_correctors(state: PipelineState, config=None) -> str:
     return "correctors"
 
 
-def route_before_approver(state: PipelineState, config=None) -> str:
-    """Skip evaluator if evaluation_active is disabled."""
+def route_after_validation(state: PipelineState, config=None) -> str:
+    """If validation failed → END. If evaluation off → confidence gate. Otherwise → approver."""
+    if state.get("validation_error"):
+        return "end"
     configurable = (config or {}).get("configurable", {})
     if not configurable.get("evaluation_active", True):
         return "confidence_gate"

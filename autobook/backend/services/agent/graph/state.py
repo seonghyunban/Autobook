@@ -76,6 +76,9 @@ class PipelineState(TypedDict):
     rag_cache_approver: list
     rag_cache_diagnostician: list
 
+    # ── Validation error — set by validation node, checked by graph routing
+    validation_error: list | None  # None = valid, list of error strings = invalid
+
     # ── Embedding cache — computed once, reused by all agents
     embedding_transaction: list[float] | None   # embed(transaction_text), used by agents 0-6
     embedding_error: list[float] | None         # embed(fix_plans[].error), fix loop only

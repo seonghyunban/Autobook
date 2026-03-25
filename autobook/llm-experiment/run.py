@@ -55,6 +55,7 @@ def _build_initial_state(test_case: TestCase) -> dict:
     state["embedding_error"] = None
     state["embedding_rejection"] = None
     state["route"] = "error"
+    state["validation_error"] = None
     return state
 
 

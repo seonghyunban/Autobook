@@ -46,7 +46,7 @@ from services.agent.nodes.non_llm import (
 from services.agent.graph.routers import (
     route_after_start,
     route_before_correctors,
-    route_before_approver,
+    route_after_validation,
     route_after_approver,
     route_after_diagnostician,
 )
@@ -102,10 +102,11 @@ builder.add_edge("corrector_passthrough", "entry_builder")
 # ── Edges: entry builder → validation ─────────────────────────────────────
 builder.add_edge("entry_builder", "validation")
 
-# ── Edges: validation → approver or confidence gate (ablation) ────────────
-builder.add_conditional_edges("validation", route_before_approver, {
+# ── Edges: validation → approver or confidence gate or END ────────────────
+builder.add_conditional_edges("validation", route_after_validation, {
     "approver": "approver",
     "confidence_gate": "confidence_gate",
+    "end": END,
 })
 
 # ── Edges: approver → confidence gate or diagnostician ────────────────────
