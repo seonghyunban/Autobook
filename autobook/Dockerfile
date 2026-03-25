@@ -25,6 +25,7 @@ COPY backend/utils/ backend/utils/
 COPY backend/schemas/ backend/schemas/
 COPY backend/reporting/ backend/reporting/
 COPY backend/services/__init__.py backend/services/__init__.py
+COPY backend/services/shared/ backend/services/shared/
 COPY backend/vectordb/ backend/vectordb/
 
 RUN groupadd -g 1001 app && useradd -u 1001 -g app -s /bin/false app
