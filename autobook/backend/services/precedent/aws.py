@@ -2,6 +2,7 @@ import json
 import logging
 
 from services.precedent.service import execute
+from queues.pubsub import pub
 from services.shared.parse_status import set_status_sync
 
 logger = logging.getLogger(__name__)
@@ -22,6 +23,12 @@ def handler(event, context):
                     status="failed",
                     stage="precedent",
                     input_text=message.get("input_text") or message.get("description"),
+                    error=str(exc),
+                )
+                pub.pipeline_error(
+                    parse_id=message["parse_id"],
+                    user_id=message["user_id"],
+                    stage="precedent",
                     error=str(exc),
                 )
             raise
