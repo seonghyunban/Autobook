@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from services.normalizer.service import NormalizationService
+from services.normalizer.logic import NormalizationService
 
 
 def test_normalization_service_marks_ambiguous_amounts_as_not_confident() -> None:

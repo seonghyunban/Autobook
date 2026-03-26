@@ -55,17 +55,21 @@ def test_je_insert_negative_amount(db_session):
         )
 
 
-def test_je_insert_unknown_account(db_session):
+def test_je_insert_auto_creates_unknown_account(db_session):
     user = _make_user(db_session)
-    with pytest.raises(ValueError, match="unknown account"):
-        JournalEntryDAO.insert_with_lines(
-            db_session, user.id,
-            {"date": date(2026, 3, 23), "description": "Bad acct", "status": "draft"},
-            [
-                {"account_code": "9999", "type": "debit", "amount": 100},
-                {"account_code": "1000", "type": "credit", "amount": 100},
-            ],
-        )
+    entry = JournalEntryDAO.insert_with_lines(
+        db_session, user.id,
+        {"date": date(2026, 3, 23), "description": "Auto-create acct", "status": "draft"},
+        [
+            {"account_code": "9999", "account_name": "New Account", "type": "debit", "amount": 100},
+            {"account_code": "1000", "account_name": "Cash", "type": "credit", "amount": 100},
+        ],
+    )
+    assert entry is not None
+    from db.dao.chart_of_accounts import ChartOfAccountsDAO
+    created = ChartOfAccountsDAO.get_by_code(db_session, user.id, "9999")
+    assert created is not None
+    assert created.auto_created is True
 
 
 def test_je_insert_unbalanced(db_session):

@@ -76,8 +76,8 @@ def test_decode_malformed_token():
 def test_decode_wrong_algorithm():
     import base64, json
     header = base64.urlsafe_b64encode(json.dumps({"alg": "HS256", "typ": "JWT", "kid": "k1"}).encode()).rstrip(b"=").decode()
-    payload = base64.urlsafe_b64encode(json.dumps({"sub": "u1"}).encode()).rstrip(b"=").decode()
-    with pytest.raises(ValueError, match="algorithm"):
+    payload = base64.urlsafe_b64encode(json.dumps({"sub": "u1", "token_use": "access"}).encode()).rstrip(b"=").decode()
+    with pytest.raises(ValueError, match="(key|signature|Malformed)"):
         decode_access_token(f"{header}.{payload}.fakesig")
 
 

@@ -1,24 +1,10 @@
 from __future__ import annotations
 
-from services.agent import process as agent_process
+from accounting_engine.rules import build_rule_based_entry
 
 
-def test_agent_routes_high_confidence_ml_output_to_posting(monkeypatch) -> None:
-    enqueued: list[tuple[str, dict]] = []
-    published: list[tuple[str, dict]] = []
-
-    monkeypatch.setattr(
-        agent_process,
-        "enqueue",
-        lambda queue_url, payload: enqueued.append((queue_url, payload)),
-    )
-    monkeypatch.setattr(
-        agent_process,
-        "publish_sync",
-        lambda channel, payload: published.append((channel, payload)),
-    )
-
-    agent_process.process(
+def test_agent_routes_high_confidence_ml_output_to_posting() -> None:
+    result = build_rule_based_entry(
         {
             "parse_id": "parse_agent_1",
             "input_text": "Bought a laptop from Apple for $2400",
@@ -29,55 +15,24 @@ def test_agent_routes_high_confidence_ml_output_to_posting(monkeypatch) -> None:
             "source": "manual_text",
             "intent_label": "asset_purchase",
             "bank_category": "equipment",
-            "entities": {
-                "amount": 2400.0,
-                "vendor": "Apple",
-                "asset_name": "laptop",
-                "date": "2026-03-22",
-            },
-            "confidence": {"ml": 0.97},
-        }
-    )
-
-    assert published == []
-    assert len(enqueued) == 1
-    _, payload = enqueued[0]
-    assert payload["clarification"]["required"] is False
-    assert payload["confidence"]["overall"] == 0.97
-    assert payload["proposed_entry"]["lines"] == [
-        {
-            "account_code": "1500",
-            "account_name": "Equipment",
-            "type": "debit",
-            "amount": 2400.0,
-            "line_order": 0,
+            "entities": {"amount": 2400.0, "vendor": "Apple", "asset_name": "laptop"},
         },
-        {
-            "account_code": "1000",
-            "account_name": "Cash",
-            "type": "credit",
-            "amount": 2400.0,
-            "line_order": 1,
-        },
-    ]
-
-
-def test_agent_routes_ambiguous_transfer_to_clarification_with_rule_engine_output(monkeypatch) -> None:
-    enqueued: list[tuple[str, dict]] = []
-    published: list[tuple[str, dict]] = []
-
-    monkeypatch.setattr(
-        agent_process,
-        "enqueue",
-        lambda queue_url, payload: enqueued.append((queue_url, payload)),
-    )
-    monkeypatch.setattr(
-        agent_process,
-        "publish_sync",
-        lambda channel, payload: published.append((channel, payload)),
+        confidence=0.97,
+        origin_tier=2,
     )
 
-    agent_process.process(
+    assert not result.requires_human_review
+    lines = result.proposed_entry["lines"]
+    assert lines[0]["account_name"] == "Equipment"
+    assert lines[0]["type"] == "debit"
+    assert lines[0]["amount"] == 2400.0
+    assert lines[1]["account_name"] == "Cash"
+    assert lines[1]["type"] == "credit"
+    assert lines[1]["amount"] == 2400.0
+
+
+def test_agent_routes_ambiguous_transfer_to_clarification_with_rule_engine_output() -> None:
+    result = build_rule_based_entry(
         {
             "parse_id": "parse_agent_2",
             "input_text": "Transferred money to savings",
@@ -87,34 +42,18 @@ def test_agent_routes_ambiguous_transfer_to_clarification_with_rule_engine_outpu
             "source": "manual_text",
             "intent_label": "transfer",
             "bank_category": "transfer",
-            "entities": {
-                "amount": 1500.0,
-                "transfer_destination": "Savings",
-                "date": "2026-03-22",
-            },
-            "confidence": {"ml": 0.82},
-        }
+            "entities": {"amount": 1500.0, "transfer_destination": "Savings"},
+        },
+        confidence=0.82,
+        origin_tier=2,
     )
 
-    assert len(published) == 1
-    assert published[0][0] == "clarification.created"
-    assert len(enqueued) == 1
-    _, payload = enqueued[0]
-    assert payload["clarification"]["required"] is True
-    assert payload["clarification"]["reason"] == "Transfer destination account is not confidently mapped."
-    assert payload["proposed_entry"]["lines"] == [
-        {
-            "account_code": "9999",
-            "account_name": "Unknown Destination",
-            "type": "debit",
-            "amount": 1500.0,
-            "line_order": 0,
-        },
-        {
-            "account_code": "1000",
-            "account_name": "Cash",
-            "type": "credit",
-            "amount": 1500.0,
-            "line_order": 1,
-        },
-    ]
+    assert result.requires_human_review
+    assert result.clarification_reason == "Transfer destination account is not confidently mapped."
+    lines = result.proposed_entry["lines"]
+    assert lines[0]["account_name"] == "Unknown Destination"
+    assert lines[0]["type"] == "debit"
+    assert lines[0]["amount"] == 1500.0
+    assert lines[1]["account_name"] == "Cash"
+    assert lines[1]["type"] == "credit"
+    assert lines[1]["amount"] == 1500.0

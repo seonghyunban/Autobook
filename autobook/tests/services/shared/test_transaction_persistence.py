@@ -81,7 +81,7 @@ def test_pipeline_persistence_updates_existing_transaction_instead_of_reinsertin
     assert resolved_transaction.id == existing_transaction.id
     assert updated["transaction_id"] == existing_transaction.id
     assert updated["normalized_description"] == "paid slack subscription for 39"
-    assert updated["amount"] is None
+    assert updated["amount"] == 39.0
     assert updated["amount_mentions"] == [{"text": "39", "value": 39.0}]
     assert enrichment["transaction_id"] == existing_transaction.id
     assert enrichment["intent_label"] == "software_subscription"

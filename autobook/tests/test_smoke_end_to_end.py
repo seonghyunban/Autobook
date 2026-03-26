@@ -5,6 +5,7 @@ from dataclasses import dataclass
 from datetime import datetime, timezone
 from decimal import Decimal
 from types import SimpleNamespace
+from unittest.mock import AsyncMock
 from uuid import UUID, uuid4
 
 from fastapi.testclient import TestClient
@@ -19,13 +20,12 @@ from db.dao.clarifications import ClarificationDAO
 from db.dao.journal_entries import JournalEntryDAO
 from db.dao.transactions import TransactionDAO
 from db.models.user import User
-from services.agent import process as agent_process
-from services.ml_inference import process as ml_process
-from services.normalizer import process as normalizer_process
-from services.posting import process as posting_process
-from services.precedent import process as precedent_process
-from services.precedent.service import PrecedentCandidate
-from services.resolution import process as resolution_process
+import services.normalizer.service as normalizer_svc
+import services.precedent.service as precedent_svc
+import services.ml_inference.service as ml_svc
+import services.posting.service as posting_svc
+import services.resolution.service as resolution_svc
+from services.precedent.logic import PrecedentCandidate
 from services.shared import transaction_persistence
 
 
@@ -155,11 +155,7 @@ def _make_transaction_store(store: Store):
         except (ValueError, TypeError):
             return None
 
-    def update_normalized_fields(
-        _db,
-        transaction_id,
-        **kwargs,
-    ):
+    def update_normalized_fields(_db, transaction_id, **kwargs):
         transaction = store.transactions[transaction_id]
         for key, value in kwargs.items():
             if key == "amount" and value is not None:
@@ -231,11 +227,7 @@ def _make_journal_store(store: Store):
 
     def list_by_user(_db, user_id, filters=None):
         filters = filters or {}
-        entries = [
-            entry
-            for entry in store.journal_entries.values()
-            if entry.user_id == user_id
-        ]
+        entries = [entry for entry in store.journal_entries.values() if entry.user_id == user_id]
         if filters.get("status") is not None:
             entries = [entry for entry in entries if entry.status == filters["status"]]
         if filters.get("date_to") is not None:
@@ -244,40 +236,22 @@ def _make_journal_store(store: Store):
 
     def compute_balances(_db, user_id):
         balances: dict[str, dict[str, Decimal | str]] = {}
-        account_types = {
-            account.account_code: account.account_type
-            for account in store.accounts[user_id]
-        }
-        account_names = {
-            account.account_code: account.account_name
-            for account in store.accounts[user_id]
-        }
+        account_types = {a.account_code: a.account_type for a in store.accounts[user_id]}
+        account_names = {a.account_code: a.account_name for a in store.accounts[user_id]}
         for entry in list_by_user(_db, user_id, filters={"status": "posted"}):
             for line in entry.lines:
                 bucket = balances.setdefault(
                     line.account_code,
-                    {
-                        "account_code": line.account_code,
-                        "account_name": account_names.get(line.account_code, line.account_name),
-                        "debit": Decimal("0"),
-                        "credit": Decimal("0"),
-                    },
+                    {"account_code": line.account_code, "account_name": account_names.get(line.account_code, line.account_name), "debit": Decimal("0"), "credit": Decimal("0")},
                 )
                 bucket[line.type] += line.amount
-
         results = []
         for account_code, bucket in balances.items():
             if account_types.get(account_code) in {"asset", "expense"}:
                 balance = bucket["debit"] - bucket["credit"]
             else:
                 balance = bucket["credit"] - bucket["debit"]
-            results.append(
-                {
-                    "account_code": account_code,
-                    "account_name": bucket["account_name"],
-                    "balance": balance,
-                }
-            )
+            results.append({"account_code": account_code, "account_name": bucket["account_name"], "balance": balance})
         return sorted(results, key=lambda item: item["account_code"])
 
     def compute_summary(_db, user_id):
@@ -313,11 +287,7 @@ def _make_clarification_store(store: Store):
         return task
 
     def list_pending(_db, user_id):
-        return [
-            task
-            for task in store.clarifications.values()
-            if task.user_id == user_id and task.status == "pending"
-        ]
+        return [t for t in store.clarifications.values() if t.user_id == user_id and t.status == "pending"]
 
     def resolve(_db, task_id, action, edited_entry=None):
         task = store.clarifications.get(task_id)
@@ -333,10 +303,7 @@ def _make_clarification_store(store: Store):
         entry_payload.setdefault("status", "posted")
         journal_entry = JournalEntryDAO.insert_with_lines(None, task.user_id, entry_payload, line_payload)
         task.status = "resolved"
-        task.proposed_entry = {
-            "entry": {**entry_payload, "journal_entry_id": str(journal_entry.id)},
-            "lines": line_payload,
-        }
+        task.proposed_entry = {"entry": {**entry_payload, "journal_entry_id": str(journal_entry.id)}, "lines": line_payload}
         return task, journal_entry
 
     return insert, list_pending, resolve
@@ -361,14 +328,8 @@ def _make_precedent_loader(store: Store):
                     counterparty=transaction.counterparty,
                     source=transaction.source,
                     lines=[
-                        {
-                            "account_code": line.account_code,
-                            "account_name": line.account_name,
-                            "type": line.type,
-                            "amount": float(line.amount),
-                            "line_order": line.line_order,
-                        }
-                        for line in entry.lines
+                        {"account_code": l.account_code, "account_name": l.account_name, "type": l.type, "amount": float(l.amount), "line_order": l.line_order}
+                        for l in entry.lines
                     ],
                 )
             )
@@ -377,31 +338,96 @@ def _make_precedent_loader(store: Store):
     return loader
 
 
-def _drain(queue_map: dict[str, list[dict]]) -> None:
-    settings = get_settings()
-    processors = {
-        settings.SQS_QUEUE_NORMALIZER: normalizer_process.process,
-        settings.SQS_QUEUE_PRECEDENT: precedent_process.process,
-        settings.SQS_QUEUE_ML_INFERENCE: ml_process.process,
-        settings.SQS_QUEUE_AGENT: agent_process.process,
-        settings.SQS_QUEUE_POSTING: posting_process.process,
-        settings.SQS_QUEUE_RESOLUTION: resolution_process.process,
-    }
+def _drain(queue_map: dict[str, list[dict]], settings) -> None:
+    """Process all queued messages through the pipeline.
+
+    Since routing (which queue to forward to) is now in aws.py handlers
+    rather than in service execute() functions, this drain function
+    implements the routing logic inline.
+    """
+    from accounting_engine.rules import build_rule_based_entry
+    from services.shared.routing import should_post, first_stage, next_stage
+
     progressed = True
     while progressed:
         progressed = False
-        for queue_url, processor in processors.items():
-            while queue_map[queue_url]:
-                progressed = True
-                processor(queue_map[queue_url].pop(0))
+
+        # Normalizer
+        while queue_map[settings.SQS_QUEUE_NORMALIZER]:
+            progressed = True
+            msg = queue_map[settings.SQS_QUEUE_NORMALIZER].pop(0)
+            result = normalizer_svc.execute(msg)
+            nxt = first_stage(result)
+            if nxt == "precedent":
+                queue_map[settings.SQS_QUEUE_PRECEDENT].append(result)
+            elif nxt == "ml":
+                queue_map[settings.SQS_QUEUE_ML_INFERENCE].append(result)
+            elif nxt == "llm":
+                queue_map[settings.SQS_QUEUE_AGENT].append(result)
+
+        # Precedent
+        while queue_map[settings.SQS_QUEUE_PRECEDENT]:
+            progressed = True
+            msg = queue_map[settings.SQS_QUEUE_PRECEDENT].pop(0)
+            result = precedent_svc.execute(msg)
+            if should_post("precedent", result):
+                queue_map[settings.SQS_QUEUE_POSTING].append(result)
+            else:
+                nxt = next_stage("precedent", result)
+                if nxt == "ml":
+                    queue_map[settings.SQS_QUEUE_ML_INFERENCE].append(result)
+                elif nxt == "llm":
+                    queue_map[settings.SQS_QUEUE_AGENT].append(result)
+
+        # ML inference
+        while queue_map[settings.SQS_QUEUE_ML_INFERENCE]:
+            progressed = True
+            msg = queue_map[settings.SQS_QUEUE_ML_INFERENCE].pop(0)
+            result = ml_svc.execute(msg)
+            if should_post("ml", result):
+                queue_map[settings.SQS_QUEUE_POSTING].append(result)
+            else:
+                nxt = next_stage("ml", result)
+                if nxt == "llm":
+                    queue_map[settings.SQS_QUEUE_AGENT].append(result)
+
+        # Agent (use rule engine as proxy — LLM pipeline requires live Bedrock)
+        while queue_map[settings.SQS_QUEUE_AGENT]:
+            progressed = True
+            msg = queue_map[settings.SQS_QUEUE_AGENT].pop(0)
+            entry = build_rule_based_entry(msg, confidence=(msg.get("confidence") or {}).get("ml", 0.5), origin_tier=3)
+            result = {
+                **msg,
+                "proposed_entry": entry.proposed_entry,
+                "explanation": entry.explanation,
+            }
+            if not entry.requires_human_review:
+                result["confidence"] = {**msg.get("confidence", {}), "overall": (msg.get("confidence") or {}).get("ml", 0.5)}
+                result["clarification"] = {"required": False, "clarification_id": None, "reason": None, "status": None}
+                queue_map[settings.SQS_QUEUE_POSTING].append(result)
+            else:
+                result["clarification"] = {"required": True, "clarification_id": None, "reason": entry.clarification_reason, "status": None}
+                queue_map[settings.SQS_QUEUE_RESOLUTION].append(result)
+
+        # Posting
+        while queue_map[settings.SQS_QUEUE_POSTING]:
+            progressed = True
+            msg = queue_map[settings.SQS_QUEUE_POSTING].pop(0)
+            posting_svc.execute(msg)
+
+        # Resolution
+        while queue_map[settings.SQS_QUEUE_RESOLUTION]:
+            progressed = True
+            msg = queue_map[settings.SQS_QUEUE_RESOLUTION].pop(0)
+            resolution_svc.execute(msg)
 
 
 def test_local_smoke_flow_without_external_infra(monkeypatch) -> None:
     monkeypatch.setenv("AUTH_DEMO_MODE", "true")
     get_settings.cache_clear()
     fake_db = FakeDB()
+    settings = get_settings()
     queue_map: dict[str, list[dict]] = defaultdict(list)
-    events: list[dict] = []
     store = Store(
         users_by_sub={},
         users_by_email={},
@@ -417,62 +443,61 @@ def test_local_smoke_flow_without_external_infra(monkeypatch) -> None:
     je_insert, je_list, je_balances, je_summary = _make_journal_store(store)
     cl_insert, cl_list_pending, cl_resolve = _make_clarification_store(store)
 
-    def fake_enqueue(queue_url: str, payload: dict):
-        queue_map[queue_url].append(payload)
-        return "queued"
-
-    def fake_publish_sync(_channel: str, payload: dict):
-        events.append(payload)
-        return None
-
     async def fake_get_redis(_url: str) -> DummyRedis:
         return DummyRedis()
 
     def fake_db_dependency():
         yield fake_db
 
+    def noop_status_sync(**kw):
+        return None
+
+    def fake_normalization(**kwargs):
+        queue_map[settings.SQS_QUEUE_NORMALIZER].append(kwargs)
+        return "queued"
+
+    # API-level patches
     monkeypatch.setattr(api_main, "get_redis", fake_get_redis)
     monkeypatch.setattr(auth_deps, "UserDAO", fake_user_dao)
     monkeypatch.setattr(auth_deps.AuthSessionDAO, "record_token", staticmethod(lambda *args, **kwargs: None))
+    monkeypatch.setattr(parse_routes.sqs.enqueue, "normalization", fake_normalization)
+    monkeypatch.setattr(parse_routes, "set_status", AsyncMock())
+    monkeypatch.setattr(clarifications_routes.pub, "clarification_resolved", lambda **kw: None)
 
-    monkeypatch.setattr(parse_routes, "enqueue", fake_enqueue)
-    monkeypatch.setattr(normalizer_process, "enqueue", fake_enqueue)
-    monkeypatch.setattr(precedent_process, "enqueue", fake_enqueue)
-    monkeypatch.setattr(ml_process, "enqueue", fake_enqueue)
-    monkeypatch.setattr(agent_process, "enqueue", fake_enqueue)
-    monkeypatch.setattr(resolution_process, "enqueue", fake_enqueue)
-    monkeypatch.setattr(posting_process, "enqueue", fake_enqueue)
+    # Normalizer patches
+    monkeypatch.setattr(normalizer_svc, "SessionLocal", lambda: fake_db)
+    monkeypatch.setattr(normalizer_svc, "resolve_local_user", lambda _db, ext_id: _ensure_external_user(store, ext_id))
+    monkeypatch.setattr(transaction_persistence, "resolve_local_user", lambda _db, ext_id: _ensure_external_user(store, ext_id))
 
-    monkeypatch.setattr(agent_process, "publish_sync", fake_publish_sync)
-    monkeypatch.setattr(resolution_process, "publish_sync", fake_publish_sync)
-    monkeypatch.setattr(posting_process, "publish_sync", fake_publish_sync)
-    monkeypatch.setattr(clarifications_routes, "publish_sync", fake_publish_sync)
+    # Precedent patches
+    monkeypatch.setattr(precedent_svc, "_load_candidates", _make_precedent_loader(store))
 
-    monkeypatch.setattr(normalizer_process, "SessionLocal", lambda: fake_db)
-    monkeypatch.setattr(posting_process, "SessionLocal", lambda: fake_db)
-    monkeypatch.setattr(resolution_process, "SessionLocal", lambda: fake_db)
+    # Posting patches
+    monkeypatch.setattr(posting_svc, "SessionLocal", lambda: fake_db)
+    monkeypatch.setattr(posting_svc, "set_status_sync", noop_status_sync)
+    monkeypatch.setattr(posting_svc.pub, "entry_posted", lambda **kw: None)
+    monkeypatch.setattr(posting_svc.sqs.enqueue, "flywheel", lambda msg: None)
 
-    monkeypatch.setattr(normalizer_process, "resolve_local_user", lambda _db, external_user_id: _ensure_external_user(store, external_user_id))
-    monkeypatch.setattr(transaction_persistence, "resolve_local_user", lambda _db, external_user_id: _ensure_external_user(store, external_user_id))
+    # Resolution patches
+    monkeypatch.setattr(resolution_svc, "SessionLocal", lambda: fake_db)
+    monkeypatch.setattr(resolution_svc, "set_status_sync", noop_status_sync)
+    monkeypatch.setattr(resolution_svc.pub, "clarification_resolved", lambda **kw: None)
+    monkeypatch.setattr(resolution_svc.sqs.enqueue, "posting", lambda msg: queue_map[settings.SQS_QUEUE_POSTING].append(msg))
 
+    # DAO patches (shared across all services)
     monkeypatch.setattr(TransactionDAO, "insert", staticmethod(tx_insert))
     monkeypatch.setattr(TransactionDAO, "get_by_id", staticmethod(tx_get_by_id))
     monkeypatch.setattr(TransactionDAO, "update_normalized_fields", staticmethod(tx_update_normalized))
     monkeypatch.setattr(TransactionDAO, "update_ml_enrichment", staticmethod(tx_update_ml))
-
     monkeypatch.setattr(JournalEntryDAO, "insert_with_lines", staticmethod(je_insert))
     monkeypatch.setattr(JournalEntryDAO, "list_by_user", staticmethod(je_list))
     monkeypatch.setattr(JournalEntryDAO, "compute_balances", staticmethod(je_balances))
     monkeypatch.setattr(JournalEntryDAO, "compute_summary", staticmethod(je_summary))
-
     monkeypatch.setattr(ClarificationDAO, "insert", staticmethod(cl_insert))
     monkeypatch.setattr(ClarificationDAO, "list_pending", staticmethod(cl_list_pending))
     monkeypatch.setattr(ClarificationDAO, "resolve", staticmethod(cl_resolve))
 
-    monkeypatch.setattr(precedent_process, "_load_candidates", _make_precedent_loader(store))
-
     from db.dao.chart_of_accounts import ChartOfAccountsDAO
-
     monkeypatch.setattr(ChartOfAccountsDAO, "list_by_user", staticmethod(lambda _db, user_id: store.accounts[user_id]))
 
     api_main.app.dependency_overrides[auth_deps.get_db] = fake_db_dependency
@@ -486,14 +511,10 @@ def test_local_smoke_flow_without_external_infra(monkeypatch) -> None:
         first_parse = client.post(
             "/api/v1/parse",
             headers=manager_headers,
-            json={
-                "input_text": "Bought a laptop from Apple for $2400",
-                "source": "manual_text",
-                "currency": "CAD",
-            },
+            json={"input_text": "Bought a laptop from Apple for $2400", "source": "manual_text", "currency": "CAD"},
         )
         assert first_parse.status_code == 200
-        _drain(queue_map)
+        _drain(queue_map, settings)
 
         ledger_after_first = client.get("/api/v1/ledger", headers=manager_headers)
         assert ledger_after_first.status_code == 200
@@ -504,14 +525,10 @@ def test_local_smoke_flow_without_external_infra(monkeypatch) -> None:
         second_parse = client.post(
             "/api/v1/parse",
             headers=manager_headers,
-            json={
-                "input_text": "Bought a laptop from Apple for $2400",
-                "source": "manual_text",
-                "currency": "CAD",
-            },
+            json={"input_text": "Bought a laptop from Apple for $2400", "source": "manual_text", "currency": "CAD"},
         )
         assert second_parse.status_code == 200
-        _drain(queue_map)
+        _drain(queue_map, settings)
 
         ledger_after_second = client.get("/api/v1/ledger", headers=manager_headers)
         assert ledger_after_second.status_code == 200
@@ -522,14 +539,10 @@ def test_local_smoke_flow_without_external_infra(monkeypatch) -> None:
         ambiguous_parse = client.post(
             "/api/v1/parse",
             headers=manager_headers,
-            json={
-                "input_text": "Transferred $1500 to savings",
-                "source": "manual_text",
-                "currency": "CAD",
-            },
+            json={"input_text": "Transferred $1500 to savings", "source": "manual_text", "currency": "CAD"},
         )
         assert ambiguous_parse.status_code == 200
-        _drain(queue_map)
+        _drain(queue_map, settings)
 
         clarifications = client.get("/api/v1/clarifications", headers=manager_headers)
         assert clarifications.status_code == 200

@@ -23,7 +23,7 @@ def test_coa_get_by_code_found(db_session):
 
 def test_coa_get_by_code_not_found(db_session):
     user = _make_user(db_session)
-    result = ChartOfAccountsDAO.get_by_code(db_session, user.id, "9999")
+    result = ChartOfAccountsDAO.get_by_code(db_session, user.id, "ZZZZ")
     assert result is None
 
 

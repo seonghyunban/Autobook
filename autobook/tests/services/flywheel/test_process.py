@@ -1,7 +1,7 @@
 from __future__ import annotations
 
-from services.flywheel.process import process
+from services.flywheel.service import execute
 
 
 def test_process_runs():
-    process({"parse_id": "p1"})
+    execute({"parse_id": "p1"})

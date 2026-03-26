@@ -34,7 +34,7 @@ def _make_client(monkeypatch, tasks=None, resolve_result=None, role=UserRole.MAN
         monkeypatch.setattr(cl_routes.ClarificationDAO, "list_pending", staticmethod(lambda _db, _uid: tasks))
     if resolve_result is not None:
         monkeypatch.setattr(cl_routes.ClarificationDAO, "resolve", staticmethod(lambda _db, _tid, action, edited_entry=None: resolve_result))
-    monkeypatch.setattr(cl_routes, "publish_sync", lambda ch, p: None)
+    monkeypatch.setattr(cl_routes.pub, "clarification_resolved", lambda **kw: None)
 
     return TestClient(app)
 
@@ -138,7 +138,7 @@ def test_clarifications_resolve_forbidden(monkeypatch):
     auth = _fake_auth(role=UserRole.REGULAR)
     app.dependency_overrides[get_current_user] = lambda: auth
     app.dependency_overrides[get_db] = lambda: SimpleNamespace()
-    monkeypatch.setattr(cl_routes, "publish_sync", lambda ch, p: None)
+    monkeypatch.setattr(cl_routes.pub, "clarification_resolved", lambda **kw: None)
     client = TestClient(app)
 
     response = client.post(

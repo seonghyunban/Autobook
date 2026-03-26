@@ -5,6 +5,7 @@ import uuid
 from dataclasses import dataclass
 from datetime import timedelta
 from types import SimpleNamespace
+from unittest.mock import AsyncMock
 
 import pytest
 from fastapi.testclient import TestClient
@@ -69,12 +70,9 @@ def client(monkeypatch: pytest.MonkeyPatch) -> TestClient:
     def fake_db():
         yield SimpleNamespace(commit=lambda: None, rollback=lambda: None)
 
-    def fake_enqueue(_queue_url: str, payload: dict) -> str:
-        enqueued.append(payload)
+    def fake_normalization(**kwargs) -> str:
+        enqueued.append(kwargs)
         return "queued"
-
-    def fake_publish_sync(_channel: str, _payload: dict) -> None:
-        return None
 
     def fake_resolve(_db, _clarification_id, action: str, edited_entry=None):
         if action == "reject":
@@ -97,8 +95,9 @@ def client(monkeypatch: pytest.MonkeyPatch) -> TestClient:
 
     monkeypatch.setattr(api_main, "get_redis", fake_get_redis)
     monkeypatch.setattr(auth_deps.UserDAO, "get_or_create_from_cognito_claims", staticmethod(fake_user_lookup))
-    monkeypatch.setattr(parse_routes, "enqueue", fake_enqueue)
-    monkeypatch.setattr(clarifications_routes, "publish_sync", fake_publish_sync)
+    monkeypatch.setattr(parse_routes.sqs.enqueue, "normalization", fake_normalization)
+    monkeypatch.setattr(parse_routes, "set_status", AsyncMock())
+    monkeypatch.setattr(clarifications_routes.pub, "clarification_resolved", lambda **kw: None)
     monkeypatch.setattr(clarifications_routes.ClarificationDAO, "resolve", staticmethod(fake_resolve))
     api_main.app.dependency_overrides[auth_deps.get_db] = fake_db
     api_main.app.state._test_enqueued = enqueued

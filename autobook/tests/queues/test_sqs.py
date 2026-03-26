@@ -6,7 +6,7 @@ import boto3
 import pytest
 from moto import mock_aws
 
-from queues.sqs import dequeue
+from queues.sqs.client import send, receive
 
 
 @pytest.fixture
@@ -20,10 +20,9 @@ def sqs_queue():
 
 def test_sqs_enqueue(sqs_queue, monkeypatch):
     client, queue_url = sqs_queue
-    monkeypatch.setattr("queues.sqs.sqs", client)
+    monkeypatch.setattr("queues.sqs.client._client", client)
 
-    from queues.sqs import enqueue
-    msg_id = enqueue(queue_url, {"parse_id": "p1"})
+    msg_id = send(queue_url, {"parse_id": "p1"})
     assert msg_id is not None
 
     resp = client.receive_message(QueueUrl=queue_url, MaxNumberOfMessages=1)
@@ -33,17 +32,17 @@ def test_sqs_enqueue(sqs_queue, monkeypatch):
 
 def test_sqs_dequeue_empty(sqs_queue, monkeypatch):
     client, queue_url = sqs_queue
-    monkeypatch.setattr("queues.sqs.sqs", client)
+    monkeypatch.setattr("queues.sqs.client._client", client)
 
-    result = dequeue(queue_url, wait_seconds=0)
+    result = receive(queue_url, wait_seconds=0)
     assert result is None
 
 
 def test_sqs_dequeue_message(sqs_queue, monkeypatch):
     client, queue_url = sqs_queue
-    monkeypatch.setattr("queues.sqs.sqs", client)
+    monkeypatch.setattr("queues.sqs.client._client", client)
 
     client.send_message(QueueUrl=queue_url, MessageBody=json.dumps({"parse_id": "p2"}))
-    result = dequeue(queue_url, wait_seconds=0)
+    result = receive(queue_url, wait_seconds=0)
     assert result is not None
     assert result["parse_id"] == "p2"
