@@ -62,15 +62,27 @@ export async function parseTransaction(input: ParseRequest): Promise<ParseAccept
   });
 }
 
-export async function uploadTransactionFile(file: File): Promise<ParseAccepted> {
+export async function uploadTransactionFile(
+  file: File,
+  options?: Pick<ParseRequest, "stages" | "store" | "post_stages">,
+): Promise<ParseAccepted> {
   if (isMockApiEnabled()) {
-    return mockApi.uploadTransactionFile(file);
+    return mockApi.uploadTransactionFile(file, options);
   }
 
   const source = deriveUploadSource(file);
   const formData = new FormData();
   formData.append("file", file);
   formData.append("source", source);
+  if (options?.store !== undefined) {
+    formData.append("store", String(options.store));
+  }
+  for (const stage of options?.stages ?? []) {
+    formData.append("stages", stage);
+  }
+  for (const stage of options?.post_stages ?? []) {
+    formData.append("post_stages", stage);
+  }
 
   const token = getAccessToken();
   const response = await fetch(`${API_BASE_URL}/parse/upload`, {

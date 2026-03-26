@@ -31,6 +31,18 @@ def _json_safe_entry_payload(payload: dict) -> dict:
     return normalized
 
 
+def _resolve_posting_payload(task: ClarificationTask, edited_entry: dict | None) -> tuple[dict, list[dict]]:
+    if edited_entry is None:
+        return _normalize_entry_payload(task.proposed_entry)
+
+    edited_entry_payload, edited_line_payload = _normalize_entry_payload(edited_entry)
+    if task.proposed_entry is None:
+        return edited_entry_payload, edited_line_payload
+
+    base_entry_payload, _ = _normalize_entry_payload(task.proposed_entry)
+    return {**base_entry_payload, **edited_entry_payload}, edited_line_payload
+
+
 class ClarificationDAO:
     @staticmethod
     def insert(
@@ -93,8 +105,7 @@ class ClarificationDAO:
         if normalized_action not in {"approve", "post", "resolve"}:
             raise ValueError(f"unsupported clarification action {action!r}")
 
-        payload = edited_entry if edited_entry is not None else task.proposed_entry
-        entry_payload, line_payload = _normalize_entry_payload(payload)
+        entry_payload, line_payload = _resolve_posting_payload(task, edited_entry)
         entry_payload.setdefault("transaction_id", task.transaction_id)
         entry_payload.setdefault("status", "posted")
 

@@ -105,8 +105,8 @@ export type ClarificationsResponse = {
 export type ResolveClarificationRequest = {
   action: "approve" | "edit" | "reject";
   edited_entry?: {
+    journal_entry_id?: string | null;
     lines: JournalLine[];
-    explanation?: string;
   };
 };
 

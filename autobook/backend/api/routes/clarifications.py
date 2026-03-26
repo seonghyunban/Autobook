@@ -14,6 +14,7 @@ from db.connection import get_db
 from db.dao.clarifications import ClarificationDAO
 from db.models.clarification import ClarificationTask
 from queues.pubsub import pub
+publish_sync = pub.publish_sync
 from schemas.clarifications import (
     ClarificationItem,
     ClarificationsResponse,

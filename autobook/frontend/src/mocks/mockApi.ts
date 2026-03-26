@@ -280,7 +280,10 @@ export const mockApi = {
     };
   },
 
-  async uploadTransactionFile(file: File): Promise<ParseAccepted> {
+  async uploadTransactionFile(
+    file: File,
+    _options?: Pick<ParseRequest, "stages" | "store" | "post_stages">,
+  ): Promise<ParseAccepted> {
     await delay();
 
     const source = deriveUploadSource(file);

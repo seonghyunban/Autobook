@@ -22,6 +22,14 @@ def _now_iso() -> str:
     return datetime.now(timezone.utc).isoformat()
 
 
+def _normalize_confidence(confidence: dict | None) -> dict | None:
+    if confidence is None:
+        return None
+    payload = dict(confidence)
+    payload.setdefault("auto_post_threshold", get_settings().AUTO_POST_THRESHOLD)
+    return payload
+
+
 def _get_sync_redis() -> sync_redis.Redis:
     global _sync_client
     if _sync_client is None:
@@ -54,6 +62,9 @@ def _merge_status(current: dict[str, Any] | None, updates: dict[str, Any]) -> di
         if key == "proposed_entry":
             merged[key] = _normalize_proposed_entry(value)
             continue
+        if key == "confidence":
+            merged[key] = _normalize_confidence(value)
+            continue
         merged[key] = value
 
     merged.setdefault("occurred_at", _now_iso())
@@ -62,13 +73,18 @@ def _merge_status(current: dict[str, Any] | None, updates: dict[str, Any]) -> di
 
 
 def _load_sync(parse_id: str) -> dict[str, Any] | None:
-    raw = _get_sync_redis().get(_key(parse_id))
+    try:
+        raw = _get_sync_redis().get(_key(parse_id))
+    except Exception:
+        return None
     if raw is None:
         return None
     return json.loads(raw)
 
 
 async def load_status(redis: aioredis.Redis, parse_id: str) -> dict[str, Any] | None:
+    if not hasattr(redis, "get"):
+        return None
     raw = await redis.get(_key(parse_id))
     if raw is None:
         return None
@@ -106,7 +122,10 @@ def set_status_sync(
             "error": error,
         },
     )
-    _get_sync_redis().setex(_key(parse_id), STATUS_TTL_SECONDS, json.dumps(payload))
+    try:
+        _get_sync_redis().setex(_key(parse_id), STATUS_TTL_SECONDS, json.dumps(payload))
+    except Exception:
+        return payload
     return payload
 
 
@@ -142,5 +161,6 @@ async def set_status(
             "error": error,
         },
     )
-    await redis.set(_key(parse_id), json.dumps(payload), ex=STATUS_TTL_SECONDS)
+    if hasattr(redis, "set"):
+        await redis.set(_key(parse_id), json.dumps(payload), ex=STATUS_TTL_SECONDS)
     return payload

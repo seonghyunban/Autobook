@@ -10,6 +10,7 @@ __all__ = ["normalization", "precedent", "ml_inference", "agent", "resolution", 
 
 from config import get_settings
 from queues.sqs.client import send
+from schemas.parse import DEFAULT_POST_STAGES, DEFAULT_STAGES
 from schemas.queue_messages import (
     AgentTask,
     FlywheelTask,
@@ -44,9 +45,9 @@ def normalization(
         currency=currency,
         filename=filename,
         submitted_at=submitted_at,
-        stages=stages if stages is not None else ["precedent", "ml", "llm"],
+        stages=stages if stages is not None else list(DEFAULT_STAGES),
         store=store,
-        post_stages=post_stages if post_stages is not None else [],
+        post_stages=post_stages if post_stages is not None else list(DEFAULT_POST_STAGES),
     )
     return send(settings.SQS_QUEUE_NORMALIZER, msg.model_dump(exclude_none=True))
 

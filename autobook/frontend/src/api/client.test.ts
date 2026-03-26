@@ -62,7 +62,11 @@ describe("api client auth contract", () => {
       type: "text/csv",
     });
 
-    await client.uploadTransactionFile(file);
+    await client.uploadTransactionFile(file, {
+      stages: ["precedent", "ml", "llm"],
+      store: true,
+      post_stages: ["precedent", "ml"],
+    });
 
     expect(calls).toHaveLength(1);
     expect(calls[0].url).toBe("http://localhost:8000/api/v1/parse/upload");
@@ -70,7 +74,9 @@ describe("api client auth contract", () => {
     const formData = calls[0].init?.body as FormData;
     expect(formData.get("source")).toBe("csv_upload");
     expect(formData.get("file")).toBeInstanceOf(File);
-    expect(formData.get("user_id")).toBeNull();
+    expect(formData.get("store")).toBe("true");
+    expect(formData.getAll("stages")).toEqual(["precedent", "ml", "llm"]);
+    expect(formData.getAll("post_stages")).toEqual(["precedent", "ml"]);
   });
 
   test("sends manual text with the explicit manual_text source and auth header", async () => {

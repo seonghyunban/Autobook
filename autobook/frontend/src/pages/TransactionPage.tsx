@@ -38,9 +38,9 @@ export function TransactionPage() {
   const [lastUpdatedAt, setLastUpdatedAt] = useState<Date | null>(null);
   const isMockMode = import.meta.env.VITE_USE_MOCK_API !== "false";
 
-  const [store, setStore] = useState(false);
-  const [stages, setStages] = useState<Record<Branch, boolean>>({ precedent: false, ml: false, llm: false });
-  const [post, setPost] = useState<Record<Branch, boolean>>({ precedent: false, ml: false, llm: false });
+  const [store, setStore] = useState(true);
+  const [stages, setStages] = useState<Record<Branch, boolean>>({ precedent: true, ml: true, llm: true });
+  const [post, setPost] = useState<Record<Branch, boolean>>({ precedent: true, ml: true, llm: false });
   const [activeStage, setActiveStage] = useState<string | null>(null);
   const activeStageRef = useRef<string | null>(null);
   const [completedStages, setCompletedStages] = useState<Set<string>>(new Set());
@@ -157,6 +157,7 @@ export function TransactionPage() {
       processingIdRef.current = response.parse_id;
       setProcessingId(response.parse_id);
     } catch (submitError) {
+      setPipelineLocked(false);
       setError(
         submitError instanceof Error ? submitError.message : "Unable to parse transaction.",
       );
@@ -174,11 +175,18 @@ export function TransactionPage() {
       setIsLoading(true);
       setError(null);
       setResolvedEvent(null);
+      clearProgress();
+      setPipelineLocked(true);
       await waitForRealtimeConnection();
-      const response = await uploadTransactionFile(selectedFile);
+      const response = await uploadTransactionFile(selectedFile, {
+        stages: activeStages,
+        store: store,
+        post_stages: activePostStages,
+      });
       setProcessingId(response.parse_id);
       setUploadNotice(`Submitted ${selectedFile.name} for processing.`);
     } catch (submitError) {
+      setPipelineLocked(false);
       setError(
         submitError instanceof Error ? submitError.message : "Unable to process uploaded file.",
       );

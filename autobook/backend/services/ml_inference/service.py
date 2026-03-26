@@ -1,6 +1,7 @@
 import logging
 
 from config import get_settings
+from db.connection import SessionLocal
 from services.ml_inference.logic import (
     HybridInferenceService,
     build_inference_service,
@@ -22,6 +23,27 @@ __all__ = [
 ]
 
 
+def _persist_transaction_state(message: dict) -> dict:
+    if not message.get("store", True):
+        return message
+
+    from services.shared.transaction_persistence import ensure_transaction_for_message
+
+    db = SessionLocal()
+    try:
+        _, transaction = ensure_transaction_for_message(db, message)
+        db.commit()
+        return {
+            **message,
+            "transaction_id": str(transaction.id),
+        }
+    except Exception:
+        db.rollback()
+        raise
+    finally:
+        db.close()
+
+
 def execute(message: dict) -> dict:
     logger.info("Processing: %s", message.get("parse_id"))
     result = get_inference_service().enrich(message)
@@ -39,4 +61,4 @@ def execute(message: dict) -> dict:
                 "proposed_entry": entry.proposed_entry,
             }
 
-    return result
+    return _persist_transaction_state(result)

@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { getClarifications, resolveClarification } from "../api/clarifications";
 import { subscribeToRealtimeUpdates } from "../api/realtime";
-import type { ClarificationItem } from "../api/types";
+import type { ClarificationItem, JournalLine } from "../api/types";
 import { ClarificationList } from "../components/ClarificationList";
 import { FreshnessStatus } from "../components/FreshnessStatus";
 
@@ -14,6 +14,7 @@ export function ClarificationPage() {
   const [isResolving, setIsResolving] = useState(false);
   const [message, setMessage] = useState<{ tone: "success" | "warning"; text: string } | null>(null);
   const [lastUpdatedAt, setLastUpdatedAt] = useState<Date | null>(null);
+  const [draftLines, setDraftLines] = useState<JournalLine[]>([]);
 
   useEffect(() => {
     let isMounted = true;
@@ -32,6 +33,10 @@ export function ClarificationPage() {
       unsubscribe();
     };
   }, []);
+
+  useEffect(() => {
+    setDraftLines(selectedItem ? cloneLines(selectedItem.proposed_entry.lines) : []);
+  }, [selectedItem]);
 
   async function loadClarifications(isMounted = true) {
     if (!isMounted) {
@@ -67,13 +72,19 @@ export function ClarificationPage() {
 
     setIsResolving(true);
     const currentItem = selectedItem;
-    const response = await resolveClarification(selectedItem.clarification_id, { action });
+    const hasDraftChanges = linesHaveChanged(currentItem.proposed_entry.lines, draftLines);
+    const response = await resolveClarification(selectedItem.clarification_id, {
+      action: action === "approve" && hasDraftChanges ? "edit" : action,
+      edited_entry: action === "approve" && hasDraftChanges ? { lines: cloneLines(draftLines) } : undefined,
+    });
     await loadClarifications();
     setMessage({
       tone: response.status === "resolved" ? "success" : "warning",
       text:
         response.status === "resolved"
-          ? `Clarification for "${currentItem.source_text}" was approved and posted.`
+          ? hasDraftChanges
+            ? `Clarification for "${currentItem.source_text}" was updated and posted.`
+            : `Clarification for "${currentItem.source_text}" was approved and posted.`
           : `Clarification for "${currentItem.source_text}" was rejected and removed from the queue.`,
     });
     setIsResolving(false);
@@ -83,6 +94,51 @@ export function ClarificationPage() {
     setSelectedItem(item);
     setMessage(null);
   }
+
+  function updateDraftLine(
+    index: number,
+    field: keyof JournalLine,
+    value: string,
+  ) {
+    setDraftLines((currentLines) =>
+      currentLines.map((line, lineIndex) => {
+        if (lineIndex !== index) {
+          return line;
+        }
+
+        if (field === "amount") {
+          const nextAmount = Number.parseFloat(value);
+          return {
+            ...line,
+            amount: Number.isFinite(nextAmount) ? nextAmount : 0,
+          };
+        }
+
+        if (field === "type") {
+          return {
+            ...line,
+            type: value === "credit" ? "credit" : "debit",
+          };
+        }
+
+        return {
+          ...line,
+          [field]: value,
+        };
+      }),
+    );
+  }
+
+  function resetDraft() {
+    if (!selectedItem) {
+      return;
+    }
+    setDraftLines(cloneLines(selectedItem.proposed_entry.lines));
+  }
+
+  const hasDraftChanges = selectedItem
+    ? linesHaveChanged(selectedItem.proposed_entry.lines, draftLines)
+    : false;
 
   return (
     <div className="two-column-grid">
@@ -142,24 +198,60 @@ export function ClarificationPage() {
             <p className="review-title">{selectedItem.source_text}</p>
             <p className="body-copy">{selectedItem.explanation}</p>
             <div className="review-note">
-              Confirm whether the proposed debit side reflects the real business intent before approving.
+              Review the proposed journal lines, then edit any incorrect account mapping before posting to the ledger.
             </div>
 
             <div className="table-wrapper">
               <table className="data-table">
                 <thead>
                   <tr>
+                    <th>Code</th>
                     <th>Account</th>
                     <th>Type</th>
                     <th>Amount</th>
                   </tr>
                 </thead>
                 <tbody>
-                  {selectedItem.proposed_entry.lines.map((line) => (
-                    <tr key={`${selectedItem.clarification_id}-${line.account_code}-${line.type}`}>
-                      <td>{line.account_name}</td>
-                      <td className="type-cell">{line.type}</td>
-                      <td>${line.amount.toFixed(2)}</td>
+                  {draftLines.map((line, index) => (
+                    <tr key={`${selectedItem.clarification_id}-${index}`}>
+                      <td>
+                        <input
+                          aria-label={`Account code ${index + 1}`}
+                          className="text-input"
+                          value={line.account_code}
+                          onChange={(event) => updateDraftLine(index, "account_code", event.target.value)}
+                        />
+                      </td>
+                      <td>
+                        <input
+                          aria-label={`Account name ${index + 1}`}
+                          className="text-input"
+                          value={line.account_name}
+                          onChange={(event) => updateDraftLine(index, "account_name", event.target.value)}
+                        />
+                      </td>
+                      <td className="type-cell">
+                        <select
+                          aria-label={`Line type ${index + 1}`}
+                          className="text-input"
+                          value={line.type}
+                          onChange={(event) => updateDraftLine(index, "type", event.target.value)}
+                        >
+                          <option value="debit">debit</option>
+                          <option value="credit">credit</option>
+                        </select>
+                      </td>
+                      <td>
+                        <input
+                          aria-label={`Amount ${index + 1}`}
+                          className="text-input"
+                          min="0"
+                          step="0.01"
+                          type="number"
+                          value={line.amount}
+                          onChange={(event) => updateDraftLine(index, "amount", event.target.value)}
+                        />
+                      </td>
                     </tr>
                   ))}
                 </tbody>
@@ -172,7 +264,14 @@ export function ClarificationPage() {
                 onClick={() => void handleResolve("approve")}
                 disabled={isResolving}
               >
-                {isResolving ? "Saving..." : "Approve"}
+                {isResolving ? "Saving..." : hasDraftChanges ? "Save Changes & Post" : "Approve & Post"}
+              </button>
+              <button
+                className="secondary-button"
+                onClick={resetDraft}
+                disabled={isResolving || !hasDraftChanges}
+              >
+                Reset Draft
               </button>
               <button
                 className="secondary-button"
@@ -193,4 +292,12 @@ export function ClarificationPage() {
       </section>
     </div>
   );
+}
+
+function cloneLines(lines: JournalLine[]): JournalLine[] {
+  return lines.map((line) => ({ ...line }));
+}
+
+function linesHaveChanged(originalLines: JournalLine[], draftLines: JournalLine[]): boolean {
+  return JSON.stringify(originalLines) !== JSON.stringify(draftLines);
 }

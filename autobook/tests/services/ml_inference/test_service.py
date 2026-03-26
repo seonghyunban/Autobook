@@ -1,5 +1,9 @@
 from __future__ import annotations
 
+from types import SimpleNamespace
+
+import services.ml_inference.service as service_module
+import services.shared.transaction_persistence as transaction_persistence
 from services.ml_inference.schemas import EntityExtractionResult
 from services.ml_inference.service import (
     BaselineInferenceService,
@@ -177,3 +181,55 @@ def test_hybrid_service_prefers_normalizer_vendor_and_date_over_ner() -> None:
     assert result.asset_name == "laptop"
     assert result.entities["vendor"] == "Pilot Coffee Roasters"
     assert result.entities["mentioned_date"] == "2026-03-14"
+
+
+def test_execute_persists_enriched_transaction_state(monkeypatch) -> None:
+    commits: list[str] = []
+    persisted_messages: list[dict] = []
+
+    class FakeInferenceService:
+        def enrich(self, message: dict) -> dict:
+            return {
+                **message,
+                "amount": 2400.0,
+                "counterparty": "Apple",
+                "intent_label": "asset_purchase",
+                "entities": {"amount": 2400.0, "vendor": "Apple", "asset_name": "laptop"},
+                "bank_category": "equipment",
+                "cca_class_match": "class_50",
+                "confidence": {"ml": 0.82},
+            }
+
+    fake_db = SimpleNamespace(
+        commit=lambda: commits.append("commit"),
+        rollback=lambda: commits.append("rollback"),
+        close=lambda: commits.append("close"),
+    )
+
+    monkeypatch.setattr(service_module, "get_inference_service", lambda: FakeInferenceService())
+    monkeypatch.setattr(service_module, "SessionLocal", lambda: fake_db)
+    monkeypatch.setattr(
+        transaction_persistence,
+        "ensure_transaction_for_message",
+        lambda db, message: (
+            persisted_messages.append(message) or True,
+            SimpleNamespace(id="txn-persisted"),
+        ),
+    )
+
+    result = service_module.execute(
+        {
+            "parse_id": "parse-persist-1",
+            "transaction_id": "txn-original",
+            "input_text": "Bought a laptop from Apple for $2400",
+            "source": "manual_text",
+            "currency": "CAD",
+            "user_id": "user-1",
+            "store": True,
+        }
+    )
+
+    assert result["transaction_id"] == "txn-persisted"
+    assert persisted_messages[0]["intent_label"] == "asset_purchase"
+    assert persisted_messages[0]["counterparty"] == "Apple"
+    assert commits == ["commit", "close"]

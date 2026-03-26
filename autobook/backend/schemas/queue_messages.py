@@ -6,7 +6,9 @@ ConfigDict(extra="allow") lets accumulated fields from previous stages pass thro
 
 from __future__ import annotations
 
-from pydantic import BaseModel, ConfigDict
+from pydantic import BaseModel, ConfigDict, Field
+
+from schemas.parse import DEFAULT_POST_STAGES, DEFAULT_STAGES
 
 
 class NormalizationTask(BaseModel):
@@ -19,9 +21,9 @@ class NormalizationTask(BaseModel):
     currency: str | None = None
     filename: str | None = None
     submitted_at: str | None = None
-    stages: list[str] = ["precedent", "ml", "llm"]
+    stages: list[str] = Field(default_factory=lambda: list(DEFAULT_STAGES))
     store: bool = True
-    post_stages: list[str] = []
+    post_stages: list[str] = Field(default_factory=lambda: list(DEFAULT_POST_STAGES))
 
 
 class PrecedentTask(BaseModel):

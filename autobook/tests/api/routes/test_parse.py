@@ -11,6 +11,7 @@ from auth.schemas import UserRole
 
 def create_client() -> TestClient:
     app = FastAPI()
+    app.state.redis = SimpleNamespace()
     fake_auth_context = SimpleNamespace(
         user=SimpleNamespace(id="user-auth-1"),
         claims=SimpleNamespace(token_use="access"),
@@ -22,15 +23,19 @@ def create_client() -> TestClient:
     return TestClient(app)
 
 
-def test_parse_enqueues_manual_input_with_user_id(monkeypatch):
+def test_parse_enqueues_manual_input_with_default_pipeline_settings(monkeypatch):
     client = create_client()
-    captured: list[tuple[str, dict]] = []
+    captured: list[dict] = []
+
+    async def fake_set_status(*_args, **_kwargs):
+        return None
 
     monkeypatch.setattr(
-        parse_route,
-        "enqueue",
-        lambda queue_url, payload: captured.append((queue_url, payload)),
+        parse_route.sqs.enqueue,
+        "normalization",
+        lambda **payload: captured.append(payload),
     )
+    monkeypatch.setattr(parse_route, "set_status", fake_set_status)
 
     response = client.post(
         "/api/v1/parse",
@@ -43,42 +48,60 @@ def test_parse_enqueues_manual_input_with_user_id(monkeypatch):
 
     assert response.status_code == 200
     assert response.json()["status"] == "accepted"
-    assert captured[0][1]["user_id"] == "user-auth-1"
-    assert captured[0][1]["input_text"] == "Paid contractor 600"
+    assert captured[0]["user_id"] == "user-auth-1"
+    assert captured[0]["input_text"] == "Paid contractor 600"
+    assert captured[0]["stages"] == ["precedent", "ml", "llm"]
+    assert captured[0]["store"] is True
+    assert captured[0]["post_stages"] == ["precedent", "ml"]
 
 
-def test_parse_upload_enqueues_filename_user_id_and_explicit_source(monkeypatch):
+def test_parse_upload_enqueues_filename_user_id_and_pipeline_options(monkeypatch):
     client = create_client()
-    captured: list[tuple[str, dict]] = []
+    captured: list[dict] = []
+
+    async def fake_set_status(*_args, **_kwargs):
+        return None
 
     monkeypatch.setattr(
-        parse_route,
-        "enqueue",
-        lambda queue_url, payload: captured.append((queue_url, payload)),
+        parse_route.sqs.enqueue,
+        "normalization",
+        lambda **payload: captured.append(payload),
     )
+    monkeypatch.setattr(parse_route, "set_status", fake_set_status)
 
     response = client.post(
         "/api/v1/parse/upload",
-        data={"source": "csv_upload"},
+        data={
+            "source": "csv_upload",
+            "store": "true",
+            "stages": ["precedent", "ml", "llm"],
+            "post_stages": ["precedent", "ml"],
+        },
         files={"file": ("march-bank.csv", b"date,description,amount", "text/csv")},
     )
 
     assert response.status_code == 200
     assert response.json()["status"] == "accepted"
-    assert captured[0][1]["source"] == "csv_upload"
-    assert captured[0][1]["filename"] == "march-bank.csv"
-    assert captured[0][1]["user_id"] == "user-auth-1"
+    assert captured[0]["source"] == "csv_upload"
+    assert captured[0]["filename"] == "march-bank.csv"
+    assert captured[0]["user_id"] == "user-auth-1"
+    assert captured[0]["stages"] == ["precedent", "ml", "llm"]
+    assert captured[0]["post_stages"] == ["precedent", "ml"]
 
 
-def test_parse_upload_inferrs_pdf_source_when_metadata_missing(monkeypatch):
+def test_parse_upload_infers_pdf_source_when_metadata_missing(monkeypatch):
     client = create_client()
-    captured: list[tuple[str, dict]] = []
+    captured: list[dict] = []
+
+    async def fake_set_status(*_args, **_kwargs):
+        return None
 
     monkeypatch.setattr(
-        parse_route,
-        "enqueue",
-        lambda queue_url, payload: captured.append((queue_url, payload)),
+        parse_route.sqs.enqueue,
+        "normalization",
+        lambda **payload: captured.append(payload),
     )
+    monkeypatch.setattr(parse_route, "set_status", fake_set_status)
 
     response = client.post(
         "/api/v1/parse/upload",
@@ -87,5 +110,6 @@ def test_parse_upload_inferrs_pdf_source_when_metadata_missing(monkeypatch):
 
     assert response.status_code == 200
     assert response.json()["status"] == "accepted"
-    assert captured[0][1]["source"] == "pdf_upload"
-    assert captured[0][1]["filename"] == "invoice-demo.pdf"
+    assert captured[0]["source"] == "pdf_upload"
+    assert captured[0]["filename"] == "invoice-demo.pdf"
+    assert captured[0]["post_stages"] == ["precedent", "ml"]

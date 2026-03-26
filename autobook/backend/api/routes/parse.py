@@ -6,7 +6,7 @@ from fastapi import APIRouter, Depends, Form, HTTPException, Request, UploadFile
 
 from auth.deps import AuthContext, get_current_user
 from queues import sqs
-from schemas.parse import ParseAccepted, ParseRequest, ParseStatusResponse
+from schemas.parse import DEFAULT_POST_STAGES, DEFAULT_STAGES, ParseAccepted, ParseRequest, ParseStatusResponse
 from services.shared.parse_status import load_status, set_status
 
 logger = logging.getLogger(__name__)
@@ -65,8 +65,16 @@ async def parse_upload(
     file: UploadFile,
     request: Request,
     source: str | None = Form(default=None),
+    store: bool = Form(default=True),
+    stages: list[str] | None = Form(default=None),
+    post_stages: list[str] | None = Form(default=None),
     current_user: AuthContext = Depends(get_current_user),
 ):
+    if post_stages and not store:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="post_stages requires store to be true",
+        )
     parse_id = f"parse_{uuid.uuid4().hex[:12]}"
     contents = await file.read()
     logger.info("Received file %s (%d bytes), stub S3 upload", file.filename, len(contents))
@@ -77,6 +85,9 @@ async def parse_upload(
         filename=file.filename,
         user_id=str(current_user.user.id),
         submitted_at=datetime.now(timezone.utc).isoformat(),
+        stages=stages if stages is not None else list(DEFAULT_STAGES),
+        store=store,
+        post_stages=post_stages if post_stages is not None else list(DEFAULT_POST_STAGES),
     )
     await set_status(
         request.app.state.redis,

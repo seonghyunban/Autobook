@@ -1,13 +1,16 @@
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
+
+DEFAULT_STAGES = ["precedent", "ml", "llm"]
+DEFAULT_POST_STAGES = ["precedent", "ml"]
 
 
 class ParseRequest(BaseModel):
     input_text: str
     source: str = "manual_text"
     currency: str = "CAD"
-    stages: list[str] = ["precedent", "ml", "llm"]
+    stages: list[str] = Field(default_factory=lambda: list(DEFAULT_STAGES))
     store: bool = True
-    post_stages: list[str] = []
+    post_stages: list[str] = Field(default_factory=lambda: list(DEFAULT_POST_STAGES))
 
 
 class JournalLine(BaseModel):

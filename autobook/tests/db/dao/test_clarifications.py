@@ -114,6 +114,38 @@ def test_clarifications_resolve_flat_payload(db_session):
     assert je is not None
 
 
+def test_clarifications_resolve_merges_edited_lines_with_existing_entry_metadata(db_session):
+    user, tx = _setup(db_session)
+    task = ClarificationDAO.insert(
+        db_session, user_id=user.id, transaction_id=tx.id,
+        source_text="edited", explanation="review",
+        confidence=0.8,
+        proposed_entry={
+            "entry": {"date": "2026-03-23", "description": "Needs account correction"},
+            "lines": [
+                {"account_code": "9999", "account_name": "Unknown Destination", "type": "debit", "amount": 100},
+                {"account_code": "1000", "account_name": "Cash", "type": "credit", "amount": 100},
+            ],
+        },
+        verdict="needs_human_review",
+    )
+    resolved_task, je = ClarificationDAO.resolve(
+        db_session,
+        task.id,
+        "approve",
+        edited_entry={
+            "lines": [
+                {"account_code": "1100", "account_name": "Accounts Receivable", "type": "debit", "amount": 100},
+                {"account_code": "1000", "account_name": "Cash", "type": "credit", "amount": 100},
+            ],
+        },
+    )
+    assert resolved_task.status == "resolved"
+    assert je is not None
+    assert je.description == "Needs account correction"
+    assert resolved_task.proposed_entry["lines"][0]["account_code"] == "1100"
+
+
 def test_clarifications_count(db_session):
     user, tx = _setup(db_session)
     assert ClarificationDAO.count_pending(db_session, user.id) == 0
