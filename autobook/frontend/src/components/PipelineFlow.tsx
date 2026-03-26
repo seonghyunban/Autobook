@@ -61,7 +61,7 @@ const VARIANT_STYLES: Record<string, React.CSSProperties> = {
   enabled: { background: COLORS.olive, color: COLORS.corn, cursor: "pointer", boxShadow: "0 6px 14px rgba(40,54,24,0.22)" },
   off: { background: COLORS.corn, color: COLORS.forest, border: `1.5px solid ${COLORS.olive}`, cursor: "pointer" },
   disabled: { background: COLORS.forest, color: "rgba(254,250,224,0.4)", cursor: "not-allowed" },
-  processing: { background: "#DDA15E", color: COLORS.forest, cursor: "default", boxShadow: "0 0 0 3px rgba(221,161,94,0.4)", animation: "pulse-node 1.2s ease-in-out infinite" },
+  processing: { background: "#FCA311", color: COLORS.forest, cursor: "default", boxShadow: "0 0 0 3px rgba(252,163,17,0.4)", animation: "pulse-node 1.2s ease-in-out infinite" },
   completed: { background: "#BC6C25", color: "#ffffff", cursor: "default", boxShadow: "0 4px 10px rgba(188,108,37,0.3)" },
   skipped: { background: "#9E2A2B", color: "#ffffff", cursor: "default", boxShadow: "0 4px 10px rgba(158,42,43,0.3)" },
 };
