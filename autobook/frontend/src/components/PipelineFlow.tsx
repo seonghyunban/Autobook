@@ -22,6 +22,8 @@ export type PipelineState = {
 type PipelineFlowProps = {
   state: PipelineState;
   activeStage: string | null;
+  completedStages: Set<string>;
+  locked: boolean;
   onToggleStore: () => void;
   onToggleStage: (b: Branch) => void;
   onTogglePost: (b: Branch) => void;
@@ -31,7 +33,7 @@ type PipelineFlowProps = {
 
 type PipelineNodeData = {
   label: string;
-  variant: "static" | "enabled" | "off" | "disabled" | "processing";
+  variant: "static" | "enabled" | "off" | "disabled" | "processing" | "completed";
 };
 
 const COLORS = {
@@ -69,6 +71,12 @@ const VARIANT_STYLES: Record<string, React.CSSProperties> = {
     cursor: "default",
     boxShadow: "0 0 0 3px rgba(221,161,94,0.4)",
     animation: "pulse-node 1.2s ease-in-out infinite",
+  },
+  completed: {
+    background: "#DDA15E",
+    color: COLORS.forest,
+    cursor: "default",
+    boxShadow: "0 4px 10px rgba(221,161,94,0.25)",
   },
 };
 
@@ -129,22 +137,30 @@ const NODE_TO_STAGE: Record<string, string> = {
 };
 
 function buildNodes(state: PipelineState, h: PipelineFlowProps): Node<PipelineNodeData>[] {
-  const active = h.activeStage;
+  const { activeStage: active, completedStages: done, locked } = h;
+
+  const progressVariant = (stageName: string, baseVariant: PipelineNodeData["variant"]): PipelineNodeData["variant"] => {
+    if (active === stageName) return "processing";
+    if (done.has(stageName)) return "completed";
+    if (locked) return baseVariant;
+    return baseVariant;
+  };
 
   const stageVariant = (nodeId: string, isOn: boolean): PipelineNodeData["variant"] => {
-    if (active && NODE_TO_STAGE[nodeId] === active) return "processing";
-    return isOn ? "enabled" : "off";
+    const stageName = NODE_TO_STAGE[nodeId];
+    const base = isOn ? "enabled" : "off";
+    return progressVariant(stageName, base);
   };
 
   const postVariant = (b: Branch): PipelineNodeData["variant"] => {
     if (!state.stages[b] || !state.store) return "disabled";
-    if (active && NODE_TO_STAGE[`post-${b[0]}`] === active) return "processing";
-    return state.post[b] ? "enabled" : "off";
+    const base = state.post[b] ? "enabled" : "off";
+    return progressVariant(NODE_TO_STAGE[`post-${b[0]}`], base);
   };
 
   return [
     { id: "parse", type: "pipeline", position: { x: X.parse, y: Y.top }, draggable: false, data: { label: "Parse", variant: "static" } },
-    { id: "norm", type: "pipeline", position: { x: X.norm, y: Y.top }, draggable: false, data: { label: "Normalizer", variant: active === "normalizer" ? "processing" : "static" } },
+    { id: "norm", type: "pipeline", position: { x: X.norm, y: Y.top }, draggable: false, data: { label: "Normalizer", variant: progressVariant("normalizer", "static") } },
     { id: "store", type: "pipeline", position: { x: X.store, y: Y.top }, draggable: false, data: { label: "Store", variant: stageVariant("store", state.store) } },
     { id: "precedent", type: "pipeline", position: { x: STAGE_X.precedent, y: Y.p }, draggable: false, data: { label: "Precedent", variant: stageVariant("precedent", state.stages.precedent) } },
     { id: "ml", type: "pipeline", position: { x: STAGE_X.ml, y: Y.m }, draggable: false, data: { label: "ML", variant: stageVariant("ml", state.stages.ml) } },
@@ -224,6 +240,7 @@ function PipelineFlowInner(props: PipelineFlowProps) {
   }, [fitView]);
 
   const handleNodeClick = (_: React.MouseEvent, node: Node) => {
+    if (props.locked) return;
     switch (node.id) {
       case "store":
         props.onToggleStore();

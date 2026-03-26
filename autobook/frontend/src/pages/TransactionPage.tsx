@@ -40,12 +40,20 @@ export function TransactionPage() {
   const [stages, setStages] = useState<Record<Branch, boolean>>({ precedent: false, ml: false, llm: false });
   const [post, setPost] = useState<Record<Branch, boolean>>({ precedent: false, ml: false, llm: false });
   const [activeStage, setActiveStage] = useState<string | null>(null);
+  const [completedStages, setCompletedStages] = useState<Set<string>>(new Set());
+  const [pipelineLocked, setPipelineLocked] = useState(false);
+
+  function clearProgress() {
+    setActiveStage(null);
+    setCompletedStages(new Set());
+  }
 
   function isPostDisabled(branch: Branch): boolean {
     return !stages[branch] || !store;
   }
 
   function toggleStore() {
+    clearProgress();
     setStore((prev) => {
       if (prev) setPost({ precedent: false, ml: false, llm: false });
       return !prev;
@@ -53,6 +61,7 @@ export function TransactionPage() {
   }
 
   function toggleStage(branch: Branch) {
+    clearProgress();
     setStages((prev) => {
       if (prev[branch]) setPost((p) => ({ ...p, [branch]: false }));
       return { ...prev, [branch]: !prev[branch] };
@@ -61,6 +70,7 @@ export function TransactionPage() {
 
   function togglePost(branch: Branch) {
     if (isPostDisabled(branch)) return;
+    clearProgress();
     setPost((prev) => ({ ...prev, [branch]: !prev[branch] }));
   }
 
@@ -117,6 +127,8 @@ export function TransactionPage() {
       setError(null);
       setUploadNotice(null);
       setResolvedEvent(null);
+      clearProgress();
+      setPipelineLocked(true);
       await waitForRealtimeConnection();
       const response = await parseTransaction({
         input_text: input,
@@ -165,18 +177,29 @@ export function TransactionPage() {
         return;
       }
       if (event.type === "pipeline.stage_started") {
-        setActiveStage(event.stage ?? null);
+        setActiveStage((prev) => {
+          if (prev) setCompletedStages((s) => new Set(s).add(prev));
+          return event.stage ?? null;
+        });
         return;
       }
       if (event.type === "pipeline.result") {
-        setActiveStage(null);
+        setActiveStage((prev) => {
+          if (prev) setCompletedStages((s) => new Set(s).add(prev));
+          return null;
+        });
+        setPipelineLocked(false);
         setPipelineResult(event.result ?? {});
         setProcessingId(null);
         setLastUpdatedAt(new Date());
         return;
       }
       if (event.type === "pipeline.error") {
-        setActiveStage(null);
+        setActiveStage((prev) => {
+          if (prev) setCompletedStages((s) => new Set(s).add(prev));
+          return null;
+        });
+        setPipelineLocked(false);
         setError(`[${event.stage}] ${event.error}`);
         setProcessingId(null);
         return;
@@ -186,7 +209,11 @@ export function TransactionPage() {
         event.type === "clarification.created" ||
         event.type === "clarification.resolved"
       ) {
-        setActiveStage(null);
+        setActiveStage((prev) => {
+          if (prev) setCompletedStages((s) => new Set(s).add(prev));
+          return null;
+        });
+        setPipelineLocked(false);
         setResolvedEvent(event);
         setProcessingId(null);
         setLastUpdatedAt(new Date());
@@ -305,6 +332,8 @@ export function TransactionPage() {
         <PipelineFlow
           state={{ store, stages, post }}
           activeStage={activeStage}
+          completedStages={completedStages}
+          locked={pipelineLocked}
           onToggleStore={toggleStore}
           onToggleStage={toggleStage}
           onTogglePost={togglePost}
