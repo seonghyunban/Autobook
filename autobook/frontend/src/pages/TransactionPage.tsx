@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { getParseStatus, parseTransaction, uploadTransactionFile } from "../api/parse";
 import { subscribeToRealtimeUpdates, waitForRealtimeConnection } from "../api/realtime";
@@ -28,6 +28,8 @@ export function TransactionPage() {
   const [input, setInput] = useState("Bought a laptop for $2400");
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [processingId, setProcessingId] = useState<string | null>(null);
+  const processingIdRef = useRef<string | null>(null);
+  const eventBufferRef = useRef<RealtimeEvent[]>([]);
   const [resolvedEvent, setResolvedEvent] = useState<RealtimeEvent | null>(null);
   const [pipelineResult, setPipelineResult] = useState<Record<string, unknown> | null>(null);
   const [isLoading, setIsLoading] = useState(false);
@@ -40,10 +42,21 @@ export function TransactionPage() {
   const [stages, setStages] = useState<Record<Branch, boolean>>({ precedent: false, ml: false, llm: false });
   const [post, setPost] = useState<Record<Branch, boolean>>({ precedent: false, ml: false, llm: false });
   const [activeStage, setActiveStage] = useState<string | null>(null);
+  const activeStageRef = useRef<string | null>(null);
   const [completedStages, setCompletedStages] = useState<Set<string>>(new Set());
   const [pipelineLocked, setPipelineLocked] = useState(false);
 
+  function advanceStage(next: string | null) {
+    const prev = activeStageRef.current;
+    if (prev) {
+      setCompletedStages((s) => new Set(s).add(prev));
+    }
+    activeStageRef.current = next;
+    setActiveStage(next);
+  }
+
   function clearProgress() {
+    activeStageRef.current = null;
     setActiveStage(null);
     setCompletedStages(new Set());
   }
@@ -129,6 +142,7 @@ export function TransactionPage() {
       setResolvedEvent(null);
       clearProgress();
       setPipelineLocked(true);
+      eventBufferRef.current = [];
       await waitForRealtimeConnection();
       const response = await parseTransaction({
         input_text: input,
@@ -138,6 +152,7 @@ export function TransactionPage() {
         store: store,
         post_stages: activePostStages,
       });
+      processingIdRef.current = response.parse_id;
       setProcessingId(response.parse_id);
     } catch (submitError) {
       setError(
@@ -170,57 +185,66 @@ export function TransactionPage() {
     }
   }
 
+  // Keep ref in sync with state, replay buffered events when ref is set
   useEffect(() => {
-    if (!processingId) return;
+    processingIdRef.current = processingId;
+    if (processingId && eventBufferRef.current.length > 0) {
+      const matching = eventBufferRef.current.filter((e) => e.parse_id === processingId);
+      eventBufferRef.current = [];
+      for (const e of matching) {
+        handleSSEEvent(e);
+      }
+    }
+  }, [processingId]);
+
+  function handleSSEEvent(event: RealtimeEvent) {
+    if (event.type === "pipeline.stage_started") {
+      advanceStage(event.stage ?? null);
+      return;
+    }
+    if (event.type === "pipeline.result") {
+      advanceStage(null);
+      setPipelineLocked(false);
+      setPipelineResult(event.result ?? {});
+      setProcessingId(null);
+      setLastUpdatedAt(new Date());
+      return;
+    }
+    if (event.type === "pipeline.error") {
+      advanceStage(null);
+      setPipelineLocked(false);
+      setError(`[${event.stage}] ${event.error}`);
+      setProcessingId(null);
+      return;
+    }
+    if (
+      event.type === "entry.posted" ||
+      event.type === "clarification.created" ||
+      event.type === "clarification.resolved"
+    ) {
+      advanceStage(null);
+      setPipelineLocked(false);
+      setResolvedEvent(event);
+      setProcessingId(null);
+      setLastUpdatedAt(new Date());
+    }
+  }
+
+  // Subscribe once on mount — buffer events if ref not set yet
+  useEffect(() => {
     const unsub = subscribeToRealtimeUpdates((event) => {
-      if (event.parse_id !== processingId) {
+      if (!processingIdRef.current) {
+        // Ref not set yet — buffer the event for replay
+        eventBufferRef.current.push(event);
         return;
       }
-      if (event.type === "pipeline.stage_started") {
-        setActiveStage((prev) => {
-          if (prev) setCompletedStages((s) => new Set(s).add(prev));
-          return event.stage ?? null;
-        });
+      if (event.parse_id !== processingIdRef.current) {
         return;
       }
-      if (event.type === "pipeline.result") {
-        setActiveStage((prev) => {
-          if (prev) setCompletedStages((s) => new Set(s).add(prev));
-          return null;
-        });
-        setPipelineLocked(false);
-        setPipelineResult(event.result ?? {});
-        setProcessingId(null);
-        setLastUpdatedAt(new Date());
-        return;
-      }
-      if (event.type === "pipeline.error") {
-        setActiveStage((prev) => {
-          if (prev) setCompletedStages((s) => new Set(s).add(prev));
-          return null;
-        });
-        setPipelineLocked(false);
-        setError(`[${event.stage}] ${event.error}`);
-        setProcessingId(null);
-        return;
-      }
-      if (
-        event.type === "entry.posted" ||
-        event.type === "clarification.created" ||
-        event.type === "clarification.resolved"
-      ) {
-        setActiveStage((prev) => {
-          if (prev) setCompletedStages((s) => new Set(s).add(prev));
-          return null;
-        });
-        setPipelineLocked(false);
-        setResolvedEvent(event);
-        setProcessingId(null);
-        setLastUpdatedAt(new Date());
-      }
+      handleSSEEvent(event);
     });
     return unsub;
-  }, [processingId]);
+  }, []);
 
   useEffect(() => {
     if (!processingId || isMockMode) {

@@ -1,4 +1,4 @@
-import { useEffect, useRef } from "react";
+import { createContext, useCallback, useContext, useEffect, useRef } from "react";
 import {
   ReactFlow,
   ReactFlowProvider,
@@ -29,12 +29,23 @@ type PipelineFlowProps = {
   onTogglePost: (b: Branch) => void;
 };
 
-// --- Custom node ---
+// --- Context: nodes read variant from here, bypassing React Flow's memo ---
 
-type PipelineNodeData = {
-  label: string;
-  variant: "static" | "enabled" | "off" | "disabled" | "processing" | "completed";
+type PipelineCtx = {
+  state: PipelineState;
+  activeStage: string | null;
+  completedStages: Set<string>;
+  locked: boolean;
 };
+
+const PipelineContext = createContext<PipelineCtx>({
+  state: { store: false, stages: { precedent: false, ml: false, llm: false }, post: { precedent: false, ml: false, llm: false } },
+  activeStage: null,
+  completedStages: new Set(),
+  locked: false,
+});
+
+// --- Variant resolution ---
 
 const COLORS = {
   olive: "#606C38",
@@ -43,44 +54,54 @@ const COLORS = {
 };
 
 const VARIANT_STYLES: Record<string, React.CSSProperties> = {
-  static: {
-    background: COLORS.olive,
-    color: COLORS.corn,
-    cursor: "default",
-  },
-  enabled: {
-    background: COLORS.olive,
-    color: COLORS.corn,
-    cursor: "pointer",
-    boxShadow: "0 6px 14px rgba(40,54,24,0.22)",
-  },
-  off: {
-    background: COLORS.corn,
-    color: COLORS.forest,
-    border: `1.5px solid ${COLORS.olive}`,
-    cursor: "pointer",
-  },
-  disabled: {
-    background: COLORS.forest,
-    color: "rgba(254,250,224,0.4)",
-    cursor: "not-allowed",
-  },
-  processing: {
-    background: "#DDA15E",
-    color: COLORS.forest,
-    cursor: "default",
-    boxShadow: "0 0 0 3px rgba(221,161,94,0.4)",
-    animation: "pulse-node 1.2s ease-in-out infinite",
-  },
-  completed: {
-    background: "#DDA15E",
-    color: COLORS.forest,
-    cursor: "default",
-    boxShadow: "0 4px 10px rgba(221,161,94,0.25)",
-  },
+  static: { background: COLORS.olive, color: COLORS.corn, cursor: "default" },
+  enabled: { background: COLORS.olive, color: COLORS.corn, cursor: "pointer", boxShadow: "0 6px 14px rgba(40,54,24,0.22)" },
+  off: { background: COLORS.corn, color: COLORS.forest, border: `1.5px solid ${COLORS.olive}`, cursor: "pointer" },
+  disabled: { background: COLORS.forest, color: "rgba(254,250,224,0.4)", cursor: "not-allowed" },
+  processing: { background: "#DDA15E", color: COLORS.forest, cursor: "default", boxShadow: "0 0 0 3px rgba(221,161,94,0.4)", animation: "pulse-node 1.2s ease-in-out infinite" },
+  completed: { background: "#BC6C25", color: "#ffffff", cursor: "default", boxShadow: "0 4px 10px rgba(188,108,37,0.3)" },
 };
 
+const NODE_TO_STAGE: Record<string, string> = {
+  norm: "normalizer",
+  store: "store",
+  precedent: "precedent",
+  ml: "ml",
+  llm: "llm",
+  "post-p": "post-precedent",
+  "post-m": "post-ml",
+  "post-l": "post-llm",
+};
+
+function resolveVariant(nodeId: string, ctx: PipelineCtx): string {
+  const stageName = NODE_TO_STAGE[nodeId];
+  const { state, activeStage, completedStages } = ctx;
+
+  // Progress states take priority
+  if (activeStage === stageName) return "processing";
+  if (completedStages.has(stageName)) return "completed";
+
+  // Base variant per node type
+  if (nodeId === "parse") return "static";
+  if (nodeId === "norm") return "static";
+  if (nodeId === "store") return state.store ? "enabled" : "off";
+  if (nodeId === "post-p") return (!state.stages.precedent || !state.store) ? "disabled" : state.post.precedent ? "enabled" : "off";
+  if (nodeId === "post-m") return (!state.stages.ml || !state.store) ? "disabled" : state.post.ml ? "enabled" : "off";
+  if (nodeId === "post-l") return (!state.stages.llm || !state.store) ? "disabled" : state.post.llm ? "enabled" : "off";
+  if (nodeId === "precedent") return state.stages.precedent ? "enabled" : "off";
+  if (nodeId === "ml") return state.stages.ml ? "enabled" : "off";
+  if (nodeId === "llm") return state.stages.llm ? "enabled" : "off";
+  return "off";
+}
+
+// --- Custom node: reads variant from context ---
+
+type PipelineNodeData = { label: string; nodeId: string };
+
 function PipelineNode({ data }: NodeProps<Node<PipelineNodeData>>) {
+  const ctx = useContext(PipelineContext);
+  const variant = resolveVariant(data.nodeId, ctx);
+
   return (
     <div
       style={{
@@ -91,8 +112,8 @@ function PipelineNode({ data }: NodeProps<Node<PipelineNodeData>>) {
         textAlign: "center",
         minWidth: 100,
         userSelect: "none",
-        transition: "all 180ms ease",
-        ...VARIANT_STYLES[data.variant],
+        transition: "background 180ms ease, box-shadow 180ms ease",
+        ...VARIANT_STYLES[variant],
       }}
     >
       <Handle type="target" position={Position.Left} style={{ opacity: 0 }} />
@@ -106,78 +127,35 @@ function PipelineNode({ data }: NodeProps<Node<PipelineNodeData>>) {
 
 const nodeTypes = { pipeline: PipelineNode };
 
-// --- Layout: equal x-axis step between each stage ---
+// --- Layout ---
 
 const STEP = 160;
-const X = {
-  parse: 0,
-  norm: STEP,
-  store: STEP * 2.2,
-};
-const STAGE_X = {
-  precedent: STEP * 2,
-  ml: STEP * 3,
-  llm: STEP * 4,
-};
+const X = { parse: 0, norm: STEP, store: STEP * 2.2 };
+const STAGE_X = { precedent: STEP * 2, ml: STEP * 3, llm: STEP * 4 };
 const POST_OFFSET = STEP * 1.2;
 const Y = { top: 0, p: 120, m: 240, l: 360 };
 
-// --- Build nodes from state ---
+// --- Static nodes (positions + labels only, no variant) ---
 
-// Map node IDs to stage names used by backend events
-const NODE_TO_STAGE: Record<string, string> = {
-  norm: "normalizer",
-  store: "normalizer",
-  precedent: "precedent",
-  ml: "ml",
-  llm: "llm",
-  "post-p": "precedent",
-  "post-m": "ml",
-  "post-l": "llm",
-};
+const STATIC_NODES: Node<PipelineNodeData>[] = [
+  { id: "parse", type: "pipeline", position: { x: X.parse, y: Y.top }, draggable: false, data: { label: "Parse", nodeId: "parse" } },
+  { id: "norm", type: "pipeline", position: { x: X.norm, y: Y.top }, draggable: false, data: { label: "Normalizer", nodeId: "norm" } },
+  { id: "store", type: "pipeline", position: { x: X.store, y: Y.top }, draggable: false, data: { label: "Store", nodeId: "store" } },
+  { id: "precedent", type: "pipeline", position: { x: STAGE_X.precedent, y: Y.p }, draggable: false, data: { label: "Precedent", nodeId: "precedent" } },
+  { id: "ml", type: "pipeline", position: { x: STAGE_X.ml, y: Y.m }, draggable: false, data: { label: "ML", nodeId: "ml" } },
+  { id: "llm", type: "pipeline", position: { x: STAGE_X.llm, y: Y.l }, draggable: false, data: { label: "LLM", nodeId: "llm" } },
+  { id: "post-p", type: "pipeline", position: { x: STAGE_X.precedent + POST_OFFSET, y: Y.p }, draggable: false, data: { label: "Post", nodeId: "post-p" } },
+  { id: "post-m", type: "pipeline", position: { x: STAGE_X.ml + POST_OFFSET, y: Y.m }, draggable: false, data: { label: "Post", nodeId: "post-m" } },
+  { id: "post-l", type: "pipeline", position: { x: STAGE_X.llm + POST_OFFSET, y: Y.l }, draggable: false, data: { label: "Post", nodeId: "post-l" } },
+];
 
-function buildNodes(state: PipelineState, h: PipelineFlowProps): Node<PipelineNodeData>[] {
-  const { activeStage: active, completedStages: done, locked } = h;
-
-  const progressVariant = (stageName: string, baseVariant: PipelineNodeData["variant"]): PipelineNodeData["variant"] => {
-    if (active === stageName) return "processing";
-    if (done.has(stageName)) return "completed";
-    if (locked) return baseVariant;
-    return baseVariant;
-  };
-
-  const stageVariant = (nodeId: string, isOn: boolean): PipelineNodeData["variant"] => {
-    const stageName = NODE_TO_STAGE[nodeId];
-    const base = isOn ? "enabled" : "off";
-    return progressVariant(stageName, base);
-  };
-
-  const postVariant = (b: Branch): PipelineNodeData["variant"] => {
-    if (!state.stages[b] || !state.store) return "disabled";
-    const base = state.post[b] ? "enabled" : "off";
-    return progressVariant(NODE_TO_STAGE[`post-${b[0]}`], base);
-  };
-
-  return [
-    { id: "parse", type: "pipeline", position: { x: X.parse, y: Y.top }, draggable: false, data: { label: "Parse", variant: "static" } },
-    { id: "norm", type: "pipeline", position: { x: X.norm, y: Y.top }, draggable: false, data: { label: "Normalizer", variant: progressVariant("normalizer", "static") } },
-    { id: "store", type: "pipeline", position: { x: X.store, y: Y.top }, draggable: false, data: { label: "Store", variant: stageVariant("store", state.store) } },
-    { id: "precedent", type: "pipeline", position: { x: STAGE_X.precedent, y: Y.p }, draggable: false, data: { label: "Precedent", variant: stageVariant("precedent", state.stages.precedent) } },
-    { id: "ml", type: "pipeline", position: { x: STAGE_X.ml, y: Y.m }, draggable: false, data: { label: "ML", variant: stageVariant("ml", state.stages.ml) } },
-    { id: "llm", type: "pipeline", position: { x: STAGE_X.llm, y: Y.l }, draggable: false, data: { label: "LLM", variant: stageVariant("llm", state.stages.llm) } },
-    { id: "post-p", type: "pipeline", position: { x: STAGE_X.precedent + POST_OFFSET, y: Y.p }, draggable: false, data: { label: "Post", variant: postVariant("precedent") } },
-    { id: "post-m", type: "pipeline", position: { x: STAGE_X.ml + POST_OFFSET, y: Y.m }, draggable: false, data: { label: "Post", variant: postVariant("ml") } },
-    { id: "post-l", type: "pipeline", position: { x: STAGE_X.llm + POST_OFFSET, y: Y.l }, draggable: false, data: { label: "Post", variant: postVariant("llm") } },
-  ];
-}
-
-// --- Dynamic edges: only show active flow path ---
+// --- Dynamic edges ---
 
 const EDGE_COLOR = "#9CA3AF";
 const ARROW = { type: "arrowclosed" as const, color: EDGE_COLOR };
 const EDGE_STYLE = { stroke: EDGE_COLOR, strokeWidth: 2 };
 
-function edge(id: string, source: string, target: string, vertical = false): Edge {
+function mkEdge(id: string, source: string, target: string, vertical = false): Edge {
   return {
     id,
     source,
@@ -195,36 +173,30 @@ function buildEdges(state: PipelineState): Edge[] {
   const { precedent: p, ml: m, llm: l } = stages;
   const edges: Edge[] = [];
 
-  // Parse → Normalizer: always
-  edges.push(edge("e-parse-norm", "parse", "norm"));
+  edges.push(mkEdge("e-parse-norm", "parse", "norm"));
+  if (store) edges.push(mkEdge("e-norm-store", "norm", "store"));
 
-  // Normalizer → Store: only when store is on
-  if (store) edges.push(edge("e-norm-store", "norm", "store"));
+  if (p) edges.push(mkEdge("e-norm-p", "norm", "precedent", true));
+  else if (m) edges.push(mkEdge("e-norm-m", "norm", "ml", true));
+  else if (l) edges.push(mkEdge("e-norm-l", "norm", "llm", true));
 
-  // Normalizer → first enabled stage
-  if (p) edges.push(edge("e-norm-p", "norm", "precedent", true));
-  else if (m) edges.push(edge("e-norm-m", "norm", "ml", true));
-  else if (l) edges.push(edge("e-norm-l", "norm", "llm", true));
-
-  // Precedent → next enabled stage (only if precedent is on)
   if (p) {
-    if (m) edges.push(edge("e-p-m", "precedent", "ml", true));
-    else if (l) edges.push(edge("e-p-l", "precedent", "llm", true));
+    if (m) edges.push(mkEdge("e-p-m", "precedent", "ml", true));
+    else if (l) edges.push(mkEdge("e-p-l", "precedent", "llm", true));
   }
 
-  // ML → LLM (only if both are on)
-  if (m && l) edges.push(edge("e-m-l", "ml", "llm", true));
+  if (m && l) edges.push(mkEdge("e-m-l", "ml", "llm", true));
 
-  // Stage → Post: only when both stage and its post are on
-  if (p && post.precedent) edges.push(edge("e-p-post", "precedent", "post-p"));
-  if (m && post.ml) edges.push(edge("e-m-post", "ml", "post-m"));
-  if (l && post.llm) edges.push(edge("e-l-post", "llm", "post-l"));
+  if (p && post.precedent) edges.push(mkEdge("e-p-post", "precedent", "post-p"));
+  if (m && post.ml) edges.push(mkEdge("e-m-post", "ml", "post-m"));
+  if (l && post.llm) edges.push(mkEdge("e-l-post", "llm", "post-l"));
 
   return edges;
 }
 
+// --- Inner component ---
+
 function PipelineFlowInner(props: PipelineFlowProps) {
-  const nodes = buildNodes(props.state, props);
   const edges = buildEdges(props.state);
   const { fitView } = useReactFlow();
   const containerRef = useRef<HTMLDivElement>(null);
@@ -239,53 +211,46 @@ function PipelineFlowInner(props: PipelineFlowProps) {
     return () => observer.disconnect();
   }, [fitView]);
 
-  const handleNodeClick = (_: React.MouseEvent, node: Node) => {
+  const handleNodeClick = useCallback((_: React.MouseEvent, node: Node) => {
     if (props.locked) return;
     switch (node.id) {
-      case "store":
-        props.onToggleStore();
-        break;
-      case "precedent":
-        props.onToggleStage("precedent");
-        break;
-      case "ml":
-        props.onToggleStage("ml");
-        break;
-      case "llm":
-        props.onToggleStage("llm");
-        break;
-      case "post-p":
-        props.onTogglePost("precedent");
-        break;
-      case "post-m":
-        props.onTogglePost("ml");
-        break;
-      case "post-l":
-        props.onTogglePost("llm");
-        break;
+      case "store": props.onToggleStore(); break;
+      case "precedent": props.onToggleStage("precedent"); break;
+      case "ml": props.onToggleStage("ml"); break;
+      case "llm": props.onToggleStage("llm"); break;
+      case "post-p": props.onTogglePost("precedent"); break;
+      case "post-m": props.onTogglePost("ml"); break;
+      case "post-l": props.onTogglePost("llm"); break;
     }
-  };
+  }, [props.locked, props.onToggleStore, props.onToggleStage, props.onTogglePost]);
 
   return (
-    <div ref={containerRef} style={{ width: "100%", height: "clamp(300px, 40vw, 520px)" }}>
-      <ReactFlow
-        nodes={nodes}
-        edges={edges}
-        nodeTypes={nodeTypes}
-        onNodeClick={handleNodeClick}
-        fitView
-        fitViewOptions={{ padding: 0.15 }}
-        proOptions={{ hideAttribution: true }}
-        panOnDrag={false}
-        zoomOnScroll={false}
-        zoomOnPinch={false}
-        zoomOnDoubleClick={false}
-        preventScrolling={false}
-        nodesDraggable={false}
-        nodesConnectable={false}
-        elementsSelectable={false}
-      />
-    </div>
+    <PipelineContext.Provider value={{
+      state: props.state,
+      activeStage: props.activeStage,
+      completedStages: props.completedStages,
+      locked: props.locked,
+    }}>
+      <div ref={containerRef} style={{ width: "100%", height: "clamp(300px, 40vw, 520px)" }}>
+        <ReactFlow
+          nodes={STATIC_NODES}
+          edges={edges}
+          nodeTypes={nodeTypes}
+          onNodeClick={handleNodeClick}
+          fitView
+          fitViewOptions={{ padding: 0.15 }}
+          proOptions={{ hideAttribution: true }}
+          panOnDrag={false}
+          zoomOnScroll={false}
+          zoomOnPinch={false}
+          zoomOnDoubleClick={false}
+          preventScrolling={false}
+          nodesDraggable={false}
+          nodesConnectable={false}
+          elementsSelectable={false}
+        />
+      </div>
+    </PipelineContext.Provider>
   );
 }
 

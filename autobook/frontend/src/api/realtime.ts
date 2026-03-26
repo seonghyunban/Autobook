@@ -35,7 +35,8 @@ function parseRealtimeEvent(payload: string) {
         parsed.type === "clarification.created" ||
         parsed.type === "clarification.resolved" ||
         parsed.type === "pipeline.result" ||
-        parsed.type === "pipeline.error") &&
+        parsed.type === "pipeline.error" ||
+        parsed.type === "pipeline.stage_started") &&
       typeof parsed.occurred_at === "string"
     ) {
       return parsed as RealtimeEvent;
