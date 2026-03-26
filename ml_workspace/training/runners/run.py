@@ -6,8 +6,11 @@ from ml_workspace.training.shared.infra import VOLUME_PATH, app, image, volume
 
 @app.function(image=image, volumes={VOLUME_PATH: volume}, timeout=24 * 3600)
 def run(cfg: dict) -> dict:
+    resolved_gpu = cfg.get("gpu", "A10G")
+    print(f"Resolved GPU: {resolved_gpu}")
+    print(f"Output subdir: {cfg.get('output_subdir', 'autobook_deberta')}")
     train = Train.with_options(
-        gpu=cfg.get("gpu", "A10G"),
+        gpu=resolved_gpu,
         timeout=int(cfg.get("timeout_hours", 4) * 3600),
     )()
 
@@ -28,8 +31,13 @@ def run(cfg: dict) -> dict:
         }
         entity_result = train.run_entity.remote(entity_cfg)
 
+    evaluation_result = None
+    if cfg.get("evaluation", {}).get("enabled", False) and cfg.get("test_path"):
+        evaluation_result = train.run_evaluation.remote(cfg)
+
     return {
         "experiment_name": cfg.get("experiment_name", "autobook_ml"),
         "sequence": sequence_result,
         "entity": entity_result,
+        "evaluation": evaluation_result,
     }

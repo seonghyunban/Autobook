@@ -56,6 +56,43 @@ class HybridInferenceService(BaselineInferenceService):
                 pass
         return super().match_cca_class(intent_label, asset_name)
 
+    def _preferred_vendor(
+        self,
+        message: dict,
+        baseline: EntityExtractionResult,
+        extracted: EntityExtractionResult,
+    ) -> str | None:
+        counterparty = message.get("counterparty")
+        if isinstance(counterparty, str) and counterparty.strip():
+            return counterparty.strip()
+
+        preferred_party = self.select_party_mention(message)
+        if preferred_party:
+            return preferred_party
+
+        return baseline.vendor or extracted.vendor
+
+    def _preferred_mentioned_date(
+        self,
+        message: dict,
+        text: str,
+        baseline: EntityExtractionResult,
+        extracted: EntityExtractionResult,
+    ) -> str | None:
+        preferred_date = self.extract_mentioned_date_from_message(message, text)
+        if preferred_date:
+            return preferred_date
+
+        baseline_date = baseline.entities.get("mentioned_date")
+        if isinstance(baseline_date, str) and baseline_date.strip():
+            return baseline_date.strip()
+
+        extracted_date = extracted.entities.get("mentioned_date")
+        if isinstance(extracted_date, str) and extracted_date.strip():
+            return extracted_date.strip()
+
+        return None
+
     def extract_entities(self, message: dict, text: str) -> EntityExtractionResult:
         baseline = super().extract_entities(message, text)
         extractor = self.entity_extractor
@@ -64,11 +101,20 @@ class HybridInferenceService(BaselineInferenceService):
                 extracted = extractor.extract_entities(message, text)
                 merged_entities = dict(baseline.entities)
                 for key, value in dict(extracted.entities).items():
-                    if value not in {None, "", [], {}}:
+                    if value is not None and value != "" and value != [] and value != {}:
                         merged_entities[key] = value
+
+                preferred_vendor = self._preferred_vendor(message, baseline, extracted)
+                if preferred_vendor:
+                    merged_entities["vendor"] = preferred_vendor
+
+                preferred_mentioned_date = self._preferred_mentioned_date(message, text, baseline, extracted)
+                if preferred_mentioned_date:
+                    merged_entities["mentioned_date"] = preferred_mentioned_date
+
                 return EntityExtractionResult(
                     amount=extracted.amount if extracted.amount is not None else baseline.amount,
-                    vendor=extracted.vendor or baseline.vendor,
+                    vendor=preferred_vendor,
                     asset_name=extracted.asset_name or baseline.asset_name,
                     entities=merged_entities,
                 )

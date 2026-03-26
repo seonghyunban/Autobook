@@ -29,9 +29,11 @@ class EntityTrainingConfig:
     output_dir: Path
     num_train_epochs: float = 1.0
     learning_rate: float = 5e-5
+    warmup_ratio: float = 0.1
     train_batch_size: int = 4
     eval_batch_size: int = 4
     weight_decay: float = 0.01
+    max_grad_norm: float = 1.0
     max_length: int = 256
     report_to_wandb: bool = False
     wandb_project: str = "490-autobook-ml"
@@ -123,6 +125,61 @@ def _build_metrics():
     return compute_metrics
 
 
+def _build_progress_callback(run_name: str):
+    import math
+    from transformers import TrainerCallback
+
+    class ProgressCallback(TrainerCallback):
+        def __init__(self) -> None:
+            self._last_logged_step = -1
+
+        def on_train_begin(self, args, state, control, **kwargs):
+            print(f"[{run_name}] training started: max_steps={state.max_steps}, epochs={args.num_train_epochs}")
+
+        def on_step_end(self, args, state, control, **kwargs):
+            if state.max_steps and state.global_step != self._last_logged_step:
+                percent = (state.global_step / state.max_steps) * 100.0
+                print(f"[{run_name}] progress {state.global_step}/{state.max_steps} ({percent:.1f}%)")
+                self._last_logged_step = state.global_step
+
+        def on_log(self, args, state, control, logs=None, **kwargs):
+            if not logs:
+                return
+            loss_value = logs.get("loss")
+            grad_norm = logs.get("grad_norm")
+            for field_name, value in (("loss", loss_value), ("grad_norm", grad_norm)):
+                if value is None:
+                    continue
+                try:
+                    numeric = float(value)
+                except (TypeError, ValueError):
+                    continue
+                if not math.isfinite(numeric):
+                    raise RuntimeError(f"[{run_name}] non-finite {field_name} detected: {value}")
+            message_parts = [f"[{run_name}] log"]
+            if "loss" in logs:
+                try:
+                    message_parts.append(f"loss={float(logs['loss']):.8f}")
+                except (TypeError, ValueError):
+                    message_parts.append(f"loss={logs['loss']}")
+            if "learning_rate" in logs:
+                message_parts.append(f"lr={logs['learning_rate']}")
+            if "epoch" in logs:
+                message_parts.append(f"epoch={logs['epoch']}")
+            print(" ".join(message_parts))
+
+        def on_evaluate(self, args, state, control, metrics=None, **kwargs):
+            if metrics:
+                print(
+                    f"[{run_name}] eval f1={metrics.get('eval_f1')} precision={metrics.get('eval_precision')} recall={metrics.get('eval_recall')}"
+                )
+
+        def on_train_end(self, args, state, control, **kwargs):
+            print(f"[{run_name}] training finished at step={state.global_step}")
+
+    return ProgressCallback()
+
+
 def train_entity_model(config: EntityTrainingConfig) -> dict:
     import numpy as np
     from datasets import Dataset
@@ -159,6 +216,7 @@ def train_entity_model(config: EntityTrainingConfig) -> dict:
     id_to_label = {index: label for label, index in tag_to_id.items()}
     model = AutoModelForTokenClassification.from_pretrained(
         config.base_model,
+        attn_implementation="eager",
         num_labels=len(TAG_LABELS),
         id2label=id_to_label,
         label2id=tag_to_id,
@@ -169,10 +227,12 @@ def train_entity_model(config: EntityTrainingConfig) -> dict:
         eval_strategy="epoch",
         save_strategy="epoch",
         learning_rate=config.learning_rate,
+        warmup_ratio=config.warmup_ratio,
         per_device_train_batch_size=config.train_batch_size,
         per_device_eval_batch_size=config.eval_batch_size,
         num_train_epochs=config.num_train_epochs,
         weight_decay=config.weight_decay,
+        max_grad_norm=config.max_grad_norm,
         logging_steps=1,
         load_best_model_at_end=True,
         metric_for_best_model="f1",
@@ -180,17 +240,32 @@ def train_entity_model(config: EntityTrainingConfig) -> dict:
         report_to=["wandb"] if config.report_to_wandb else [],
         run_name=config.run_name,
         seed=42,
+        disable_tqdm=False,
+        logging_nan_inf_filter=False,
+        optim="adamw_torch",
+        bf16=False,
+        fp16=False,
     )
 
-    trainer = Trainer(
-        model=model,
-        args=args,
-        train_dataset=train_dataset,
-        eval_dataset=validation_dataset,
-        tokenizer=tokenizer,
-        data_collator=DataCollatorForTokenClassification(tokenizer=tokenizer),
-        compute_metrics=_build_metrics(),
-    )
+    trainer_kwargs = {
+        "model": model,
+        "args": args,
+        "train_dataset": train_dataset,
+        "eval_dataset": validation_dataset,
+        "data_collator": DataCollatorForTokenClassification(tokenizer=tokenizer),
+        "compute_metrics": _build_metrics(),
+        "callbacks": [_build_progress_callback(config.run_name)],
+    }
+    try:
+        trainer = Trainer(
+            **trainer_kwargs,
+            tokenizer=tokenizer,
+        )
+    except TypeError:
+        trainer = Trainer(
+            **trainer_kwargs,
+            processing_class=tokenizer,
+        )
     trainer.train()
     metrics = trainer.evaluate()
 
@@ -219,9 +294,11 @@ def _parse_args() -> EntityTrainingConfig:
     parser.add_argument("--output-dir", type=Path, default=workspace_root / "artifacts" / "entity_extractor")
     parser.add_argument("--num-train-epochs", type=float, default=1.0)
     parser.add_argument("--learning-rate", type=float, default=5e-5)
+    parser.add_argument("--warmup-ratio", type=float, default=0.1)
     parser.add_argument("--train-batch-size", type=int, default=4)
     parser.add_argument("--eval-batch-size", type=int, default=4)
     parser.add_argument("--weight-decay", type=float, default=0.01)
+    parser.add_argument("--max-grad-norm", type=float, default=1.0)
     parser.add_argument("--max-length", type=int, default=256)
     parser.add_argument("--report-to-wandb", action="store_true")
     parser.add_argument("--wandb-project", default="490-autobook-ml")
@@ -234,9 +311,11 @@ def _parse_args() -> EntityTrainingConfig:
         output_dir=args.output_dir,
         num_train_epochs=args.num_train_epochs,
         learning_rate=args.learning_rate,
+        warmup_ratio=args.warmup_ratio,
         train_batch_size=args.train_batch_size,
         eval_batch_size=args.eval_batch_size,
         weight_decay=args.weight_decay,
+        max_grad_norm=args.max_grad_norm,
         max_length=args.max_length,
         report_to_wandb=args.report_to_wandb,
         wandb_project=args.wandb_project,

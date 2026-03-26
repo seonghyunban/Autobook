@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+from services.ml_inference.schemas import EntityExtractionResult
 from services.ml_inference.service import (
     BaselineInferenceService,
     HybridInferenceService,
@@ -96,7 +97,7 @@ def test_service_classifies_software_subscription_with_vendor_keywords() -> None
 
 
 def test_enrich_message_uses_service_boundary() -> None:
-    enriched = enrich_message(
+    enriched = build_inference_service("heuristic").enrich(
         {
             "parse_id": "parse_service_1",
             "input_text": "Transferred money",
@@ -138,3 +139,41 @@ def test_hybrid_service_falls_back_to_heuristics_without_models() -> None:
     assert enriched["intent_label"] == "asset_purchase"
     assert enriched["bank_category"] == "equipment"
     assert enriched["cca_class_match"] == "class_50"
+
+
+def test_hybrid_service_prefers_normalizer_vendor_and_date_over_ner() -> None:
+    class FakeExtractor:
+        @property
+        def is_ready(self) -> bool:
+            return True
+
+        def extract_entities(self, _message: dict, _text: str) -> EntityExtractionResult:
+            return EntityExtractionResult(
+                amount=2400.0,
+                vendor="Coffee",
+                asset_name="laptop",
+                entities={
+                    "amount": 2400.0,
+                    "vendor": "Coffee",
+                    "asset_name": "laptop",
+                    "mentioned_date": "-03-14",
+                },
+            )
+
+    service = HybridInferenceService(entity_extractor=FakeExtractor())
+
+    result = service.extract_entities(
+        {
+            "counterparty": "Pilot Coffee Roasters",
+            "transaction_date": "2026-03-14",
+            "amount_mentions": [{"text": "$2400", "value": 2400.0}],
+            "date_mentions": [{"text": "2026-03-14", "value": "2026-03-14"}],
+            "party_mentions": [{"text": "Pilot Coffee Roasters", "value": "Pilot Coffee Roasters"}],
+        },
+        "Bought a laptop from Pilot Coffee Roasters on 2026-03-14 for $2400",
+    )
+
+    assert result.vendor == "Pilot Coffee Roasters"
+    assert result.asset_name == "laptop"
+    assert result.entities["vendor"] == "Pilot Coffee Roasters"
+    assert result.entities["mentioned_date"] == "2026-03-14"

@@ -41,7 +41,7 @@ class DebertaSequenceClassifier(SequenceClassifier):
         if not self.model_path:
             return False
         root = Path(self.model_path)
-        return all((root / task_name).exists() for task_name in ("intent_label", "bank_category", "cca_class_match"))
+        return (root / "intent_label").exists()
 
     def _require_ready(self) -> Path:
         if not self.model_path:
@@ -102,9 +102,7 @@ class DebertaSequenceClassifier(SequenceClassifier):
         return self._predict_label("intent_label", f"source: {source} text: {text}")
 
     def predict_bank_category(self, text: str, intent_label: str | None) -> ClassificationResult:
-        prompt = f"intent: {intent_label or '__null__'} text: {text}"
-        return self._predict_label("bank_category", prompt)
+        raise ModelNotReadyError("Bank-category prediction is heuristic-only in the current trained model setup.")
 
     def predict_cca_class(self, intent_label: str | None, asset_name: str | None) -> ClassificationResult:
-        prompt = f"intent: {intent_label or '__null__'} asset_name: {asset_name or '__null__'}"
-        return self._predict_label("cca_class_match", prompt)
+        raise ModelNotReadyError("CCA-class prediction is heuristic-only in the current trained model setup.")
