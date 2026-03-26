@@ -1,12 +1,8 @@
 import logging
-from datetime import datetime, timezone
 
 from config import get_settings
-from queues import sqs
-from queues.pubsub import pub
 from services.agent.graph.graph import app
 from services.agent.graph.state import NOT_RUN, AGENT_NAMES
-from services.shared.parse_status import set_status_sync
 
 logger = logging.getLogger(__name__)
 settings = get_settings()
@@ -81,57 +77,12 @@ def _extract_result(final_state: dict, message: dict) -> dict:
     }
 
 
-def execute(message: dict) -> None:
+def execute(message: dict) -> dict:
     logger.info("Processing: %s", message.get("parse_id"))
-    set_status_sync(
-        parse_id=message["parse_id"],
-        user_id=message["user_id"],
-        status="processing",
-        stage="agent",
-        input_text=message.get("input_text") or message.get("description"),
-    )
 
     initial_state = _build_initial_state(message)
     config = {"configurable": DEFAULT_PIPELINE_CONFIG}
 
     final_state = app.invoke(initial_state, config)
 
-    enriched = _extract_result(final_state, message)
-    run_type = message.get("run_type", "full_pipeline")
-    auto_post = message.get("auto_post", True)
-
-    if run_type == "llm":
-        pub.pipeline_result(
-            parse_id=message["parse_id"],
-            user_id=message["user_id"],
-            stage="llm",
-            result=enriched,
-        )
-        if auto_post and not enriched["clarification"]["required"]:
-            sqs.enqueue.posting(enriched)
-        return
-
-    if not enriched["clarification"]["required"]:
-        if auto_post:
-            sqs.enqueue.posting(enriched)
-        return
-
-    set_status_sync(
-        parse_id=message["parse_id"],
-        user_id=message["user_id"],
-        status="processing",
-        stage="clarification_pending",
-        input_text=enriched.get("input_text"),
-        explanation=enriched.get("explanation"),
-        confidence=enriched.get("confidence"),
-        proposed_entry=enriched.get("proposed_entry"),
-    )
-    pub.clarification_created(
-        parse_id=enriched.get("parse_id"),
-        user_id=enriched.get("user_id"),
-        input_text=enriched.get("input_text"),
-        confidence=enriched.get("confidence"),
-        explanation=enriched.get("explanation"),
-        proposed_entry=enriched.get("proposed_entry"),
-    )
-    sqs.enqueue.resolution(enriched)
+    return _extract_result(final_state, message)

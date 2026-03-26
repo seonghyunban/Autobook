@@ -1,25 +1,13 @@
 from pydantic import BaseModel
 
 
-from enum import StrEnum
-from typing import Literal
-
-
-class RunType(StrEnum):
-    FULL_PIPELINE = "full_pipeline"
-    NORMALIZER = "normalizer"
-    PRECEDENT = "precedent"
-    ML = "ml"
-    LLM = "llm"
-
-
 class ParseRequest(BaseModel):
     input_text: str
     source: str = "manual_text"
     currency: str = "CAD"
-    run_type: RunType = RunType.FULL_PIPELINE
-    store_transaction: bool = True
-    auto_post: bool = True
+    stages: list[str] = ["precedent", "ml", "llm"]
+    store: bool = True
+    post_stages: list[str] = []
 
 
 class JournalLine(BaseModel):

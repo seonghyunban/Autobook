@@ -32,10 +32,10 @@ async def parse(
     request: Request,
     current_user: AuthContext = Depends(get_current_user),
 ):
-    if body.auto_post and not body.store_transaction:
+    if body.post_stages and not body.store:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
-            detail="auto_post requires store_transaction to be true",
+            detail="post_stages requires store to be true",
         )
     parse_id = f"parse_{uuid.uuid4().hex[:12]}"
     sqs.enqueue.normalization(
@@ -45,9 +45,9 @@ async def parse(
         currency=body.currency,
         user_id=str(current_user.user.id),
         submitted_at=datetime.now(timezone.utc).isoformat(),
-        run_type=body.run_type,
-        store_transaction=body.store_transaction,
-        auto_post=body.auto_post,
+        stages=body.stages,
+        store=body.store,
+        post_stages=body.post_stages,
     )
     await set_status(
         request.app.state.redis,

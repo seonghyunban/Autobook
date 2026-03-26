@@ -8,9 +8,6 @@ from services.ml_inference.logic import (
     get_inference_service,
 )
 from services.ml_inference.providers.heuristic import BaselineInferenceService
-from queues import sqs
-from queues.pubsub import pub
-from services.shared.parse_status import set_status_sync
 
 logger = logging.getLogger(__name__)
 settings = get_settings()
@@ -25,54 +22,21 @@ __all__ = [
 ]
 
 
-def execute(message: dict) -> None:
+def execute(message: dict) -> dict:
     logger.info("Processing: %s", message.get("parse_id"))
-    set_status_sync(
-        parse_id=message["parse_id"],
-        user_id=message["user_id"],
-        status="processing",
-        stage="ml_inference",
-        input_text=message.get("input_text") or message.get("description"),
-    )
     result = get_inference_service().enrich(message)
-    run_type = message.get("run_type", "full_pipeline")
-    auto_post = message.get("auto_post", True)
     ml_confidence = (result.get("confidence") or {}).get("ml", 0)
-
-    if run_type == "ml":
-        pub.pipeline_result(
-            parse_id=message["parse_id"],
-            user_id=message["user_id"],
-            stage="ml",
-            result=result,
-        )
-        if auto_post and ml_confidence >= settings.AUTO_POST_THRESHOLD:
-            from accounting_engine.rules import build_rule_based_entry
-
-            entry = build_rule_based_entry(result, confidence=ml_confidence, origin_tier=2)
-            if not entry.requires_human_review:
-                enriched = {
-                    **result,
-                    "confidence": {**result.get("confidence", {}), "overall": ml_confidence},
-                    "explanation": entry.explanation,
-                    "proposed_entry": entry.proposed_entry,
-                }
-                sqs.enqueue.posting(enriched)
-        return
 
     if ml_confidence >= settings.AUTO_POST_THRESHOLD:
         from accounting_engine.rules import build_rule_based_entry
 
         entry = build_rule_based_entry(result, confidence=ml_confidence, origin_tier=2)
         if not entry.requires_human_review:
-            enriched = {
+            result = {
                 **result,
                 "confidence": {**result.get("confidence", {}), "overall": ml_confidence},
                 "explanation": entry.explanation,
                 "proposed_entry": entry.proposed_entry,
             }
-            if auto_post:
-                sqs.enqueue.posting(enriched)
-            return
 
-    sqs.enqueue.agent(result)
+    return result

@@ -32,9 +32,9 @@ def normalization(
     currency: str | None = None,
     filename: str | None = None,
     submitted_at: str | None = None,
-    run_type: str = "full_pipeline",
-    store_transaction: bool = True,
-    auto_post: bool = True,
+    stages: list[str] | None = None,
+    store: bool = True,
+    post_stages: list[str] | None = None,
 ) -> str:
     msg = NormalizationTask(
         parse_id=parse_id,
@@ -44,11 +44,19 @@ def normalization(
         currency=currency,
         filename=filename,
         submitted_at=submitted_at,
-        run_type=run_type,
-        store_transaction=store_transaction,
-        auto_post=auto_post,
+        stages=stages if stages is not None else ["precedent", "ml", "llm"],
+        store=store,
+        post_stages=post_stages if post_stages is not None else [],
     )
     return send(settings.SQS_QUEUE_NORMALIZER, msg.model_dump(exclude_none=True))
+
+
+def by_name(stage: str, message: dict) -> str:
+    """Enqueue a message to the queue for the given stage name."""
+    from services.shared.routing import queue_url_for_stage
+
+    url = queue_url_for_stage(stage)
+    return send(url, message)
 
 
 def precedent(message: dict) -> str:
