@@ -75,15 +75,13 @@ export type ParseResponse = {
   clarification_id?: string | null;
 };
 
-export type RunType = "full_pipeline" | "normalizer" | "precedent" | "ml" | "llm";
-
 export type ParseRequest = {
   input_text: string;
   source: Extract<TransactionInputSource, "manual_text" | "bank_feed">;
   currency?: string;
-  run_type?: RunType;
-  store_transaction?: boolean;
-  auto_post?: boolean;
+  stages?: string[];
+  store?: boolean;
+  post_stages?: string[];
 };
 
 export type ClarificationItem = {

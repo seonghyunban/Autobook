@@ -3,9 +3,6 @@ type TransactionFormProps = {
   onChange: (value: string) => void;
   selectedFileName: string | null;
   onFileChange: (file: File | null) => void;
-  onSubmit: () => void;
-  onUploadFile: () => void;
-  isLoading: boolean;
 };
 
 export function TransactionForm({
@@ -13,9 +10,6 @@ export function TransactionForm({
   onChange,
   selectedFileName,
   onFileChange,
-  onSubmit,
-  onUploadFile,
-  isLoading,
 }: TransactionFormProps) {
   return (
     <section className="panel">
@@ -74,18 +68,6 @@ export function TransactionForm({
         </div>
       </div>
 
-      <div className="panel-actions">
-        <button className="primary-button" onClick={onSubmit} disabled={isLoading || !value.trim()}>
-          {isLoading ? "Parsing..." : "Parse Transaction"}
-        </button>
-        <button
-          className="secondary-button"
-          onClick={onUploadFile}
-          disabled={isLoading || !selectedFileName}
-        >
-          {isLoading ? "Processing..." : "Upload File"}
-        </button>
-      </div>
     </section>
   );
 }

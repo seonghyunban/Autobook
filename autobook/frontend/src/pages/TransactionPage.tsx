@@ -2,8 +2,9 @@ import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { getParseStatus, parseTransaction, uploadTransactionFile } from "../api/parse";
 import { subscribeToRealtimeUpdates, waitForRealtimeConnection } from "../api/realtime";
-import type { ParseStatus, RealtimeEvent, RunType } from "../api/types";
+import type { ParseStatus, RealtimeEvent } from "../api/types";
 import { FreshnessStatus } from "../components/FreshnessStatus";
+import { PipelineFlow } from "../components/PipelineFlow";
 import { TransactionForm } from "../components/TransactionForm";
 
 const sampleTransactions = [
@@ -14,21 +15,61 @@ const sampleTransactions = [
 const PENDING_PARSE_ID_KEY = "autobook_pending_parse_id";
 const FINAL_PARSE_STATUSES = new Set(["auto_posted", "needs_clarification", "resolved", "rejected"]);
 
+type Branch = "precedent" | "ml" | "llm";
+
+const BRANCHES: { key: Branch; label: string }[] = [
+  { key: "precedent", label: "Precedent" },
+  { key: "ml", label: "ML" },
+  { key: "llm", label: "LLM" },
+];
+
 export function TransactionPage() {
   const navigate = useNavigate();
   const [input, setInput] = useState("Bought a laptop for $2400");
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [processingId, setProcessingId] = useState<string | null>(null);
   const [resolvedEvent, setResolvedEvent] = useState<RealtimeEvent | null>(null);
-  const [runType, setRunType] = useState<RunType>("full_pipeline");
-  const [storeTransaction, setStoreTransaction] = useState(true);
-  const [autoPost, setAutoPost] = useState(true);
   const [pipelineResult, setPipelineResult] = useState<Record<string, unknown> | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [uploadNotice, setUploadNotice] = useState<string | null>(null);
   const [lastUpdatedAt, setLastUpdatedAt] = useState<Date | null>(null);
   const isMockMode = import.meta.env.VITE_USE_MOCK_API !== "false";
+
+  const [store, setStore] = useState(false);
+  const [stages, setStages] = useState<Record<Branch, boolean>>({ precedent: false, ml: false, llm: false });
+  const [post, setPost] = useState<Record<Branch, boolean>>({ precedent: false, ml: false, llm: false });
+
+  function isPostDisabled(branch: Branch): boolean {
+    return !stages[branch] || !store;
+  }
+
+  function toggleStore() {
+    setStore((prev) => {
+      if (prev) setPost({ precedent: false, ml: false, llm: false });
+      return !prev;
+    });
+  }
+
+  function toggleStage(branch: Branch) {
+    setStages((prev) => {
+      if (prev[branch]) setPost((p) => ({ ...p, [branch]: false }));
+      return { ...prev, [branch]: !prev[branch] };
+    });
+  }
+
+  function togglePost(branch: Branch) {
+    if (isPostDisabled(branch)) return;
+    setPost((prev) => ({ ...prev, [branch]: !prev[branch] }));
+  }
+
+  // Derive backend API fields
+  const activeStages = (Object.entries(stages) as [Branch, boolean][])
+    .filter(([, v]) => v)
+    .map(([k]) => k);
+  const activePostStages = (Object.entries(post) as [Branch, boolean][])
+    .filter(([, v]) => v)
+    .map(([k]) => k);
 
   useEffect(() => {
     const pendingParseId = sessionStorage.getItem(PENDING_PARSE_ID_KEY);
@@ -80,9 +121,9 @@ export function TransactionPage() {
         input_text: input,
         source: "manual_text",
         currency: "CAD",
-        run_type: runType,
-        store_transaction: storeTransaction,
-        auto_post: autoPost,
+        stages: activeStages,
+        store: store,
+        post_stages: activePostStages,
       });
       setProcessingId(response.parse_id);
     } catch (submitError) {
@@ -239,6 +280,13 @@ export function TransactionPage() {
         </div>
       </section>
 
+      <TransactionForm
+        value={input}
+        onChange={handleInputChange}
+        selectedFileName={selectedFile?.name ?? null}
+        onFileChange={handleFileChange}
+      />
+
       <section className="panel compact-panel">
         <div className="panel-header">
           <div>
@@ -246,58 +294,25 @@ export function TransactionPage() {
             <h2>Run Configuration</h2>
           </div>
         </div>
-        <div style={{ display: "flex", gap: "1.5rem", alignItems: "center", flexWrap: "wrap" }}>
-          <label>
-            Run type:{" "}
-            <select value={runType} onChange={(e) => {
-              const val = e.target.value as RunType;
-              setRunType(val);
-              if (val === "full_pipeline") { setStoreTransaction(true); setAutoPost(true); }
-              if (val === "normalizer") { setAutoPost(false); }
-            }}>
-              <option value="full_pipeline">Full Pipeline</option>
-              <option value="normalizer">Normalizer Only</option>
-              <option value="precedent">Up to Precedent</option>
-              <option value="ml">Up to ML Inference</option>
-              <option value="llm">Up to LLM Agent</option>
-            </select>
-          </label>
-          {runType !== "full_pipeline" && (
-            <label>
-              <input
-                type="checkbox"
-                checked={storeTransaction}
-                onChange={(e) => {
-                  setStoreTransaction(e.target.checked);
-                  if (!e.target.checked) setAutoPost(false);
-                }}
-              />{" "}
-              Store transaction
-            </label>
-          )}
-          {runType !== "full_pipeline" && runType !== "normalizer" && (
-            <label>
-              <input
-                type="checkbox"
-                checked={autoPost}
-                disabled={!storeTransaction}
-                onChange={(e) => setAutoPost(e.target.checked)}
-              />{" "}
-              Auto-post
-            </label>
-          )}
+        <PipelineFlow
+          state={{ store, stages, post }}
+          onToggleStore={toggleStore}
+          onToggleStage={toggleStage}
+          onTogglePost={togglePost}
+        />
+        <div className="panel-actions">
+          <button className="primary-button" onClick={handleSubmit} disabled={isLoading || !input.trim()}>
+            {isLoading ? "Parsing..." : "Parse Transaction"}
+          </button>
+          <button
+            className="secondary-button"
+            onClick={handleFileUpload}
+            disabled={isLoading || !selectedFile}
+          >
+            {isLoading ? "Processing..." : "Upload File"}
+          </button>
         </div>
       </section>
-
-      <TransactionForm
-        value={input}
-        onChange={handleInputChange}
-        selectedFileName={selectedFile?.name ?? null}
-        onFileChange={handleFileChange}
-        onSubmit={handleSubmit}
-        onUploadFile={handleFileUpload}
-        isLoading={isLoading}
-      />
 
       {error ? <section className="panel error-panel">{error}</section> : null}
       {uploadNotice ? (
@@ -311,7 +326,7 @@ export function TransactionPage() {
           <div className="panel-header">
             <div>
               <p className="eyebrow">Pipeline Result</p>
-              <h2>Stage: {runType}</h2>
+              <h2>Stage: {activeStages.join(", ") || "normalizer"}</h2>
             </div>
           </div>
           <pre style={{ whiteSpace: "pre-wrap", fontSize: "0.85rem", maxHeight: "400px", overflow: "auto" }}>
