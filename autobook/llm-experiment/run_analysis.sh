@@ -1,30 +1,18 @@
 #!/bin/bash
-# Analyze experiment results.
+# Compute all metrics from experiment results, save as JSON.
 #
 # Usage:
-#   ./run_analysis.sh --all                          # compare all variants
-#   ./run_analysis.sh --variant full_pipeline        # single variant detail
+#   ./run_analysis.sh --experiment stage1
+#   ./run_analysis.sh --experiment stage1 --variant full_pipeline --variant baseline
 
 set -e
 
 export DATABASE_URL=sqlite:///:memory:
-export PYTHONPATH=../backend
+export PYTHONPATH=../backend:code/analysis
 
-VARIANT=""
-ALL=false
-
-while [[ $# -gt 0 ]]; do
-    case $1 in
-        --all) ALL=true; shift ;;
-        --variant) VARIANT="$2"; shift 2 ;;
-        *) echo "Unknown arg: $1"; exit 1 ;;
-    esac
-done
-
-if [ "$ALL" = true ]; then
-    /opt/anaconda3/bin/uv run --extra agent python analysis.py --results results/stage1/
-elif [ -n "$VARIANT" ]; then
-    /opt/anaconda3/bin/uv run --extra agent python analysis.py --results results/stage1/ --variant "$VARIANT"
-else
-    echo "Usage: ./run_analysis.sh --variant <name> | --all"
+if [ $# -eq 0 ]; then
+    echo "Usage: ./run_analysis.sh --experiment <name> [--variant <name> ...]"
+    exit 1
 fi
+
+/opt/anaconda3/bin/uv run --extra agent python code/analysis/main.py "$@"
