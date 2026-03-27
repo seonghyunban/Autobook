@@ -32,6 +32,7 @@ class Settings(BaseSettings):
     ML_INFERENCE_PROVIDER: str = "heuristic"
     ML_CLASSIFIER_MODEL_PATH: str | None = None
     ML_ENTITY_MODEL_PATH: str | None = None
+    SAGEMAKER_ENDPOINT_NAME: str | None = None
     SQS_ENDPOINT_URL: str | None = None
     SQS_QUEUE_NORMALIZER: str = "http://elasticmq:9324/queue/normalizer"
     SQS_QUEUE_PRECEDENT: str = "http://elasticmq:9324/queue/precedent"
@@ -43,14 +44,14 @@ class Settings(BaseSettings):
     QDRANT_URL: str = "http://localhost:6333"
     QDRANT_API_KEY: str | None = None
     BEDROCK_MODEL_ROUTING: dict[str, str] = {
-        "disambiguator":     "us.anthropic.claude-sonnet-4-6",
-        "debit_classifier":  "us.anthropic.claude-sonnet-4-6",
-        "credit_classifier": "us.anthropic.claude-sonnet-4-6",
-        "debit_corrector":   "us.anthropic.claude-sonnet-4-6",
-        "credit_corrector":  "us.anthropic.claude-sonnet-4-6",
-        "entry_builder":     "us.anthropic.claude-sonnet-4-6",
-        "approver":          "us.anthropic.claude-sonnet-4-6",
-        "diagnostician":     "us.anthropic.claude-sonnet-4-6",
+        "disambiguator":     "us.anthropic.claude-sonnet-4-5-20250929-v1:0",
+        "debit_classifier":  "us.anthropic.claude-sonnet-4-5-20250929-v1:0",
+        "credit_classifier": "us.anthropic.claude-sonnet-4-5-20250929-v1:0",
+        "debit_corrector":   "us.anthropic.claude-sonnet-4-5-20250929-v1:0",
+        "credit_corrector":  "us.anthropic.claude-sonnet-4-5-20250929-v1:0",
+        "entry_builder":     "us.anthropic.claude-sonnet-4-5-20250929-v1:0",
+        "approver":          "us.anthropic.claude-sonnet-4-5-20250929-v1:0",
+        "diagnostician":     "us.anthropic.claude-sonnet-4-5-20250929-v1:0",
     }
     BEDROCK_THINKING_EFFORT: dict[str, str] = {}  # empty = no thinking; post-ablation: set per agent
 

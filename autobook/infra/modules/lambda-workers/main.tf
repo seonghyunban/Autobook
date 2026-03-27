@@ -38,11 +38,17 @@ locals {
       SQS_QUEUE_ML_INFERENCE = var.queue_urls["ml_inference"]
       SQS_QUEUE_POSTING      = var.queue_urls["posting"]
     }
-    ml_inference = {
-      SQS_QUEUE_ML_INFERENCE = var.queue_urls["ml_inference"]
-      SQS_QUEUE_AGENT        = var.queue_urls["agent"]
-      SQS_QUEUE_POSTING      = var.queue_urls["posting"]
-    }
+    ml_inference = merge(
+      {
+        SQS_QUEUE_ML_INFERENCE = var.queue_urls["ml_inference"]
+        SQS_QUEUE_AGENT        = var.queue_urls["agent"]
+        SQS_QUEUE_POSTING      = var.queue_urls["posting"]
+      },
+      var.sagemaker_endpoint_name != null ? {
+        SAGEMAKER_ENDPOINT_NAME = var.sagemaker_endpoint_name
+        ML_INFERENCE_PROVIDER   = "sagemaker"
+      } : {}
+    )
     agent = {
       SQS_QUEUE_AGENT      = var.queue_urls["agent"]
       SQS_QUEUE_RESOLUTION = var.queue_urls["resolution"]

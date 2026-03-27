@@ -100,3 +100,11 @@ variable "sqs_batch_size" {
   description = "Max messages per Lambda invocation from SQS"
   default     = 1
 }
+
+# --- From ML module ---
+
+variable "sagemaker_endpoint_name" {
+  type        = string
+  description = "SageMaker endpoint name — injected into ml_inference worker (null = heuristic only)"
+  default     = null
+}

@@ -27,12 +27,20 @@ variable "sagemaker_sg_id" {
 
 # --- Optional inputs (safe defaults provided) ---
 
-# The ECR image URI for the ML model container
+# Container image URI — either a custom ECR image or a public HF DLC image
 # When null, only the SageMaker execution role is created — no model/endpoint
 # This lets the module be deployed before any model image exists
 variable "model_image" {
   type        = string
-  description = "ECR image URI for the ML model (null = skip endpoint creation, role only)"
+  description = "Container image URI (null = skip endpoint creation, role only)"
+  default     = null
+}
+
+# S3 path to model.tar.gz — SageMaker extracts to /opt/ml/model/ at startup
+# Required when using HF DLC (model artifacts stored separately from container)
+variable "model_data_url" {
+  type        = string
+  description = "S3 URI for model artifacts (e.g. s3://bucket/models/model.tar.gz)"
   default     = null
 }
 

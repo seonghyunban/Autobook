@@ -123,6 +123,58 @@ class HybridInferenceService(BaselineInferenceService):
         return baseline
 
 
+class _SageMakerHybridService(BaselineInferenceService):
+    """SageMaker for intent + entities, heuristic for bank_category + cca_class."""
+
+    def __init__(self, endpoint: str) -> None:
+        from services.ml_inference.providers.sagemaker import SageMakerClassifier
+
+        self._sagemaker = SageMakerClassifier(endpoint)
+        self._cache: dict | None = None
+
+    def _call_sagemaker(self, message: dict) -> dict:
+        if self._cache is None:
+            self._cache = self._sagemaker.invoke(message)
+        return self._cache
+
+    def classify_intent(self, text: str, source: str) -> ClassificationResult:
+        # Intent comes from SageMaker — but we need the full message for invoke.
+        # classify_intent is called from enrich() which has the message.
+        # Fallback to heuristic if SageMaker hasn't been called yet.
+        if self._cache is not None:
+            return ClassificationResult(
+                label=self._cache.get("intent_label"),
+                confidence=self._cache.get("intent_confidence"),
+            )
+        return super().classify_intent(text, source)
+
+    def extract_entities(self, message: dict, text: str) -> EntityExtractionResult:
+        baseline = super().extract_entities(message, text)
+        try:
+            result = self._call_sagemaker(message)
+            sm_entities = result.get("entities") or {}
+            merged = dict(baseline.entities)
+            for key, value in sm_entities.items():
+                if value is not None and value != "" and value != [] and value != {}:
+                    merged[key] = value
+            return EntityExtractionResult(
+                amount=sm_entities.get("amount") if sm_entities.get("amount") is not None else baseline.amount,
+                vendor=sm_entities.get("vendor") or baseline.vendor,
+                asset_name=sm_entities.get("asset_name") or baseline.asset_name,
+                entities=merged,
+            )
+        except Exception:
+            return baseline
+
+    def enrich(self, message: dict) -> dict:
+        self._cache = None
+        try:
+            self._cache = self._sagemaker.invoke(message)
+        except Exception:
+            pass
+        return super().enrich(message)
+
+
 def build_inference_service(provider_name: str | None = None):
     settings = get_settings()
     provider = (provider_name or settings.ML_INFERENCE_PROVIDER).strip().lower()
@@ -135,6 +187,14 @@ def build_inference_service(provider_name: str | None = None):
             sequence_classifier=DebertaSequenceClassifier(settings.ML_CLASSIFIER_MODEL_PATH),
             entity_extractor=DebertaEntityExtractor(settings.ML_ENTITY_MODEL_PATH),
         )
+
+    if provider == "sagemaker":
+        from services.ml_inference.providers.sagemaker import SageMakerClassifier
+
+        endpoint = settings.SAGEMAKER_ENDPOINT_NAME
+        if not endpoint:
+            raise ValueError("SAGEMAKER_ENDPOINT_NAME is required when ML_INFERENCE_PROVIDER=sagemaker")
+        return _SageMakerHybridService(endpoint=endpoint)
 
     raise ValueError(f"unsupported ML inference provider {provider!r}")
 

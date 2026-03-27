@@ -62,14 +62,14 @@ COPY backend/services/normalizer/ backend/services/normalizer/
 # Lambda: ENTRYPOINT runs the RIC, CMD is the handler (overridden by Terraform image_config)
 # Local: docker-compose overrides with ["python", "-m", "services.normalizer"]
 ENTRYPOINT ["python", "-m", "awslambdaric"]
-CMD ["services.normalizer.handler.handler"]
+CMD ["services.normalizer.aws.handler"]
 
 # ── Precedent Matcher (Tier 1) ─────────────────────────────────
 FROM autobook-accounting AS autobook-precedent
 
 COPY backend/services/precedent/ backend/services/precedent/
 ENTRYPOINT ["python", "-m", "awslambdaric"]
-CMD ["services.precedent.handler.handler"]
+CMD ["services.precedent.aws.handler"]
 
 # ── ML Inference (Tier 2) ──────────────────────────────────────
 FROM autobook-accounting AS autobook-ml-inference
@@ -79,7 +79,7 @@ RUN --mount=type=cache,target=/root/.cache/uv \
 
 COPY backend/services/ml_inference/ backend/services/ml_inference/
 ENTRYPOINT ["python", "-m", "awslambdaric"]
-CMD ["services.ml_inference.handler.handler"]
+CMD ["services.ml_inference.aws.handler"]
 
 # ── Agent / LLM Worker (Tier 3) ────────────────────────────────
 FROM autobook-accounting AS autobook-agent
@@ -96,14 +96,14 @@ FROM autobook-accounting AS autobook-resolution
 
 COPY backend/services/resolution/ backend/services/resolution/
 ENTRYPOINT ["python", "-m", "awslambdaric"]
-CMD ["services.resolution.handler.handler"]
+CMD ["services.resolution.aws.handler"]
 
 # ── Posting Service ────────────────────────────────────────────
 FROM autobook-base AS autobook-posting
 
 COPY backend/services/posting/ backend/services/posting/
 ENTRYPOINT ["python", "-m", "awslambdaric"]
-CMD ["services.posting.handler.handler"]
+CMD ["services.posting.aws.handler"]
 
 # ── Flywheel Worker ────────────────────────────────────────────
 FROM autobook-base AS autobook-flywheel
@@ -113,4 +113,4 @@ RUN --mount=type=cache,target=/root/.cache/uv \
 
 COPY backend/services/flywheel/ backend/services/flywheel/
 ENTRYPOINT ["python", "-m", "awslambdaric"]
-CMD ["services.flywheel.handler.handler"]
+CMD ["services.flywheel.aws.handler"]

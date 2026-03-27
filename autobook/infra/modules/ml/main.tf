@@ -60,8 +60,12 @@ resource "aws_iam_role_policy" "sagemaker_ecr" {
         "ecr:BatchGetImage",              # Get image manifest
         "ecr:BatchCheckLayerAvailability" # Check if layers exist
       ]
-      # Scoped to our project's ECR repos — no access to other repos
-      Resource = "arn:aws:ecr:${data.aws_region.current.region}:${data.aws_caller_identity.current.account_id}:repository/${local.name}-*"
+      Resource = [
+        # Our project's ECR repos
+        "arn:aws:ecr:${data.aws_region.current.region}:${data.aws_caller_identity.current.account_id}:repository/${local.name}-*",
+        # AWS Deep Learning Containers (public ECR — HuggingFace DLC)
+        "arn:aws:ecr:${data.aws_region.current.region}:763104351884:repository/*"
+      ]
       },
       {
         Effect   = "Allow"
@@ -88,6 +92,30 @@ resource "aws_iam_role_policy" "sagemaker_logs" {
       ]
       # Scoped to /aws/sagemaker/ prefix — SageMaker's default log location
       Resource = "arn:aws:logs:${data.aws_region.current.region}:${data.aws_caller_identity.current.account_id}:log-group:/aws/sagemaker/*"
+    }]
+  })
+}
+
+# --- VPC access — SageMaker needs EC2 network permissions for VPC endpoints ---
+resource "aws_iam_role_policy" "sagemaker_vpc" {
+  name = "vpc-access"
+  role = aws_iam_role.sagemaker.id
+
+  policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [{
+      Effect = "Allow"
+      Action = [
+        "ec2:DescribeSubnets",
+        "ec2:DescribeSecurityGroups",
+        "ec2:DescribeNetworkInterfaces",
+        "ec2:DescribeVpcs",
+        "ec2:DescribeDhcpOptions",
+        "ec2:CreateNetworkInterface",
+        "ec2:CreateNetworkInterfacePermission",
+        "ec2:DeleteNetworkInterface",
+      ]
+      Resource = "*"
     }]
   })
 }
@@ -130,11 +158,10 @@ resource "aws_sagemaker_model" "main" {
   name               = "${local.name}-classifier"
   execution_role_arn = aws_iam_role.sagemaker.arn # IAM role for pulling images, logging, S3
 
-  # Primary inference container — runs our classification model
+  # Primary inference container — HuggingFace DLC + S3 model artifacts
   primary_container {
-    image = var.model_image # ECR image URI (e.g. 123456.dkr.ecr.ca-central-1.amazonaws.com/autobook-dev-model:latest)
-    # model_data_url is omitted — model weights are baked into the container image
-    # If using S3-stored weights, add: model_data_url = "s3://bucket/model.tar.gz"
+    image          = var.model_image    # HF DLC image URI (public ECR) or custom ECR image
+    model_data_url = var.model_data_url # S3 path to model.tar.gz — extracted to /opt/ml/model/ at startup
   }
 
   # VPC config — places SageMaker in our private subnets so ECS can reach it

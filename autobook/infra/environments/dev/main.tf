@@ -295,6 +295,9 @@ module "lambda_workers" {
   # --- From storage ---
   s3_bucket_id = module.storage.bucket_id
 
+  # --- From ML ---
+  sagemaker_endpoint_name = module.ml.endpoint_name # null until endpoint is created
+
   # Dev defaults: 512 MB memory, 60s timeout, 30-day log retention, batch size 1
 }
 
@@ -326,8 +329,8 @@ module "dns" {
 # ML — SageMaker inference endpoint
 # =============================================================================
 # Creates the SageMaker infrastructure for ML model inference (tier 2).
-# In dev, we start with role-only (no endpoint) because no model image exists yet.
-# When the first model is trained and pushed to ECR, set model_image to activate.
+# Uses HuggingFace DLC (public ECR) + S3 model artifacts.
+# DLC versions: transformers 4.49.0, pytorch 2.6.0, py312 (verified by ML team).
 #
 # Depends on networking: SageMaker endpoint sits in private subnets.
 module "ml" {
@@ -335,10 +338,13 @@ module "ml" {
 
   project            = var.project
   environment        = var.environment
-  private_subnet_ids = module.networking.private_subnet_ids # Same private subnets as ECS
-  sagemaker_sg_id    = module.networking.sagemaker_sg_id    # Only ECS can reach SageMaker
-  # model_image = null (default) → role only, no endpoint created yet
-  # serverless = true (default) → scale-to-zero when endpoint is eventually created
+  private_subnet_ids = module.networking.private_subnet_ids
+  sagemaker_sg_id    = module.networking.sagemaker_sg_id
+  model_image        = "763104351884.dkr.ecr.ca-central-1.amazonaws.com/huggingface-pytorch-inference:2.6.0-transformers4.49.0-gpu-py312-cu124-ubuntu22.04-v2.0"
+  model_data_url     = "s3://autobook-dev-data-609092547371/models/classifier/model.tar.gz"
+  serverless         = false          # GPU required for DeBERTa inference
+  instance_type      = "ml.g5.xlarge" # 1x A10G, 24 GB VRAM
+  instance_count     = 1
 }
 
 # =============================================================================
