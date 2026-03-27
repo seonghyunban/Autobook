@@ -5,14 +5,14 @@ from config import get_settings
 
 # Per-agent max output tokens — accounts for JSON + reason via tool calling
 MAX_TOKENS: dict[str, int] = {
-    "disambiguator":    500,
-    "debit_classifier": 500,
-    "credit_classifier": 500,
-    "debit_corrector":  500,
-    "credit_corrector": 500,
-    "entry_builder":    1000,
-    "approver":         500,
-    "diagnostician":    500,
+    "disambiguator":    2000,
+    "debit_classifier": 2000,
+    "credit_classifier": 2000,
+    "debit_corrector":  2000,
+    "credit_corrector": 2000,
+    "entry_builder":    2000,
+    "approver":         2000,
+    "diagnostician":    2000,
 }
 
 
@@ -46,6 +46,7 @@ def get_llm(agent_name: str, config: RunnableConfig | None = None) -> ChatBedroc
     return ChatBedrockConverse(
         model=model,
         region_name=settings.AWS_DEFAULT_REGION,
+        temperature=0,
         max_tokens=MAX_TOKENS[agent_name],
         additional_model_request_fields=additional_fields,
     )

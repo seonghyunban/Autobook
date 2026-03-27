@@ -1,24 +1,33 @@
 """Full agent pipeline graph.
 
 Single flat StateGraph wiring all 8 agent nodes + validation + fix scheduler
-+ confidence gate + ablation routing. No subgraphs — single shared PipelineState.
++ ablation routing. No subgraphs — single shared PipelineState.
 
 All ablation is graph-level — nodes are pure (no config checks inside nodes).
 Ablation flags: disambiguator_active, correction_pass, evaluation_active.
 
+Pipeline decisions: CONFIDENT / INCOMPLETE_INFORMATION / STUCK
+- Disambiguator can stop early with INCOMPLETE_INFORMATION
+- Drafter sets decision when it's the terminal agent (evaluation off)
+- Approver sets decision when evaluation is on (APPROVED→CONFIDENT, STUCK→STUCK)
+- Diagnostician sets STUCK when fix loop fails
+
 Flow (happy path, all features on):
   START → [disambiguator] → debit_classifier ‖ credit_classifier
         → debit_corrector ‖ credit_corrector → entry_builder
-        → validation → approver → confidence_gate → END
+        → validation → approver → END
+
+Flow (disambiguator finds ambiguity):
+  START → disambiguator → END (INCOMPLETE_INFORMATION)
 
 Flow (correction off):
   ... → classifiers → corrector_passthrough → entry_builder → ...
 
 Flow (evaluation off):
-  ... → validation → confidence_gate → END (skip approver/diagnostician)
+  ... → validation → END (drafter's decision is final)
 
 Flow (fix loop):
-  ... → approver (rejected) → diagnostician → fix_scheduler
+  ... → approver (REJECTED) → diagnostician → fix_scheduler
       → [cycle back to disambiguator] → ... → approver (re-eval)
 """
 from langgraph.graph import StateGraph, END
@@ -38,13 +47,14 @@ from services.agent.nodes.diagnostician import diagnostician_node
 
 # ── Non-LLM nodes ────────────────────────────────────────────────────────
 from services.agent.nodes.non_llm import (
-    validation_node, fix_scheduler_node, confidence_gate_node,
+    validation_node, fix_scheduler_node,
     corrector_passthrough_node,
 )
 
 # ── Routers (all ablation logic lives here) ───────────────────────────────
 from services.agent.graph.routers import (
     route_after_start,
+    route_after_disambiguator,
     route_before_correctors,
     route_after_validation,
     route_after_approver,
@@ -72,17 +82,19 @@ builder.add_node("validation", validation_node)
 builder.add_node("approver", approver_node, retry=_RETRY)
 builder.add_node("diagnostician", diagnostician_node, retry=_RETRY)
 builder.add_node("fix_scheduler", fix_scheduler_node)
-builder.add_node("confidence_gate", confidence_gate_node)
 
 # ── Edges: START → disambiguator or classifiers (ablation) ────────────────
 builder.add_conditional_edges("__start__", route_after_start, {
     "disambiguator": "disambiguator",
-    "classifiers": "debit_classifier",
+    "debit_classifier": "debit_classifier",
+    "credit_classifier": "credit_classifier",
 })
 
-# ── Edges: disambiguator → classifiers (fan-out) ─────────────────────────
-builder.add_edge("disambiguator", "debit_classifier")
-builder.add_edge("disambiguator", "credit_classifier")
+# ── Edges: disambiguator → both classifiers (always, disambiguator is advisory)
+builder.add_conditional_edges("disambiguator", route_after_disambiguator, {
+    "debit_classifier": "debit_classifier",
+    "credit_classifier": "credit_classifier",
+})
 
 # ── Edges: classifiers → correctors or passthrough (ablation) ─────────────
 builder.add_conditional_edges("debit_classifier", route_before_correctors, {
@@ -102,16 +114,15 @@ builder.add_edge("corrector_passthrough", "entry_builder")
 # ── Edges: entry builder → validation ─────────────────────────────────────
 builder.add_edge("entry_builder", "validation")
 
-# ── Edges: validation → approver or confidence gate or END ────────────────
+# ── Edges: validation → approver or END ───────────────────────────────────
 builder.add_conditional_edges("validation", route_after_validation, {
     "approver": "approver",
-    "confidence_gate": "confidence_gate",
     "end": END,
 })
 
-# ── Edges: approver → confidence gate or diagnostician ────────────────────
+# ── Edges: approver → END or diagnostician ────────────────────────────────
 builder.add_conditional_edges("approver", route_after_approver, {
-    "confidence_gate": "confidence_gate",
+    END: END,
     "diagnostician": "diagnostician",
 })
 
@@ -121,14 +132,12 @@ builder.add_conditional_edges("diagnostician", route_after_diagnostician, {
     END: END,
 })
 
-# ── Edges: fix scheduler → cycle back to disambiguator ────────────────────
+# ── Edges: fix scheduler → cycle back ────────────────────────────────────
 builder.add_conditional_edges("fix_scheduler", route_after_start, {
     "disambiguator": "disambiguator",
-    "classifiers": "debit_classifier",
+    "debit_classifier": "debit_classifier",
+    "credit_classifier": "credit_classifier",
 })
-
-# ── Edges: confidence gate → END ─────────────────────────────────────────
-builder.add_edge("confidence_gate", END)
 
 # ── Compile ───────────────────────────────────────────────────────────────
 app = builder.compile()

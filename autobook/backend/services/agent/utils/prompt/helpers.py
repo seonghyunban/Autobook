@@ -53,6 +53,23 @@ def build_labeled_tuples(debit, credit) -> list[dict]:
     )}]
 
 
+def build_disambiguator_opinions(state: dict) -> list[dict]:
+    """Disambiguator opinions as advisory context for entry builder."""
+    disam = state.get("output_disambiguator", [])
+    if not disam or not disam[-1]:
+        return []
+    output = disam[-1]
+    ambiguities = output.get("ambiguities", [])
+    if not ambiguities:
+        return [{"text": "<disambiguator_opinions>\nNo ambiguities identified.\n</disambiguator_opinions>"}]
+    return [{"text": (
+        f"<disambiguator_opinions>\n{json.dumps(ambiguities, indent=2)}\n"
+        "Note: These are advisory opinions, not final decisions. "
+        "Use your own judgment to determine if these ambiguities "
+        "actually affect the journal entry.\n</disambiguator_opinions>"
+    )}]
+
+
 def build_journal(journal: dict) -> list[dict]:
     """Journal entry as formatted JSON."""
     return [{"text": (

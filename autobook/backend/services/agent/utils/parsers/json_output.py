@@ -1,6 +1,5 @@
 from __future__ import annotations
 
-from enum import Enum
 from typing import Literal
 
 from pydantic import BaseModel, Field, ValidationError
@@ -14,9 +13,18 @@ from services.agent.graph.state import (
 
 # ── Pydantic schemas per agent output ─────────────────────────────────────
 
+class Ambiguity(BaseModel):
+    aspect: str = Field(description="What is ambiguous")
+    resolved: bool
+    resolution: str | None = Field(default=None, description="How it was resolved, if resolved")
+    options: list[str] | None = Field(default=None, description="Possible interpretations, if unresolved")
+    clarification_question: str | None = Field(default=None, description="Question for the person who initiated the transaction, if unresolved")
+    why_entry_differs: str | None = Field(default=None, description="How the entry changes depending on the answer, if unresolved")
+    why_not_resolved: str | None = Field(default=None, description="Why the text, conventions, and context don't resolve it, if unresolved")
+
+
 class DisambiguatorOutput(BaseModel):
-    enriched_text: str
-    reason: str = Field(description="What was ambiguous and how context resolved it")
+    ambiguities: list[Ambiguity] = Field(description="List of identified ambiguities in the transaction")
 
 
 class DebitClassifierOutput(BaseModel):
@@ -50,11 +58,23 @@ class EntryBuilderOutput(BaseModel):
     description: str
     rationale: str = Field(description="Why these accounts were chosen and how amounts were determined")
     lines: list[JournalLine]
+    decision: Literal["APPROVED", "INCOMPLETE_INFORMATION", "STUCK"] | None = Field(
+        default=None,
+        description="Pipeline decision. Set only when this agent is the terminal decision-maker (no approver).",
+    )
+    clarification_questions: list[str] | None = Field(
+        default=None,
+        description="Questions that, once answered, allow the correct entry to be built. Only for INCOMPLETE_INFORMATION.",
+    )
+    stuck_reason: str | None = Field(
+        default=None,
+        description="Concise explanation of why the entry cannot be determined. Only for STUCK.",
+    )
 
 
 class ApproverOutput(BaseModel):
-    approved: bool
-    confidence: float
+    decision: Literal["APPROVED", "REJECTED", "STUCK"]
+    confidence: Literal["VERY_CONFIDENT", "SOMEWHAT_CONFIDENT", "SOMEWHAT_UNCERTAIN", "VERY_UNCERTAIN"]
     reason: str = Field(description="What specific checks passed or which specific issue was found")
 
 
@@ -66,6 +86,10 @@ class FixPlan(BaseModel):
 class DiagnosticianOutput(BaseModel):
     decision: Literal["FIX", "STUCK"]
     fix_plans: list[FixPlan]
+    stuck_reason: str | None = Field(
+        default=None,
+        description="Concise explanation for the user/expert of why this cannot be resolved. Only for STUCK.",
+    )
 
 
 _MODELS: dict[str, type[BaseModel]] = {
@@ -96,7 +120,7 @@ def parse_json_output(agent_name: str, raw: str) -> dict | None:
     """Parse an LLM JSON output string and validate against agent schema.
 
     Args:
-        agent_name: One of "entry_builder", "approver", "diagnostician".
+        agent_name: One of the 8 agent names.
         raw: Raw LLM output string (expected to be JSON).
 
     Returns:

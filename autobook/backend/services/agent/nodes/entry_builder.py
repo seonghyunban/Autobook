@@ -1,8 +1,9 @@
 """Agent 5 — Entry Builder node.
 
 Constructs complete journal entry from refined tuples + tool results.
-Most complex node — calls 3 accounting tools, validates output.
-Output: EntryBuilderOutput {"date", "description", "rationale", "lines": [...]}
+When it's the terminal decision-maker (no approver), also outputs the
+pipeline decision: CONFIDENT, INCOMPLETE_INFORMATION, or STUCK.
+Output: EntryBuilderOutput {"date", "description", "rationale", "lines", ...}
 """
 from langchain_core.runnables import RunnableConfig
 
@@ -45,6 +46,18 @@ def entry_builder_node(state: PipelineState, config: RunnableConfig) -> dict:
         vendor_name=state["transaction_text"].split()[0] if state["transaction_text"] else "",
     )
 
+    # ── Read pipeline config ─────────────────────────────────────
+    configurable = (config or {}).get("configurable", {})
+    pipeline_config = {
+        "disambiguator_active": configurable.get("disambiguator_active", True),
+        "correction_active": configurable.get("correction_active", True),
+        "evaluation_active": configurable.get("evaluation_active", True),
+    }
+
+    # ── Disambiguator opinions (if disambiguator ran) ─────────────
+    disambiguator_opinions = state.get("output_disambiguator", [])
+    has_disambiguator = pipeline_config.get("disambiguator_active", True)
+
     # ── Build prompt + call LLM ───────────────────────────────────
     messages = build_prompt(
         state, rag_examples,
@@ -52,14 +65,29 @@ def entry_builder_node(state: PipelineState, config: RunnableConfig) -> dict:
         tax_results=tax_results,
         vendor_results=vendor_results,
         fix_context=fix_ctx,
+        pipeline_config=pipeline_config,
     )
     structured_llm = get_llm(ENTRY_BUILDER, config).with_structured_output(EntryBuilderOutput)
     result = structured_llm.invoke(messages)
-    history.append(result.model_dump())
+    output = result.model_dump()
+    history.append(output)
 
     # ── Return state update ───────────────────────────────────────
-    return {
+    update = {
         "output_entry_builder": history,
         "rag_cache_entry_builder": rag_examples,
         "status_entry_builder": COMPLETE,
     }
+
+    # Always propagate INCOMPLETE_INFORMATION (entry builder detects missing facts when D=off)
+    if output.get("decision") == "INCOMPLETE_INFORMATION":
+        update["decision"] = output["decision"]
+        if output.get("clarification_questions"):
+            update["clarification_questions"] = output["clarification_questions"]
+    # Propagate APPROVED/STUCK only when terminal (no approver)
+    elif not pipeline_config["evaluation_active"] and output.get("decision"):
+        update["decision"] = output["decision"]
+        if output.get("stuck_reason"):
+            update["stuck_reason"] = output["stuck_reason"]
+
+    return update

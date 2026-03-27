@@ -79,6 +79,13 @@ class PipelineState(TypedDict):
     # ── Validation error — set by validation node, checked by graph routing
     validation_error: list | None  # None = valid, list of error strings = invalid
 
+    # ── Pipeline decision — terminal output of the agent system
+    # Set by disambiguator (INCOMPLETE_INFORMATION), drafter (any), approver (CONFIDENT/STUCK),
+    # or diagnostician (STUCK). Whichever agent owns the decision in the active variant.
+    decision: str | None                      # "APPROVED" | "INCOMPLETE_INFORMATION" | "STUCK" | None
+    clarification_questions: list | None      # set when decision = INCOMPLETE_INFORMATION
+    stuck_reason: str | None                  # set when decision = STUCK
+
     # ── Embedding cache — computed once, reused by all agents
     embedding_transaction: list[float] | None   # embed(transaction_text), used by agents 0-6
     embedding_error: list[float] | None         # embed(fix_plans[].error), fix loop only

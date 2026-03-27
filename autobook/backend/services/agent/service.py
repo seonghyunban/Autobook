@@ -1,15 +1,13 @@
 import logging
 
-from config import get_settings
 from services.agent.graph.graph import app
 from services.agent.graph.state import NOT_RUN, AGENT_NAMES
 
 logger = logging.getLogger(__name__)
-settings = get_settings()
 
 # Default ablation config: classify_and_build (best Stage 1 accuracy at lowest cost)
 DEFAULT_PIPELINE_CONFIG = {
-    "correction_pass": False,
+    "correction_active": False,
     "evaluation_active": False,
 }
 
@@ -37,43 +35,37 @@ def _build_initial_state(message: dict) -> dict:
     state["embedding_transaction"] = None
     state["embedding_error"] = None
     state["embedding_rejection"] = None
-    state["route"] = "error"
     state["validation_error"] = None
+    state["decision"] = None
+    state["clarification_questions"] = None
+    state["stuck_reason"] = None
     return state
 
 
 def _extract_result(final_state: dict, message: dict) -> dict:
-    """Extract proposed entry and confidence from pipeline output."""
+    """Extract proposed entry and pipeline decision from graph output."""
     i = final_state["iteration"]
     entry_out = final_state.get("output_entry_builder", [])
     journal_entry = entry_out[i] if i < len(entry_out) else None
 
-    route = final_state.get("route", "error")
-    if final_state.get("validation_error"):
-        route = "validation_failed"
+    decision = final_state.get("decision") or "APPROVED"
+    clarification_questions = final_state.get("clarification_questions")
+    stuck_reason = final_state.get("stuck_reason")
 
-    # Determine confidence from approver if available, otherwise default
+    # Extract approver confidence for calibration logging (if available)
     approver_out = final_state.get("output_approver", [])
+    approver_confidence = None
     if approver_out and i < len(approver_out) and approver_out[i]:
-        confidence = approver_out[i].get("confidence", 0.0)
-    else:
-        # No approver (classify_and_build skips evaluation) — use high confidence if entry exists
-        confidence = 0.95 if journal_entry and journal_entry.get("lines") else 0.0
-
-    confidence_payload = dict(message.get("confidence") or {})
-    confidence_payload["overall"] = confidence
+        approver_confidence = approver_out[i].get("confidence")
 
     return {
         **message,
-        "confidence": confidence_payload,
-        "explanation": f"LLM pipeline ({route})",
+        "decision": decision,
         "proposed_entry": journal_entry,
-        "clarification": {
-            "required": confidence < settings.AUTO_POST_THRESHOLD,
-            "clarification_id": None,
-            "reason": f"LLM pipeline: {route}" if confidence < settings.AUTO_POST_THRESHOLD else None,
-            "status": "pending" if confidence < settings.AUTO_POST_THRESHOLD else None,
-        },
+        "approver_confidence": approver_confidence,
+        "clarification_questions": clarification_questions,
+        "stuck_reason": stuck_reason,
+        "validation_error": final_state.get("validation_error"),
     }
 
 

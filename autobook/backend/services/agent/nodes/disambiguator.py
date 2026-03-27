@@ -1,7 +1,9 @@
 """Agent 0 — Disambiguator node.
 
-Optional agent that resolves ambiguous transactions using user context.
-Output: DisambiguatorOutput {"enriched_text": str, "reason": str}
+Analyzes transaction for ambiguity. Resolves what it can using context and tools.
+Flags unresolved ambiguities with clarification questions.
+If any ambiguity is unresolved, sets decision=INCOMPLETE_INFORMATION and pipeline stops early.
+Output: DisambiguatorOutput {"ambiguities": [...]}
 """
 from langchain_core.runnables import RunnableConfig
 
@@ -16,7 +18,7 @@ from accounting_engine.tools import vendor_history_lookup
 
 
 def disambiguator_node(state: PipelineState, config: RunnableConfig) -> dict:
-    """Resolve ambiguous transaction text using business context."""
+    """Detect and resolve ambiguity in transaction text."""
     # ── Iteration + history ───────────────────────────────────────
     i = state["iteration"]
     history = list(state.get("output_disambiguator", []))
@@ -34,11 +36,14 @@ def disambiguator_node(state: PipelineState, config: RunnableConfig) -> dict:
     messages = build_prompt(state, rag_examples, fix_context=fix_ctx)
     structured_llm = get_llm(DISAMBIGUATOR, config).with_structured_output(DisambiguatorOutput)
     result = structured_llm.invoke(messages)
-    history.append(result.model_dump())
+    output = result.model_dump()
+    history.append(output)
 
-    # ── Return state update ───────────────────────────────────────
-    return {
+    # ── Advisory only — do not set pipeline decision ──────────────
+    update = {
         "output_disambiguator": history,
         "rag_cache_disambiguator": rag_examples,
         "status_disambiguator": COMPLETE,
     }
+
+    return update

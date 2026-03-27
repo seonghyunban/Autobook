@@ -54,14 +54,20 @@ Common errors to watch for:
 _SYSTEM = """
 ## System Knowledge
 
-Confidence scoring — output an honest score between 0.0 and 1.0:
-- 0.95+: Entry is clearly correct, no issues.
-- 0.80-0.94: Looks correct but minor uncertainty.
-- 0.50-0.79: Significant uncertainty, something may be wrong.
-- Below 0.50: Entry is likely wrong.
+You are the quality gate for the pipeline. Your output determines what happens next.
 
-Do not try to calibrate your own confidence. Just report how certain you are. \
-A downstream system adjusts your score.
+Decision:
+- APPROVED — the entry is correct. Pipeline posts it.
+- REJECTED — the entry has a fixable error. Pipeline sends it to the diagnostician \
+for root cause analysis and fix.
+- STUCK — you cannot determine whether the entry is correct. Pipeline escalates \
+to an expert.
+
+Confidence (logged for calibration, does not affect routing):
+- VERY_CONFIDENT — clearly correct or clearly wrong, no ambiguity in your judgment
+- SOMEWHAT_CONFIDENT — probably right but some uncertainty
+- SOMEWHAT_UNCERTAIN — could go either way
+- VERY_UNCERTAIN — near-random guess
 
 You will receive the full generator trace (outputs of all upstream agents) \
 for context on how the entry was constructed."""
@@ -87,27 +93,32 @@ _EXAMPLES = """
 
 <example>
 Situation: Entry correctly records inventory sale with COGS and revenue.
-Output: {"approved": true, "confidence": 0.96, "reason": "Entry correctly records inventory sale with COGS and revenue. Amounts match transaction text. Balance verified."}
+Output: {"decision": "APPROVED", "confidence": "VERY_CONFIDENT", "reason": "Entry correctly records inventory sale with COGS and revenue. Amounts match transaction text. Balance verified."}
 </example>
 
 <example>
 Situation: COGS recorded as asset increase instead of expense increase.
-Output: {"approved": false, "confidence": 0.15, "reason": "COGS recorded as asset increase instead of expense increase. Inventory leaving should create an expense, not acquire a new asset."}
+Output: {"decision": "REJECTED", "confidence": "VERY_CONFIDENT", "reason": "COGS recorded as asset increase instead of expense increase. Inventory leaving should create an expense, not acquire a new asset."}
 </example>
 
 <example>
 Situation: Ontario transaction missing HST lines.
-Output: {"approved": false, "confidence": 0.30, "reason": "Transaction is in Ontario (HST applicable) but no HST lines present in the journal entry."}
+Output: {"decision": "REJECTED", "confidence": "SOMEWHAT_CONFIDENT", "reason": "Transaction is in Ontario (HST applicable) but no HST lines present in the journal entry."}
 </example>
 
 <example>
 Situation: Amount off by factor of 10.
-Output: {"approved": false, "confidence": 0.10, "reason": "Transaction text says $2,000 but journal entry records $200. Off by factor of 10."}
+Output: {"decision": "REJECTED", "confidence": "VERY_CONFIDENT", "reason": "Transaction text says $2,000 but journal entry records $200. Off by factor of 10."}
 </example>
 
 <example>
 Situation: Entry looks correct but uses unusual account name.
-Output: {"approved": true, "confidence": 0.82, "reason": "Entry balances and accounts are directionally correct. 'Office Sundries' is uncommon but acceptable for miscellaneous office expenses."}
+Output: {"decision": "APPROVED", "confidence": "SOMEWHAT_UNCERTAIN", "reason": "Entry balances and accounts are directionally correct. 'Office Sundries' is uncommon but acceptable for miscellaneous office expenses."}
+</example>
+
+<example>
+Situation: Transaction is ambiguous — cannot determine if loan proceeds or revenue.
+Output: {"decision": "STUCK", "confidence": "VERY_UNCERTAIN", "reason": "Cannot determine whether $100,000 deposit is loan proceeds or sales revenue without knowing the source."}
 </example>"""
 
 # ── 7. Input Format ─────────────────────────────────────────────────────
@@ -132,7 +143,7 @@ _TASK_REMINDER = """
 
 Review the journal entry against the transaction description. Apply IFRS \
 standards, check balance, accounts, amounts, completeness, and directionality. \
-Output your approval decision with confidence and reason."""
+Output your decision (APPROVED, REJECTED, or STUCK), confidence level, and reason."""
 
 SYSTEM_INSTRUCTION = "\n".join([
     _PREAMBLE, _ROLE, _DOMAIN, _SYSTEM, _PROCEDURE, _EXAMPLES, _INPUT_FORMAT,

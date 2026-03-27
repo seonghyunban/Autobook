@@ -74,7 +74,9 @@ _PROCEDURE = """
 4. Determine if the error is fixable (FIX) or needs a human (STUCK).
 5. If FIX: produce a fix_plan targeting the root cause agent with \
 specific guidance on what went wrong and how to fix it.
-6. If STUCK: return empty fix_plans."""
+6. If STUCK: return empty fix_plans and set stuck_reason — a concise, \
+direct explanation for an expert of why this cannot be resolved by the pipeline. \
+Include all relevant context so the expert can attempt to solve it."""
 
 # ── 6. Examples ──────────────────────────────────────────────────────────
 
@@ -96,7 +98,7 @@ Output: {"decision": "FIX", "fix_plans": [{"agent": 5, "fix_context": "Transacti
 <example>
 Rejection: "Cannot determine if TXN REF 449281 is revenue or expense"
 Reasoning: Transaction text is uninterpretable. No agent can fix this.
-Output: {"decision": "STUCK", "fix_plans": []}
+Output: {"decision": "STUCK", "fix_plans": [], "stuck_reason": "Transaction reference number TXN REF 449281 has no description, vendor, or amount context. Cannot determine transaction type without additional source documents."}
 </example>
 
 <example>

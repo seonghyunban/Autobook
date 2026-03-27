@@ -2,7 +2,8 @@
 
 Identifies root cause agent and produces fix plan.
 Only called when approver rejects. Always runs when invoked — no status skip.
-Output: DiagnosticianOutput {"decision": "FIX"|"STUCK", "fix_plans": [...], "reason": str}
+Output: DiagnosticianOutput {"decision": "FIX"|"STUCK", "fix_plans": [...],
+                              "stuck_reason": str|None}
 """
 from langchain_core.runnables import RunnableConfig
 
@@ -31,11 +32,19 @@ def diagnostician_node(state: PipelineState, config: RunnableConfig) -> dict:
     messages = build_prompt(state, rag_examples, fix_context=fix_ctx)
     structured_llm = get_llm(DIAGNOSTICIAN, config).with_structured_output(DiagnosticianOutput)
     result = structured_llm.invoke(messages)
-    history.append(result.model_dump())
+    output = result.model_dump()
+    history.append(output)
 
-    # ── Return state update ───────────────────────────────────────
-    return {
+    # ── Set pipeline decision on STUCK ────────────────────────────
+    update = {
         "output_diagnostician": history,
         "rag_cache_diagnostician": rag_examples,
         "status_diagnostician": COMPLETE,
     }
+
+    if output["decision"] == "STUCK":
+        update["decision"] = "STUCK"
+        if output.get("stuck_reason"):
+            update["stuck_reason"] = output["stuck_reason"]
+
+    return update
