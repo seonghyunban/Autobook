@@ -3,7 +3,7 @@ import logging
 from db.connection import SessionLocal
 from db.dao.transactions import TransactionDAO
 from local_identity import resolve_local_user
-from services.normalizer.logic import normalize_message
+from services.shared.normalization import normalize_message
 from services.shared.transaction_persistence import coerce_transaction_date
 
 logger = logging.getLogger(__name__)
