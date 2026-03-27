@@ -1,10 +1,11 @@
 from __future__ import annotations
 
-from services.ml_inference.service import execute
+import services.ml_inference.service as ml_svc
 
 
-def test_execute_enriches():
-    result = execute({
+def test_execute_enriches(monkeypatch):
+    monkeypatch.setattr(ml_svc, "_persist_transaction_state", lambda msg: msg)
+    result = ml_svc.execute({
         "parse_id": "p1",
         "input_text": "Bought printer for $500",
         "source": "manual",

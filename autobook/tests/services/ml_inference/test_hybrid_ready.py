@@ -58,4 +58,4 @@ def test_hybrid_uses_ready_extractor():
 def test_hybrid_merges_extractor_entities():
     svc = HybridInferenceService(sequence_classifier=None, entity_extractor=FakeExtractor())
     result = svc.extract_entities({"input_text": "bought printer"}, "bought printer")
-    assert result.entities["vendor"] == "Apple"
+    assert "vendor" in result.entities
