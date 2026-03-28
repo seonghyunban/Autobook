@@ -79,6 +79,11 @@ def entry_builder_node(state: PipelineState, config: RunnableConfig) -> dict:
         "status_entry_builder": COMPLETE,
     }
 
+    # Enforce INCOMPLETE_INFORMATION if any disambiguator response says "incomplete"
+    responses = output.get("disambiguator_responses") or []
+    if any(r["action"] == "incomplete" for r in responses):
+        output["decision"] = "INCOMPLETE_INFORMATION"
+
     # Always propagate INCOMPLETE_INFORMATION (entry builder detects missing facts when D=off)
     if output.get("decision") == "INCOMPLETE_INFORMATION":
         update["decision"] = output["decision"]

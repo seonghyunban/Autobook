@@ -30,13 +30,13 @@ class JournalEntry(BaseModel):
 
 
 class SingleAgentOutput(BaseModel):
+    reason: str
     debit_tuple: tuple[int, int, int, int, int, int]
     credit_tuple: tuple[int, int, int, int, int, int]
     journal_entry: JournalEntry | None
     decision: Literal["APPROVED", "INCOMPLETE_INFORMATION", "STUCK"]
     clarification_questions: list[str] | None = None
     stuck_reason: str | None = None
-    reason: str
 
 
 # ── Node ──────────────────────────────────────────────────────────────────

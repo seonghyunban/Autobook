@@ -53,11 +53,23 @@ class JournalLine(BaseModel):
     amount: float
 
 
+class AmbiguityResponse(BaseModel):
+    aspect: str = Field(description="The ambiguity aspect from the disambiguator")
+    action: Literal["proceed", "incomplete"] = Field(
+        description="proceed = ambiguity does not affect entry; incomplete = need clarification",
+    )
+    reason: str = Field(description="Why this ambiguity does or does not affect the entry")
+
+
 class EntryBuilderOutput(BaseModel):
     date: str
     description: str
     rationale: str = Field(description="Why these accounts were chosen and how amounts were determined")
     lines: list[JournalLine]
+    disambiguator_responses: list[AmbiguityResponse] | None = Field(
+        default=None,
+        description="Required when disambiguator opinions contain unresolved ambiguities. One response per unresolved ambiguity.",
+    )
     decision: Literal["APPROVED", "INCOMPLETE_INFORMATION", "STUCK"] | None = Field(
         default=None,
         description="Pipeline decision. Set only when this agent is the terminal decision-maker (no approver).",
@@ -73,9 +85,9 @@ class EntryBuilderOutput(BaseModel):
 
 
 class ApproverOutput(BaseModel):
+    reason: str = Field(description="What specific checks passed or which specific issue was found")
     decision: Literal["APPROVED", "REJECTED", "STUCK"]
     confidence: Literal["VERY_CONFIDENT", "SOMEWHAT_CONFIDENT", "SOMEWHAT_UNCERTAIN", "VERY_UNCERTAIN"]
-    reason: str = Field(description="What specific checks passed or which specific issue was found")
 
 
 class FixPlan(BaseModel):
@@ -84,6 +96,7 @@ class FixPlan(BaseModel):
 
 
 class DiagnosticianOutput(BaseModel):
+    reasoning: str = Field(description="Trace the error to its root cause agent and explain why")
     decision: Literal["FIX", "STUCK"]
     fix_plans: list[FixPlan]
     stuck_reason: str | None = Field(

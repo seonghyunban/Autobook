@@ -39,7 +39,14 @@ def credit_corrector_node(state: PipelineState, config: RunnableConfig) -> dict:
     messages = build_prompt(state, rag_examples, fix_context=fix_ctx)
     structured_llm = get_llm(CREDIT_CORRECTOR, config).with_structured_output(CreditCorrectorOutput)
     result = structured_llm.invoke(messages)
-    history.append(result.model_dump())
+    output = result.model_dump()
+
+    # ── Guard: if reasoning says no change but tuple differs, keep input
+    input_tuple = state["output_credit_classifier"][i]["tuple"]
+    if "no correction" in output["reason"].lower() and list(output["tuple"]) != list(input_tuple):
+        output["tuple"] = input_tuple
+
+    history.append(output)
 
     # ── Return state update ───────────────────────────────────────
     return {
