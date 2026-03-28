@@ -30,7 +30,13 @@ def disambiguator_node(state: PipelineState, config: RunnableConfig) -> dict:
 
     # ── RAG retrieval ─────────────────────────────────────────────
     rag_examples = retrieve_transaction_examples(state, "rag_cache_disambiguator")
-    fix_ctx = (state.get("fix_context_disambiguator") or [None])[-1]
+
+    # ── Protect unresolved ambiguities from fix context that resolves them
+    prev = history[-1] if history else None
+    has_unresolved = prev and any(
+        not a.get("resolved") for a in (prev.get("ambiguities") or [])
+    )
+    fix_ctx = None if has_unresolved else (state.get("fix_context_disambiguator") or [None])[-1]
 
     # ── Build prompt + call LLM ───────────────────────────────────
     messages = build_prompt(state, rag_examples, fix_context=fix_ctx)

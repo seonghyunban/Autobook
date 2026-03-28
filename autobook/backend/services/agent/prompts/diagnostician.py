@@ -40,7 +40,10 @@ Common accounting mistakes that cause rejections:
 - Loan payments classified as expenses instead of liability decrease
 - Missing tax lines on taxable transactions
 - Tax computed on wrong base amount
-- Revenue and liability confused (loan proceeds vs sales)"""
+- Revenue and liability confused (loan proceeds vs sales)
+- Bundled transactions treated as single event type
+- Contra accounts collapsed into net amounts
+- Accounts classified by item description instead of business purpose"""
 
 # ── 4. System Knowledge ──────────────────────────────────────────────────
 
@@ -48,7 +51,7 @@ _SYSTEM = """
 ## System Knowledge
 
 Pipeline structure — the journal entry was produced by these agents:
-- 0: Disambiguator — resolves ambiguous transaction text
+- 0: Disambiguator — detects ambiguity (advisory only, not fixable)
 - 1: Debit Classifier — counts debit lines per directional category
 - 2: Credit Classifier — counts credit lines per directional category
 - 3: Debit Corrector — cross-validates debit tuple using credit side
@@ -58,10 +61,14 @@ Pipeline structure — the journal entry was produced by these agents:
 Errors propagate downstream: if Agent 1 misclassifies, Agents 3 and 5 \
 inherit the mistake. Target the ROOT CAUSE, not the symptom.
 
+Do NOT include Agent 0 (Disambiguator) in fix_plans. It detects ambiguity, \
+not errors — sending it fix guidance would compromise its independence.
+
 Decision criteria:
 - FIX: the error is fixable by rerunning agents with guidance.
-- STUCK: the error requires human intervention (ambiguous input, missing \
-information, no clear root cause)."""
+- STUCK: the error requires human intervention. This includes ambiguous \
+transactions where multiple valid interpretations exist — if the rejection \
+stems from an interpretation choice rather than a mistake, output STUCK."""
 
 # ── 5. Procedure ─────────────────────────────────────────────────────────
 
@@ -111,6 +118,18 @@ Output: {"decision": "FIX", "fix_plans": [{"agent": 1, "fix_context": "Owner wit
 Rejection: "Both debit and credit tuples seem wrong — revenue classified as liability on credit side and expense on debit side for what appears to be a simple cash sale"
 Reasoning: Both classifiers (Agent 1 and 2) misclassified. Two root causes.
 Output: {"decision": "FIX", "fix_plans": [{"agent": 1, "fix_context": "Cash received from sale is asset increase (slot a)"}, {"agent": 2, "fix_context": "Sales revenue is revenue increase (slot c), not a new liability"}]}
+</example>
+
+<example>
+Rejection: "Investment recorded at cost+fees but classification \
+determines whether fees should be expensed"
+Reasoning: The classification is genuinely ambiguous — no agent \
+misclassified. The transaction does not state management's intent.
+Output: {"decision": "STUCK", "fix_plans": [], \
+"stuck_reason": "Investment classification (FVTPL vs FVOCI vs \
+equity method) depends on management intent, not stated in the \
+transaction. No agent can resolve this — clarification needed \
+from the user."}
 </example>"""
 
 # ── 7. Input Format ─────────────────────────────────────────────────────
