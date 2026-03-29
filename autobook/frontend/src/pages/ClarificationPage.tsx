@@ -35,7 +35,7 @@ export function ClarificationPage() {
   }, []);
 
   useEffect(() => {
-    setDraftLines(selectedItem ? cloneLines(selectedItem.proposed_entry.lines) : []);
+    setDraftLines(selectedItem?.proposed_entry ? cloneLines(selectedItem.proposed_entry.lines) : []);
   }, [selectedItem]);
 
   async function loadClarifications(isMounted = true) {
@@ -69,10 +69,19 @@ export function ClarificationPage() {
     if (!selectedItem) {
       return;
     }
+    if (action === "approve" && !selectedItem.proposed_entry) {
+      setMessage({
+        tone: "warning",
+        text: `Clarification for "${selectedItem.source_text}" cannot be approved because no proposed entry was generated.`,
+      });
+      return;
+    }
 
     setIsResolving(true);
     const currentItem = selectedItem;
-    const hasDraftChanges = linesHaveChanged(currentItem.proposed_entry.lines, draftLines);
+    const hasDraftChanges = currentItem.proposed_entry
+      ? linesHaveChanged(currentItem.proposed_entry.lines, draftLines)
+      : false;
     const response = await resolveClarification(selectedItem.clarification_id, {
       action: action === "approve" && hasDraftChanges ? "edit" : action,
       edited_entry: action === "approve" && hasDraftChanges ? { lines: cloneLines(draftLines) } : undefined,
@@ -130,15 +139,16 @@ export function ClarificationPage() {
   }
 
   function resetDraft() {
-    if (!selectedItem) {
+    if (!selectedItem?.proposed_entry) {
       return;
     }
     setDraftLines(cloneLines(selectedItem.proposed_entry.lines));
   }
 
-  const hasDraftChanges = selectedItem
+  const hasDraftChanges = selectedItem?.proposed_entry
     ? linesHaveChanged(selectedItem.proposed_entry.lines, draftLines)
     : false;
+  const canApprove = Boolean(selectedItem?.proposed_entry && selectedItem.proposed_entry.lines.length > 0);
 
   return (
     <div className="two-column-grid">
@@ -197,79 +207,87 @@ export function ClarificationPage() {
             </div>
             <p className="review-title">{selectedItem.source_text}</p>
             <p className="body-copy">{selectedItem.explanation}</p>
-            <div className="review-note">
-              Review the proposed journal lines, then edit any incorrect account mapping before posting to the ledger.
-            </div>
+            {canApprove ? (
+              <>
+                <div className="review-note">
+                  Review the proposed journal lines, then edit any incorrect account mapping before posting to the ledger.
+                </div>
 
-            <div className="table-wrapper">
-              <table className="data-table">
-                <thead>
-                  <tr>
-                    <th>Code</th>
-                    <th>Account</th>
-                    <th>Type</th>
-                    <th>Amount</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {draftLines.map((line, index) => (
-                    <tr key={`${selectedItem.clarification_id}-${index}`}>
-                      <td>
-                        <input
-                          aria-label={`Account code ${index + 1}`}
-                          className="text-input"
-                          value={line.account_code}
-                          onChange={(event) => updateDraftLine(index, "account_code", event.target.value)}
-                        />
-                      </td>
-                      <td>
-                        <input
-                          aria-label={`Account name ${index + 1}`}
-                          className="text-input"
-                          value={line.account_name}
-                          onChange={(event) => updateDraftLine(index, "account_name", event.target.value)}
-                        />
-                      </td>
-                      <td className="type-cell">
-                        <select
-                          aria-label={`Line type ${index + 1}`}
-                          className="text-input"
-                          value={line.type}
-                          onChange={(event) => updateDraftLine(index, "type", event.target.value)}
-                        >
-                          <option value="debit">debit</option>
-                          <option value="credit">credit</option>
-                        </select>
-                      </td>
-                      <td>
-                        <input
-                          aria-label={`Amount ${index + 1}`}
-                          className="text-input"
-                          min="0"
-                          step="0.01"
-                          type="number"
-                          value={line.amount}
-                          onChange={(event) => updateDraftLine(index, "amount", event.target.value)}
-                        />
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
+                <div className="table-wrapper">
+                  <table className="data-table">
+                    <thead>
+                      <tr>
+                        <th>Code</th>
+                        <th>Account</th>
+                        <th>Type</th>
+                        <th>Amount</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {draftLines.map((line, index) => (
+                        <tr key={`${selectedItem.clarification_id}-${index}`}>
+                          <td>
+                            <input
+                              aria-label={`Account code ${index + 1}`}
+                              className="text-input"
+                              value={line.account_code}
+                              onChange={(event) => updateDraftLine(index, "account_code", event.target.value)}
+                            />
+                          </td>
+                          <td>
+                            <input
+                              aria-label={`Account name ${index + 1}`}
+                              className="text-input"
+                              value={line.account_name}
+                              onChange={(event) => updateDraftLine(index, "account_name", event.target.value)}
+                            />
+                          </td>
+                          <td className="type-cell">
+                            <select
+                              aria-label={`Line type ${index + 1}`}
+                              className="text-input"
+                              value={line.type}
+                              onChange={(event) => updateDraftLine(index, "type", event.target.value)}
+                            >
+                              <option value="debit">debit</option>
+                              <option value="credit">credit</option>
+                            </select>
+                          </td>
+                          <td>
+                            <input
+                              aria-label={`Amount ${index + 1}`}
+                              className="text-input"
+                              min="0"
+                              step="0.01"
+                              type="number"
+                              value={line.amount}
+                              onChange={(event) => updateDraftLine(index, "amount", event.target.value)}
+                            />
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              </>
+            ) : (
+              <div className="review-note">
+                No proposed journal entry was generated for this clarification yet. It can be rejected, but it cannot be approved from this screen.
+              </div>
+            )}
 
             <div className="panel-actions">
               <button
                 className="primary-button"
                 onClick={() => void handleResolve("approve")}
-                disabled={isResolving}
+                disabled={isResolving || !canApprove}
               >
                 {isResolving ? "Saving..." : hasDraftChanges ? "Save Changes & Post" : "Approve & Post"}
               </button>
               <button
                 className="secondary-button"
                 onClick={resetDraft}
-                disabled={isResolving || !hasDraftChanges}
+                disabled={isResolving || !hasDraftChanges || !canApprove}
               >
                 Reset Draft
               </button>

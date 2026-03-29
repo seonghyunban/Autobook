@@ -43,7 +43,10 @@ def _serialize_line(line: dict) -> JournalLine:
     )
 
 
-def _serialize_proposed_entry(task: ClarificationTask) -> ProposedEntry:
+def _serialize_proposed_entry(task: ClarificationTask) -> ProposedEntry | None:
+    if task.proposed_entry is None:
+        return None
+
     entry_payload, line_payload = _normalize_entry_payload(task.proposed_entry)
     journal_entry_id = entry_payload.get("journal_entry_id") or entry_payload.get("id")
     return ProposedEntry(

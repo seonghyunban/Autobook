@@ -92,9 +92,10 @@ export type ClarificationItem = {
   confidence: {
     overall: number;
   };
-  proposed_entry: {
+  proposed_entry?: {
+    journal_entry_id?: string | null;
     lines: JournalLine[];
-  };
+  } | null;
 };
 
 export type ClarificationsResponse = {
