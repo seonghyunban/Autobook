@@ -112,18 +112,25 @@ class TestDebitClassifierNode:
     def test_classifies(self):
         from services.agent.nodes.debit_classifier import debit_classifier_node
         state = _make_state()
-        llm = _mock_llm_result({"tuple": (0, 0, 1, 0, 0, 0), "reason": "expense"})
+        llm = _mock_llm_result({
+            "asset_increase": [],
+            "dividend_increase": [],
+            "expense_increase": [{"reason": "expense", "category": "Occupancy expense", "count": 1}],
+            "liability_decrease": [],
+            "equity_decrease": [],
+            "revenue_decrease": [],
+        })
         with patch("services.agent.nodes.debit_classifier.get_llm", return_value=llm), \
              patch("services.agent.nodes.debit_classifier.retrieve_transaction_examples", return_value=[]):
             result = debit_classifier_node(state, {})
         assert result["status_debit_classifier"] == COMPLETE
-        assert result["output_debit_classifier"][0]["tuple"] == (0, 0, 1, 0, 0, 0)
+        assert len(result["output_debit_classifier"]) == 1
 
     def test_skip_when_complete(self):
         from services.agent.nodes.debit_classifier import debit_classifier_node
         state = _make_state()
         state["status_debit_classifier"] = COMPLETE
-        state["output_debit_classifier"] = [{"tuple": (1, 0, 0, 0, 0, 0), "reason": "asset"}]
+        state["output_debit_classifier"] = [{"asset_increase": [{"reason": "asset", "category": "Office equipment", "count": 1}]}]
         state["iteration"] = 1
         result = debit_classifier_node(state, {})
         assert len(result["output_debit_classifier"]) == 2

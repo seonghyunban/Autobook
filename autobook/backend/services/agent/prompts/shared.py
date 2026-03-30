@@ -45,8 +45,15 @@ capitalized into the related PP&E asset's carrying amount \
 (IAS 16.16(c)), not as a separate asset line.
 - Manufacturing costs are product costs capitalized to inventory, \
 not period expenses.
+- Payroll remittance with employer matching: employee withholdings \
+(previously recorded as liability) are a liability decrease; \
+employer matching contributions are a new expense, not part of \
+the prior liability.
 - Advertising and promotional expenditure shall be recognized as \
 an expense when incurred — never capitalize (IAS 38.69).
+- Materials purchased for R&D use are expensed when acquired \
+(IAS 38.126). Only capitalize if purchased for general inventory \
+with no stated R&D purpose.
 - Buyer-side tax: recoverable tax on purchases is an asset \
 (Input Tax Credit Receivable / Current tax assets), not a liability. \
 Only the seller records tax payable.

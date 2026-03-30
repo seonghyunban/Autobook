@@ -10,7 +10,7 @@ from langchain_core.runnables import RunnableConfig
 
 from services.agent.graph.state import PipelineState, ENTRY_DRAFTER, COMPLETE
 from services.agent.prompts.entry_drafter import build_prompt
-from services.agent.utils.llm import get_llm
+from services.agent.utils.llm import get_llm, invoke_structured
 from services.agent.utils.calculator import CALCULATOR_TOOLS, safe_eval
 from services.agent.utils.parsers.json_output import EntryDrafterOutput
 
@@ -70,9 +70,7 @@ def entry_drafter_node(state: PipelineState, config: RunnableConfig) -> dict:
         )
 
     # Step 2: structured output
-    structured_llm = llm.with_structured_output(EntryDrafterOutput)
-    result = structured_llm.invoke(messages)
-    output = result.model_dump()
+    output = invoke_structured(llm, EntryDrafterOutput, messages)
     history.append(output)
 
     update = {

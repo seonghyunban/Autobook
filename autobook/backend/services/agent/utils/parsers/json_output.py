@@ -35,6 +35,10 @@ class AmbiguityDetectorOutput(BaseModel):
     ambiguities: list[Ambiguity] = Field(description="All identified ambiguities, resolved and unresolved")
 
 
+# Legacy alias — disambiguator node imports this name
+DisambiguatorOutput = AmbiguityDetectorOutput
+
+
 # ── Complexity Detector ──────────────────────────────────────────────────
 
 class ComplexityFlag(BaseModel):
@@ -210,6 +214,10 @@ class JournalLine(BaseModel):
 class EntryDrafterOutput(BaseModel):
     reason: str = Field(description="Concise: why these accounts and amounts, derived from transaction text")
     lines: list[JournalLine] = Field(description="Journal entry lines. Total debits must equal total credits.")
+
+
+# Legacy alias — entry_builder node imports this name
+EntryBuilderOutput = EntryDrafterOutput
 
 
 # ── Approver ─────────────────────────────────────────────────────────────

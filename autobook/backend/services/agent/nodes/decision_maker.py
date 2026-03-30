@@ -8,7 +8,7 @@ from langchain_core.runnables import RunnableConfig
 
 from services.agent.graph.state import PipelineState, DECISION_MAKER, COMPLETE
 from services.agent.prompts.decision_maker import build_prompt
-from services.agent.utils.llm import get_llm
+from services.agent.utils.llm import get_llm, invoke_structured
 from services.agent.utils.parsers.json_output import DecisionMakerOutput
 
 
@@ -22,9 +22,7 @@ def decision_maker_node(state: PipelineState, config: RunnableConfig) -> dict:
         return {"output_decision_maker": history, "status_decision_maker": COMPLETE}
 
     messages = build_prompt(state)
-    structured_llm = get_llm(DECISION_MAKER, config).with_structured_output(DecisionMakerOutput)
-    result = structured_llm.invoke(messages)
-    output = result.model_dump()
+    output = invoke_structured(get_llm(DECISION_MAKER, config), DecisionMakerOutput, messages)
     history.append(output)
 
     update = {

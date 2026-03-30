@@ -8,7 +8,7 @@ from langchain_core.runnables import RunnableConfig
 from services.agent.graph.state import PipelineState, AMBIGUITY_DETECTOR, COMPLETE
 from services.agent.prompts.disambiguator import build_prompt
 from services.agent.rag.transaction import retrieve_transaction_examples
-from services.agent.utils.llm import get_llm
+from services.agent.utils.llm import get_llm, invoke_structured
 from services.agent.utils.parsers.json_output import AmbiguityDetectorOutput
 
 
@@ -24,9 +24,7 @@ def ambiguity_detector_node(state: PipelineState, config: RunnableConfig) -> dic
     rag_examples = retrieve_transaction_examples(state, "rag_cache_disambiguator")
 
     messages = build_prompt(state, rag_examples)
-    structured_llm = get_llm(AMBIGUITY_DETECTOR, config).with_structured_output(AmbiguityDetectorOutput)
-    result = structured_llm.invoke(messages)
-    output = result.model_dump()
+    output = invoke_structured(get_llm(AMBIGUITY_DETECTOR, config), AmbiguityDetectorOutput, messages)
     history.append(output)
 
     # Also write to legacy key for backward compatibility
