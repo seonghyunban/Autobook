@@ -155,3 +155,16 @@ def test_8_bayesian_borderline_pass():
     result = _run(entries)
     assert result["precedent_match"]["matched"] is True
     assert result["precedent_match"]["confidence"] == 0.95
+
+
+# ── 9. Bayesian threshold — one dissenter passes at n=29 ─────────────────
+
+def test_9_one_dissenter_passes_at_n29():
+    """28 rent + 1 equipment out of 29 → first n where k=n-1 can pass 0.95 threshold."""
+    entries = (
+        [_entry("apple", 2000 + i * 0.01, RENT_STRUCTURE, RENT_RATIO) for i in range(28)]
+        + [_entry("apple", 2000.28, EQUIP_STRUCTURE, EQUIP_RATIO)]
+    )
+    result = _run(entries)
+    assert result["precedent_match"]["matched"] is True
+    assert result["precedent_match"]["confidence"] >= 0.95
