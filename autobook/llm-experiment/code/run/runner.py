@@ -267,6 +267,8 @@ async def run_variant_async(variant_name: str, test_cases: list,
         from variants.single_agent.graph import app
     elif variant_name == "single_agent_v3":
         from variants.single_agent_v3.graph import app
+    elif variant_name == "v3_simple":
+        from services.agent.graph.graph_v3_simple import app
     else:
         from services.agent.graph.graph_v3 import app
 
