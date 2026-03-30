@@ -55,14 +55,6 @@ def handler(event, context):
                     confidence=result.get("confidence"),
                     proposed_entry=result.get("proposed_entry"),
                 )
-                pub.clarification_created(
-                    parse_id=result.get("parse_id"),
-                    user_id=result.get("user_id"),
-                    input_text=result.get("input_text"),
-                    confidence=result.get("confidence"),
-                    explanation=result.get("explanation"),
-                    proposed_entry=result.get("proposed_entry"),
-                )
                 sqs.enqueue.resolution(result)
             else:
                 if STAGE in result.get("post_stages", []):

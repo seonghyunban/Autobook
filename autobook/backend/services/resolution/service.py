@@ -127,6 +127,14 @@ def execute(message: dict) -> None:
                 input_text=message.get("input_text"),
                 clarification_id=clarification_id,
             )
+        pub.clarification_created(
+            parse_id=message.get("parse_id"),
+            user_id=message.get("user_id"),
+            input_text=message.get("input_text"),
+            confidence=message.get("confidence"),
+            explanation=message.get("explanation"),
+            proposed_entry=message.get("proposed_entry"),
+        )
         return
 
     clarification["required"] = False
