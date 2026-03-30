@@ -7,7 +7,7 @@ from decimal import Decimal
 from sqlalchemy import func, select
 from sqlalchemy.orm import Session, selectinload
 
-from db.dao.chart_of_accounts import ChartOfAccountsDAO
+from db.dao.chart_of_accounts import ChartOfAccountsDAO, DEFAULT_COA
 from db.connection import set_current_user_context
 from db.models.account import ChartOfAccounts
 from db.models.journal import JournalEntry, JournalLine
@@ -15,6 +15,19 @@ from db.models.journal import JournalEntry, JournalLine
 
 def _to_decimal(value) -> Decimal:
     return value if isinstance(value, Decimal) else Decimal(str(value))
+
+
+def _infer_account_type(account_code: str) -> str:
+    for default_code, _, account_type in DEFAULT_COA:
+        if default_code == account_code:
+            return account_type
+    prefix = (account_code or "")[:1]
+    return {
+        "1": "asset",
+        "2": "liability",
+        "3": "equity",
+        "4": "revenue",
+    }.get(prefix, "expense")
 
 
 class JournalEntryDAO:
@@ -139,27 +152,23 @@ class JournalEntryDAO:
     ) -> list[dict[str, object]]:
         set_current_user_context(db, user_id)
         filters = {"status": "posted", **(filters or {})}
+        account_lookup = {
+            account.account_code: account
+            for account in ChartOfAccountsDAO.list_by_user(db, user_id)
+        }
         stmt = (
             select(
-                ChartOfAccounts.account_code,
-                ChartOfAccounts.account_name,
-                ChartOfAccounts.account_type,
+                JournalLine.account_code,
+                func.max(JournalLine.account_name),
                 JournalLine.type,
                 func.sum(JournalLine.amount),
             )
-            .join(
-                JournalLine,
-                ChartOfAccounts.account_code == JournalLine.account_code,
-            )
             .join(JournalEntry, JournalEntry.id == JournalLine.journal_entry_id)
             .where(
-                ChartOfAccounts.user_id == user_id,
                 JournalEntry.user_id == user_id,
             )
             .group_by(
-                ChartOfAccounts.account_code,
-                ChartOfAccounts.account_name,
-                ChartOfAccounts.account_type,
+                JournalLine.account_code,
                 JournalLine.type,
             )
         )
@@ -170,13 +179,14 @@ class JournalEntryDAO:
         if filters.get("status") is not None:
             stmt = stmt.where(JournalEntry.status == filters["status"])
         grouped: dict[str, dict[str, object]] = {}
-        for account_code, account_name, account_type, line_type, total in db.execute(stmt):
+        for account_code, account_name, line_type, total in db.execute(stmt):
+            account = account_lookup.get(account_code)
             bucket = grouped.setdefault(
                 account_code,
                 {
                     "account_code": account_code,
-                    "account_name": account_name,
-                    "account_type": account_type,
+                    "account_name": (account.account_name if account is not None else account_name) or account_code,
+                    "account_type": account.account_type if account is not None else _infer_account_type(str(account_code)),
                     "debit_total": Decimal("0"),
                     "credit_total": Decimal("0"),
                 },

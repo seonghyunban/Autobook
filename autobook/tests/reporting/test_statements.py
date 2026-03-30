@@ -144,3 +144,17 @@ def test_balance_sheet_uses_same_posted_balance_filters_as_ledger():
         "date_to": date(2026, 3, 23),
         "status": "posted",
     }
+
+
+@patch("reporting.statements.JournalEntryDAO.compute_summary", return_value=SUMMARY)
+@patch("reporting.statements.JournalEntryDAO.compute_balances", return_value=BALANCES)
+@patch("reporting.statements.ChartOfAccountsDAO.list_by_user", return_value=[])
+def test_trial_balance_falls_back_to_balance_metadata_when_chart_rows_are_missing(
+    mock_coa,
+    mock_balances,
+    mock_summary,
+):
+    result = build_trial_balance(MagicMock(), "user-1", "2026-03-23")
+    rows = result["sections"][0]["rows"]
+    assert any(row["label"] == "1500 Equipment" and row["amount"] == 5000.0 for row in rows)
+    assert any(row["label"] == "1000 Cash" and row["amount"] == 3000.0 for row in rows)

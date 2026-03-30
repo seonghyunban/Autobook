@@ -34,24 +34,32 @@ def _parse_as_of(value: str | None) -> date:
 
 def _build_account_snapshots(db: Session, user_id, as_of: date) -> list[AccountSnapshot]:
     accounts = ChartOfAccountsDAO.list_by_user(db, user_id)
+    accounts_by_code = {account.account_code: account for account in accounts}
     balances = JournalEntryDAO.compute_balances(
         db,
         user_id,
         filters={"date_to": as_of, "status": "posted"},
     )
-    balance_map = {
-        str(item["account_code"]): _to_decimal(item["balance"])
-        for item in balances
-    }
+    balance_map = {str(item["account_code"]): item for item in balances}
 
     snapshots: list[AccountSnapshot] = []
-    for account in accounts:
+    for account_code in sorted(set(accounts_by_code) | set(balance_map)):
+        account = accounts_by_code.get(account_code)
+        balance_item = balance_map.get(account_code)
         snapshots.append(
             AccountSnapshot(
-                account_code=account.account_code,
-                account_name=account.account_name,
-                account_type=account.account_type,
-                balance=balance_map.get(account.account_code, Decimal("0")),
+                account_code=account_code,
+                account_name=(
+                    account.account_name
+                    if account is not None
+                    else str((balance_item or {}).get("account_name") or account_code)
+                ),
+                account_type=(
+                    account.account_type
+                    if account is not None
+                    else str((balance_item or {}).get("account_type") or "expense")
+                ),
+                balance=_to_decimal((balance_item or {}).get("balance", Decimal("0"))),
             )
         )
     return snapshots
