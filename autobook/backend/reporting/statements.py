@@ -34,36 +34,24 @@ def _parse_as_of(value: str | None) -> date:
 
 def _build_account_snapshots(db: Session, user_id, as_of: date) -> list[AccountSnapshot]:
     accounts = ChartOfAccountsDAO.list_by_user(db, user_id)
-    entries = JournalEntryDAO.list_by_user(db, user_id, filters={"date_to": as_of, "status": "posted"})
-
-    totals: dict[str, dict[str, Decimal]] = {
-        account.account_code: {"debit": Decimal("0"), "credit": Decimal("0")}
-        for account in accounts
+    balances = JournalEntryDAO.compute_balances(
+        db,
+        user_id,
+        filters={"date_to": as_of, "status": "posted"},
+    )
+    balance_map = {
+        str(item["account_code"]): _to_decimal(item["balance"])
+        for item in balances
     }
-
-    for entry in entries:
-        for line in entry.lines:
-            bucket = totals.setdefault(
-                line.account_code,
-                {"debit": Decimal("0"), "credit": Decimal("0")},
-            )
-            bucket[line.type] += _to_decimal(line.amount)
 
     snapshots: list[AccountSnapshot] = []
     for account in accounts:
-        bucket = totals.get(account.account_code, {"debit": Decimal("0"), "credit": Decimal("0")})
-        debit_total = bucket["debit"]
-        credit_total = bucket["credit"]
-        if account.account_type in {"asset", "expense"}:
-            balance = debit_total - credit_total
-        else:
-            balance = credit_total - debit_total
         snapshots.append(
             AccountSnapshot(
                 account_code=account.account_code,
                 account_name=account.account_name,
                 account_type=account.account_type,
-                balance=balance,
+                balance=balance_map.get(account.account_code, Decimal("0")),
             )
         )
     return snapshots
@@ -144,10 +132,13 @@ def build_income_statement(db: Session, user_id, as_of: str | None) -> dict:
 def build_trial_balance(db: Session, user_id, as_of: str | None) -> dict:
     snapshot_date = _parse_as_of(as_of)
     snapshots = _build_account_snapshots(db, user_id, snapshot_date)
+    summary = JournalEntryDAO.compute_summary(
+        db,
+        user_id,
+        filters={"date_to": snapshot_date, "status": "posted"},
+    )
 
     rows = []
-    total_debits = Decimal("0")
-    total_credits = Decimal("0")
 
     for snapshot in sorted(snapshots, key=lambda item: item.account_code):
         if snapshot.balance == 0:
@@ -164,8 +155,6 @@ def build_trial_balance(db: Session, user_id, as_of: str | None) -> dict:
                 credit = snapshot.balance
             else:
                 debit = -snapshot.balance
-        total_debits += debit
-        total_credits += credit
         rows.append(
             {
                 "label": f"{snapshot.account_code} {snapshot.account_name}",
@@ -178,7 +167,7 @@ def build_trial_balance(db: Session, user_id, as_of: str | None) -> dict:
         "period": {"as_of": snapshot_date.isoformat()},
         "sections": [{"title": "Trial Balance", "rows": rows}],
         "totals": {
-            "total_debits": _to_float(total_debits),
-            "total_credits": _to_float(total_credits),
+            "total_debits": _to_float(_to_decimal(summary.get("total_debits"))),
+            "total_credits": _to_float(_to_decimal(summary.get("total_credits"))),
         },
     }

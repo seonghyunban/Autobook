@@ -132,8 +132,13 @@ class JournalEntryDAO:
         return db.execute(stmt).scalar_one_or_none()
 
     @staticmethod
-    def compute_balances(db: Session, user_id) -> list[dict[str, object]]:
+    def compute_balances(
+        db: Session,
+        user_id,
+        filters: Mapping[str, object] | None = None,
+    ) -> list[dict[str, object]]:
         set_current_user_context(db, user_id)
+        filters = {"status": "posted", **(filters or {})}
         stmt = (
             select(
                 ChartOfAccounts.account_code,
@@ -150,7 +155,6 @@ class JournalEntryDAO:
             .where(
                 ChartOfAccounts.user_id == user_id,
                 JournalEntry.user_id == user_id,
-                JournalEntry.status == "posted",
             )
             .group_by(
                 ChartOfAccounts.account_code,
@@ -159,6 +163,12 @@ class JournalEntryDAO:
                 JournalLine.type,
             )
         )
+        if filters.get("date_from") is not None:
+            stmt = stmt.where(JournalEntry.date >= filters["date_from"])
+        if filters.get("date_to") is not None:
+            stmt = stmt.where(JournalEntry.date <= filters["date_to"])
+        if filters.get("status") is not None:
+            stmt = stmt.where(JournalEntry.status == filters["status"])
         grouped: dict[str, dict[str, object]] = {}
         for account_code, account_name, account_type, line_type, total in db.execute(stmt):
             bucket = grouped.setdefault(
@@ -185,20 +195,32 @@ class JournalEntryDAO:
                 {
                     "account_code": account["account_code"],
                     "account_name": account["account_name"],
+                    "account_type": account["account_type"],
                     "balance": balance,
                 }
             )
         return sorted(balances, key=lambda item: str(item["account_code"]))
 
     @staticmethod
-    def compute_summary(db: Session, user_id) -> dict[str, Decimal]:
+    def compute_summary(
+        db: Session,
+        user_id,
+        filters: Mapping[str, object] | None = None,
+    ) -> dict[str, Decimal]:
         set_current_user_context(db, user_id)
+        filters = {"status": "posted", **(filters or {})}
         stmt = (
             select(JournalLine.type, func.sum(JournalLine.amount))
             .join(JournalEntry, JournalEntry.id == JournalLine.journal_entry_id)
-            .where(JournalEntry.user_id == user_id, JournalEntry.status == "posted")
+            .where(JournalEntry.user_id == user_id)
             .group_by(JournalLine.type)
         )
+        if filters.get("date_from") is not None:
+            stmt = stmt.where(JournalEntry.date >= filters["date_from"])
+        if filters.get("date_to") is not None:
+            stmt = stmt.where(JournalEntry.date <= filters["date_to"])
+        if filters.get("status") is not None:
+            stmt = stmt.where(JournalEntry.status == filters["status"])
         totals = {"total_debits": Decimal("0"), "total_credits": Decimal("0")}
         for line_type, amount in db.execute(stmt):
             key = "total_debits" if line_type == "debit" else "total_credits"
