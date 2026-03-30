@@ -89,4 +89,5 @@ class FlywheelTask(BaseModel):
     user_id: str
     transaction_id: str
     journal_entry_id: str
+    origin_tier: int | None = None
     proposed_entry: dict | None = None

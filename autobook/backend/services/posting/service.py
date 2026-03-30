@@ -139,10 +139,12 @@ def execute(message: dict) -> None:
             journal_entry_id=journal_entry_id,
         )
 
+    origin_tier = (proposed_entry or {}).get("entry", {}).get("origin_tier")
     result = {
         **message,
         "transaction_id": str(transaction.id),
         "journal_entry_id": journal_entry_id,
+        "origin_tier": origin_tier,
         "proposed_entry": proposed_entry,
     }
     sqs.enqueue.flywheel(result)
