@@ -50,7 +50,7 @@ class TestExtractResult:
         }
         final_state = {
             "iteration": 0,
-            "output_entry_builder": [entry],
+            "output_entry_drafter": [entry],
             "output_approver": [],
             "decision": "APPROVED",
             "clarification_questions": None,
@@ -69,7 +69,7 @@ class TestExtractResult:
     def test_defaults_decision_to_approved(self):
         final_state = {
             "iteration": 0,
-            "output_entry_builder": [None],
+            "output_entry_drafter": [None],
             "output_approver": [],
             "decision": None,
             "clarification_questions": None,
@@ -84,7 +84,7 @@ class TestExtractResult:
     def test_extracts_clarification(self):
         final_state = {
             "iteration": 0,
-            "output_entry_builder": [],
+            "output_entry_drafter": [],
             "output_approver": [],
             "decision": "INCOMPLETE_INFORMATION",
             "clarification_questions": ["What was the purpose?"],
@@ -101,7 +101,7 @@ class TestExtractResult:
     def test_extracts_approver_confidence(self):
         final_state = {
             "iteration": 0,
-            "output_entry_builder": [{
+            "output_entry_drafter": [{
                 "date": "2026-03-29",
                 "description": "Record rent",
                 "lines": [
@@ -122,7 +122,7 @@ class TestExtractResult:
     def test_no_entry_when_out_of_range(self):
         final_state = {
             "iteration": 5,
-            "output_entry_builder": [],
+            "output_entry_drafter": [],
             "output_approver": [],
             "decision": None,
             "clarification_questions": None,
@@ -136,7 +136,7 @@ class TestExtractResult:
     def test_requires_human_review_when_account_name_is_not_mapped(self):
         final_state = {
             "iteration": 0,
-            "output_entry_builder": [{
+            "output_entry_drafter": [{
                 "date": "2026-03-29",
                 "description": "Record custom asset",
                 "lines": [{"account_name": "Custom Asset Bucket", "type": "debit", "amount": 100}],
@@ -167,7 +167,7 @@ class TestExecute:
         }
         final_state = {
             "iteration": 0,
-            "output_entry_builder": [entry],
+            "output_entry_drafter": [entry],
             "output_approver": [],
             "decision": "APPROVED",
             "clarification_questions": None,
