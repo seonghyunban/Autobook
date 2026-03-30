@@ -72,6 +72,13 @@ Note: Land and Site improvements are different categories, so they are 2 lines.
 Transaction: "Record payroll: production wages $25K, office salaries $20K"
 asset_increase: [("Production wages capitalized to WIP", "Inventories — work in progress")]
 expense_increase: [("Office salaries", "Employee benefits expense")]
+</example>
+
+<example>
+Transaction: "Purchased warehouse for $500K, paid with a 5-year note at face value, market rate 8%"
+asset_increase: [("Warehouse at present value of note", "Buildings")]
+liability_decrease: [("Discount on note payable — contra-liability for difference between face value and PV", "Long-term borrowings")]
+Note: When face value and present value differ, the discount is a separate contra-liability line.
 </example>"""
 
 # ── Task Reminder ────────────────────────────────────────────────────────
