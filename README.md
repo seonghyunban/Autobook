@@ -29,7 +29,7 @@ Each tier only runs if the previous tier didn't auto-post (confidence < 0.95).
 
 ## Live (Dev Environment)
 
-The dev environment is deployed on AWS and accessible without any local setup:
+The dev environment is deployed on AWS. No local setup required — just open the frontend URL in a browser.
 
 | Service | URL |
 |---------|-----|
@@ -37,7 +37,17 @@ The dev environment is deployed on AWS and accessible without any local setup:
 | Backend API | https://api-dev.autobook.tech |
 | Health check | https://api-dev.autobook.tech/health |
 
-The frontend connects to the backend API automatically. Auth is via AWS Cognito (sign up on the login page).
+### How to use
+
+1. Open https://ai-accountant490.netlify.app
+2. Click **Create account** to register with AWS Cognito (any email/password)
+3. After login, go to **Transactions** and type a transaction (e.g. "Bought a laptop from Apple for $2400")
+4. Click **Submit** — the pipeline processes it in real time (you'll see stage progress via SSE)
+5. If confidence >= 0.95, the entry auto-posts to the **Ledger**. Otherwise it appears in **Clarifications** for review.
+6. In **Clarifications**, you can approve, edit, or reject the proposed journal entry
+7. **Statements** shows the balance sheet, income statement, and trial balance from all posted entries
+
+You can also upload CSV or PDF files on the Transactions page. The pipeline stages (Precedent, ML, LLM) are toggleable in the flow diagram.
 
 ## Running Locally
 
