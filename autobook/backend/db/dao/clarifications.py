@@ -33,7 +33,10 @@ def _merge_entry_metadata(
     if payload is None and not any([parse_id, parent_parse_id, child_parse_id, statement_index is not None, statement_total is not None]):
         return None
 
-    entry_payload, line_payload = _normalize_entry_payload(payload)
+    if payload is None:
+        entry_payload, line_payload = {}, []
+    else:
+        entry_payload, line_payload = _normalize_entry_payload(payload)
     if parse_id is not None:
         entry_payload.setdefault("parse_id", parse_id)
     if parent_parse_id is not None:

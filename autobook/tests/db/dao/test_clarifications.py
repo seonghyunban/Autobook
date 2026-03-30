@@ -29,6 +29,33 @@ def test_clarifications_insert(db_session):
     assert task.status == "pending"
 
 
+def test_clarifications_insert_allows_metadata_without_proposed_entry(db_session):
+    user, tx = _setup(db_session)
+    task = ClarificationDAO.insert(
+        db_session,
+        user_id=user.id,
+        transaction_id=tx.id,
+        source_text="unclear",
+        explanation="needs review",
+        confidence=0.5,
+        proposed_entry=None,
+        verdict="needs_human_review",
+        parse_id="parse_123",
+        child_parse_id="parse_123",
+        statement_index=0,
+        statement_total=1,
+    )
+    assert task.proposed_entry == {
+        "entry": {
+            "parse_id": "parse_123",
+            "child_parse_id": "parse_123",
+            "statement_index": 0,
+            "statement_total": 1,
+        },
+        "lines": [],
+    }
+
+
 def test_clarifications_list_pending(db_session):
     user, tx = _setup(db_session)
     ClarificationDAO.insert(
