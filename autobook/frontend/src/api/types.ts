@@ -174,8 +174,10 @@ export type StatementSection = {
   }>;
 };
 
+export type StatementType = "balance_sheet" | "income_statement" | "trial_balance";
+
 export type StatementsResponse = {
-  statement_type: "balance_sheet" | "income_statement" | "trial_balance";
+  statement_type: StatementType;
   period: {
     as_of?: string;
     from?: string;

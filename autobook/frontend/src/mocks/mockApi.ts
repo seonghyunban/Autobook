@@ -16,6 +16,7 @@ import type {
   RealtimeListener,
   ResolveClarificationRequest,
   ResolveClarificationResponse,
+  StatementType,
   StatementsResponse,
   TransactionInputSource,
 } from "../api/types";
@@ -148,7 +149,7 @@ function computeBalances(entries: LedgerEntry[]): LedgerResponse["balances"] {
   );
 }
 
-function buildStatementsFromLedger(entries: LedgerEntry[]): StatementsResponse {
+function buildBalanceSheetFromLedger(entries: LedgerEntry[]): StatementsResponse {
   const balances = computeBalances(entries);
   const assetRows = ["1000", "1100", "1500"]
     .map((accountCode) => balances.find((balance) => balance.account_code === accountCode))
@@ -164,7 +165,7 @@ function buildStatementsFromLedger(entries: LedgerEntry[]): StatementsResponse {
   const assetsTotal = resolvedAssetRows.reduce((total, row) => total + row.amount, 0);
 
   return {
-    statement_type: statementsFixture.statement_type as StatementsResponse["statement_type"],
+    statement_type: "balance_sheet",
     period: {
       as_of: getTodayDate(),
     },
@@ -188,6 +189,74 @@ function buildStatementsFromLedger(entries: LedgerEntry[]): StatementsResponse {
       liabilities_and_equity: assetsTotal,
     },
   };
+}
+
+function buildIncomeStatementFromLedger(entries: LedgerEntry[]): StatementsResponse {
+  const balances = computeBalances(entries);
+  const revenueRows = balances
+    .filter((balance) => balance.account_code.startsWith("4"))
+    .map((balance) => ({
+      label: balance.account_name,
+      amount: Math.abs(balance.balance),
+    }));
+  const expenseRows = balances
+    .filter((balance) => balance.account_code.startsWith("5") || balance.account_code.startsWith("6"))
+    .map((balance) => ({
+      label: balance.account_name,
+      amount: Math.abs(balance.balance),
+    }));
+
+  const totalRevenue = revenueRows.reduce((total, row) => total + row.amount, 0);
+  const totalExpenses = expenseRows.reduce((total, row) => total + row.amount, 0);
+
+  return {
+    statement_type: "income_statement",
+    period: {
+      as_of: getTodayDate(),
+    },
+    sections: [
+      { title: "Revenue", rows: revenueRows },
+      { title: "Expenses", rows: expenseRows },
+    ],
+    totals: {
+      total_revenue: totalRevenue,
+      total_expenses: totalExpenses,
+      net_income: totalRevenue - totalExpenses,
+    },
+  };
+}
+
+function buildTrialBalanceFromLedger(entries: LedgerEntry[]): StatementsResponse {
+  const balances = computeBalances(entries);
+  const rows = balances
+    .filter((balance) => balance.balance !== 0)
+    .map((balance) => ({
+      label: `${balance.account_code} ${balance.account_name}`,
+      amount: Math.abs(balance.balance),
+    }));
+  const summary = computeLedgerSummary(entries);
+
+  return {
+    statement_type: "trial_balance",
+    period: {
+      as_of: getTodayDate(),
+    },
+    sections: [{ title: "Trial Balance", rows }],
+    totals: {
+      total_debits: summary.total_debits,
+      total_credits: summary.total_credits,
+    },
+  };
+}
+
+function buildStatementsFromLedger(entries: LedgerEntry[], statementType: StatementType = "balance_sheet"): StatementsResponse {
+  if (statementType === "income_statement") {
+    return buildIncomeStatementFromLedger(entries);
+  }
+  if (statementType === "trial_balance") {
+    return buildTrialBalanceFromLedger(entries);
+  }
+  return buildBalanceSheetFromLedger(entries);
 }
 
 function queueClarification(sourceText: string, response: ParseResponse) {
@@ -381,8 +450,8 @@ export const mockApi = {
     };
   },
 
-  async getStatements(): Promise<StatementsResponse> {
+  async getStatements(statementType?: StatementType, _asOf?: string): Promise<StatementsResponse> {
     await delay(250);
-    return buildStatementsFromLedger(ledgerEntriesStore);
+    return buildStatementsFromLedger(ledgerEntriesStore, statementType ?? "balance_sheet");
   },
 };
