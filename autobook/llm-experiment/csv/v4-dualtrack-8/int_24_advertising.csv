@@ -1,0 +1,6 @@
+test_case_id,tier,transaction_text,actual_cost_usd,total_latency_s,exp_relationship,exp_account,exp_debit,exp_credit,act_account,act_debit,act_credit,act_relationship,act_category,act_count
+int_24_advertising,intermediate,"Mondelez commissioned a digital marketing campaign for its snack products, paying $22,000 in cash (inclusive of sales tax).",0.0360,41.8,expense_increase,Advertising expense,"22,000.00",,Advertising expense,"19,469.03",,expense_increase,Advertising expense,1
+,,,,,,,,,HST receivable,"2,530.97",,?,?,
+,,,,,,,,,,,,asset_increase,Tax assets,1
+,,,,,asset_decrease,Cash,,"22,000.00",Cash,,"22,000.00",asset_decrease,Cash and cash equivalents,1
+,,,,,,TOTAL,"22,000.00","22,000.00",TOTAL,"22,000.00","22,000.00",,,

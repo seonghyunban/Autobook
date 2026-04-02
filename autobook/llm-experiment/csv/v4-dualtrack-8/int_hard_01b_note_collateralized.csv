@@ -1,0 +1,5 @@
+test_case_id,tier,transaction_text,actual_cost_usd,total_latency_s,exp_relationship,exp_account,exp_debit,exp_credit,act_account,act_debit,act_credit,act_relationship,act_category,act_count
+int_hard_01b_note_collateralized,intermediate,"Ford received a 90-day, non-interest-bearing promissory note with a face value of $100,000 as settlement of a trade receivable. Fifty days after the note's issue date, Ford discounted the note at the bank at an annual discount rate of 15%, receiving the net proceeds in cash after deducting the discount charges. Management has determined that this is a collateralized borrowing (risks and rewards not transferred).",0.0338,34.6,asset_increase,Cash,"98,356.00",,Cash and cash equivalents,"98,356.16",,asset_increase,Cash and cash equivalents,1
+,,,,,expense_increase,Interest expense,"1,644.00",,Interest expense,"1,643.84",,expense_increase,Interest expense,1
+,,,,,liability_increase,Short-term borrowings,,"100,000.00",Short-term borrowings,,"100,000.00",liability_increase,Short-term borrowings,1
+,,,,,,TOTAL,"100,000.00","100,000.00",TOTAL,"100,000.00","100,000.00",,,

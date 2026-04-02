@@ -1,0 +1,4 @@
+test_case_id,tier,transaction_text,actual_cost_usd,total_latency_s,exp_relationship,exp_account,exp_debit,exp_credit,act_account,act_debit,act_credit,act_relationship,act_category,act_count
+int_21_rd_expense,intermediate,"Mondelez purchased raw materials from a supplier for research and development of a new snack product, paying $50,000 by cheque.",0.0299,28.8,expense_increase,Research and development expense,"50,000.00",,Research and development expense,"50,000.00",,expense_increase,Research and development expense,1
+,,,,,asset_decrease,Cash — chequing,,"50,000.00",Cash and cash equivalents,,"50,000.00",asset_decrease,Cash and cash equivalents,1
+,,,,,,TOTAL,"50,000.00","50,000.00",TOTAL,"50,000.00","50,000.00",,,

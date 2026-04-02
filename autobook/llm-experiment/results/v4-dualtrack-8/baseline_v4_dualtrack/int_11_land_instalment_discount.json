@@ -1,0 +1,494 @@
+{
+  "test_case_id": "int_11_land_instalment_discount",
+  "variant_name": "baseline_v4_dualtrack",
+  "model": "sonnet",
+  "debit_tuple_exact_match": true,
+  "credit_tuple_exact_match": true,
+  "debit_tuple_slot_accuracy": 0.8333333333333334,
+  "credit_tuple_slot_accuracy": 0.8333333333333334,
+  "entry_valid": true,
+  "debit_tuple": [
+    1,
+    0,
+    1,
+    0,
+    0
+  ],
+  "credit_tuple": [
+    1,
+    0,
+    0,
+    0,
+    0
+  ],
+  "journal_entry": {
+    "reason": "Land acquired for factory construction (building for demolition allocated to land per IFRS), financed by note payable at present value of 6 annual $10M payments at 6% market rate",
+    "lines": [
+      {
+        "type": "debit",
+        "account_name": "Land",
+        "amount": 49173243.44
+      },
+      {
+        "type": "debit",
+        "account_name": "Discount on Notes Payable",
+        "amount": 10826756.56
+      },
+      {
+        "type": "credit",
+        "account_name": "Notes Payable",
+        "amount": 60000000.0
+      }
+    ]
+  },
+  "actual_cost_usd": 0.034803,
+  "raw_cost_usd": 0.09693,
+  "total_latency_ms": 28115,
+  "total_input_tokens": 26505,
+  "total_output_tokens": 1161,
+  "total_llm_calls": 5,
+  "iteration_count": 1,
+  "final_decision": "APPROVED",
+  "fix_attempted": null,
+  "fix_succeeded": null,
+  "agent_metrics": {
+    "tax_specialist": {
+      "input_tokens": 594,
+      "output_tokens": 157,
+      "cache_read_tokens": 3842,
+      "cache_write_tokens": 0,
+      "total_input_tokens": 4436,
+      "llm_calls": 1,
+      "actual_cost_usd": 0.0052896,
+      "raw_cost_usd": 0.015663,
+      "output": {
+        "reasoning": "Transaction describes acquisition of land and building for demolition. No tax is mentioned in the text. Although real property purchases may be subject to land transfer tax or HST in certain circumstances, the transaction text does not state any tax amount or rate.",
+        "tax_mentioned": false,
+        "taxable": false,
+        "tax_context": null,
+        "tax_rate": null,
+        "add_tax_lines": false,
+        "treatment": "not_applicable"
+      },
+      "reason": null
+    },
+    "credit_classifier": {
+      "input_tokens": 552,
+      "output_tokens": 143,
+      "cache_read_tokens": 4773,
+      "cache_write_tokens": 0,
+      "total_input_tokens": 5325,
+      "llm_calls": 1,
+      "actual_cost_usd": 0.0052328999999999995,
+      "raw_cost_usd": 0.01812,
+      "output": {
+        "liability_increase": [
+          {
+            "reason": "Present value of future installment payments for land acquisition",
+            "category": "Long-term borrowings",
+            "count": 1
+          }
+        ],
+        "equity_increase": [],
+        "revenue_increase": [],
+        "asset_decrease": [],
+        "expense_decrease": [],
+        "tuple": [
+          1,
+          0,
+          0,
+          0,
+          0
+        ]
+      },
+      "reason": null
+    },
+    "debit_classifier": {
+      "input_tokens": 555,
+      "output_tokens": 202,
+      "cache_read_tokens": 4885,
+      "cache_write_tokens": 0,
+      "total_input_tokens": 5440,
+      "llm_calls": 1,
+      "actual_cost_usd": 0.0061605,
+      "raw_cost_usd": 0.01935,
+      "output": {
+        "asset_increase": [
+          {
+            "reason": "Land acquired for factory construction, including building to be demolished (entire cost allocated to land per IFRS)",
+            "category": "Land",
+            "count": 1
+          }
+        ],
+        "expense_increase": [],
+        "liability_decrease": [
+          {
+            "reason": "Discount on note payable reflects difference between face value ($60M) and present value of 6 annual payments at 6% market rate",
+            "category": "Long-term borrowings",
+            "count": 1
+          }
+        ],
+        "equity_decrease": [],
+        "revenue_decrease": [],
+        "tuple": [
+          1,
+          0,
+          1,
+          0,
+          0
+        ]
+      },
+      "reason": null
+    },
+    "unknown": {
+      "input_tokens": 611,
+      "output_tokens": 484,
+      "cache_read_tokens": 4937,
+      "cache_write_tokens": 0,
+      "total_input_tokens": 5548,
+      "llm_calls": 1,
+      "actual_cost_usd": 0.010574100000000001,
+      "raw_cost_usd": 0.023904,
+      "output": null,
+      "reason": null
+    },
+    "entry_drafter": {
+      "input_tokens": 1183,
+      "output_tokens": 175,
+      "cache_read_tokens": 4573,
+      "cache_write_tokens": 0,
+      "total_input_tokens": 5756,
+      "llm_calls": 1,
+      "actual_cost_usd": 0.0075458999999999995,
+      "raw_cost_usd": 0.019893,
+      "output": {
+        "reason": "Land acquired for factory construction (building for demolition allocated to land per IFRS), financed by note payable at present value of 6 annual $10M payments at 6% market rate",
+        "lines": [
+          {
+            "type": "debit",
+            "account_name": "Land",
+            "amount": 49173243.44
+          },
+          {
+            "type": "debit",
+            "account_name": "Discount on Notes Payable",
+            "amount": 10826756.56
+          },
+          {
+            "type": "credit",
+            "account_name": "Notes Payable",
+            "amount": 60000000.0
+          }
+        ]
+      },
+      "reason": "Land acquired for factory construction (building for demolition allocated to land per IFRS), financed by note payable at present value of 6 annual $10M payments at 6% market rate"
+    }
+  },
+  "pre_fix_debit_tuple": null,
+  "post_fix_debit_tuple": null,
+  "pre_fix_credit_tuple": null,
+  "post_fix_credit_tuple": null,
+  "fix_root_cause_agent": null,
+  "rejection_reason": null,
+  "diagnostician_decision": null,
+  "validation_error": null,
+  "decision_correct": true,
+  "entry_match": null,
+  "clarification_correct": null,
+  "clarification_questions": null,
+  "ambiguous": false,
+  "tier": "intermediate",
+  "error": null,
+  "pipeline_state": {
+    "iteration": 0,
+    "output_ambiguity_detector": [
+      {
+        "ambiguities": [
+          {
+            "aspect": "Building acquired for demolition - land vs building allocation",
+            "input_contextualized_conventional_default": null,
+            "input_contextualized_ifrs_default": "Building acquired for demolition \u2192 resolve entire cost as land (IAS 16 - the building has no separate future economic benefit when acquired for demolition).",
+            "clarification_question": null,
+            "cases": null,
+            "ambiguous": false
+          },
+          {
+            "aspect": "Payment structure - present value vs face value",
+            "input_contextualized_conventional_default": null,
+            "input_contextualized_ifrs_default": "IFRS requires present value measurement when payment is deferred beyond normal credit terms; 6 annual instalments with stated 6% market rate indicates PV calculation is required.",
+            "clarification_question": null,
+            "cases": null,
+            "ambiguous": false
+          }
+        ]
+      }
+    ],
+    "output_complexity_detector": [
+      {
+        "flags": [
+          {
+            "aspect": "Present value calculation of deferred payment",
+            "best_attempt": {
+              "reason": "Land acquired for factory construction with building to be demolished; entire cost allocated to land at present value of 6 annual payments of $10M at 6%.",
+              "lines": [
+                {
+                  "type": "debit",
+                  "account_name": "Land",
+                  "amount": 49173243.0
+                },
+                {
+                  "type": "credit",
+                  "account_name": "Notes Payable",
+                  "amount": 49173243.0
+                }
+              ]
+            },
+            "gap": null,
+            "beyond_llm_capability": false
+          }
+        ]
+      }
+    ],
+    "output_tax_specialist": [
+      {
+        "reasoning": "Transaction describes acquisition of land and building for demolition. No tax is mentioned in the text. Although real property purchases may be subject to land transfer tax or HST in certain circumstances, the transaction text does not state any tax amount or rate.",
+        "tax_mentioned": false,
+        "taxable": false,
+        "tax_context": null,
+        "tax_rate": null,
+        "add_tax_lines": false,
+        "treatment": "not_applicable"
+      }
+    ],
+    "output_decision_maker": [
+      {
+        "ambiguities": [
+          {
+            "aspect": "Building acquired for demolition - land vs building allocation",
+            "input_contextualized_conventional_default": null,
+            "input_contextualized_ifrs_default": "Building acquired for demolition \u2192 resolve entire cost as land (IAS 16 - the building has no separate future economic benefit when acquired for demolition).",
+            "clarification_question": null,
+            "cases": null,
+            "ambiguous": false
+          },
+          {
+            "aspect": "Payment structure - present value vs face value",
+            "input_contextualized_conventional_default": null,
+            "input_contextualized_ifrs_default": "IFRS requires present value measurement when payment is deferred beyond normal credit terms; 6 annual instalments with stated 6% market rate indicates PV calculation is required.",
+            "clarification_question": null,
+            "cases": null,
+            "ambiguous": false
+          }
+        ],
+        "complexity_flags": [
+          {
+            "aspect": "Present value calculation of deferred payment",
+            "best_attempt": {
+              "reason": "Land acquired for factory construction with building to be demolished; entire cost allocated to land at present value of 6 annual payments of $10M at 6%.",
+              "lines": [
+                {
+                  "type": "debit",
+                  "account_name": "Land",
+                  "amount": 49173243.0
+                },
+                {
+                  "type": "credit",
+                  "account_name": "Notes Payable",
+                  "amount": 49173243.0
+                }
+              ]
+            },
+            "gap": null,
+            "beyond_llm_capability": false
+          }
+        ],
+        "proceed_reason": "IFRS rules resolve building-for-demolition as land, and PV computation is within downstream capability given stated rate (6%) and payment terms (6 annual instalments of $10M).",
+        "clarification_questions": null,
+        "stuck_reason": null,
+        "overall_final_rationale": "All aspects are resolved by IFRS rules: building acquired for demolition is allocated entirely to land, and the deferred payment is measured at present value using the stated 6% market rate with downstream computation capability.",
+        "decision": "PROCEED"
+      }
+    ],
+    "output_entry_drafter": [
+      {
+        "reason": "Land acquired for factory construction (building for demolition allocated to land per IFRS), financed by note payable at present value of 6 annual $10M payments at 6% market rate",
+        "lines": [
+          {
+            "type": "debit",
+            "account_name": "Land",
+            "amount": 49173243.44
+          },
+          {
+            "type": "debit",
+            "account_name": "Discount on Notes Payable",
+            "amount": 10826756.56
+          },
+          {
+            "type": "credit",
+            "account_name": "Notes Payable",
+            "amount": 60000000.0
+          }
+        ]
+      }
+    ],
+    "output_disambiguator": [
+      {
+        "ambiguities": [
+          {
+            "aspect": "Building acquired for demolition - land vs building allocation",
+            "input_contextualized_conventional_default": null,
+            "input_contextualized_ifrs_default": "Building acquired for demolition \u2192 resolve entire cost as land (IAS 16 - the building has no separate future economic benefit when acquired for demolition).",
+            "clarification_question": null,
+            "cases": null,
+            "ambiguous": false
+          },
+          {
+            "aspect": "Payment structure - present value vs face value",
+            "input_contextualized_conventional_default": null,
+            "input_contextualized_ifrs_default": "IFRS requires present value measurement when payment is deferred beyond normal credit terms; 6 annual instalments with stated 6% market rate indicates PV calculation is required.",
+            "clarification_question": null,
+            "cases": null,
+            "ambiguous": false
+          }
+        ]
+      }
+    ],
+    "output_debit_classifier": [
+      {
+        "asset_increase": [
+          {
+            "reason": "Land acquired for factory construction, including building to be demolished (entire cost allocated to land per IFRS)",
+            "category": "Land",
+            "count": 1
+          }
+        ],
+        "expense_increase": [],
+        "liability_decrease": [
+          {
+            "reason": "Discount on note payable reflects difference between face value ($60M) and present value of 6 annual payments at 6% market rate",
+            "category": "Long-term borrowings",
+            "count": 1
+          }
+        ],
+        "equity_decrease": [],
+        "revenue_decrease": [],
+        "tuple": [
+          1,
+          0,
+          1,
+          0,
+          0
+        ]
+      }
+    ],
+    "output_credit_classifier": [
+      {
+        "liability_increase": [
+          {
+            "reason": "Present value of future installment payments for land acquisition",
+            "category": "Long-term borrowings",
+            "count": 1
+          }
+        ],
+        "equity_increase": [],
+        "revenue_increase": [],
+        "asset_decrease": [],
+        "expense_decrease": [],
+        "tuple": [
+          1,
+          0,
+          0,
+          0,
+          0
+        ]
+      }
+    ],
+    "output_debit_corrector": [],
+    "output_credit_corrector": [],
+    "output_entry_builder": [],
+    "output_approver": [],
+    "output_diagnostician": [],
+    "status_ambiguity_detector": 1,
+    "status_complexity_detector": 1,
+    "status_tax_specialist": 1,
+    "status_decision_maker": 1,
+    "status_entry_drafter": 1,
+    "status_disambiguator": 1,
+    "status_debit_classifier": 1,
+    "status_credit_classifier": 1,
+    "status_debit_corrector": 0,
+    "status_credit_corrector": 0,
+    "status_entry_builder": 0,
+    "status_approver": 0,
+    "status_diagnostician": 0,
+    "fix_context_disambiguator": [],
+    "fix_context_debit_classifier": [],
+    "fix_context_credit_classifier": [],
+    "fix_context_debit_corrector": [],
+    "fix_context_credit_corrector": [],
+    "fix_context_entry_builder": [],
+    "fix_context_approver": [],
+    "fix_context_diagnostician": [],
+    "decision": "APPROVED",
+    "validation_error": null,
+    "llm_calls": [
+      {
+        "node": "tax_specialist",
+        "stop_reason": "tool_use",
+        "input_tokens": 594,
+        "output_tokens": 157,
+        "input_token_details": {
+          "cache_read": 3842,
+          "cache_creation": 0
+        }
+      },
+      {
+        "node": "credit_classifier",
+        "stop_reason": "tool_use",
+        "input_tokens": 552,
+        "output_tokens": 143,
+        "input_token_details": {
+          "cache_read": 4773,
+          "cache_creation": 0
+        }
+      },
+      {
+        "node": "debit_classifier",
+        "stop_reason": "tool_use",
+        "input_tokens": 555,
+        "output_tokens": 202,
+        "input_token_details": {
+          "cache_read": 4885,
+          "cache_creation": 0
+        }
+      },
+      {
+        "node": "unknown",
+        "stop_reason": "tool_use",
+        "input_tokens": 611,
+        "output_tokens": 484,
+        "input_token_details": {
+          "cache_read": 4937,
+          "cache_creation": 0
+        }
+      },
+      {
+        "node": "entry_drafter",
+        "stop_reason": "tool_use",
+        "input_tokens": 1183,
+        "output_tokens": 175,
+        "input_token_details": {
+          "cache_read": 4573,
+          "cache_creation": 0
+        }
+      }
+    ],
+    "stop_reasons": {
+      "tax_specialist": "tool_use",
+      "credit_classifier": "tool_use",
+      "debit_classifier": "tool_use",
+      "unknown": "tool_use",
+      "entry_drafter": "tool_use"
+    }
+  }
+}

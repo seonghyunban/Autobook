@@ -1,0 +1,5 @@
+test_case_id,tier,transaction_text,actual_cost_usd,total_latency_s,exp_relationship,exp_account,exp_debit,exp_credit,act_account,act_debit,act_credit,act_relationship,act_category,act_count
+int_23_split_electricity,intermediate,"Mondelez paid factory electricity charges of $15,000 and office electricity charges of $5,500 using the corporate credit card.",0.0317,14.1,asset_increase,Work in process — Manufacturing overhead,"15,000.00",,Inventories — work in progress,"15,000.00",,asset_increase,Inventories — work in progress,1
+,,,,,expense_increase,Utilities expense,"5,500.00",,Utilities expense,"5,500.00",,expense_increase,Utilities expense,1
+,,,,,liability_increase,Credit card payable,,"20,500.00",Credit card payable,,"20,500.00",liability_increase,Credit card payable,1
+,,,,,,TOTAL,"20,500.00","20,500.00",TOTAL,"20,500.00","20,500.00",,,

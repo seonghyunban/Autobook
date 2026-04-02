@@ -1,0 +1,5 @@
+test_case_id,tier,transaction_text,actual_cost_usd,total_latency_s,exp_relationship,exp_account,exp_debit,exp_credit,act_account,act_debit,act_credit,act_relationship,act_category,act_count
+int_14_vehicle_mixed_payment,intermediate,"Atlas Van Lines purchased a delivery vehicle for $40,000. The company paid 50% in cash and issued a 2-month promissory note for the remainder.",0.0332,21.6,asset_increase,PP&E — Vehicles,"40,000.00",,Motor vehicles,"40,000.00",,asset_increase,Motor vehicles,1
+,,,,,asset_decrease,Cash,,"20,000.00",Short-term borrowings,,"20,000.00",liability_increase,Short-term borrowings,1
+,,,,,liability_increase,Notes payable,,"20,000.00",Cash and cash equivalents,,"20,000.00",asset_decrease,Cash and cash equivalents,1
+,,,,,,TOTAL,"40,000.00","40,000.00",TOTAL,"40,000.00","40,000.00",,,

@@ -1,0 +1,4 @@
+test_case_id,tier,transaction_text,actual_cost_usd,total_latency_s,exp_relationship,exp_account,exp_debit,exp_credit,act_account,act_debit,act_credit,act_relationship,act_category,act_count
+basic_14_casualty_loss,basic,"Inventory destroyed by typhoon, $2000 loss",0.0299,10.9,expense_increase,Casualty loss,"2,000.00",,Casualty loss,"2,000.00",,expense_increase,Casualty loss,1
+,,,,,asset_decrease,Inventories — Merchandise,,"2,000.00",Inventories — merchandise,,"2,000.00",asset_decrease,Inventories — merchandise,1
+,,,,,,TOTAL,"2,000.00","2,000.00",TOTAL,"2,000.00","2,000.00",,,

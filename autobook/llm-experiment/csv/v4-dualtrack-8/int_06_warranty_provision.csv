@@ -1,0 +1,4 @@
+test_case_id,tier,transaction_text,actual_cost_usd,total_latency_s,exp_relationship,exp_account,exp_debit,exp_credit,act_account,act_debit,act_credit,act_relationship,act_category,act_count
+int_06_warranty_provision,intermediate,"Ford has a product warranty policy under which it repairs or replaces any defective products within one year of sale. If repair is required, the estimated cost is $2,000,000; if replacement is required, the estimated cost is $10,000,000. Based on historical experience, the probability of a repair claim is 20% and the probability of a replacement claim is 5%.",0.0332,21.9,expense_increase,Warranty expense,"900,000.00",,Warranty Expense,"900,000.00",,expense_increase,Warranty expense,1
+,,,,,liability_increase,Provision for warranties,,"900,000.00",Warranty Provisions,,"900,000.00",liability_increase,Warranty provisions,1
+,,,,,,TOTAL,"900,000.00","900,000.00",TOTAL,"900,000.00","900,000.00",,,

@@ -1,0 +1,504 @@
+{
+  "test_case_id": "int_hard_01a_note_derecognition",
+  "variant_name": "baseline_v4_dualtrack",
+  "model": "sonnet",
+  "debit_tuple_exact_match": false,
+  "credit_tuple_exact_match": true,
+  "debit_tuple_slot_accuracy": 0.5,
+  "credit_tuple_slot_accuracy": 0.8333333333333334,
+  "entry_valid": true,
+  "debit_tuple": [
+    1,
+    0,
+    0,
+    0,
+    1
+  ],
+  "credit_tuple": [
+    0,
+    0,
+    0,
+    1,
+    0
+  ],
+  "journal_entry": {
+    "reason": "Note receivable discounted at bank with derecognition \u2014 cash proceeds after discount, loss on disposal recognized, trade receivable removed",
+    "lines": [
+      {
+        "type": "debit",
+        "account_name": "Cash and cash equivalents",
+        "amount": 98356.16
+      },
+      {
+        "type": "debit",
+        "account_name": "Loss on disposal of financial asset",
+        "amount": 1643.84
+      },
+      {
+        "type": "credit",
+        "account_name": "Trade receivables",
+        "amount": 100000.0
+      }
+    ]
+  },
+  "actual_cost_usd": 0.034971,
+  "raw_cost_usd": 0.097098,
+  "total_latency_ms": 25429,
+  "total_input_tokens": 26536,
+  "total_output_tokens": 1166,
+  "total_llm_calls": 5,
+  "iteration_count": 1,
+  "final_decision": "APPROVED",
+  "fix_attempted": null,
+  "fix_succeeded": null,
+  "agent_metrics": {
+    "tax_specialist": {
+      "input_tokens": 606,
+      "output_tokens": 159,
+      "cache_read_tokens": 3842,
+      "cache_write_tokens": 0,
+      "total_input_tokens": 4448,
+      "llm_calls": 1,
+      "actual_cost_usd": 0.0053556,
+      "raw_cost_usd": 0.015729,
+      "output": {
+        "reasoning": "Transaction describes discounting a promissory note at the bank (financial asset derecognition). This is a financial transaction involving the disposal of a receivable, not a taxable supply of goods or services. No tax is mentioned in the text.",
+        "tax_mentioned": false,
+        "taxable": false,
+        "tax_context": null,
+        "tax_rate": null,
+        "add_tax_lines": false,
+        "treatment": "not_applicable"
+      },
+      "reason": null
+    },
+    "debit_classifier": {
+      "input_tokens": 567,
+      "output_tokens": 182,
+      "cache_read_tokens": 4885,
+      "cache_write_tokens": 0,
+      "total_input_tokens": 5452,
+      "llm_calls": 1,
+      "actual_cost_usd": 0.0058965,
+      "raw_cost_usd": 0.019086,
+      "output": {
+        "asset_increase": [
+          {
+            "reason": "Cash received from discounting the note at the bank",
+            "category": "Cash and cash equivalents",
+            "count": 1
+          }
+        ],
+        "expense_increase": [],
+        "liability_decrease": [],
+        "equity_decrease": [],
+        "revenue_decrease": [
+          {
+            "reason": "Loss on disposal of financial asset due to discount charges exceeding any premium",
+            "category": "Gains (losses) on disposals",
+            "count": 1
+          }
+        ],
+        "tuple": [
+          1,
+          0,
+          0,
+          0,
+          1
+        ]
+      },
+      "reason": null
+    },
+    "credit_classifier": {
+      "input_tokens": 564,
+      "output_tokens": 152,
+      "cache_read_tokens": 4773,
+      "cache_write_tokens": 0,
+      "total_input_tokens": 5337,
+      "llm_calls": 1,
+      "actual_cost_usd": 0.0054039,
+      "raw_cost_usd": 0.018291,
+      "output": {
+        "liability_increase": [],
+        "equity_increase": [],
+        "revenue_increase": [],
+        "asset_decrease": [
+          {
+            "reason": "Trade receivable derecognized as risks and rewards transferred per management determination under IFRS 9",
+            "category": "Trade receivables",
+            "count": 1
+          }
+        ],
+        "expense_decrease": [],
+        "tuple": [
+          0,
+          0,
+          0,
+          1,
+          0
+        ]
+      },
+      "reason": null
+    },
+    "unknown": {
+      "input_tokens": 623,
+      "output_tokens": 514,
+      "cache_read_tokens": 4937,
+      "cache_write_tokens": 0,
+      "total_input_tokens": 5560,
+      "llm_calls": 1,
+      "actual_cost_usd": 0.0110601,
+      "raw_cost_usd": 0.02439,
+      "output": null,
+      "reason": null
+    },
+    "entry_drafter": {
+      "input_tokens": 1166,
+      "output_tokens": 159,
+      "cache_read_tokens": 4573,
+      "cache_write_tokens": 0,
+      "total_input_tokens": 5739,
+      "llm_calls": 1,
+      "actual_cost_usd": 0.0072549,
+      "raw_cost_usd": 0.019602,
+      "output": {
+        "reason": "Note receivable discounted at bank with derecognition \u2014 cash proceeds after discount, loss on disposal recognized, trade receivable removed",
+        "lines": [
+          {
+            "type": "debit",
+            "account_name": "Cash and cash equivalents",
+            "amount": 98356.16
+          },
+          {
+            "type": "debit",
+            "account_name": "Loss on disposal of financial asset",
+            "amount": 1643.84
+          },
+          {
+            "type": "credit",
+            "account_name": "Trade receivables",
+            "amount": 100000.0
+          }
+        ]
+      },
+      "reason": "Note receivable discounted at bank with derecognition \u2014 cash proceeds after discount, loss on disposal recognized, trade receivable removed"
+    }
+  },
+  "pre_fix_debit_tuple": null,
+  "post_fix_debit_tuple": null,
+  "pre_fix_credit_tuple": null,
+  "post_fix_credit_tuple": null,
+  "fix_root_cause_agent": null,
+  "rejection_reason": null,
+  "diagnostician_decision": null,
+  "validation_error": null,
+  "decision_correct": true,
+  "entry_match": null,
+  "clarification_correct": null,
+  "clarification_questions": null,
+  "ambiguous": false,
+  "tier": "intermediate",
+  "error": null,
+  "pipeline_state": {
+    "iteration": 0,
+    "output_ambiguity_detector": [
+      {
+        "ambiguities": [
+          {
+            "aspect": "Sale vs secured borrowing",
+            "input_contextualized_conventional_default": null,
+            "input_contextualized_ifrs_default": "Management has explicitly determined this qualifies as derecognition under IFRS 9 \u2014 resolve as sale/disposal, not borrowing.",
+            "clarification_question": null,
+            "cases": null,
+            "ambiguous": false
+          },
+          {
+            "aspect": "Discount calculation method",
+            "input_contextualized_conventional_default": null,
+            "input_contextualized_ifrs_default": "IFRS rules specify 365-day year as default for interest and discount calculations \u2014 discount = $100,000 \u00d7 15% \u00d7 40/365.",
+            "clarification_question": null,
+            "cases": null,
+            "ambiguous": false
+          }
+        ]
+      }
+    ],
+    "output_complexity_detector": [
+      {
+        "flags": [
+          {
+            "aspect": "Discount computation for 40 remaining days",
+            "best_attempt": {
+              "reason": "Derecognition of note receivable at face value $100,000, cash proceeds after bank discount ($100,000 \u00d7 15% \u00d7 40/365 = $1,643.84 discount), difference is disposal loss.",
+              "lines": [
+                {
+                  "type": "debit",
+                  "account_name": "Cash",
+                  "amount": 98356.16
+                },
+                {
+                  "type": "debit",
+                  "account_name": "Loss on Disposal of Note Receivable",
+                  "amount": 1643.84
+                },
+                {
+                  "type": "credit",
+                  "account_name": "Notes Receivable",
+                  "amount": 100000.0
+                }
+              ]
+            },
+            "gap": null,
+            "beyond_llm_capability": false
+          }
+        ]
+      }
+    ],
+    "output_tax_specialist": [
+      {
+        "reasoning": "Transaction describes discounting a promissory note at the bank (financial asset derecognition). This is a financial transaction involving the disposal of a receivable, not a taxable supply of goods or services. No tax is mentioned in the text.",
+        "tax_mentioned": false,
+        "taxable": false,
+        "tax_context": null,
+        "tax_rate": null,
+        "add_tax_lines": false,
+        "treatment": "not_applicable"
+      }
+    ],
+    "output_decision_maker": [
+      {
+        "ambiguities": [
+          {
+            "aspect": "Sale vs secured borrowing",
+            "input_contextualized_conventional_default": null,
+            "input_contextualized_ifrs_default": "Management has explicitly determined this qualifies as derecognition under IFRS 9 \u2014 resolve as sale/disposal, not borrowing.",
+            "clarification_question": null,
+            "cases": null,
+            "ambiguous": false
+          },
+          {
+            "aspect": "Discount calculation method",
+            "input_contextualized_conventional_default": null,
+            "input_contextualized_ifrs_default": "IFRS rules specify 365-day year as default for interest and discount calculations \u2014 discount = $100,000 \u00d7 15% \u00d7 40/365.",
+            "clarification_question": null,
+            "cases": null,
+            "ambiguous": false
+          }
+        ],
+        "complexity_flags": [
+          {
+            "aspect": "Discount computation for 40 remaining days",
+            "best_attempt": {
+              "reason": "Derecognition of note receivable at face value $100,000, cash proceeds after bank discount ($100,000 \u00d7 15% \u00d7 40/365 = $1,643.84 discount), difference is disposal loss.",
+              "lines": [
+                {
+                  "type": "debit",
+                  "account_name": "Cash",
+                  "amount": 98356.16
+                },
+                {
+                  "type": "debit",
+                  "account_name": "Loss on Disposal of Note Receivable",
+                  "amount": 1643.84
+                },
+                {
+                  "type": "credit",
+                  "account_name": "Notes Receivable",
+                  "amount": 100000.0
+                }
+              ]
+            },
+            "gap": null,
+            "beyond_llm_capability": false
+          }
+        ],
+        "proceed_reason": "Management's stated derecognition determination under IFRS 9 resolves the discounting treatment, and all computation inputs (face value, rate, days remaining) are provided.",
+        "clarification_questions": null,
+        "stuck_reason": null,
+        "overall_final_rationale": "Management's explicit IFRS 9 derecognition determination resolves the sale vs borrowing ambiguity, and the discount computation uses stated inputs with the 365-day default convention.",
+        "decision": "PROCEED"
+      }
+    ],
+    "output_entry_drafter": [
+      {
+        "reason": "Note receivable discounted at bank with derecognition \u2014 cash proceeds after discount, loss on disposal recognized, trade receivable removed",
+        "lines": [
+          {
+            "type": "debit",
+            "account_name": "Cash and cash equivalents",
+            "amount": 98356.16
+          },
+          {
+            "type": "debit",
+            "account_name": "Loss on disposal of financial asset",
+            "amount": 1643.84
+          },
+          {
+            "type": "credit",
+            "account_name": "Trade receivables",
+            "amount": 100000.0
+          }
+        ]
+      }
+    ],
+    "output_disambiguator": [
+      {
+        "ambiguities": [
+          {
+            "aspect": "Sale vs secured borrowing",
+            "input_contextualized_conventional_default": null,
+            "input_contextualized_ifrs_default": "Management has explicitly determined this qualifies as derecognition under IFRS 9 \u2014 resolve as sale/disposal, not borrowing.",
+            "clarification_question": null,
+            "cases": null,
+            "ambiguous": false
+          },
+          {
+            "aspect": "Discount calculation method",
+            "input_contextualized_conventional_default": null,
+            "input_contextualized_ifrs_default": "IFRS rules specify 365-day year as default for interest and discount calculations \u2014 discount = $100,000 \u00d7 15% \u00d7 40/365.",
+            "clarification_question": null,
+            "cases": null,
+            "ambiguous": false
+          }
+        ]
+      }
+    ],
+    "output_debit_classifier": [
+      {
+        "asset_increase": [
+          {
+            "reason": "Cash received from discounting the note at the bank",
+            "category": "Cash and cash equivalents",
+            "count": 1
+          }
+        ],
+        "expense_increase": [],
+        "liability_decrease": [],
+        "equity_decrease": [],
+        "revenue_decrease": [
+          {
+            "reason": "Loss on disposal of financial asset due to discount charges exceeding any premium",
+            "category": "Gains (losses) on disposals",
+            "count": 1
+          }
+        ],
+        "tuple": [
+          1,
+          0,
+          0,
+          0,
+          1
+        ]
+      }
+    ],
+    "output_credit_classifier": [
+      {
+        "liability_increase": [],
+        "equity_increase": [],
+        "revenue_increase": [],
+        "asset_decrease": [
+          {
+            "reason": "Trade receivable derecognized as risks and rewards transferred per management determination under IFRS 9",
+            "category": "Trade receivables",
+            "count": 1
+          }
+        ],
+        "expense_decrease": [],
+        "tuple": [
+          0,
+          0,
+          0,
+          1,
+          0
+        ]
+      }
+    ],
+    "output_debit_corrector": [],
+    "output_credit_corrector": [],
+    "output_entry_builder": [],
+    "output_approver": [],
+    "output_diagnostician": [],
+    "status_ambiguity_detector": 1,
+    "status_complexity_detector": 1,
+    "status_tax_specialist": 1,
+    "status_decision_maker": 1,
+    "status_entry_drafter": 1,
+    "status_disambiguator": 1,
+    "status_debit_classifier": 1,
+    "status_credit_classifier": 1,
+    "status_debit_corrector": 0,
+    "status_credit_corrector": 0,
+    "status_entry_builder": 0,
+    "status_approver": 0,
+    "status_diagnostician": 0,
+    "fix_context_disambiguator": [],
+    "fix_context_debit_classifier": [],
+    "fix_context_credit_classifier": [],
+    "fix_context_debit_corrector": [],
+    "fix_context_credit_corrector": [],
+    "fix_context_entry_builder": [],
+    "fix_context_approver": [],
+    "fix_context_diagnostician": [],
+    "decision": "APPROVED",
+    "validation_error": null,
+    "llm_calls": [
+      {
+        "node": "tax_specialist",
+        "stop_reason": "tool_use",
+        "input_tokens": 606,
+        "output_tokens": 159,
+        "input_token_details": {
+          "cache_read": 3842,
+          "cache_creation": 0
+        }
+      },
+      {
+        "node": "debit_classifier",
+        "stop_reason": "tool_use",
+        "input_tokens": 567,
+        "output_tokens": 182,
+        "input_token_details": {
+          "cache_read": 4885,
+          "cache_creation": 0
+        }
+      },
+      {
+        "node": "credit_classifier",
+        "stop_reason": "tool_use",
+        "input_tokens": 564,
+        "output_tokens": 152,
+        "input_token_details": {
+          "cache_read": 4773,
+          "cache_creation": 0
+        }
+      },
+      {
+        "node": "unknown",
+        "stop_reason": "tool_use",
+        "input_tokens": 623,
+        "output_tokens": 514,
+        "input_token_details": {
+          "cache_read": 4937,
+          "cache_creation": 0
+        }
+      },
+      {
+        "node": "entry_drafter",
+        "stop_reason": "tool_use",
+        "input_tokens": 1166,
+        "output_tokens": 159,
+        "input_token_details": {
+          "cache_read": 4573,
+          "cache_creation": 0
+        }
+      }
+    ],
+    "stop_reasons": {
+      "tax_specialist": "tool_use",
+      "debit_classifier": "tool_use",
+      "credit_classifier": "tool_use",
+      "unknown": "tool_use",
+      "entry_drafter": "tool_use"
+    }
+  }
+}

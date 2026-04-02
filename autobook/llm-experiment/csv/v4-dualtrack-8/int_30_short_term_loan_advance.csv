@@ -1,0 +1,4 @@
+test_case_id,tier,transaction_text,actual_cost_usd,total_latency_s,exp_relationship,exp_account,exp_debit,exp_credit,act_account,act_debit,act_credit,act_relationship,act_category,act_count
+int_30_short_term_loan_advance,intermediate,"Target advanced a short-term loan of $2,000,000 to a business partner for a term of one year, transferring the funds from Target's chequing account to the partner's chequing account. Interest is charged at an annual rate of 4.5%, receivable at the end of each month.",0.0328,30.7,asset_increase,Short-term loans receivable,"2,000,000.00",,Short-term loans receivable,"2,000,000.00",,asset_increase,Short-term loans receivable,1
+,,,,,asset_decrease,Cash — chequing,,"2,000,000.00",Cash and cash equivalents,,"2,000,000.00",asset_decrease,Cash and cash equivalents,1
+,,,,,,TOTAL,"2,000,000.00","2,000,000.00",TOTAL,"2,000,000.00","2,000,000.00",,,

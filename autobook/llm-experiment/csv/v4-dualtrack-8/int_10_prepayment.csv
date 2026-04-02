@@ -1,0 +1,5 @@
+test_case_id,tier,transaction_text,actual_cost_usd,total_latency_s,exp_relationship,exp_account,exp_debit,exp_credit,act_account,act_debit,act_credit,act_relationship,act_category,act_count
+int_10_prepayment,intermediate,"Target paid $1,000,000 in cash to a supplier as a prepayment for raw materials, in anticipation of recent price surges and supply shortages.",0.0295,30.8,asset_increase,Prepayments,"1,000,000.00",,Prepaid Raw Materials,"1,000,000.00",,?,?,
+,,,,,,,,,,,,asset_increase,Non-current prepayments,1
+,,,,,asset_decrease,Cash,,"1,000,000.00",Cash,,"1,000,000.00",asset_decrease,Cash and cash equivalents,1
+,,,,,,TOTAL,"1,000,000.00","1,000,000.00",TOTAL,"1,000,000.00","1,000,000.00",,,

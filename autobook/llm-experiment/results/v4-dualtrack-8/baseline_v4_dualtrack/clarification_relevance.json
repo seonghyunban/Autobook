@@ -1,0 +1,73 @@
+{
+  "evaluator": "claude",
+  "evaluated_at": "2026-04-01T18:07:04.143545",
+  "prompt_version": "v4",
+  "source_files": [
+    "eval_clarification.json"
+  ],
+  "results": {
+    "hard_01_note_discounting": {
+      "actual_decision": "INCOMPLETE_INFORMATION",
+      "actual_questions": [
+        "Was this a sale of the note (derecognition) or a secured borrowing with the note as collateral?"
+      ],
+      "expected_cases": [
+        "Derecognition (sale, risks and rewards transferred)",
+        "Collateralized borrowing (risks and rewards retained)"
+      ],
+      "relevant": true,
+      "reason": "All criteria met. Decision is INCOMPLETE_INFORMATION. Question produced. Cases clearly distinguish derecognition (sale) vs collateralized borrowing with distinct journal entries for each. Question asks a business fact -- whether risks and rewards were transferred to the bank -- not which accounting standard to apply."
+    },
+    "hard_02_investment_classification": {
+      "actual_decision": "INCOMPLETE_INFORMATION",
+      "actual_questions": [
+        "What is the intended classification for this investment: FVTPL, FVOCI, or equity method (significant influence)?"
+      ],
+      "expected_cases": [
+        "FVTPL (transaction costs expensed)",
+        "FVOCI (transaction costs capitalized)",
+        "Equity method (transaction costs capitalized)"
+      ],
+      "relevant": false,
+      "reason": "Criteria 1-3 met but criterion 4 fails. The question asks directly for the accounting classification (FVTPL vs FVOCI vs equity method) rather than the underlying business facts that determine it. A proper business-fact question would ask about the entity's intent and ability, e.g., 'Does the company have significant influence over Ford?' or 'Is this investment held for trading, or does the company elect to present fair value changes in OCI?' The question as posed asks the user to choose the accounting treatment rather than supply the facts the accountant needs to determine it."
+    },
+    "hard_16_rent_treatment": {
+      "actual_decision": "INCOMPLETE_INFORMATION",
+      "actual_questions": [
+        "Does the company elect to recognize this 12-month lease as a short-term lease expense immediately, or as a prepaid asset to be amortized over the lease term?"
+      ],
+      "expected_cases": [
+        "Prepaid asset (amortized over lease term)",
+        "Immediate expense (IFRS 16 short-term lease exemption)"
+      ],
+      "relevant": false,
+      "reason": "Criteria 1-3 met but criterion 4 fails. The question asks about an accounting policy election (IFRS 16 short-term lease exemption) which is an accounting treatment choice, not a business fact. A proper business-fact question would ask something like 'What is the total lease term including any renewal options?' or 'Has the company adopted the IFRS 16 short-term lease exemption as a standing policy?' The question as phrased presents the two accounting treatments and asks the user to pick one."
+    },
+    "hard_27_meal_purpose": {
+      "actual_decision": "INCOMPLETE_INFORMATION",
+      "actual_questions": [
+        "What was the business purpose of this meal?"
+      ],
+      "expected_cases": [
+        "Overtime meal",
+        "Working meeting",
+        "Client entertainment",
+        "Factory staff meal"
+      ],
+      "relevant": true,
+      "reason": "All criteria met. Decision is INCOMPLETE_INFORMATION. Question produced. Cases distinguish client entertainment, employee travel meal, and team meeting/working lunch -- covering the key interpretations. Question asks a straightforward business fact (the purpose of the meal) rather than which expense account to use."
+    },
+    "hard_32_grocery_purpose": {
+      "actual_decision": "INCOMPLETE_INFORMATION",
+      "actual_questions": [
+        "What was the business purpose of this tea, beverages, and refreshments purchase (e.g., office break room supplies, client entertainment, employee event)?"
+      ],
+      "expected_cases": [
+        "Client entertainment",
+        "Employee break room supplies"
+      ],
+      "relevant": true,
+      "reason": "All criteria met. Decision is INCOMPLETE_INFORMATION. Question produced. Cases distinguish office break room supplies, client entertainment, and employee event -- covering both expected interpretations plus a reasonable third. Question asks a business fact (the purpose of the purchase) and helpfully provides examples without prescribing the accounting treatment."
+    }
+  }
+}

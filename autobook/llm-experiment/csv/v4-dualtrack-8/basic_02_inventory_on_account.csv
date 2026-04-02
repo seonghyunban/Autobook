@@ -1,0 +1,4 @@
+test_case_id,tier,transaction_text,actual_cost_usd,total_latency_s,exp_relationship,exp_account,exp_debit,exp_credit,act_account,act_debit,act_credit,act_relationship,act_category,act_count
+basic_02_inventory_on_account,basic,Purchase inventory $300 on account,0.0253,14.9,asset_increase,Inventories — Merchandise,300.00,,Inventories — merchandise,300.00,,asset_increase,Inventories — merchandise,1
+,,,,,liability_increase,Trade payables,,300.00,Trade payables,,300.00,liability_increase,Trade payables,1
+,,,,,,TOTAL,300.00,300.00,TOTAL,300.00,300.00,,,

@@ -1,0 +1,4 @@
+test_case_id,tier,transaction_text,actual_cost_usd,total_latency_s,exp_relationship,exp_account,exp_debit,exp_credit,act_account,act_debit,act_credit,act_relationship,act_category,act_count
+basic_11_convert_preferred_to_common,basic,Converted 50 preferred shares (carrying value $100) to 25 common shares,0.0302,14.6,equity_decrease,Share capital — Preferred,100.00,,Preferred Share Capital,100.00,,equity_decrease,Issued capital,1
+,,,,,equity_increase,Share capital — Common,,100.00,Common Share Capital,,100.00,equity_increase,Issued capital,1
+,,,,,,TOTAL,100.00,100.00,TOTAL,100.00,100.00,,,

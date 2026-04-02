@@ -1,0 +1,5 @@
+test_case_id,tier,transaction_text,actual_cost_usd,total_latency_s,exp_relationship,exp_account,exp_debit,exp_credit,act_account,act_debit,act_credit,act_relationship,act_category,act_count
+int_03_machinery_purchase,intermediate,"Clorox purchased machinery from Ford for $700,000 on account for factory expansion. Clorox also paid by cheque $30,000 in freight, $20,000 in installation, and $50,000 in testing and commissioning costs.",0.0322,24.6,asset_increase,PP&E — Machinery,"800,000.00",,Machinery,"800,000.00",,asset_increase,Machinery,1
+,,,,,liability_increase,Trade payables,,"700,000.00",Trade payables,,"700,000.00",liability_increase,Trade payables,1
+,,,,,asset_decrease,Cash,,"100,000.00",Cash and cash equivalents,,"100,000.00",asset_decrease,Cash and cash equivalents,1
+,,,,,,TOTAL,"800,000.00","800,000.00",TOTAL,"800,000.00","800,000.00",,,

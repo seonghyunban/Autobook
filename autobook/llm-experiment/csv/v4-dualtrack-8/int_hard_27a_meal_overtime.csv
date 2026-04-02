@@ -1,0 +1,4 @@
+test_case_id,tier,transaction_text,actual_cost_usd,total_latency_s,exp_relationship,exp_account,exp_debit,exp_credit,act_account,act_debit,act_credit,act_relationship,act_category,act_count
+int_hard_27a_meal_overtime,intermediate,Mondelez paid $125 for a meal using the corporate credit card. The meal was provided to employees working overtime as an employee benefit.,0.0278,26.3,expense_increase,Employee benefits expense,125.00,,Employee benefits expense,125.00,,expense_increase,Employee benefits expense,1
+,,,,,liability_increase,Credit card payable,,125.00,Credit card payable,,125.00,liability_increase,Credit card payable,1
+,,,,,,TOTAL,125.00,125.00,TOTAL,125.00,125.00,,,

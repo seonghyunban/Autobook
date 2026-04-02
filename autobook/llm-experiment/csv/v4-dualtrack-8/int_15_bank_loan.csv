@@ -1,0 +1,4 @@
+test_case_id,tier,transaction_text,actual_cost_usd,total_latency_s,exp_relationship,exp_account,exp_debit,exp_credit,act_account,act_debit,act_credit,act_relationship,act_category,act_count
+int_15_bank_loan,intermediate,"Atlas Van Lines borrowed $200,000 in cash from its bank at an annual interest rate of 6% for a term of 3 years. Interest is payable semi-annually.",0.0330,70.3,asset_increase,Cash,"200,000.00",,Cash and cash equivalents,"200,000.00",,asset_increase,Cash and cash equivalents,1
+,,,,,liability_increase,Long-term borrowings,,"200,000.00",Long-term borrowings,,"200,000.00",liability_increase,Long-term borrowings,1
+,,,,,,TOTAL,"200,000.00","200,000.00",TOTAL,"200,000.00","200,000.00",,,

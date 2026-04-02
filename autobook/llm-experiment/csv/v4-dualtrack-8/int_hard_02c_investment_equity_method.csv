@@ -1,0 +1,4 @@
+test_case_id,tier,transaction_text,actual_cost_usd,total_latency_s,exp_relationship,exp_account,exp_debit,exp_credit,act_account,act_debit,act_credit,act_relationship,act_category,act_count
+int_hard_02c_investment_equity_method,intermediate,"BlackRock acquired 10% of Ford's outstanding common shares for $3,000,000 and paid a transaction fee of $100,000 by cheque. BlackRock has significant influence over Ford and will account for this using the equity method under IAS 28.",0.0591,20.3,asset_increase,Investment in associate,"3,100,000.00",,Investments — equity method,"3,100,000.00",,asset_increase,Investments — equity method,1
+,,,,,asset_decrease,Cash,,"3,100,000.00",Cash and cash equivalents,,"3,100,000.00",asset_decrease,Cash and cash equivalents,1
+,,,,,,TOTAL,"3,100,000.00","3,100,000.00",TOTAL,"3,100,000.00","3,100,000.00",,,

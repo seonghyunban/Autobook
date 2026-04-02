@@ -1,0 +1,4 @@
+test_case_id,tier,transaction_text,actual_cost_usd,total_latency_s,exp_relationship,exp_account,exp_debit,exp_credit,act_account,act_debit,act_credit,act_relationship,act_category,act_count
+int_28_promotional_literature,intermediate,"Mondelez purchased 15 titles of promotional literature for $7,000 in cash from a bookstore, to be displayed in the sales department for customer reference.",0.0293,21.4,expense_increase,Advertising expense,"7,000.00",,Advertising expense,"7,000.00",,expense_increase,Advertising expense,1
+,,,,,asset_decrease,Cash,,"7,000.00",Cash,,"7,000.00",asset_decrease,Cash and cash equivalents,1
+,,,,,,TOTAL,"7,000.00","7,000.00",TOTAL,"7,000.00","7,000.00",,,

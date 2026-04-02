@@ -1,0 +1,504 @@
+{
+  "test_case_id": "int_05_bond_issuance_discount",
+  "variant_name": "baseline_v4_dualtrack",
+  "model": "sonnet",
+  "debit_tuple_exact_match": true,
+  "credit_tuple_exact_match": true,
+  "debit_tuple_slot_accuracy": 0.8333333333333334,
+  "credit_tuple_slot_accuracy": 0.8333333333333334,
+  "entry_valid": true,
+  "debit_tuple": [
+    1,
+    0,
+    1,
+    0,
+    0
+  ],
+  "credit_tuple": [
+    1,
+    0,
+    0,
+    0,
+    0
+  ],
+  "journal_entry": {
+    "reason": "Bonds issued at discount \u2014 cash proceeds equal PV of coupon payments plus PV of principal at 15% market rate, with discount recorded as contra-liability",
+    "lines": [
+      {
+        "type": "debit",
+        "account_name": "Cash",
+        "amount": 2657397.53
+      },
+      {
+        "type": "debit",
+        "account_name": "Discount on Bonds Payable",
+        "amount": 342602.47
+      },
+      {
+        "type": "credit",
+        "account_name": "Bonds Payable",
+        "amount": 3000000.0
+      }
+    ]
+  },
+  "actual_cost_usd": 0.034176,
+  "raw_cost_usd": 0.096303,
+  "total_latency_ms": 25189,
+  "total_input_tokens": 26321,
+  "total_output_tokens": 1156,
+  "total_llm_calls": 5,
+  "iteration_count": 1,
+  "final_decision": "APPROVED",
+  "fix_attempted": null,
+  "fix_succeeded": null,
+  "agent_metrics": {
+    "tax_specialist": {
+      "input_tokens": 573,
+      "output_tokens": 133,
+      "cache_read_tokens": 3842,
+      "cache_write_tokens": 0,
+      "total_input_tokens": 4415,
+      "llm_calls": 1,
+      "actual_cost_usd": 0.0048666000000000004,
+      "raw_cost_usd": 0.01524,
+      "output": {
+        "reasoning": "Bond issuance is a financing transaction (liability increase). Financing transactions are not taxable supplies under sales tax rules.",
+        "tax_mentioned": false,
+        "taxable": false,
+        "tax_context": null,
+        "tax_rate": null,
+        "add_tax_lines": false,
+        "treatment": "not_applicable"
+      },
+      "reason": null
+    },
+    "unknown": {
+      "input_tokens": 590,
+      "output_tokens": 526,
+      "cache_read_tokens": 4937,
+      "cache_write_tokens": 0,
+      "total_input_tokens": 5527,
+      "llm_calls": 1,
+      "actual_cost_usd": 0.011141100000000001,
+      "raw_cost_usd": 0.024471,
+      "output": null,
+      "reason": null
+    },
+    "debit_classifier": {
+      "input_tokens": 534,
+      "output_tokens": 184,
+      "cache_read_tokens": 4885,
+      "cache_write_tokens": 0,
+      "total_input_tokens": 5419,
+      "llm_calls": 1,
+      "actual_cost_usd": 0.0058275,
+      "raw_cost_usd": 0.019017,
+      "output": {
+        "asset_increase": [
+          {
+            "reason": "Cash proceeds received from bond issuance at discounted price",
+            "category": "Cash and cash equivalents",
+            "count": 1
+          }
+        ],
+        "expense_increase": [],
+        "liability_decrease": [
+          {
+            "reason": "Discount on bonds payable reflects difference between face value and present value of bond proceeds",
+            "category": "Long-term borrowings",
+            "count": 1
+          }
+        ],
+        "equity_decrease": [],
+        "revenue_decrease": [],
+        "tuple": [
+          1,
+          0,
+          1,
+          0,
+          0
+        ]
+      },
+      "reason": null
+    },
+    "credit_classifier": {
+      "input_tokens": 531,
+      "output_tokens": 145,
+      "cache_read_tokens": 4773,
+      "cache_write_tokens": 0,
+      "total_input_tokens": 5304,
+      "llm_calls": 1,
+      "actual_cost_usd": 0.0051998999999999995,
+      "raw_cost_usd": 0.018087,
+      "output": {
+        "liability_increase": [
+          {
+            "reason": "Bonds issued at face value creating long-term debt obligation",
+            "category": "Long-term borrowings",
+            "count": 1
+          }
+        ],
+        "equity_increase": [],
+        "revenue_increase": [],
+        "asset_decrease": [],
+        "expense_decrease": [],
+        "tuple": [
+          1,
+          0,
+          0,
+          0,
+          0
+        ]
+      },
+      "reason": null
+    },
+    "entry_drafter": {
+      "input_tokens": 1083,
+      "output_tokens": 168,
+      "cache_read_tokens": 4573,
+      "cache_write_tokens": 0,
+      "total_input_tokens": 5656,
+      "llm_calls": 1,
+      "actual_cost_usd": 0.0071408999999999995,
+      "raw_cost_usd": 0.019488,
+      "output": {
+        "reason": "Bonds issued at discount \u2014 cash proceeds equal PV of coupon payments plus PV of principal at 15% market rate, with discount recorded as contra-liability",
+        "lines": [
+          {
+            "type": "debit",
+            "account_name": "Cash",
+            "amount": 2657397.53
+          },
+          {
+            "type": "debit",
+            "account_name": "Discount on Bonds Payable",
+            "amount": 342602.47
+          },
+          {
+            "type": "credit",
+            "account_name": "Bonds Payable",
+            "amount": 3000000.0
+          }
+        ]
+      },
+      "reason": "Bonds issued at discount \u2014 cash proceeds equal PV of coupon payments plus PV of principal at 15% market rate, with discount recorded as contra-liability"
+    }
+  },
+  "pre_fix_debit_tuple": null,
+  "post_fix_debit_tuple": null,
+  "pre_fix_credit_tuple": null,
+  "post_fix_credit_tuple": null,
+  "fix_root_cause_agent": null,
+  "rejection_reason": null,
+  "diagnostician_decision": null,
+  "validation_error": null,
+  "decision_correct": true,
+  "entry_match": null,
+  "clarification_correct": null,
+  "clarification_questions": null,
+  "ambiguous": false,
+  "tier": "intermediate",
+  "error": null,
+  "pipeline_state": {
+    "iteration": 0,
+    "output_ambiguity_detector": [
+      {
+        "ambiguities": [
+          {
+            "aspect": "Bond discount calculation method",
+            "input_contextualized_conventional_default": "'issued at a discount' with stated face value, coupon rate, term, and market rate provides all inputs needed for PV calculation.",
+            "input_contextualized_ifrs_default": "IFRS 9 requires financial liabilities to be initially measured at fair value (present value of cash flows discounted at market rate).",
+            "clarification_question": null,
+            "cases": null,
+            "ambiguous": false
+          },
+          {
+            "aspect": "Interest payment timing",
+            "input_contextualized_conventional_default": "'interest payable annually on December 31' specifies the payment schedule.",
+            "input_contextualized_ifrs_default": null,
+            "clarification_question": null,
+            "cases": null,
+            "ambiguous": false
+          }
+        ]
+      }
+    ],
+    "output_complexity_detector": [
+      {
+        "flags": [
+          {
+            "aspect": "Present value calculation for bond proceeds",
+            "best_attempt": {
+              "reason": "Bond issued at discount requires PV calculation: PV of principal ($3,000,000 at 15% for 3 years) plus PV of annuity ($300,000 annual coupon at 15% for 3 years) - downstream calculator will compute exact proceeds.",
+              "lines": [
+                {
+                  "type": "debit",
+                  "account_name": "Cash",
+                  "amount": 2657395.0
+                },
+                {
+                  "type": "debit",
+                  "account_name": "Discount on Bonds Payable",
+                  "amount": 342605.0
+                },
+                {
+                  "type": "credit",
+                  "account_name": "Bonds Payable",
+                  "amount": 3000000.0
+                }
+              ]
+            },
+            "gap": null,
+            "beyond_llm_capability": false
+          }
+        ]
+      }
+    ],
+    "output_tax_specialist": [
+      {
+        "reasoning": "Bond issuance is a financing transaction (liability increase). Financing transactions are not taxable supplies under sales tax rules.",
+        "tax_mentioned": false,
+        "taxable": false,
+        "tax_context": null,
+        "tax_rate": null,
+        "add_tax_lines": false,
+        "treatment": "not_applicable"
+      }
+    ],
+    "output_decision_maker": [
+      {
+        "ambiguities": [
+          {
+            "aspect": "Bond discount calculation method",
+            "input_contextualized_conventional_default": "'issued at a discount' with stated face value, coupon rate, term, and market rate provides all inputs needed for PV calculation.",
+            "input_contextualized_ifrs_default": "IFRS 9 requires financial liabilities to be initially measured at fair value (present value of cash flows discounted at market rate).",
+            "clarification_question": null,
+            "cases": null,
+            "ambiguous": false
+          },
+          {
+            "aspect": "Interest payment timing",
+            "input_contextualized_conventional_default": "'interest payable annually on December 31' specifies the payment schedule.",
+            "input_contextualized_ifrs_default": null,
+            "clarification_question": null,
+            "cases": null,
+            "ambiguous": false
+          }
+        ],
+        "complexity_flags": [
+          {
+            "aspect": "Present value calculation for bond proceeds",
+            "best_attempt": {
+              "reason": "Bond issued at discount requires PV calculation: PV of principal ($3,000,000 at 15% for 3 years) plus PV of annuity ($300,000 annual coupon at 15% for 3 years) - downstream calculator will compute exact proceeds.",
+              "lines": [
+                {
+                  "type": "debit",
+                  "account_name": "Cash",
+                  "amount": 2657395.0
+                },
+                {
+                  "type": "debit",
+                  "account_name": "Discount on Bonds Payable",
+                  "amount": 342605.0
+                },
+                {
+                  "type": "credit",
+                  "account_name": "Bonds Payable",
+                  "amount": 3000000.0
+                }
+              ]
+            },
+            "gap": null,
+            "beyond_llm_capability": false
+          }
+        ],
+        "proceed_reason": "Transaction provides all necessary inputs (face value, coupon rate, term, market rate) for the downstream calculator to compute bond proceeds and discount amount.",
+        "clarification_questions": null,
+        "stuck_reason": null,
+        "overall_final_rationale": "All inputs for the bond discount calculation are stated (face value $3,000,000, coupon 10%, term 3 years, market rate 15%), and the downstream calculator can compute the exact proceeds using PV formulas.",
+        "decision": "PROCEED"
+      }
+    ],
+    "output_entry_drafter": [
+      {
+        "reason": "Bonds issued at discount \u2014 cash proceeds equal PV of coupon payments plus PV of principal at 15% market rate, with discount recorded as contra-liability",
+        "lines": [
+          {
+            "type": "debit",
+            "account_name": "Cash",
+            "amount": 2657397.53
+          },
+          {
+            "type": "debit",
+            "account_name": "Discount on Bonds Payable",
+            "amount": 342602.47
+          },
+          {
+            "type": "credit",
+            "account_name": "Bonds Payable",
+            "amount": 3000000.0
+          }
+        ]
+      }
+    ],
+    "output_disambiguator": [
+      {
+        "ambiguities": [
+          {
+            "aspect": "Bond discount calculation method",
+            "input_contextualized_conventional_default": "'issued at a discount' with stated face value, coupon rate, term, and market rate provides all inputs needed for PV calculation.",
+            "input_contextualized_ifrs_default": "IFRS 9 requires financial liabilities to be initially measured at fair value (present value of cash flows discounted at market rate).",
+            "clarification_question": null,
+            "cases": null,
+            "ambiguous": false
+          },
+          {
+            "aspect": "Interest payment timing",
+            "input_contextualized_conventional_default": "'interest payable annually on December 31' specifies the payment schedule.",
+            "input_contextualized_ifrs_default": null,
+            "clarification_question": null,
+            "cases": null,
+            "ambiguous": false
+          }
+        ]
+      }
+    ],
+    "output_debit_classifier": [
+      {
+        "asset_increase": [
+          {
+            "reason": "Cash proceeds received from bond issuance at discounted price",
+            "category": "Cash and cash equivalents",
+            "count": 1
+          }
+        ],
+        "expense_increase": [],
+        "liability_decrease": [
+          {
+            "reason": "Discount on bonds payable reflects difference between face value and present value of bond proceeds",
+            "category": "Long-term borrowings",
+            "count": 1
+          }
+        ],
+        "equity_decrease": [],
+        "revenue_decrease": [],
+        "tuple": [
+          1,
+          0,
+          1,
+          0,
+          0
+        ]
+      }
+    ],
+    "output_credit_classifier": [
+      {
+        "liability_increase": [
+          {
+            "reason": "Bonds issued at face value creating long-term debt obligation",
+            "category": "Long-term borrowings",
+            "count": 1
+          }
+        ],
+        "equity_increase": [],
+        "revenue_increase": [],
+        "asset_decrease": [],
+        "expense_decrease": [],
+        "tuple": [
+          1,
+          0,
+          0,
+          0,
+          0
+        ]
+      }
+    ],
+    "output_debit_corrector": [],
+    "output_credit_corrector": [],
+    "output_entry_builder": [],
+    "output_approver": [],
+    "output_diagnostician": [],
+    "status_ambiguity_detector": 1,
+    "status_complexity_detector": 1,
+    "status_tax_specialist": 1,
+    "status_decision_maker": 1,
+    "status_entry_drafter": 1,
+    "status_disambiguator": 1,
+    "status_debit_classifier": 1,
+    "status_credit_classifier": 1,
+    "status_debit_corrector": 0,
+    "status_credit_corrector": 0,
+    "status_entry_builder": 0,
+    "status_approver": 0,
+    "status_diagnostician": 0,
+    "fix_context_disambiguator": [],
+    "fix_context_debit_classifier": [],
+    "fix_context_credit_classifier": [],
+    "fix_context_debit_corrector": [],
+    "fix_context_credit_corrector": [],
+    "fix_context_entry_builder": [],
+    "fix_context_approver": [],
+    "fix_context_diagnostician": [],
+    "decision": "APPROVED",
+    "validation_error": null,
+    "llm_calls": [
+      {
+        "node": "tax_specialist",
+        "stop_reason": "tool_use",
+        "input_tokens": 573,
+        "output_tokens": 133,
+        "input_token_details": {
+          "cache_read": 3842,
+          "cache_creation": 0
+        }
+      },
+      {
+        "node": "unknown",
+        "stop_reason": "tool_use",
+        "input_tokens": 590,
+        "output_tokens": 526,
+        "input_token_details": {
+          "cache_read": 4937,
+          "cache_creation": 0
+        }
+      },
+      {
+        "node": "debit_classifier",
+        "stop_reason": "tool_use",
+        "input_tokens": 534,
+        "output_tokens": 184,
+        "input_token_details": {
+          "cache_read": 4885,
+          "cache_creation": 0
+        }
+      },
+      {
+        "node": "credit_classifier",
+        "stop_reason": "tool_use",
+        "input_tokens": 531,
+        "output_tokens": 145,
+        "input_token_details": {
+          "cache_read": 4773,
+          "cache_creation": 0
+        }
+      },
+      {
+        "node": "entry_drafter",
+        "stop_reason": "tool_use",
+        "input_tokens": 1083,
+        "output_tokens": 168,
+        "input_token_details": {
+          "cache_read": 4573,
+          "cache_creation": 0
+        }
+      }
+    ],
+    "stop_reasons": {
+      "tax_specialist": "tool_use",
+      "unknown": "tool_use",
+      "debit_classifier": "tool_use",
+      "credit_classifier": "tool_use",
+      "entry_drafter": "tool_use"
+    }
+  }
+}

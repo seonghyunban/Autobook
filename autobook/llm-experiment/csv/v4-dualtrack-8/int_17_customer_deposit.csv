@@ -1,0 +1,4 @@
+test_case_id,tier,transaction_text,actual_cost_usd,total_latency_s,exp_relationship,exp_account,exp_debit,exp_credit,act_account,act_debit,act_credit,act_relationship,act_category,act_count
+int_17_customer_deposit,intermediate,"Atlas Van Lines entered into a contract with a customer to provide moving services in one month for a total contract price of $17,700. Upon signing, Atlas received $5,000 as a deposit via bank transfer to its chequing account.",0.0288,35.3,asset_increase,Cash — chequing,"5,000.00",,Cash and cash equivalents,"5,000.00",,asset_increase,Cash and cash equivalents,1
+,,,,,liability_increase,Contract liabilities,,"5,000.00",Contract liabilities,,"5,000.00",liability_increase,Contract liabilities,1
+,,,,,,TOTAL,"5,000.00","5,000.00",TOTAL,"5,000.00","5,000.00",,,

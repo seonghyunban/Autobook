@@ -1,0 +1,4 @@
+test_case_id,tier,transaction_text,actual_cost_usd,total_latency_s,exp_relationship,exp_account,exp_debit,exp_credit,act_account,act_debit,act_credit,act_relationship,act_category,act_count
+basic_05_pay_accounts_payable,basic,Issued a cheque for $50 to settle accounts payable,0.0270,18.1,liability_decrease,Trade payables,50.00,,Trade payables,50.00,,liability_decrease,Trade payables,1
+,,,,,asset_decrease,Cash,,50.00,Cash,,50.00,asset_decrease,Cash and cash equivalents,1
+,,,,,,TOTAL,50.00,50.00,TOTAL,50.00,50.00,,,

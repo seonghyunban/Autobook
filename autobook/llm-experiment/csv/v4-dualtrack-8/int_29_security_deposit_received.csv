@@ -1,0 +1,5 @@
+test_case_id,tier,transaction_text,actual_cost_usd,total_latency_s,exp_relationship,exp_account,exp_debit,exp_credit,act_account,act_debit,act_credit,act_relationship,act_category,act_count
+int_29_security_deposit_received,intermediate,"Mondelez leased a vacant portion of its building to a tenant for a 1-year term at a monthly rent of $10,000 (exclusive of sales tax). Upon signing the lease, Mondelez received a security deposit of $25,000 in cash.",0.0355,25.4,asset_increase,Cash,"25,000.00",,Cash and cash equivalents,"25,000.00",,asset_increase,Cash and cash equivalents,1
+,,,,,liability_increase,Rental deposits received,,"25,000.00",Security deposits payable,,"25,000.00",liability_increase,Other payables,1
+,,,,,,,,,,,,revenue_increase,Rental income,1
+,,,,,,TOTAL,"25,000.00","25,000.00",TOTAL,"25,000.00","25,000.00",,,

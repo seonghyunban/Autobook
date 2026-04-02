@@ -1,0 +1,464 @@
+{
+  "test_case_id": "int_07_decommissioning_provision",
+  "variant_name": "baseline_v4_dualtrack",
+  "model": "sonnet",
+  "debit_tuple_exact_match": true,
+  "credit_tuple_exact_match": true,
+  "debit_tuple_slot_accuracy": 0.8333333333333334,
+  "credit_tuple_slot_accuracy": 0.8333333333333334,
+  "entry_valid": true,
+  "debit_tuple": [
+    1,
+    0,
+    0,
+    0,
+    0
+  ],
+  "credit_tuple": [
+    2,
+    0,
+    0,
+    0,
+    0
+  ],
+  "journal_entry": {
+    "reason": "Offshore marine structure acquired on account with decommissioning costs capitalized per IAS 16.16(c) \u2014 total asset cost is purchase price plus PV of restoration obligation",
+    "lines": [
+      {
+        "type": "debit",
+        "account_name": "Offshore Marine Structure",
+        "amount": 5950000.0
+      },
+      {
+        "type": "credit",
+        "account_name": "Trade Payables",
+        "amount": 4000000.0
+      },
+      {
+        "type": "credit",
+        "account_name": "Decommissioning Provisions",
+        "amount": 1950000.0
+      }
+    ]
+  },
+  "actual_cost_usd": 0.032607,
+  "raw_cost_usd": 0.094734,
+  "total_latency_ms": 20558,
+  "total_input_tokens": 26373,
+  "total_output_tokens": 1041,
+  "total_llm_calls": 5,
+  "iteration_count": 1,
+  "final_decision": "APPROVED",
+  "fix_attempted": null,
+  "fix_succeeded": null,
+  "agent_metrics": {
+    "tax_specialist": {
+      "input_tokens": 573,
+      "output_tokens": 125,
+      "cache_read_tokens": 3842,
+      "cache_write_tokens": 0,
+      "total_input_tokens": 4415,
+      "llm_calls": 1,
+      "actual_cost_usd": 0.0047466,
+      "raw_cost_usd": 0.01512,
+      "output": {
+        "reasoning": "Transaction describes acquisition of marine structure and restoration obligation; no tax mentioned in the text",
+        "tax_mentioned": false,
+        "taxable": true,
+        "tax_context": null,
+        "tax_rate": null,
+        "add_tax_lines": false,
+        "treatment": "not_applicable"
+      },
+      "reason": null
+    },
+    "debit_classifier": {
+      "input_tokens": 534,
+      "output_tokens": 154,
+      "cache_read_tokens": 4885,
+      "cache_write_tokens": 0,
+      "total_input_tokens": 5419,
+      "llm_calls": 1,
+      "actual_cost_usd": 0.0053775,
+      "raw_cost_usd": 0.018567,
+      "output": {
+        "asset_increase": [
+          {
+            "reason": "Offshore marine structure acquired at purchase price plus capitalized decommissioning obligation per IAS 16.16(c)",
+            "category": "Buildings",
+            "count": 1
+          }
+        ],
+        "expense_increase": [],
+        "liability_decrease": [],
+        "equity_decrease": [],
+        "revenue_decrease": [],
+        "tuple": [
+          1,
+          0,
+          0,
+          0,
+          0
+        ]
+      },
+      "reason": null
+    },
+    "unknown": {
+      "input_tokens": 590,
+      "output_tokens": 421,
+      "cache_read_tokens": 4937,
+      "cache_write_tokens": 0,
+      "total_input_tokens": 5527,
+      "llm_calls": 1,
+      "actual_cost_usd": 0.009566100000000001,
+      "raw_cost_usd": 0.022896,
+      "output": null,
+      "reason": null
+    },
+    "credit_classifier": {
+      "input_tokens": 531,
+      "output_tokens": 168,
+      "cache_read_tokens": 4773,
+      "cache_write_tokens": 0,
+      "total_input_tokens": 5304,
+      "llm_calls": 1,
+      "actual_cost_usd": 0.005544899999999999,
+      "raw_cost_usd": 0.018432,
+      "output": {
+        "liability_increase": [
+          {
+            "reason": "Purchase of offshore marine structure on account",
+            "category": "Trade payables",
+            "count": 1
+          },
+          {
+            "reason": "Present value of future site restoration obligation recognized",
+            "category": "Decommissioning provisions",
+            "count": 1
+          }
+        ],
+        "equity_increase": [],
+        "revenue_increase": [],
+        "asset_decrease": [],
+        "expense_decrease": [],
+        "tuple": [
+          2,
+          0,
+          0,
+          0,
+          0
+        ]
+      },
+      "reason": null
+    },
+    "entry_drafter": {
+      "input_tokens": 1135,
+      "output_tokens": 173,
+      "cache_read_tokens": 4573,
+      "cache_write_tokens": 0,
+      "total_input_tokens": 5708,
+      "llm_calls": 1,
+      "actual_cost_usd": 0.0073719,
+      "raw_cost_usd": 0.019719,
+      "output": {
+        "reason": "Offshore marine structure acquired on account with decommissioning costs capitalized per IAS 16.16(c) \u2014 total asset cost is purchase price plus PV of restoration obligation",
+        "lines": [
+          {
+            "type": "debit",
+            "account_name": "Offshore Marine Structure",
+            "amount": 5950000.0
+          },
+          {
+            "type": "credit",
+            "account_name": "Trade Payables",
+            "amount": 4000000.0
+          },
+          {
+            "type": "credit",
+            "account_name": "Decommissioning Provisions",
+            "amount": 1950000.0
+          }
+        ]
+      },
+      "reason": "Offshore marine structure acquired on account with decommissioning costs capitalized per IAS 16.16(c) \u2014 total asset cost is purchase price plus PV of restoration obligation"
+    }
+  },
+  "pre_fix_debit_tuple": null,
+  "post_fix_debit_tuple": null,
+  "pre_fix_credit_tuple": null,
+  "post_fix_credit_tuple": null,
+  "fix_root_cause_agent": null,
+  "rejection_reason": null,
+  "diagnostician_decision": null,
+  "validation_error": null,
+  "decision_correct": true,
+  "entry_match": null,
+  "clarification_correct": null,
+  "clarification_questions": null,
+  "ambiguous": false,
+  "tier": "intermediate",
+  "error": null,
+  "pipeline_state": {
+    "iteration": 0,
+    "output_ambiguity_detector": [
+      {
+        "ambiguities": [
+          {
+            "aspect": "Payment method for structure acquisition",
+            "input_contextualized_conventional_default": "'on account' = accounts payable for the $4,000,000 purchase price",
+            "input_contextualized_ifrs_default": null,
+            "clarification_question": null,
+            "cases": null,
+            "ambiguous": false
+          },
+          {
+            "aspect": "Treatment of decommissioning/restoration obligation",
+            "input_contextualized_conventional_default": null,
+            "input_contextualized_ifrs_default": "IAS 16.16(c) requires capitalizing decommissioning costs into the PP&E asset; separately stated purchase price ($4,000,000) and obligation amount ($1,950,000) are additive, resulting in total asset cost of $5,950,000",
+            "clarification_question": null,
+            "cases": null,
+            "ambiguous": false
+          }
+        ]
+      }
+    ],
+    "output_complexity_detector": [
+      {
+        "flags": [
+          {
+            "aspect": "Present value calculation for restoration obligation",
+            "best_attempt": null,
+            "gap": null,
+            "beyond_llm_capability": false
+          }
+        ]
+      }
+    ],
+    "output_tax_specialist": [
+      {
+        "reasoning": "Transaction describes acquisition of marine structure and restoration obligation; no tax mentioned in the text",
+        "tax_mentioned": false,
+        "taxable": true,
+        "tax_context": null,
+        "tax_rate": null,
+        "add_tax_lines": false,
+        "treatment": "not_applicable"
+      }
+    ],
+    "output_decision_maker": [
+      {
+        "ambiguities": [
+          {
+            "aspect": "Payment method for structure acquisition",
+            "input_contextualized_conventional_default": "'on account' = accounts payable for the $4,000,000 purchase price",
+            "input_contextualized_ifrs_default": null,
+            "clarification_question": null,
+            "cases": null,
+            "ambiguous": false
+          },
+          {
+            "aspect": "Treatment of decommissioning/restoration obligation",
+            "input_contextualized_conventional_default": null,
+            "input_contextualized_ifrs_default": "IAS 16.16(c) requires capitalizing decommissioning costs into the PP&E asset; separately stated purchase price ($4,000,000) and obligation amount ($1,950,000) are additive, resulting in total asset cost of $5,950,000",
+            "clarification_question": null,
+            "cases": null,
+            "ambiguous": false
+          }
+        ],
+        "complexity_flags": [
+          {
+            "aspect": "Present value calculation for restoration obligation",
+            "best_attempt": null,
+            "gap": null,
+            "beyond_llm_capability": false
+          }
+        ],
+        "proceed_reason": "Conventional term 'on account' resolves payment method, and IFRS IAS 16.16(c) definitively requires capitalizing the stated present value of decommissioning costs into PP&E with a corresponding provision.",
+        "clarification_questions": null,
+        "stuck_reason": null,
+        "overall_final_rationale": "The transaction is fully resolved: 'on account' resolves payment as accounts payable, and IFRS IAS 16.16(c) requires capitalizing the stated $1,950,000 present value of restoration costs into the asset with a corresponding provision liability.",
+        "decision": "PROCEED"
+      }
+    ],
+    "output_entry_drafter": [
+      {
+        "reason": "Offshore marine structure acquired on account with decommissioning costs capitalized per IAS 16.16(c) \u2014 total asset cost is purchase price plus PV of restoration obligation",
+        "lines": [
+          {
+            "type": "debit",
+            "account_name": "Offshore Marine Structure",
+            "amount": 5950000.0
+          },
+          {
+            "type": "credit",
+            "account_name": "Trade Payables",
+            "amount": 4000000.0
+          },
+          {
+            "type": "credit",
+            "account_name": "Decommissioning Provisions",
+            "amount": 1950000.0
+          }
+        ]
+      }
+    ],
+    "output_disambiguator": [
+      {
+        "ambiguities": [
+          {
+            "aspect": "Payment method for structure acquisition",
+            "input_contextualized_conventional_default": "'on account' = accounts payable for the $4,000,000 purchase price",
+            "input_contextualized_ifrs_default": null,
+            "clarification_question": null,
+            "cases": null,
+            "ambiguous": false
+          },
+          {
+            "aspect": "Treatment of decommissioning/restoration obligation",
+            "input_contextualized_conventional_default": null,
+            "input_contextualized_ifrs_default": "IAS 16.16(c) requires capitalizing decommissioning costs into the PP&E asset; separately stated purchase price ($4,000,000) and obligation amount ($1,950,000) are additive, resulting in total asset cost of $5,950,000",
+            "clarification_question": null,
+            "cases": null,
+            "ambiguous": false
+          }
+        ]
+      }
+    ],
+    "output_debit_classifier": [
+      {
+        "asset_increase": [
+          {
+            "reason": "Offshore marine structure acquired at purchase price plus capitalized decommissioning obligation per IAS 16.16(c)",
+            "category": "Buildings",
+            "count": 1
+          }
+        ],
+        "expense_increase": [],
+        "liability_decrease": [],
+        "equity_decrease": [],
+        "revenue_decrease": [],
+        "tuple": [
+          1,
+          0,
+          0,
+          0,
+          0
+        ]
+      }
+    ],
+    "output_credit_classifier": [
+      {
+        "liability_increase": [
+          {
+            "reason": "Purchase of offshore marine structure on account",
+            "category": "Trade payables",
+            "count": 1
+          },
+          {
+            "reason": "Present value of future site restoration obligation recognized",
+            "category": "Decommissioning provisions",
+            "count": 1
+          }
+        ],
+        "equity_increase": [],
+        "revenue_increase": [],
+        "asset_decrease": [],
+        "expense_decrease": [],
+        "tuple": [
+          2,
+          0,
+          0,
+          0,
+          0
+        ]
+      }
+    ],
+    "output_debit_corrector": [],
+    "output_credit_corrector": [],
+    "output_entry_builder": [],
+    "output_approver": [],
+    "output_diagnostician": [],
+    "status_ambiguity_detector": 1,
+    "status_complexity_detector": 1,
+    "status_tax_specialist": 1,
+    "status_decision_maker": 1,
+    "status_entry_drafter": 1,
+    "status_disambiguator": 1,
+    "status_debit_classifier": 1,
+    "status_credit_classifier": 1,
+    "status_debit_corrector": 0,
+    "status_credit_corrector": 0,
+    "status_entry_builder": 0,
+    "status_approver": 0,
+    "status_diagnostician": 0,
+    "fix_context_disambiguator": [],
+    "fix_context_debit_classifier": [],
+    "fix_context_credit_classifier": [],
+    "fix_context_debit_corrector": [],
+    "fix_context_credit_corrector": [],
+    "fix_context_entry_builder": [],
+    "fix_context_approver": [],
+    "fix_context_diagnostician": [],
+    "decision": "APPROVED",
+    "validation_error": null,
+    "llm_calls": [
+      {
+        "node": "tax_specialist",
+        "stop_reason": "tool_use",
+        "input_tokens": 573,
+        "output_tokens": 125,
+        "input_token_details": {
+          "cache_read": 3842,
+          "cache_creation": 0
+        }
+      },
+      {
+        "node": "debit_classifier",
+        "stop_reason": "tool_use",
+        "input_tokens": 534,
+        "output_tokens": 154,
+        "input_token_details": {
+          "cache_read": 4885,
+          "cache_creation": 0
+        }
+      },
+      {
+        "node": "unknown",
+        "stop_reason": "tool_use",
+        "input_tokens": 590,
+        "output_tokens": 421,
+        "input_token_details": {
+          "cache_read": 4937,
+          "cache_creation": 0
+        }
+      },
+      {
+        "node": "credit_classifier",
+        "stop_reason": "tool_use",
+        "input_tokens": 531,
+        "output_tokens": 168,
+        "input_token_details": {
+          "cache_read": 4773,
+          "cache_creation": 0
+        }
+      },
+      {
+        "node": "entry_drafter",
+        "stop_reason": "tool_use",
+        "input_tokens": 1135,
+        "output_tokens": 173,
+        "input_token_details": {
+          "cache_read": 4573,
+          "cache_creation": 0
+        }
+      }
+    ],
+    "stop_reasons": {
+      "tax_specialist": "tool_use",
+      "debit_classifier": "tool_use",
+      "unknown": "tool_use",
+      "credit_classifier": "tool_use",
+      "entry_drafter": "tool_use"
+    }
+  }
+}

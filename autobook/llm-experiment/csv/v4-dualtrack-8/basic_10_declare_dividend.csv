@@ -1,0 +1,4 @@
+test_case_id,tier,transaction_text,actual_cost_usd,total_latency_s,exp_relationship,exp_account,exp_debit,exp_credit,act_account,act_debit,act_credit,act_relationship,act_category,act_count
+basic_10_declare_dividend,basic,"Board declared a $500,000 cash dividend, payable in 30 days",0.0272,8.6,equity_decrease,Retained earnings,"500,000.00",,Retained earnings,"500,000.00",,equity_decrease,Retained earnings,1
+,,,,,liability_increase,Dividends payable,,"500,000.00",Dividends payable,,"500,000.00",liability_increase,Dividends payable,1
+,,,,,,TOTAL,"500,000.00","500,000.00",TOTAL,"500,000.00","500,000.00",,,

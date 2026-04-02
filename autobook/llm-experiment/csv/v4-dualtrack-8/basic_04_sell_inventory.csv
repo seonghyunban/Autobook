@@ -1,0 +1,6 @@
+test_case_id,tier,transaction_text,actual_cost_usd,total_latency_s,exp_relationship,exp_account,exp_debit,exp_credit,act_account,act_debit,act_credit,act_relationship,act_category,act_count
+basic_04_sell_inventory,basic,Sell inventory (cost $300) for $500 cash,0.0310,13.1,asset_increase,Cash,500.00,,Cash,500.00,,asset_increase,Cash and cash equivalents,1
+,,,,,expense_increase,Cost of goods sold,300.00,,Cost of Sales,300.00,,expense_increase,Cost of sales,1
+,,,,,revenue_increase,Revenue — Product sales,,500.00,Revenue from Sale of Goods,,500.00,revenue_increase,Revenue from sale of goods,1
+,,,,,asset_decrease,Inventories — Merchandise,,300.00,Inventories — Merchandise,,300.00,asset_decrease,Inventories — merchandise,1
+,,,,,,TOTAL,800.00,800.00,TOTAL,800.00,800.00,,,

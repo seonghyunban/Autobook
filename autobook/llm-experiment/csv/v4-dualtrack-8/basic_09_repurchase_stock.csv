@@ -1,0 +1,4 @@
+test_case_id,tier,transaction_text,actual_cost_usd,total_latency_s,exp_relationship,exp_account,exp_debit,exp_credit,act_account,act_debit,act_credit,act_relationship,act_category,act_count
+basic_09_repurchase_stock,basic,Bought back 100 shares from shareholders for $200 cash,0.0275,8.3,equity_decrease,Treasury shares,200.00,,Treasury shares,200.00,,equity_decrease,Treasury shares,1
+,,,,,asset_decrease,Cash,,200.00,Cash,,200.00,asset_decrease,Cash and cash equivalents,1
+,,,,,,TOTAL,200.00,200.00,TOTAL,200.00,200.00,,,

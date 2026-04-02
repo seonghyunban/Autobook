@@ -1,0 +1,551 @@
+{
+  "test_case_id": "int_18_multiple_assets",
+  "variant_name": "baseline_v4_dualtrack",
+  "model": "sonnet",
+  "debit_tuple_exact_match": true,
+  "credit_tuple_exact_match": true,
+  "debit_tuple_slot_accuracy": 0.8333333333333334,
+  "credit_tuple_slot_accuracy": 0.8333333333333334,
+  "entry_valid": true,
+  "debit_tuple": [
+    2,
+    0,
+    0,
+    0,
+    0
+  ],
+  "credit_tuple": [
+    1,
+    0,
+    0,
+    1,
+    0
+  ],
+  "journal_entry": {
+    "reason": "Office equipment and motor vehicle acquired for business operations, paid by cash and on account respectively",
+    "lines": [
+      {
+        "type": "debit",
+        "account_name": "Office equipment",
+        "amount": 5500.0
+      },
+      {
+        "type": "debit",
+        "account_name": "Motor vehicles",
+        "amount": 250000.0
+      },
+      {
+        "type": "credit",
+        "account_name": "Cash and cash equivalents",
+        "amount": 5500.0
+      },
+      {
+        "type": "credit",
+        "account_name": "Trade payables",
+        "amount": 250000.0
+      }
+    ]
+  },
+  "actual_cost_usd": 0.033606,
+  "raw_cost_usd": 0.095733,
+  "total_latency_ms": 17212,
+  "total_input_tokens": 26326,
+  "total_output_tokens": 1117,
+  "total_llm_calls": 5,
+  "iteration_count": 1,
+  "final_decision": "APPROVED",
+  "fix_attempted": null,
+  "fix_succeeded": null,
+  "agent_metrics": {
+    "tax_specialist": {
+      "input_tokens": 553,
+      "output_tokens": 161,
+      "cache_read_tokens": 3842,
+      "cache_write_tokens": 0,
+      "total_input_tokens": 4395,
+      "llm_calls": 1,
+      "actual_cost_usd": 0.0052266000000000005,
+      "raw_cost_usd": 0.0156,
+      "output": {
+        "reasoning": "Transaction describes purchases of office desks, computers, and a crane-equipped truck. No tax is mentioned in the text. All items are taxable supplies in Ontario (13% HST), but since tax is not mentioned, no tax lines should be added.",
+        "tax_mentioned": false,
+        "taxable": true,
+        "tax_context": null,
+        "tax_rate": null,
+        "add_tax_lines": false,
+        "treatment": "not_applicable"
+      },
+      "reason": null
+    },
+    "credit_classifier": {
+      "input_tokens": 511,
+      "output_tokens": 169,
+      "cache_read_tokens": 4773,
+      "cache_write_tokens": 0,
+      "total_input_tokens": 5284,
+      "llm_calls": 1,
+      "actual_cost_usd": 0.005499899999999999,
+      "raw_cost_usd": 0.018387,
+      "output": {
+        "liability_increase": [
+          {
+            "reason": "Crane-equipped truck purchased on account",
+            "category": "Trade payables",
+            "count": 1
+          }
+        ],
+        "equity_increase": [],
+        "revenue_increase": [],
+        "asset_decrease": [
+          {
+            "reason": "Cash paid for office desks and computers",
+            "category": "Cash and cash equivalents",
+            "count": 1
+          }
+        ],
+        "expense_decrease": [],
+        "tuple": [
+          1,
+          0,
+          0,
+          1,
+          0
+        ]
+      },
+      "reason": null
+    },
+    "unknown": {
+      "input_tokens": 570,
+      "output_tokens": 528,
+      "cache_read_tokens": 4937,
+      "cache_write_tokens": 0,
+      "total_input_tokens": 5507,
+      "llm_calls": 1,
+      "actual_cost_usd": 0.0111111,
+      "raw_cost_usd": 0.024441,
+      "output": null,
+      "reason": null
+    },
+    "debit_classifier": {
+      "input_tokens": 514,
+      "output_tokens": 90,
+      "cache_read_tokens": 4885,
+      "cache_write_tokens": 0,
+      "total_input_tokens": 5399,
+      "llm_calls": 1,
+      "actual_cost_usd": 0.0043575,
+      "raw_cost_usd": 0.017547,
+      "output": {
+        "asset_increase": [
+          {
+            "reason": "Office desks and computers acquired as office equipment",
+            "category": "Office equipment",
+            "count": 1
+          },
+          {
+            "reason": "Crane-equipped truck purchased for moving operations",
+            "category": "Motor vehicles",
+            "count": 1
+          }
+        ],
+        "expense_increase": [],
+        "liability_decrease": [],
+        "equity_decrease": [],
+        "revenue_decrease": [],
+        "tuple": [
+          2,
+          0,
+          0,
+          0,
+          0
+        ]
+      },
+      "reason": null
+    },
+    "entry_drafter": {
+      "input_tokens": 1168,
+      "output_tokens": 169,
+      "cache_read_tokens": 4573,
+      "cache_write_tokens": 0,
+      "total_input_tokens": 5741,
+      "llm_calls": 1,
+      "actual_cost_usd": 0.0074109,
+      "raw_cost_usd": 0.019758,
+      "output": {
+        "reason": "Office equipment and motor vehicle acquired for business operations, paid by cash and on account respectively",
+        "lines": [
+          {
+            "type": "debit",
+            "account_name": "Office equipment",
+            "amount": 5500.0
+          },
+          {
+            "type": "debit",
+            "account_name": "Motor vehicles",
+            "amount": 250000.0
+          },
+          {
+            "type": "credit",
+            "account_name": "Cash and cash equivalents",
+            "amount": 5500.0
+          },
+          {
+            "type": "credit",
+            "account_name": "Trade payables",
+            "amount": 250000.0
+          }
+        ]
+      },
+      "reason": "Office equipment and motor vehicle acquired for business operations, paid by cash and on account respectively"
+    }
+  },
+  "pre_fix_debit_tuple": null,
+  "post_fix_debit_tuple": null,
+  "pre_fix_credit_tuple": null,
+  "post_fix_credit_tuple": null,
+  "fix_root_cause_agent": null,
+  "rejection_reason": null,
+  "diagnostician_decision": null,
+  "validation_error": null,
+  "decision_correct": true,
+  "entry_match": null,
+  "clarification_correct": null,
+  "clarification_questions": null,
+  "ambiguous": false,
+  "tier": "intermediate",
+  "error": null,
+  "pipeline_state": {
+    "iteration": 0,
+    "output_ambiguity_detector": [
+      {
+        "ambiguities": [
+          {
+            "aspect": "Payment method for office desks and computers",
+            "input_contextualized_conventional_default": "'paid in cash' = cash payment at the stated amounts ($2,000 + $3,500 = $5,500)",
+            "input_contextualized_ifrs_default": null,
+            "clarification_question": null,
+            "cases": null,
+            "ambiguous": false
+          },
+          {
+            "aspect": "Payment method for crane-equipped truck",
+            "input_contextualized_conventional_default": "'on account' = accounts payable for $250,000",
+            "input_contextualized_ifrs_default": null,
+            "clarification_question": null,
+            "cases": null,
+            "ambiguous": false
+          },
+          {
+            "aspect": "Classification of office desks and computers",
+            "input_contextualized_conventional_default": "Office desks and computers are office equipment/furniture \u2014 classify as PP&E assets",
+            "input_contextualized_ifrs_default": "IAS 16: items held for use in operations with future economic benefits are capitalized as PP&E",
+            "clarification_question": null,
+            "cases": null,
+            "ambiguous": false
+          },
+          {
+            "aspect": "Classification of crane-equipped truck",
+            "input_contextualized_conventional_default": "Truck for use in moving operations is equipment/vehicle \u2014 classify as PP&E asset",
+            "input_contextualized_ifrs_default": "IAS 16: items held for use in operations with future economic benefits are capitalized as PP&E",
+            "clarification_question": null,
+            "cases": null,
+            "ambiguous": false
+          }
+        ]
+      }
+    ],
+    "output_complexity_detector": [
+      {
+        "flags": [
+          {
+            "aspect": "Multiple asset purchases in single transaction",
+            "best_attempt": null,
+            "gap": null,
+            "beyond_llm_capability": false
+          },
+          {
+            "aspect": "Standard PP&E capitalization",
+            "best_attempt": null,
+            "gap": null,
+            "beyond_llm_capability": false
+          }
+        ]
+      }
+    ],
+    "output_tax_specialist": [
+      {
+        "reasoning": "Transaction describes purchases of office desks, computers, and a crane-equipped truck. No tax is mentioned in the text. All items are taxable supplies in Ontario (13% HST), but since tax is not mentioned, no tax lines should be added.",
+        "tax_mentioned": false,
+        "taxable": true,
+        "tax_context": null,
+        "tax_rate": null,
+        "add_tax_lines": false,
+        "treatment": "not_applicable"
+      }
+    ],
+    "output_decision_maker": [
+      {
+        "ambiguities": [
+          {
+            "aspect": "Payment method for office desks and computers",
+            "input_contextualized_conventional_default": "'paid in cash' = cash payment at the stated amounts ($2,000 + $3,500 = $5,500)",
+            "input_contextualized_ifrs_default": null,
+            "clarification_question": null,
+            "cases": null,
+            "ambiguous": false
+          },
+          {
+            "aspect": "Payment method for crane-equipped truck",
+            "input_contextualized_conventional_default": "'on account' = accounts payable for $250,000",
+            "input_contextualized_ifrs_default": null,
+            "clarification_question": null,
+            "cases": null,
+            "ambiguous": false
+          },
+          {
+            "aspect": "Classification of office desks and computers",
+            "input_contextualized_conventional_default": "Office desks and computers are office equipment/furniture \u2014 classify as PP&E assets",
+            "input_contextualized_ifrs_default": "IAS 16: items held for use in operations with future economic benefits are capitalized as PP&E",
+            "clarification_question": null,
+            "cases": null,
+            "ambiguous": false
+          },
+          {
+            "aspect": "Classification of crane-equipped truck",
+            "input_contextualized_conventional_default": "Truck for use in moving operations is equipment/vehicle \u2014 classify as PP&E asset",
+            "input_contextualized_ifrs_default": "IAS 16: items held for use in operations with future economic benefits are capitalized as PP&E",
+            "clarification_question": null,
+            "cases": null,
+            "ambiguous": false
+          }
+        ],
+        "complexity_flags": [
+          {
+            "aspect": "Multiple asset purchases in single transaction",
+            "best_attempt": null,
+            "gap": null,
+            "beyond_llm_capability": false
+          },
+          {
+            "aspect": "Standard PP&E capitalization",
+            "best_attempt": null,
+            "gap": null,
+            "beyond_llm_capability": false
+          }
+        ],
+        "proceed_reason": "Conventional terms 'paid in cash' and 'on account' resolve payment methods, and all purchases are clearly capitalizable PP&E assets for business operations.",
+        "clarification_questions": null,
+        "stuck_reason": null,
+        "overall_final_rationale": "All payment methods are explicitly stated ('paid in cash' and 'on account'), asset classifications are straightforward PP&E capitalizations under IAS 16, and no ambiguities or capability gaps exist.",
+        "decision": "PROCEED"
+      }
+    ],
+    "output_entry_drafter": [
+      {
+        "reason": "Office equipment and motor vehicle acquired for business operations, paid by cash and on account respectively",
+        "lines": [
+          {
+            "type": "debit",
+            "account_name": "Office equipment",
+            "amount": 5500.0
+          },
+          {
+            "type": "debit",
+            "account_name": "Motor vehicles",
+            "amount": 250000.0
+          },
+          {
+            "type": "credit",
+            "account_name": "Cash and cash equivalents",
+            "amount": 5500.0
+          },
+          {
+            "type": "credit",
+            "account_name": "Trade payables",
+            "amount": 250000.0
+          }
+        ]
+      }
+    ],
+    "output_disambiguator": [
+      {
+        "ambiguities": [
+          {
+            "aspect": "Payment method for office desks and computers",
+            "input_contextualized_conventional_default": "'paid in cash' = cash payment at the stated amounts ($2,000 + $3,500 = $5,500)",
+            "input_contextualized_ifrs_default": null,
+            "clarification_question": null,
+            "cases": null,
+            "ambiguous": false
+          },
+          {
+            "aspect": "Payment method for crane-equipped truck",
+            "input_contextualized_conventional_default": "'on account' = accounts payable for $250,000",
+            "input_contextualized_ifrs_default": null,
+            "clarification_question": null,
+            "cases": null,
+            "ambiguous": false
+          },
+          {
+            "aspect": "Classification of office desks and computers",
+            "input_contextualized_conventional_default": "Office desks and computers are office equipment/furniture \u2014 classify as PP&E assets",
+            "input_contextualized_ifrs_default": "IAS 16: items held for use in operations with future economic benefits are capitalized as PP&E",
+            "clarification_question": null,
+            "cases": null,
+            "ambiguous": false
+          },
+          {
+            "aspect": "Classification of crane-equipped truck",
+            "input_contextualized_conventional_default": "Truck for use in moving operations is equipment/vehicle \u2014 classify as PP&E asset",
+            "input_contextualized_ifrs_default": "IAS 16: items held for use in operations with future economic benefits are capitalized as PP&E",
+            "clarification_question": null,
+            "cases": null,
+            "ambiguous": false
+          }
+        ]
+      }
+    ],
+    "output_debit_classifier": [
+      {
+        "asset_increase": [
+          {
+            "reason": "Office desks and computers acquired as office equipment",
+            "category": "Office equipment",
+            "count": 1
+          },
+          {
+            "reason": "Crane-equipped truck purchased for moving operations",
+            "category": "Motor vehicles",
+            "count": 1
+          }
+        ],
+        "expense_increase": [],
+        "liability_decrease": [],
+        "equity_decrease": [],
+        "revenue_decrease": [],
+        "tuple": [
+          2,
+          0,
+          0,
+          0,
+          0
+        ]
+      }
+    ],
+    "output_credit_classifier": [
+      {
+        "liability_increase": [
+          {
+            "reason": "Crane-equipped truck purchased on account",
+            "category": "Trade payables",
+            "count": 1
+          }
+        ],
+        "equity_increase": [],
+        "revenue_increase": [],
+        "asset_decrease": [
+          {
+            "reason": "Cash paid for office desks and computers",
+            "category": "Cash and cash equivalents",
+            "count": 1
+          }
+        ],
+        "expense_decrease": [],
+        "tuple": [
+          1,
+          0,
+          0,
+          1,
+          0
+        ]
+      }
+    ],
+    "output_debit_corrector": [],
+    "output_credit_corrector": [],
+    "output_entry_builder": [],
+    "output_approver": [],
+    "output_diagnostician": [],
+    "status_ambiguity_detector": 1,
+    "status_complexity_detector": 1,
+    "status_tax_specialist": 1,
+    "status_decision_maker": 1,
+    "status_entry_drafter": 1,
+    "status_disambiguator": 1,
+    "status_debit_classifier": 1,
+    "status_credit_classifier": 1,
+    "status_debit_corrector": 0,
+    "status_credit_corrector": 0,
+    "status_entry_builder": 0,
+    "status_approver": 0,
+    "status_diagnostician": 0,
+    "fix_context_disambiguator": [],
+    "fix_context_debit_classifier": [],
+    "fix_context_credit_classifier": [],
+    "fix_context_debit_corrector": [],
+    "fix_context_credit_corrector": [],
+    "fix_context_entry_builder": [],
+    "fix_context_approver": [],
+    "fix_context_diagnostician": [],
+    "decision": "APPROVED",
+    "validation_error": null,
+    "llm_calls": [
+      {
+        "node": "tax_specialist",
+        "stop_reason": "tool_use",
+        "input_tokens": 553,
+        "output_tokens": 161,
+        "input_token_details": {
+          "cache_read": 3842,
+          "cache_creation": 0
+        }
+      },
+      {
+        "node": "credit_classifier",
+        "stop_reason": "tool_use",
+        "input_tokens": 511,
+        "output_tokens": 169,
+        "input_token_details": {
+          "cache_read": 4773,
+          "cache_creation": 0
+        }
+      },
+      {
+        "node": "unknown",
+        "stop_reason": "tool_use",
+        "input_tokens": 570,
+        "output_tokens": 528,
+        "input_token_details": {
+          "cache_read": 4937,
+          "cache_creation": 0
+        }
+      },
+      {
+        "node": "debit_classifier",
+        "stop_reason": "tool_use",
+        "input_tokens": 514,
+        "output_tokens": 90,
+        "input_token_details": {
+          "cache_read": 4885,
+          "cache_creation": 0
+        }
+      },
+      {
+        "node": "entry_drafter",
+        "stop_reason": "tool_use",
+        "input_tokens": 1168,
+        "output_tokens": 169,
+        "input_token_details": {
+          "cache_read": 4573,
+          "cache_creation": 0
+        }
+      }
+    ],
+    "stop_reasons": {
+      "tax_specialist": "tool_use",
+      "credit_classifier": "tool_use",
+      "unknown": "tool_use",
+      "debit_classifier": "tool_use",
+      "entry_drafter": "tool_use"
+    }
+  }
+}

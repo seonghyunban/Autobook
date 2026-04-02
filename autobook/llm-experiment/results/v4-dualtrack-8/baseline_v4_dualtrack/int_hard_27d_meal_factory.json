@@ -1,0 +1,439 @@
+{
+  "test_case_id": "int_hard_27d_meal_factory",
+  "variant_name": "baseline_v4_dualtrack",
+  "model": "sonnet",
+  "debit_tuple_exact_match": true,
+  "credit_tuple_exact_match": true,
+  "debit_tuple_slot_accuracy": 0.8333333333333334,
+  "credit_tuple_slot_accuracy": 0.8333333333333334,
+  "entry_valid": true,
+  "debit_tuple": [
+    1,
+    0,
+    0,
+    0,
+    0
+  ],
+  "credit_tuple": [
+    1,
+    0,
+    0,
+    0,
+    0
+  ],
+  "journal_entry": {
+    "reason": "Meal for factory production staff classified as manufacturing overhead is capitalized to work in progress inventory, paid via corporate credit card creating a liability.",
+    "lines": [
+      {
+        "type": "debit",
+        "account_name": "Inventories \u2014 work in progress",
+        "amount": 125.0
+      },
+      {
+        "type": "credit",
+        "account_name": "Credit card payable",
+        "amount": 125.0
+      }
+    ]
+  },
+  "actual_cost_usd": 0.028182000000000002,
+  "raw_cost_usd": 0.090309,
+  "total_latency_ms": 12590,
+  "total_input_tokens": 26058,
+  "total_output_tokens": 809,
+  "total_llm_calls": 5,
+  "iteration_count": 1,
+  "final_decision": "APPROVED",
+  "fix_attempted": null,
+  "fix_succeeded": null,
+  "agent_metrics": {
+    "tax_specialist": {
+      "input_tokens": 536,
+      "output_tokens": 127,
+      "cache_read_tokens": 3842,
+      "cache_write_tokens": 0,
+      "total_input_tokens": 4378,
+      "llm_calls": 1,
+      "actual_cost_usd": 0.004665600000000001,
+      "raw_cost_usd": 0.015039,
+      "output": {
+        "reasoning": "Text does not mention tax. Meals are taxable supplies, but no tax is stated.",
+        "tax_mentioned": false,
+        "taxable": true,
+        "tax_context": null,
+        "tax_rate": null,
+        "add_tax_lines": false,
+        "treatment": "not_applicable"
+      },
+      "reason": null
+    },
+    "debit_classifier": {
+      "input_tokens": 497,
+      "output_tokens": 77,
+      "cache_read_tokens": 4885,
+      "cache_write_tokens": 0,
+      "total_input_tokens": 5382,
+      "llm_calls": 1,
+      "actual_cost_usd": 0.0041115,
+      "raw_cost_usd": 0.017301,
+      "output": {
+        "asset_increase": [
+          {
+            "reason": "Meal for factory production staff classified as manufacturing overhead is capitalized to work in progress inventory",
+            "category": "Inventories \u2014 work in progress",
+            "count": 1
+          }
+        ],
+        "expense_increase": [],
+        "liability_decrease": [],
+        "equity_decrease": [],
+        "revenue_decrease": [],
+        "tuple": [
+          1,
+          0,
+          0,
+          0,
+          0
+        ]
+      },
+      "reason": null
+    },
+    "credit_classifier": {
+      "input_tokens": 494,
+      "output_tokens": 147,
+      "cache_read_tokens": 4773,
+      "cache_write_tokens": 0,
+      "total_input_tokens": 5267,
+      "llm_calls": 1,
+      "actual_cost_usd": 0.0051189,
+      "raw_cost_usd": 0.018006,
+      "output": {
+        "liability_increase": [
+          {
+            "reason": "Corporate credit card used to pay for meal, creating obligation to credit card company",
+            "category": "Credit card payable",
+            "count": 1
+          }
+        ],
+        "equity_increase": [],
+        "revenue_increase": [],
+        "asset_decrease": [],
+        "expense_decrease": [],
+        "tuple": [
+          1,
+          0,
+          0,
+          0,
+          0
+        ]
+      },
+      "reason": null
+    },
+    "unknown": {
+      "input_tokens": 553,
+      "output_tokens": 327,
+      "cache_read_tokens": 4937,
+      "cache_write_tokens": 0,
+      "total_input_tokens": 5490,
+      "llm_calls": 1,
+      "actual_cost_usd": 0.008045100000000001,
+      "raw_cost_usd": 0.021375,
+      "output": null,
+      "reason": null
+    },
+    "entry_drafter": {
+      "input_tokens": 968,
+      "output_tokens": 131,
+      "cache_read_tokens": 4573,
+      "cache_write_tokens": 0,
+      "total_input_tokens": 5541,
+      "llm_calls": 1,
+      "actual_cost_usd": 0.0062409,
+      "raw_cost_usd": 0.018588,
+      "output": {
+        "reason": "Meal for factory production staff classified as manufacturing overhead is capitalized to work in progress inventory, paid via corporate credit card creating a liability.",
+        "lines": [
+          {
+            "type": "debit",
+            "account_name": "Inventories \u2014 work in progress",
+            "amount": 125.0
+          },
+          {
+            "type": "credit",
+            "account_name": "Credit card payable",
+            "amount": 125.0
+          }
+        ]
+      },
+      "reason": "Meal for factory production staff classified as manufacturing overhead is capitalized to work in progress inventory, paid via corporate credit card creating a liability."
+    }
+  },
+  "pre_fix_debit_tuple": null,
+  "post_fix_debit_tuple": null,
+  "pre_fix_credit_tuple": null,
+  "post_fix_credit_tuple": null,
+  "fix_root_cause_agent": null,
+  "rejection_reason": null,
+  "diagnostician_decision": null,
+  "validation_error": null,
+  "decision_correct": true,
+  "entry_match": null,
+  "clarification_correct": null,
+  "clarification_questions": null,
+  "ambiguous": false,
+  "tier": "intermediate",
+  "error": null,
+  "pipeline_state": {
+    "iteration": 0,
+    "output_ambiguity_detector": [
+      {
+        "ambiguities": [
+          {
+            "aspect": "Classification of meal expense",
+            "input_contextualized_conventional_default": "Text explicitly states 'classified as manufacturing overhead' \u2014 this is a management determination that governs classification.",
+            "input_contextualized_ifrs_default": "Manufacturing overhead costs are capitalized to inventory/WIP as product costs, not expensed (IAS 2).",
+            "clarification_question": null,
+            "cases": null,
+            "ambiguous": false
+          },
+          {
+            "aspect": "Payment method",
+            "input_contextualized_conventional_default": "'using the corporate credit card' = Credit Card Payable liability increase.",
+            "input_contextualized_ifrs_default": null,
+            "clarification_question": null,
+            "cases": null,
+            "ambiguous": false
+          }
+        ]
+      }
+    ],
+    "output_complexity_detector": [
+      {
+        "flags": [
+          {
+            "aspect": "Manufacturing overhead capitalization",
+            "best_attempt": null,
+            "gap": null,
+            "beyond_llm_capability": false
+          }
+        ]
+      }
+    ],
+    "output_tax_specialist": [
+      {
+        "reasoning": "Text does not mention tax. Meals are taxable supplies, but no tax is stated.",
+        "tax_mentioned": false,
+        "taxable": true,
+        "tax_context": null,
+        "tax_rate": null,
+        "add_tax_lines": false,
+        "treatment": "not_applicable"
+      }
+    ],
+    "output_decision_maker": [
+      {
+        "ambiguities": [
+          {
+            "aspect": "Classification of meal expense",
+            "input_contextualized_conventional_default": "Text explicitly states 'classified as manufacturing overhead' \u2014 this is a management determination that governs classification.",
+            "input_contextualized_ifrs_default": "Manufacturing overhead costs are capitalized to inventory/WIP as product costs, not expensed (IAS 2).",
+            "clarification_question": null,
+            "cases": null,
+            "ambiguous": false
+          },
+          {
+            "aspect": "Payment method",
+            "input_contextualized_conventional_default": "'using the corporate credit card' = Credit Card Payable liability increase.",
+            "input_contextualized_ifrs_default": null,
+            "clarification_question": null,
+            "cases": null,
+            "ambiguous": false
+          }
+        ],
+        "complexity_flags": [
+          {
+            "aspect": "Manufacturing overhead capitalization",
+            "best_attempt": null,
+            "gap": null,
+            "beyond_llm_capability": false
+          }
+        ],
+        "proceed_reason": "Management's explicit classification as manufacturing overhead and the stated payment method resolve all aspects of this transaction.",
+        "clarification_questions": null,
+        "stuck_reason": null,
+        "overall_final_rationale": "The transaction explicitly states the meal is classified as manufacturing overhead, which under IFRS is capitalized to inventory/WIP, and payment via corporate credit card is resolved by convention.",
+        "decision": "PROCEED"
+      }
+    ],
+    "output_entry_drafter": [
+      {
+        "reason": "Meal for factory production staff classified as manufacturing overhead is capitalized to work in progress inventory, paid via corporate credit card creating a liability.",
+        "lines": [
+          {
+            "type": "debit",
+            "account_name": "Inventories \u2014 work in progress",
+            "amount": 125.0
+          },
+          {
+            "type": "credit",
+            "account_name": "Credit card payable",
+            "amount": 125.0
+          }
+        ]
+      }
+    ],
+    "output_disambiguator": [
+      {
+        "ambiguities": [
+          {
+            "aspect": "Classification of meal expense",
+            "input_contextualized_conventional_default": "Text explicitly states 'classified as manufacturing overhead' \u2014 this is a management determination that governs classification.",
+            "input_contextualized_ifrs_default": "Manufacturing overhead costs are capitalized to inventory/WIP as product costs, not expensed (IAS 2).",
+            "clarification_question": null,
+            "cases": null,
+            "ambiguous": false
+          },
+          {
+            "aspect": "Payment method",
+            "input_contextualized_conventional_default": "'using the corporate credit card' = Credit Card Payable liability increase.",
+            "input_contextualized_ifrs_default": null,
+            "clarification_question": null,
+            "cases": null,
+            "ambiguous": false
+          }
+        ]
+      }
+    ],
+    "output_debit_classifier": [
+      {
+        "asset_increase": [
+          {
+            "reason": "Meal for factory production staff classified as manufacturing overhead is capitalized to work in progress inventory",
+            "category": "Inventories \u2014 work in progress",
+            "count": 1
+          }
+        ],
+        "expense_increase": [],
+        "liability_decrease": [],
+        "equity_decrease": [],
+        "revenue_decrease": [],
+        "tuple": [
+          1,
+          0,
+          0,
+          0,
+          0
+        ]
+      }
+    ],
+    "output_credit_classifier": [
+      {
+        "liability_increase": [
+          {
+            "reason": "Corporate credit card used to pay for meal, creating obligation to credit card company",
+            "category": "Credit card payable",
+            "count": 1
+          }
+        ],
+        "equity_increase": [],
+        "revenue_increase": [],
+        "asset_decrease": [],
+        "expense_decrease": [],
+        "tuple": [
+          1,
+          0,
+          0,
+          0,
+          0
+        ]
+      }
+    ],
+    "output_debit_corrector": [],
+    "output_credit_corrector": [],
+    "output_entry_builder": [],
+    "output_approver": [],
+    "output_diagnostician": [],
+    "status_ambiguity_detector": 1,
+    "status_complexity_detector": 1,
+    "status_tax_specialist": 1,
+    "status_decision_maker": 1,
+    "status_entry_drafter": 1,
+    "status_disambiguator": 1,
+    "status_debit_classifier": 1,
+    "status_credit_classifier": 1,
+    "status_debit_corrector": 0,
+    "status_credit_corrector": 0,
+    "status_entry_builder": 0,
+    "status_approver": 0,
+    "status_diagnostician": 0,
+    "fix_context_disambiguator": [],
+    "fix_context_debit_classifier": [],
+    "fix_context_credit_classifier": [],
+    "fix_context_debit_corrector": [],
+    "fix_context_credit_corrector": [],
+    "fix_context_entry_builder": [],
+    "fix_context_approver": [],
+    "fix_context_diagnostician": [],
+    "decision": "APPROVED",
+    "validation_error": null,
+    "llm_calls": [
+      {
+        "node": "tax_specialist",
+        "stop_reason": "tool_use",
+        "input_tokens": 536,
+        "output_tokens": 127,
+        "input_token_details": {
+          "cache_read": 3842,
+          "cache_creation": 0
+        }
+      },
+      {
+        "node": "debit_classifier",
+        "stop_reason": "tool_use",
+        "input_tokens": 497,
+        "output_tokens": 77,
+        "input_token_details": {
+          "cache_read": 4885,
+          "cache_creation": 0
+        }
+      },
+      {
+        "node": "credit_classifier",
+        "stop_reason": "tool_use",
+        "input_tokens": 494,
+        "output_tokens": 147,
+        "input_token_details": {
+          "cache_read": 4773,
+          "cache_creation": 0
+        }
+      },
+      {
+        "node": "unknown",
+        "stop_reason": "tool_use",
+        "input_tokens": 553,
+        "output_tokens": 327,
+        "input_token_details": {
+          "cache_read": 4937,
+          "cache_creation": 0
+        }
+      },
+      {
+        "node": "entry_drafter",
+        "stop_reason": "tool_use",
+        "input_tokens": 968,
+        "output_tokens": 131,
+        "input_token_details": {
+          "cache_read": 4573,
+          "cache_creation": 0
+        }
+      }
+    ],
+    "stop_reasons": {
+      "tax_specialist": "tool_use",
+      "debit_classifier": "tool_use",
+      "credit_classifier": "tool_use",
+      "unknown": "tool_use",
+      "entry_drafter": "tool_use"
+    }
+  }
+}

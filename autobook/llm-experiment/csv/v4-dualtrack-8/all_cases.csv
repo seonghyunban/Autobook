@@ -1,0 +1,299 @@
+test_case_id,tier,transaction_text,actual_cost_usd,total_latency_s,exp_relationship,exp_account,exp_debit,exp_credit,act_account,act_debit,act_credit,act_relationship,act_category,act_count
+basic_01_inventory_cash,basic,Purchase inventory for $100 cash,0.0268,15.1,asset_increase,Inventories — Merchandise,100.00,,Inventories — merchandise,100.00,,asset_increase,Inventories — merchandise,1
+,,,,,asset_decrease,Cash,,100.00,Cash,,100.00,asset_decrease,Cash and cash equivalents,1
+,,,,,,TOTAL,100.00,100.00,TOTAL,100.00,100.00,,,
+,,,,,,,,,,,,,,
+basic_02_inventory_on_account,basic,Purchase inventory $300 on account,0.0253,14.9,asset_increase,Inventories — Merchandise,300.00,,Inventories — merchandise,300.00,,asset_increase,Inventories — merchandise,1
+,,,,,liability_increase,Trade payables,,300.00,Trade payables,,300.00,liability_increase,Trade payables,1
+,,,,,,TOTAL,300.00,300.00,TOTAL,300.00,300.00,,,
+,,,,,,,,,,,,,,
+basic_03_issue_stock_with_apic,basic,"Issue common stock for $180 cash ($100 par, $80 APIC)",0.0283,37.8,asset_increase,Cash,180.00,,Cash,180.00,,asset_increase,Cash and cash equivalents,1
+,,,,,equity_increase,Share capital — Common,,100.00,Common Stock,,100.00,?,?,
+,,,,,equity_increase,Additional paid-in capital,,80.00,Share Premium,,80.00,equity_increase,Share premium,1
+,,,,,,,,,,,,equity_increase,Issued capital,1
+,,,,,,TOTAL,180.00,180.00,TOTAL,180.00,180.00,,,
+,,,,,,,,,,,,,,
+basic_04_sell_inventory,basic,Sell inventory (cost $300) for $500 cash,0.0310,13.1,asset_increase,Cash,500.00,,Cash,500.00,,asset_increase,Cash and cash equivalents,1
+,,,,,expense_increase,Cost of goods sold,300.00,,Cost of Sales,300.00,,expense_increase,Cost of sales,1
+,,,,,revenue_increase,Revenue — Product sales,,500.00,Revenue from Sale of Goods,,500.00,revenue_increase,Revenue from sale of goods,1
+,,,,,asset_decrease,Inventories — Merchandise,,300.00,Inventories — Merchandise,,300.00,asset_decrease,Inventories — merchandise,1
+,,,,,,TOTAL,800.00,800.00,TOTAL,800.00,800.00,,,
+,,,,,,,,,,,,,,
+basic_05_pay_accounts_payable,basic,Issued a cheque for $50 to settle accounts payable,0.0270,18.1,liability_decrease,Trade payables,50.00,,Trade payables,50.00,,liability_decrease,Trade payables,1
+,,,,,asset_decrease,Cash,,50.00,Cash,,50.00,asset_decrease,Cash and cash equivalents,1
+,,,,,,TOTAL,50.00,50.00,TOTAL,50.00,50.00,,,
+,,,,,,,,,,,,,,
+basic_06_refinance_loan,basic,Refinance bank loan — old $100 note replaced by new $100 note,0.0804,9.7,liability_decrease,Notes payable,100.00,,Short-term borrowings,100.00,,liability_decrease,Short-term borrowings,1
+,,,,,liability_increase,Notes payable,,100.00,Long-term borrowings,,100.00,liability_increase,Long-term borrowings,1
+,,,,,,TOTAL,100.00,100.00,TOTAL,100.00,100.00,,,
+,,,,,,,,,,,,,,
+basic_07_loan_to_equity,basic,"Converted a $200 bank loan to equity, issuing 400 common shares",0.0275,35.1,liability_decrease,Notes payable,200.00,,Short-term borrowings,200.00,,liability_decrease,Short-term borrowings,1
+,,,,,equity_increase,Share capital — Common,,200.00,Issued capital,,200.00,equity_increase,Issued capital,1
+,,,,,,TOTAL,200.00,200.00,TOTAL,200.00,200.00,,,
+,,,,,,,,,,,,,,
+basic_08_deliver_service_against_deposit,basic,Deliver service against $100 customer deposit,0.0264,19.3,liability_decrease,Contract liabilities,100.00,,Contract liabilities,100.00,,liability_decrease,Contract liabilities,1
+,,,,,revenue_increase,Revenue — Product sales,,100.00,Revenue from rendering of services,,100.00,revenue_increase,Revenue from rendering of services,1
+,,,,,,TOTAL,100.00,100.00,TOTAL,100.00,100.00,,,
+,,,,,,,,,,,,,,
+basic_09_repurchase_stock,basic,Bought back 100 shares from shareholders for $200 cash,0.0275,8.3,equity_decrease,Treasury shares,200.00,,Treasury shares,200.00,,equity_decrease,Treasury shares,1
+,,,,,asset_decrease,Cash,,200.00,Cash,,200.00,asset_decrease,Cash and cash equivalents,1
+,,,,,,TOTAL,200.00,200.00,TOTAL,200.00,200.00,,,
+,,,,,,,,,,,,,,
+basic_10_declare_dividend,basic,"Board declared a $500,000 cash dividend, payable in 30 days",0.0272,8.6,equity_decrease,Retained earnings,"500,000.00",,Retained earnings,"500,000.00",,equity_decrease,Retained earnings,1
+,,,,,liability_increase,Dividends payable,,"500,000.00",Dividends payable,,"500,000.00",liability_increase,Dividends payable,1
+,,,,,,TOTAL,"500,000.00","500,000.00",TOTAL,"500,000.00","500,000.00",,,
+,,,,,,,,,,,,,,
+basic_11_convert_preferred_to_common,basic,Converted 50 preferred shares (carrying value $100) to 25 common shares,0.0302,14.6,equity_decrease,Share capital — Preferred,100.00,,Preferred Share Capital,100.00,,equity_decrease,Issued capital,1
+,,,,,equity_increase,Share capital — Common,,100.00,Common Share Capital,,100.00,equity_increase,Issued capital,1
+,,,,,,TOTAL,100.00,100.00,TOTAL,100.00,100.00,,,
+,,,,,,,,,,,,,,
+basic_12_pay_salaries,basic,Paid employee salaries of $100 in cash,0.0258,23.4,expense_increase,Salaries expense,100.00,,Employee benefits expense,100.00,,expense_increase,Employee benefits expense,1
+,,,,,asset_decrease,Cash,,100.00,Cash,,100.00,asset_decrease,Cash and cash equivalents,1
+,,,,,,TOTAL,100.00,100.00,TOTAL,100.00,100.00,,,
+,,,,,,,,,,,,,,
+basic_13_accrue_utility,basic,Accrue $50 utility bill,0.0269,10.1,expense_increase,Utilities expense,50.00,,Utilities expense,50.00,,expense_increase,Utilities expense,1
+,,,,,liability_increase,Accrued liabilities,,50.00,Accrued liabilities,,50.00,liability_increase,Accrued liabilities,1
+,,,,,,TOTAL,50.00,50.00,TOTAL,50.00,50.00,,,
+,,,,,,,,,,,,,,
+basic_14_casualty_loss,basic,"Inventory destroyed by typhoon, $2000 loss",0.0299,10.9,expense_increase,Casualty loss,"2,000.00",,Casualty loss,"2,000.00",,expense_increase,Casualty loss,1
+,,,,,asset_decrease,Inventories — Merchandise,,"2,000.00",Inventories — merchandise,,"2,000.00",asset_decrease,Inventories — merchandise,1
+,,,,,,TOTAL,"2,000.00","2,000.00",TOTAL,"2,000.00","2,000.00",,,
+,,,,,,,,,,,,,,
+basic_15_no_entry,basic,Board resolution (no financial impact),0.0257,13.8,,,,,,,,,,
+,,,,,,,,,,,,,,
+,,,,,,TOTAL,0.00,0.00,TOTAL,0.00,0.00,,,
+,,,,,,,,,,,,,,
+hard_01_note_discounting,hard,"Ford received a 90-day, non-interest-bearing promissory note with a face value of $100,000 as settlement of a trade receivable. Fifty days after the note's issue date, Ford discounted the note at the bank at an annual discount rate of 15%, receiving the net proceeds in cash after deducting the discount charges.",0.0300,14.7,,,,,,,,,,
+,,,,,,,,,,,,,,
+,,,,,,TOTAL,0.00,0.00,TOTAL,0.00,0.00,,,
+,,,,,,,,,,,,,,
+hard_02_investment_classification,hard,"BlackRock acquired 10% of Ford's outstanding common shares for $3,000,000 and paid a transaction fee of $100,000 by cheque.",0.0279,34.0,,,,,,,,,,
+,,,,,,,,,,,,,,
+,,,,,,TOTAL,0.00,0.00,TOTAL,0.00,0.00,,,
+,,,,,,,,,,,,,,
+hard_16_rent_treatment,hard,"Atlas Van Lines leased office space and paid $24,000 by cheque, representing 12 months of rent.",0.0257,21.8,,,,,,,,,,
+,,,,,,,,,,,,,,
+,,,,,,TOTAL,0.00,0.00,TOTAL,0.00,0.00,,,
+,,,,,,,,,,,,,,
+hard_27_meal_purpose,hard,Mondelez paid $125 for a meal using the corporate credit card.,0.0240,11.5,,,,,,,,,,
+,,,,,,,,,,,,,,
+,,,,,,TOTAL,0.00,0.00,TOTAL,0.00,0.00,,,
+,,,,,,,,,,,,,,
+hard_32_grocery_purpose,hard,"Target purchased tea, beverages, and refreshments from a grocery store for $1,200 plus 10% sales tax, totalling $1,320, paid by corporate credit card.",0.0310,14.4,,,,,,,,,,
+,,,,,,,,,,,,,,
+,,,,,,TOTAL,0.00,0.00,TOTAL,0.00,0.00,,,
+,,,,,,,,,,,,,,
+int_03_machinery_purchase,intermediate,"Clorox purchased machinery from Ford for $700,000 on account for factory expansion. Clorox also paid by cheque $30,000 in freight, $20,000 in installation, and $50,000 in testing and commissioning costs.",0.0322,24.6,asset_increase,PP&E — Machinery,"800,000.00",,Machinery,"800,000.00",,asset_increase,Machinery,1
+,,,,,liability_increase,Trade payables,,"700,000.00",Trade payables,,"700,000.00",liability_increase,Trade payables,1
+,,,,,asset_decrease,Cash,,"100,000.00",Cash and cash equivalents,,"100,000.00",asset_decrease,Cash and cash equivalents,1
+,,,,,,TOTAL,"800,000.00","800,000.00",TOTAL,"800,000.00","800,000.00",,,
+,,,,,,,,,,,,,,
+int_04_major_overhaul,intermediate,"Clorox originally purchased machinery for $800,000, intending to use it for 10 years. In year 5, Clorox spent $200,000 in cash on a major overhaul, which extended the remaining useful life by an additional 2 years.",0.0311,26.7,asset_increase,PP&E — Machinery,"200,000.00",,Machinery,"200,000.00",,asset_increase,Machinery,1
+,,,,,asset_decrease,Cash,,"200,000.00",Cash,,"200,000.00",asset_decrease,Cash and cash equivalents,1
+,,,,,,TOTAL,"200,000.00","200,000.00",TOTAL,"200,000.00","200,000.00",,,
+,,,,,,,,,,,,,,
+int_05_bond_issuance_discount,intermediate,"Clorox issued bonds with a face value of $3,000,000, a 3-year term, and a coupon rate of 10% with interest payable annually on December 31. The bonds were issued at a discount to reflect the market interest rate of 15%, and the proceeds were received in cash.",0.0342,25.2,asset_increase,Cash,"2,657,510.00",,Cash,"2,657,397.53",,asset_increase,Cash and cash equivalents,1
+,,,,,liability_decrease,Discount on bonds payable,"342,490.00",,Discount on Bonds Payable,"342,602.47",,?,?,
+,,,,,,,,,,,,liability_decrease,Long-term borrowings,1
+,,,,,liability_increase,Bonds payable,,"3,000,000.00",Bonds Payable,,"3,000,000.00",?,?,
+,,,,,,,,,,,,liability_increase,Long-term borrowings,1
+,,,,,,TOTAL,"3,000,000.00","3,000,000.00",TOTAL,"3,000,000.00","3,000,000.00",,,
+,,,,,,,,,,,,,,
+int_06_warranty_provision,intermediate,"Ford has a product warranty policy under which it repairs or replaces any defective products within one year of sale. If repair is required, the estimated cost is $2,000,000; if replacement is required, the estimated cost is $10,000,000. Based on historical experience, the probability of a repair claim is 20% and the probability of a replacement claim is 5%.",0.0332,21.9,expense_increase,Warranty expense,"900,000.00",,Warranty Expense,"900,000.00",,expense_increase,Warranty expense,1
+,,,,,liability_increase,Provision for warranties,,"900,000.00",Warranty Provisions,,"900,000.00",liability_increase,Warranty provisions,1
+,,,,,,TOTAL,"900,000.00","900,000.00",TOTAL,"900,000.00","900,000.00",,,
+,,,,,,,,,,,,,,
+int_07_decommissioning_provision,intermediate,"Tidewater acquired an offshore marine structure for $4,000,000 on account. The structure is subject to a 10-year operating permit, which requires full site restoration at the end of the permit term. Tidewater estimated the future restoration cost and determined its present value to be $1,950,000.",0.0326,20.6,asset_increase,PP&E — Marine structures,"5,950,000.00",,Offshore Marine Structure,"5,950,000.00",,?,?,
+,,,,,,,,,,,,asset_increase,Buildings,1
+,,,,,liability_increase,Trade payables,,"4,000,000.00",Trade Payables,,"4,000,000.00",liability_increase,Trade payables,1
+,,,,,liability_increase,Decommissioning provision,,"1,950,000.00",Decommissioning Provisions,,"1,950,000.00",liability_increase,Decommissioning provisions,1
+,,,,,,TOTAL,"5,950,000.00","5,950,000.00",TOTAL,"5,950,000.00","5,950,000.00",,,
+,,,,,,,,,,,,,,
+int_08_share_repurchase_cancel,intermediate,"Eagle Bulk Shipping repurchased 10,000 of its own common shares (par value $5.00 per share) from shareholders at $6.00 per share in cash and immediately cancelled the shares.",0.0316,26.8,equity_decrease,Share capital,"50,000.00",,Issued capital,"50,000.00",,equity_decrease,Issued capital,1
+,,,,,equity_decrease,Retained earnings,"10,000.00",,Retained earnings,"10,000.00",,equity_decrease,Retained earnings,1
+,,,,,asset_decrease,Cash,,"60,000.00",Cash,,"60,000.00",asset_decrease,Cash and cash equivalents,1
+,,,,,,TOTAL,"60,000.00","60,000.00",TOTAL,"60,000.00","60,000.00",,,
+,,,,,,,,,,,,,,
+int_09_merchandise_with_costs,intermediate,"Target, a retailer, purchased merchandise from a supplier for $1,000,000 on account. Target also paid cash for the following: freight to warehouse $120,000, shipping insurance $30,000, post-acquisition warehouse storage $20,000, and outbound delivery freight $50,000.",0.0397,38.7,asset_increase,Inventories — Merchandise,"1,150,000.00",,Inventories — merchandise,"1,150,000.00",,asset_increase,Inventories — merchandise,1
+,,,,,expense_increase,Distribution costs,"50,000.00",,Transportation expense,"50,000.00",,expense_increase,Transportation expense,1
+,,,,,expense_increase,Warehousing expense,"20,000.00",,Warehousing expense,"20,000.00",,expense_increase,Warehousing expense,1
+,,,,,liability_increase,Trade payables,,"1,000,000.00",Trade payables,,"1,000,000.00",liability_increase,Trade payables,1
+,,,,,asset_decrease,Cash,,"220,000.00",Cash and cash equivalents,,"220,000.00",asset_decrease,Cash and cash equivalents,1
+,,,,,,TOTAL,"1,220,000.00","1,220,000.00",TOTAL,"1,220,000.00","1,220,000.00",,,
+,,,,,,,,,,,,,,
+int_10_prepayment,intermediate,"Target paid $1,000,000 in cash to a supplier as a prepayment for raw materials, in anticipation of recent price surges and supply shortages.",0.0295,30.8,asset_increase,Prepayments,"1,000,000.00",,Prepaid Raw Materials,"1,000,000.00",,?,?,
+,,,,,,,,,,,,asset_increase,Non-current prepayments,1
+,,,,,asset_decrease,Cash,,"1,000,000.00",Cash,,"1,000,000.00",asset_decrease,Cash and cash equivalents,1
+,,,,,,TOTAL,"1,000,000.00","1,000,000.00",TOTAL,"1,000,000.00","1,000,000.00",,,
+,,,,,,,,,,,,,,
+int_11_land_instalment_discount,intermediate,"At the beginning of the year, Ford acquired land with an existing building for $60,000,000 for the purpose of constructing a new factory. The purchase price is to be paid in 6 equal annual instalments of $10,000,000, commencing at the end of the year of acquisition. The existing building will be demolished immediately upon purchase. The market interest rate at the date of acquisition was 6%.",0.0348,28.1,asset_increase,Land,"49,173,000.00",,Land,"49,173,243.44",,asset_increase,Land,1
+,,,,,liability_decrease,Discount on long-term payables,"10,827,000.00",,Discount on Notes Payable,"10,826,756.56",,?,?,
+,,,,,,,,,,,,liability_decrease,Long-term borrowings,1
+,,,,,liability_increase,Long-term payables,,"60,000,000.00",Notes Payable,,"60,000,000.00",?,?,
+,,,,,,,,,,,,liability_increase,Long-term borrowings,1
+,,,,,,TOTAL,"60,000,000.00","60,000,000.00",TOTAL,"60,000,000.00","60,000,000.00",,,
+,,,,,,,,,,,,,,
+int_12_site_improvements,intermediate,"Ford incurred $1,750,000 in cash for the construction of fencing, streetlights, and walkways surrounding the newly constructed factory. Additionally, Ford paid $2,360,000 by cheque for permanent landscaping installations.",0.0367,27.6,asset_increase,Land,"2,360,000.00",,Land,"2,360,000.00",,asset_increase,Land,1
+,,,,,asset_increase,PP&E — Site improvements,"1,750,000.00",,Site improvements,"1,750,000.00",,asset_increase,Site improvements,1
+,,,,,asset_decrease,Cash — chequing,,"2,360,000.00",Cash — chequing,,"2,360,000.00",asset_decrease,Cash and cash equivalents,1
+,,,,,asset_decrease,Cash,,"1,750,000.00",Cash,,"1,750,000.00",asset_decrease,Cash and cash equivalents,1
+,,,,,,TOTAL,"4,110,000.00","4,110,000.00",TOTAL,"4,110,000.00","4,110,000.00",,,
+,,,,,,,,,,,,,,
+int_13_donation_note,intermediate,"Target pledged a donation of $1,000,000 to a humanitarian food aid program in Somalia and issued a 1-month promissory note for the full amount.",0.0297,32.9,expense_increase,Donations expense,"1,000,000.00",,Donations expense,"1,000,000.00",,expense_increase,Donations expense,1
+,,,,,liability_increase,Notes payable,,"1,000,000.00",Notes payable,,"1,000,000.00",?,?,
+,,,,,,,,,,,,liability_increase,Short-term borrowings,1
+,,,,,,TOTAL,"1,000,000.00","1,000,000.00",TOTAL,"1,000,000.00","1,000,000.00",,,
+,,,,,,,,,,,,,,
+int_14_vehicle_mixed_payment,intermediate,"Atlas Van Lines purchased a delivery vehicle for $40,000. The company paid 50% in cash and issued a 2-month promissory note for the remainder.",0.0332,21.6,asset_increase,PP&E — Vehicles,"40,000.00",,Motor vehicles,"40,000.00",,asset_increase,Motor vehicles,1
+,,,,,asset_decrease,Cash,,"20,000.00",Short-term borrowings,,"20,000.00",liability_increase,Short-term borrowings,1
+,,,,,liability_increase,Notes payable,,"20,000.00",Cash and cash equivalents,,"20,000.00",asset_decrease,Cash and cash equivalents,1
+,,,,,,TOTAL,"40,000.00","40,000.00",TOTAL,"40,000.00","40,000.00",,,
+,,,,,,,,,,,,,,
+int_15_bank_loan,intermediate,"Atlas Van Lines borrowed $200,000 in cash from its bank at an annual interest rate of 6% for a term of 3 years. Interest is payable semi-annually.",0.0330,70.3,asset_increase,Cash,"200,000.00",,Cash and cash equivalents,"200,000.00",,asset_increase,Cash and cash equivalents,1
+,,,,,liability_increase,Long-term borrowings,,"200,000.00",Long-term borrowings,,"200,000.00",liability_increase,Long-term borrowings,1
+,,,,,,TOTAL,"200,000.00","200,000.00",TOTAL,"200,000.00","200,000.00",,,
+,,,,,,,,,,,,,,
+int_17_customer_deposit,intermediate,"Atlas Van Lines entered into a contract with a customer to provide moving services in one month for a total contract price of $17,700. Upon signing, Atlas received $5,000 as a deposit via bank transfer to its chequing account.",0.0288,35.3,asset_increase,Cash — chequing,"5,000.00",,Cash and cash equivalents,"5,000.00",,asset_increase,Cash and cash equivalents,1
+,,,,,liability_increase,Contract liabilities,,"5,000.00",Contract liabilities,,"5,000.00",liability_increase,Contract liabilities,1
+,,,,,,TOTAL,"5,000.00","5,000.00",TOTAL,"5,000.00","5,000.00",,,
+,,,,,,,,,,,,,,
+int_18_multiple_assets,intermediate,"Atlas Van Lines purchased office desks for $2,000 and computers for $3,500, both paid in cash. Additionally, Atlas purchased a crane-equipped truck for $250,000 on account for use in moving operations.",0.0336,17.2,asset_increase,PP&E — Vehicles,"250,000.00",,Motor vehicles,"250,000.00",,asset_increase,Motor vehicles,1
+,,,,,asset_increase,PP&E — Office equipment,"5,500.00",,Office equipment,"5,500.00",,asset_increase,Office equipment,1
+,,,,,liability_increase,Trade payables,,"250,000.00",Trade payables,,"250,000.00",liability_increase,Trade payables,1
+,,,,,asset_decrease,Cash,,"5,500.00",Cash and cash equivalents,,"5,500.00",asset_decrease,Cash and cash equivalents,1
+,,,,,,TOTAL,"255,500.00","255,500.00",TOTAL,"255,500.00","255,500.00",,,
+,,,,,,,,,,,,,,
+int_19_service_revenue_cash,intermediate,"Atlas Van Lines provided moving services to a customer for $25,500 and received a certified cheque as payment.",0.0297,22.3,asset_increase,Cash,"25,500.00",,Cash and cash equivalents,"25,500.00",,asset_increase,Cash and cash equivalents,1
+,,,,,revenue_increase,Revenue — Service revenue,,"25,500.00",Revenue from rendering of services,,"25,500.00",revenue_increase,Revenue from rendering of services,1
+,,,,,,TOTAL,"25,500.00","25,500.00",TOTAL,"25,500.00","25,500.00",,,
+,,,,,,,,,,,,,,
+int_20_service_revenue_credit,intermediate,"Atlas Van Lines provided office relocation services to a customer for $31,500. Payment is due in 10 days.",0.0301,45.8,asset_increase,Trade receivables,"31,500.00",,Trade receivables,"31,500.00",,asset_increase,Trade receivables,1
+,,,,,revenue_increase,Revenue — Service revenue,,"31,500.00",Revenue from rendering of services,,"31,500.00",revenue_increase,Revenue from rendering of services,1
+,,,,,,TOTAL,"31,500.00","31,500.00",TOTAL,"31,500.00","31,500.00",,,
+,,,,,,,,,,,,,,
+int_21_rd_expense,intermediate,"Mondelez purchased raw materials from a supplier for research and development of a new snack product, paying $50,000 by cheque.",0.0299,28.8,expense_increase,Research and development expense,"50,000.00",,Research and development expense,"50,000.00",,expense_increase,Research and development expense,1
+,,,,,asset_decrease,Cash — chequing,,"50,000.00",Cash and cash equivalents,,"50,000.00",asset_decrease,Cash and cash equivalents,1
+,,,,,,TOTAL,"50,000.00","50,000.00",TOTAL,"50,000.00","50,000.00",,,
+,,,,,,,,,,,,,,
+int_22_compound_sale_with_tax,intermediate,"Mondelez sold 300 cases of snack products to a customer at $230 per case (cost: $185 per case). The total selling price of $69,000 plus 10% sales tax resulted in a gross amount of $75,900. Mondelez received $45,900 via bank transfer to its chequing account, with the remainder on credit.",0.0422,26.1,expense_increase,Cost of goods sold,"55,500.00",,Cost of sales,"55,500.00",,expense_increase,Cost of sales,1
+,,,,,asset_increase,Cash — chequing,"45,900.00",,Cash and cash equivalents,"45,900.00",,asset_increase,Cash and cash equivalents,1
+,,,,,asset_increase,Trade receivables,"30,000.00",,Trade receivables,"30,000.00",,asset_increase,Trade receivables,1
+,,,,,revenue_increase,Revenue — Product sales,,"69,000.00",Revenue from sale of goods,,"69,000.00",revenue_increase,Revenue from sale of goods,1
+,,,,,asset_decrease,Inventories — Finished goods,,"55,500.00",Inventories — finished goods,,"55,500.00",asset_decrease,Inventories — finished goods,1
+,,,,,liability_increase,Sales tax payable,,"6,900.00",Tax liabilities,,"6,900.00",liability_increase,Tax liabilities,1
+,,,,,,TOTAL,"131,400.00","131,400.00",TOTAL,"131,400.00","131,400.00",,,
+,,,,,,,,,,,,,,
+int_23_split_electricity,intermediate,"Mondelez paid factory electricity charges of $15,000 and office electricity charges of $5,500 using the corporate credit card.",0.0317,14.1,asset_increase,Work in process — Manufacturing overhead,"15,000.00",,Inventories — work in progress,"15,000.00",,asset_increase,Inventories — work in progress,1
+,,,,,expense_increase,Utilities expense,"5,500.00",,Utilities expense,"5,500.00",,expense_increase,Utilities expense,1
+,,,,,liability_increase,Credit card payable,,"20,500.00",Credit card payable,,"20,500.00",liability_increase,Credit card payable,1
+,,,,,,TOTAL,"20,500.00","20,500.00",TOTAL,"20,500.00","20,500.00",,,
+,,,,,,,,,,,,,,
+int_24_advertising,intermediate,"Mondelez commissioned a digital marketing campaign for its snack products, paying $22,000 in cash (inclusive of sales tax).",0.0360,41.8,expense_increase,Advertising expense,"22,000.00",,Advertising expense,"19,469.03",,expense_increase,Advertising expense,1
+,,,,,,,,,HST receivable,"2,530.97",,?,?,
+,,,,,,,,,,,,asset_increase,Tax assets,1
+,,,,,asset_decrease,Cash,,"22,000.00",Cash,,"22,000.00",asset_decrease,Cash and cash equivalents,1
+,,,,,,TOTAL,"22,000.00","22,000.00",TOTAL,"22,000.00","22,000.00",,,
+,,,,,,,,,,,,,,
+int_25_building_purchase_allocation,intermediate,"Mondelez purchased land and a building from a vendor for $9,000,000 (exclusive of sales tax) to be used as a product storage warehouse. Fifty percent of the purchase price is due in 6 months, and the balance plus 10% sales tax on the building was paid by cheque. At the date of acquisition, the fair values of the land and building components were $8,000,000 and $4,000,000, respectively.",0.0432,29.9,asset_increase,Land,"6,000,000.00",,Land,"6,000,000.00",,asset_increase,Land,1
+,,,,,asset_increase,Building,"3,000,000.00",,Buildings,"3,000,000.00",,asset_increase,Buildings,1
+,,,,,asset_increase,VAT receivable,"300,000.00",,HST Receivable,"300,000.00",,?,?,
+,,,,,,,,,,,,asset_increase,Tax assets,1
+,,,,,asset_decrease,Cash — chequing,,"4,800,000.00",Cash — chequing,,"4,800,000.00",asset_decrease,Cash and cash equivalents,1
+,,,,,liability_increase,Other payables,,"4,500,000.00",Trade payables,,"4,500,000.00",liability_increase,Trade payables,1
+,,,,,,,,,,,,liability_increase,Tax liabilities,1
+,,,,,,TOTAL,"9,300,000.00","9,300,000.00",TOTAL,"9,300,000.00","9,300,000.00",,,
+,,,,,,,,,,,,,,
+int_26a_payroll_recognition,intermediate,"Mondelez recognized January payroll: production worker wages of $25,000 (5 employees) and administrative salaries of $20,000 (5 employees). The following employee-borne statutory deductions were withheld: pension contributions $2,000, health insurance premiums $3,250, employment insurance premiums $1,050, and income tax withholdings $1,450. The net amount was transferred from the chequing account to employees' personal accounts.",0.0462,38.0,asset_increase,Work in process — Direct labour,"25,000.00",,Inventories — work in progress,"25,000.00",,asset_increase,Inventories — work in progress,1
+,,,,,expense_increase,Salaries expense,"20,000.00",,Employee benefits expense,"20,000.00",,expense_increase,Employee benefits expense,1
+,,,,,,,,,,,,liability_decrease,Employee benefits payable,1
+,,,,,,,,,,,,liability_decrease,Employee benefits payable,1
+,,,,,,,,,,,,liability_decrease,Statutory withholdings payable,1
+,,,,,,,,,,,,liability_decrease,Statutory withholdings payable,1
+,,,,,asset_decrease,Cash — chequing,,"37,250.00",Cash — chequing,,"37,250.00",asset_decrease,Cash and cash equivalents,1
+,,,,,liability_increase,Statutory withholdings payable,,"7,750.00",Health insurance premiums payable,,"3,250.00",liability_increase,Statutory withholdings payable,1
+,,,,,,,,,Pension contributions payable,,"2,000.00",liability_increase,Statutory withholdings payable,1
+,,,,,,,,,Income tax withholdings payable,,"1,450.00",liability_increase,Statutory withholdings payable,1
+,,,,,,,,,Employment insurance payable,,"1,050.00",liability_increase,Statutory withholdings payable,1
+,,,,,,TOTAL,"45,000.00","45,000.00",TOTAL,"45,000.00","45,000.00",,,
+,,,,,,,,,,,,,,
+int_26b_payroll_remittance,intermediate,"Mondelez remitted January statutory deductions to the respective government agencies in cash, combining the employee withholdings with the company's matching contributions: pension $4,000, health insurance $6,500, employment insurance $2,100. Mondelez also remitted employee income tax withholdings of $1,450.",0.0375,36.6,liability_decrease,Statutory withholdings payable,"7,750.00",,Statutory withholdings payable,"7,750.00",,liability_decrease,Statutory withholdings payable,1
+,,,,,expense_increase,Employee benefits expense,"6,300.00",,Employee benefits expense,"6,300.00",,expense_increase,Employee benefits expense,1
+,,,,,asset_decrease,Cash,,"14,050.00",Cash,,"14,050.00",asset_decrease,Cash and cash equivalents,1
+,,,,,,TOTAL,"14,050.00","14,050.00",TOTAL,"14,050.00","14,050.00",,,
+,,,,,,,,,,,,,,
+int_28_promotional_literature,intermediate,"Mondelez purchased 15 titles of promotional literature for $7,000 in cash from a bookstore, to be displayed in the sales department for customer reference.",0.0293,21.4,expense_increase,Advertising expense,"7,000.00",,Advertising expense,"7,000.00",,expense_increase,Advertising expense,1
+,,,,,asset_decrease,Cash,,"7,000.00",Cash,,"7,000.00",asset_decrease,Cash and cash equivalents,1
+,,,,,,TOTAL,"7,000.00","7,000.00",TOTAL,"7,000.00","7,000.00",,,
+,,,,,,,,,,,,,,
+int_29_security_deposit_received,intermediate,"Mondelez leased a vacant portion of its building to a tenant for a 1-year term at a monthly rent of $10,000 (exclusive of sales tax). Upon signing the lease, Mondelez received a security deposit of $25,000 in cash.",0.0355,25.4,asset_increase,Cash,"25,000.00",,Cash and cash equivalents,"25,000.00",,asset_increase,Cash and cash equivalents,1
+,,,,,liability_increase,Rental deposits received,,"25,000.00",Security deposits payable,,"25,000.00",liability_increase,Other payables,1
+,,,,,,,,,,,,revenue_increase,Rental income,1
+,,,,,,TOTAL,"25,000.00","25,000.00",TOTAL,"25,000.00","25,000.00",,,
+,,,,,,,,,,,,,,
+int_30_short_term_loan_advance,intermediate,"Target advanced a short-term loan of $2,000,000 to a business partner for a term of one year, transferring the funds from Target's chequing account to the partner's chequing account. Interest is charged at an annual rate of 4.5%, receivable at the end of each month.",0.0328,30.7,asset_increase,Short-term loans receivable,"2,000,000.00",,Short-term loans receivable,"2,000,000.00",,asset_increase,Short-term loans receivable,1
+,,,,,asset_decrease,Cash — chequing,,"2,000,000.00",Cash and cash equivalents,,"2,000,000.00",asset_decrease,Cash and cash equivalents,1
+,,,,,,TOTAL,"2,000,000.00","2,000,000.00",TOTAL,"2,000,000.00","2,000,000.00",,,
+,,,,,,,,,,,,,,
+int_31_vehicle_nonrecoverable_tax,intermediate,"Target purchased a sedan from Ford for $48,000 (exclusive of sales tax) for an executive's commuting and business use. The total amount of $52,800 (including 10% non-recoverable sales tax) was financed through a 3-month dealer payment plan.",0.0349,42.4,asset_increase,PP&E — Vehicles,"52,800.00",,Motor vehicles,"52,800.00",,asset_increase,Motor vehicles,1
+,,,,,liability_increase,Other payables,,"52,800.00",Trade payables,,"52,800.00",liability_increase,Trade payables,1
+,,,,,,TOTAL,"52,800.00","52,800.00",TOTAL,"52,800.00","52,800.00",,,
+,,,,,,,,,,,,,,
+int_hard_01a_note_derecognition,intermediate,"Ford received a 90-day, non-interest-bearing promissory note with a face value of $100,000 as settlement of a trade receivable. Fifty days after the note's issue date, Ford discounted the note at the bank at an annual discount rate of 15%, receiving the net proceeds in cash after deducting the discount charges. Management has determined that this qualifies as derecognition (transfer of risks and rewards) under IFRS 9.",0.0350,25.4,asset_increase,Cash,"98,356.00",,Cash and cash equivalents,"98,356.16",,asset_increase,Cash and cash equivalents,1
+,,,,,expense_increase,Loss on derecognition of receivables,"1,644.00",,Loss on disposal of financial asset,"1,643.84",,revenue_decrease,Gains (losses) on disposals,1
+,,,,,asset_decrease,Trade receivables,,"100,000.00",Trade receivables,,"100,000.00",asset_decrease,Trade receivables,1
+,,,,,,TOTAL,"100,000.00","100,000.00",TOTAL,"100,000.00","100,000.00",,,
+,,,,,,,,,,,,,,
+int_hard_01b_note_collateralized,intermediate,"Ford received a 90-day, non-interest-bearing promissory note with a face value of $100,000 as settlement of a trade receivable. Fifty days after the note's issue date, Ford discounted the note at the bank at an annual discount rate of 15%, receiving the net proceeds in cash after deducting the discount charges. Management has determined that this is a collateralized borrowing (risks and rewards not transferred).",0.0338,34.6,asset_increase,Cash,"98,356.00",,Cash and cash equivalents,"98,356.16",,asset_increase,Cash and cash equivalents,1
+,,,,,expense_increase,Interest expense,"1,644.00",,Interest expense,"1,643.84",,expense_increase,Interest expense,1
+,,,,,liability_increase,Short-term borrowings,,"100,000.00",Short-term borrowings,,"100,000.00",liability_increase,Short-term borrowings,1
+,,,,,,TOTAL,"100,000.00","100,000.00",TOTAL,"100,000.00","100,000.00",,,
+,,,,,,,,,,,,,,
+int_hard_02a_investment_fvtpl,intermediate,"BlackRock acquired 10% of Ford's outstanding common shares for $3,000,000 and paid a transaction fee of $100,000 by cheque. Management's intent is short-term trading, classified as FVTPL under IFRS 9.",0.0326,17.5,asset_increase,Financial assets at FVTPL,"3,000,000.00",,Investments — FVTPL,"3,000,000.00",,asset_increase,Investments — FVTPL,1
+,,,,,expense_increase,Investment transaction costs,"100,000.00",,Professional fees expense,"100,000.00",,expense_increase,Professional fees expense,1
+,,,,,asset_decrease,Cash,,"3,100,000.00",Cash and cash equivalents,,"3,100,000.00",asset_decrease,Cash and cash equivalents,1
+,,,,,,TOTAL,"3,100,000.00","3,100,000.00",TOTAL,"3,100,000.00","3,100,000.00",,,
+,,,,,,,,,,,,,,
+int_hard_02b_investment_fvoci,intermediate,"BlackRock acquired 10% of Ford's outstanding common shares for $3,000,000 and paid a transaction fee of $100,000 by cheque. Management elected the FVOCI option for this long-term strategic equity investment under IFRS 9.",0.0331,26.4,asset_increase,Financial assets at FVOCI,"3,100,000.00",,Investments — FVOCI,"3,100,000.00",,asset_increase,Investments — FVOCI,1
+,,,,,asset_decrease,Cash,,"3,100,000.00",Cash and cash equivalents,,"3,100,000.00",asset_decrease,Cash and cash equivalents,1
+,,,,,,TOTAL,"3,100,000.00","3,100,000.00",TOTAL,"3,100,000.00","3,100,000.00",,,
+,,,,,,,,,,,,,,
+int_hard_02c_investment_equity_method,intermediate,"BlackRock acquired 10% of Ford's outstanding common shares for $3,000,000 and paid a transaction fee of $100,000 by cheque. BlackRock has significant influence over Ford and will account for this using the equity method under IAS 28.",0.0591,20.3,asset_increase,Investment in associate,"3,100,000.00",,Investments — equity method,"3,100,000.00",,asset_increase,Investments — equity method,1
+,,,,,asset_decrease,Cash,,"3,100,000.00",Cash and cash equivalents,,"3,100,000.00",asset_decrease,Cash and cash equivalents,1
+,,,,,,TOTAL,"3,100,000.00","3,100,000.00",TOTAL,"3,100,000.00","3,100,000.00",,,
+,,,,,,,,,,,,,,
+int_hard_16a_rent_prepaid,intermediate,"Atlas Van Lines leased office space and paid $24,000 by cheque, representing 12 months of rent. The entity's accounting policy is to recognize the payment as a prepaid asset.",0.0285,34.5,asset_increase,Prepaid rent,"24,000.00",,Prepaid Rent,"24,000.00",,asset_increase,Prepaid expenses,1
+,,,,,asset_decrease,Cash — chequing,,"24,000.00",Cash,,"24,000.00",asset_decrease,Cash and cash equivalents,1
+,,,,,,TOTAL,"24,000.00","24,000.00",TOTAL,"24,000.00","24,000.00",,,
+,,,,,,,,,,,,,,
+int_hard_16b_rent_expense,intermediate,"Atlas Van Lines leased office space and paid $24,000 by cheque, representing 12 months of rent. The entity elected the short-term lease exemption under IFRS 16 and expenses the payment immediately.",0.0290,22.4,expense_increase,Rent expense,"24,000.00",,Rent Expense,"24,000.00",,expense_increase,Rent expense,1
+,,,,,asset_decrease,Cash — chequing,,"24,000.00",Cash,,"24,000.00",asset_decrease,Cash and cash equivalents,1
+,,,,,,TOTAL,"24,000.00","24,000.00",TOTAL,"24,000.00","24,000.00",,,
+,,,,,,,,,,,,,,
+int_hard_27a_meal_overtime,intermediate,Mondelez paid $125 for a meal using the corporate credit card. The meal was provided to employees working overtime as an employee benefit.,0.0278,26.3,expense_increase,Employee benefits expense,125.00,,Employee benefits expense,125.00,,expense_increase,Employee benefits expense,1
+,,,,,liability_increase,Credit card payable,,125.00,Credit card payable,,125.00,liability_increase,Credit card payable,1
+,,,,,,TOTAL,125.00,125.00,TOTAL,125.00,125.00,,,
+,,,,,,,,,,,,,,
+int_hard_27b_meal_meeting,intermediate,Mondelez paid $125 for a meal using the corporate credit card. The meal was for a working meeting among employees.,0.0277,19.2,expense_increase,Meeting expense,125.00,,Meeting expense,125.00,,expense_increase,Meeting expense,1
+,,,,,liability_increase,Credit card payable,,125.00,Credit card payable,,125.00,liability_increase,Credit card payable,1
+,,,,,,TOTAL,125.00,125.00,TOTAL,125.00,125.00,,,
+,,,,,,,,,,,,,,
+int_hard_27c_meal_entertainment,intermediate,Mondelez paid $125 for a meal using the corporate credit card. The meal was for client entertainment.,0.0275,13.5,expense_increase,Entertainment expense,125.00,,Entertainment expense,125.00,,expense_increase,Entertainment expense,1
+,,,,,liability_increase,Credit card payable,,125.00,Credit card payable,,125.00,liability_increase,Credit card payable,1
+,,,,,,TOTAL,125.00,125.00,TOTAL,125.00,125.00,,,
+,,,,,,,,,,,,,,
+int_hard_27d_meal_factory,intermediate,Mondelez paid $125 for a meal using the corporate credit card. The meal was provided to factory production staff and is classified as manufacturing overhead.,0.0282,12.6,asset_increase,Work in process — Manufacturing overhead,125.00,,Inventories — work in progress,125.00,,asset_increase,Inventories — work in progress,1
+,,,,,liability_increase,Credit card payable,,125.00,Credit card payable,,125.00,liability_increase,Credit card payable,1
+,,,,,,TOTAL,125.00,125.00,TOTAL,125.00,125.00,,,
+,,,,,,,,,,,,,,
+int_hard_32a_grocery_entertainment,intermediate,"Target purchased tea, beverages, and refreshments from a grocery store for $1,200 plus 10% sales tax, totalling $1,320, paid by corporate credit card. The purchase was for client entertainment.",0.0313,34.3,expense_increase,Entertainment expense,"1,320.00",,Entertainment expense,"1,200.00",,expense_increase,Entertainment expense,1
+,,,,,,,,,HST Receivable,120.00,,?,?,
+,,,,,,,,,,,,asset_increase,Tax assets,1
+,,,,,liability_increase,Credit card payable,,"1,320.00",Credit card payable,,"1,320.00",liability_increase,Credit card payable,1
+,,,,,,TOTAL,"1,320.00","1,320.00",TOTAL,"1,320.00","1,320.00",,,
+,,,,,,,,,,,,,,
+int_hard_32b_grocery_breakroom,intermediate,"Target purchased tea, beverages, and refreshments from a grocery store for $1,200 plus 10% sales tax, totalling $1,320, paid by corporate credit card. The purchase was for the employee break room.",0.0329,24.4,expense_increase,Employee benefits expense,"1,320.00",,Employee benefits expense,"1,200.00",,expense_increase,Employee benefits expense,1
+,,,,,,,,,HST Receivable,120.00,,?,?,
+,,,,,,,,,,,,asset_increase,Tax assets,1
+,,,,,liability_increase,Credit card payable,,"1,320.00",Credit card payable,,"1,320.00",liability_increase,Credit card payable,1
+,,,,,,TOTAL,"1,320.00","1,320.00",TOTAL,"1,320.00","1,320.00",,,
+,,,,,,,,,,,,,,

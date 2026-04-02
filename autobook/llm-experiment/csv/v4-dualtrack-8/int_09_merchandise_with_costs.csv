@@ -1,0 +1,7 @@
+test_case_id,tier,transaction_text,actual_cost_usd,total_latency_s,exp_relationship,exp_account,exp_debit,exp_credit,act_account,act_debit,act_credit,act_relationship,act_category,act_count
+int_09_merchandise_with_costs,intermediate,"Target, a retailer, purchased merchandise from a supplier for $1,000,000 on account. Target also paid cash for the following: freight to warehouse $120,000, shipping insurance $30,000, post-acquisition warehouse storage $20,000, and outbound delivery freight $50,000.",0.0397,38.7,asset_increase,Inventories — Merchandise,"1,150,000.00",,Inventories — merchandise,"1,150,000.00",,asset_increase,Inventories — merchandise,1
+,,,,,expense_increase,Distribution costs,"50,000.00",,Transportation expense,"50,000.00",,expense_increase,Transportation expense,1
+,,,,,expense_increase,Warehousing expense,"20,000.00",,Warehousing expense,"20,000.00",,expense_increase,Warehousing expense,1
+,,,,,liability_increase,Trade payables,,"1,000,000.00",Trade payables,,"1,000,000.00",liability_increase,Trade payables,1
+,,,,,asset_decrease,Cash,,"220,000.00",Cash and cash equivalents,,"220,000.00",asset_decrease,Cash and cash equivalents,1
+,,,,,,TOTAL,"1,220,000.00","1,220,000.00",TOTAL,"1,220,000.00","1,220,000.00",,,

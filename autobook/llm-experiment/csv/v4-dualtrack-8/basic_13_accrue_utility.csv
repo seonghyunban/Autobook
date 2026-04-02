@@ -1,0 +1,4 @@
+test_case_id,tier,transaction_text,actual_cost_usd,total_latency_s,exp_relationship,exp_account,exp_debit,exp_credit,act_account,act_debit,act_credit,act_relationship,act_category,act_count
+basic_13_accrue_utility,basic,Accrue $50 utility bill,0.0269,10.1,expense_increase,Utilities expense,50.00,,Utilities expense,50.00,,expense_increase,Utilities expense,1
+,,,,,liability_increase,Accrued liabilities,,50.00,Accrued liabilities,,50.00,liability_increase,Accrued liabilities,1
+,,,,,,TOTAL,50.00,50.00,TOTAL,50.00,50.00,,,

@@ -1,0 +1,490 @@
+{
+  "test_case_id": "int_23_split_electricity",
+  "variant_name": "baseline_v4_dualtrack",
+  "model": "sonnet",
+  "debit_tuple_exact_match": true,
+  "credit_tuple_exact_match": true,
+  "debit_tuple_slot_accuracy": 0.8333333333333334,
+  "credit_tuple_slot_accuracy": 0.8333333333333334,
+  "entry_valid": true,
+  "debit_tuple": [
+    1,
+    1,
+    0,
+    0,
+    0
+  ],
+  "credit_tuple": [
+    1,
+    0,
+    0,
+    0,
+    0
+  ],
+  "journal_entry": {
+    "reason": "Factory electricity capitalized to WIP as manufacturing overhead, office electricity expensed as period cost, both paid via corporate credit card creating a liability.",
+    "lines": [
+      {
+        "type": "debit",
+        "account_name": "Inventories \u2014 work in progress",
+        "amount": 15000.0
+      },
+      {
+        "type": "debit",
+        "account_name": "Utilities expense",
+        "amount": 5500.0
+      },
+      {
+        "type": "credit",
+        "account_name": "Credit card payable",
+        "amount": 20500.0
+      }
+    ]
+  },
+  "actual_cost_usd": 0.031745999999999996,
+  "raw_cost_usd": 0.093873,
+  "total_latency_ms": 14141,
+  "total_input_tokens": 26146,
+  "total_output_tokens": 1029,
+  "total_llm_calls": 5,
+  "iteration_count": 1,
+  "final_decision": "APPROVED",
+  "fix_attempted": null,
+  "fix_succeeded": null,
+  "agent_metrics": {
+    "tax_specialist": {
+      "input_tokens": 534,
+      "output_tokens": 138,
+      "cache_read_tokens": 3842,
+      "cache_write_tokens": 0,
+      "total_input_tokens": 4376,
+      "llm_calls": 1,
+      "actual_cost_usd": 0.0048246,
+      "raw_cost_usd": 0.015198,
+      "output": {
+        "reasoning": "Text does not mention tax. Electricity is a taxable supply in Ontario (13% HST), but no tax is stated in the transaction.",
+        "tax_mentioned": false,
+        "taxable": true,
+        "tax_context": null,
+        "tax_rate": null,
+        "add_tax_lines": false,
+        "treatment": "not_applicable"
+      },
+      "reason": null
+    },
+    "debit_classifier": {
+      "input_tokens": 495,
+      "output_tokens": 175,
+      "cache_read_tokens": 4885,
+      "cache_write_tokens": 0,
+      "total_input_tokens": 5380,
+      "llm_calls": 1,
+      "actual_cost_usd": 0.0055755,
+      "raw_cost_usd": 0.018765,
+      "output": {
+        "asset_increase": [
+          {
+            "reason": "Factory electricity capitalized as manufacturing overhead into work in progress",
+            "category": "Inventories \u2014 work in progress",
+            "count": 1
+          }
+        ],
+        "expense_increase": [
+          {
+            "reason": "Office electricity incurred as period cost for utilities",
+            "category": "Utilities expense",
+            "count": 1
+          }
+        ],
+        "liability_decrease": [],
+        "equity_decrease": [],
+        "revenue_decrease": [],
+        "tuple": [
+          1,
+          1,
+          0,
+          0,
+          0
+        ]
+      },
+      "reason": null
+    },
+    "unknown": {
+      "input_tokens": 551,
+      "output_tokens": 415,
+      "cache_read_tokens": 4937,
+      "cache_write_tokens": 0,
+      "total_input_tokens": 5488,
+      "llm_calls": 1,
+      "actual_cost_usd": 0.0093591,
+      "raw_cost_usd": 0.022689,
+      "output": null,
+      "reason": null
+    },
+    "credit_classifier": {
+      "input_tokens": 492,
+      "output_tokens": 140,
+      "cache_read_tokens": 4773,
+      "cache_write_tokens": 0,
+      "total_input_tokens": 5265,
+      "llm_calls": 1,
+      "actual_cost_usd": 0.0050079,
+      "raw_cost_usd": 0.017895,
+      "output": {
+        "liability_increase": [
+          {
+            "reason": "Corporate credit card used to pay electricity charges",
+            "category": "Credit card payable",
+            "count": 1
+          }
+        ],
+        "equity_increase": [],
+        "revenue_increase": [],
+        "asset_decrease": [],
+        "expense_decrease": [],
+        "tuple": [
+          1,
+          0,
+          0,
+          0,
+          0
+        ]
+      },
+      "reason": null
+    },
+    "entry_drafter": {
+      "input_tokens": 1064,
+      "output_tokens": 161,
+      "cache_read_tokens": 4573,
+      "cache_write_tokens": 0,
+      "total_input_tokens": 5637,
+      "llm_calls": 1,
+      "actual_cost_usd": 0.0069789,
+      "raw_cost_usd": 0.019326,
+      "output": {
+        "reason": "Factory electricity capitalized to WIP as manufacturing overhead, office electricity expensed as period cost, both paid via corporate credit card creating a liability.",
+        "lines": [
+          {
+            "type": "debit",
+            "account_name": "Inventories \u2014 work in progress",
+            "amount": 15000.0
+          },
+          {
+            "type": "debit",
+            "account_name": "Utilities expense",
+            "amount": 5500.0
+          },
+          {
+            "type": "credit",
+            "account_name": "Credit card payable",
+            "amount": 20500.0
+          }
+        ]
+      },
+      "reason": "Factory electricity capitalized to WIP as manufacturing overhead, office electricity expensed as period cost, both paid via corporate credit card creating a liability."
+    }
+  },
+  "pre_fix_debit_tuple": null,
+  "post_fix_debit_tuple": null,
+  "pre_fix_credit_tuple": null,
+  "post_fix_credit_tuple": null,
+  "fix_root_cause_agent": null,
+  "rejection_reason": null,
+  "diagnostician_decision": null,
+  "validation_error": null,
+  "decision_correct": true,
+  "entry_match": null,
+  "clarification_correct": null,
+  "clarification_questions": null,
+  "ambiguous": false,
+  "tier": "intermediate",
+  "error": null,
+  "pipeline_state": {
+    "iteration": 0,
+    "output_ambiguity_detector": [
+      {
+        "ambiguities": [
+          {
+            "aspect": "Classification of factory electricity as expense vs inventory/WIP",
+            "input_contextualized_conventional_default": null,
+            "input_contextualized_ifrs_default": "Manufacturing costs (including factory electricity) are product costs capitalized to inventory/WIP, not period expenses (IAS 2).",
+            "clarification_question": null,
+            "cases": null,
+            "ambiguous": false
+          },
+          {
+            "aspect": "Classification of office electricity",
+            "input_contextualized_conventional_default": "Office electricity is a period cost (administrative expense).",
+            "input_contextualized_ifrs_default": null,
+            "clarification_question": null,
+            "cases": null,
+            "ambiguous": false
+          },
+          {
+            "aspect": "Payment method",
+            "input_contextualized_conventional_default": "'paid using the corporate credit card' = Credit Card Payable (liability increase).",
+            "input_contextualized_ifrs_default": null,
+            "clarification_question": null,
+            "cases": null,
+            "ambiguous": false
+          }
+        ]
+      }
+    ],
+    "output_complexity_detector": [
+      {
+        "flags": [
+          {
+            "aspect": "Straightforward utility payment with manufacturing vs period cost split",
+            "best_attempt": null,
+            "gap": null,
+            "beyond_llm_capability": false
+          }
+        ]
+      }
+    ],
+    "output_tax_specialist": [
+      {
+        "reasoning": "Text does not mention tax. Electricity is a taxable supply in Ontario (13% HST), but no tax is stated in the transaction.",
+        "tax_mentioned": false,
+        "taxable": true,
+        "tax_context": null,
+        "tax_rate": null,
+        "add_tax_lines": false,
+        "treatment": "not_applicable"
+      }
+    ],
+    "output_decision_maker": [
+      {
+        "ambiguities": [
+          {
+            "aspect": "Classification of factory electricity as expense vs inventory/WIP",
+            "input_contextualized_conventional_default": null,
+            "input_contextualized_ifrs_default": "Manufacturing costs (including factory electricity) are product costs capitalized to inventory/WIP, not period expenses (IAS 2).",
+            "clarification_question": null,
+            "cases": null,
+            "ambiguous": false
+          },
+          {
+            "aspect": "Classification of office electricity",
+            "input_contextualized_conventional_default": "Office electricity is a period cost (administrative expense).",
+            "input_contextualized_ifrs_default": null,
+            "clarification_question": null,
+            "cases": null,
+            "ambiguous": false
+          },
+          {
+            "aspect": "Payment method",
+            "input_contextualized_conventional_default": "'paid using the corporate credit card' = Credit Card Payable (liability increase).",
+            "input_contextualized_ifrs_default": null,
+            "clarification_question": null,
+            "cases": null,
+            "ambiguous": false
+          }
+        ],
+        "complexity_flags": [
+          {
+            "aspect": "Straightforward utility payment with manufacturing vs period cost split",
+            "best_attempt": null,
+            "gap": null,
+            "beyond_llm_capability": false
+          }
+        ],
+        "proceed_reason": "IFRS rules resolve factory electricity as product cost (inventory/WIP) and office electricity as period expense, with credit card payment creating a liability\u2014no ambiguity remains.",
+        "clarification_questions": null,
+        "stuck_reason": null,
+        "overall_final_rationale": "Factory electricity is capitalized to inventory/WIP per IFRS manufacturing cost rules, office electricity is period expense, and payment via credit card creates a liability\u2014all amounts and classifications are determinable from the text.",
+        "decision": "PROCEED"
+      }
+    ],
+    "output_entry_drafter": [
+      {
+        "reason": "Factory electricity capitalized to WIP as manufacturing overhead, office electricity expensed as period cost, both paid via corporate credit card creating a liability.",
+        "lines": [
+          {
+            "type": "debit",
+            "account_name": "Inventories \u2014 work in progress",
+            "amount": 15000.0
+          },
+          {
+            "type": "debit",
+            "account_name": "Utilities expense",
+            "amount": 5500.0
+          },
+          {
+            "type": "credit",
+            "account_name": "Credit card payable",
+            "amount": 20500.0
+          }
+        ]
+      }
+    ],
+    "output_disambiguator": [
+      {
+        "ambiguities": [
+          {
+            "aspect": "Classification of factory electricity as expense vs inventory/WIP",
+            "input_contextualized_conventional_default": null,
+            "input_contextualized_ifrs_default": "Manufacturing costs (including factory electricity) are product costs capitalized to inventory/WIP, not period expenses (IAS 2).",
+            "clarification_question": null,
+            "cases": null,
+            "ambiguous": false
+          },
+          {
+            "aspect": "Classification of office electricity",
+            "input_contextualized_conventional_default": "Office electricity is a period cost (administrative expense).",
+            "input_contextualized_ifrs_default": null,
+            "clarification_question": null,
+            "cases": null,
+            "ambiguous": false
+          },
+          {
+            "aspect": "Payment method",
+            "input_contextualized_conventional_default": "'paid using the corporate credit card' = Credit Card Payable (liability increase).",
+            "input_contextualized_ifrs_default": null,
+            "clarification_question": null,
+            "cases": null,
+            "ambiguous": false
+          }
+        ]
+      }
+    ],
+    "output_debit_classifier": [
+      {
+        "asset_increase": [
+          {
+            "reason": "Factory electricity capitalized as manufacturing overhead into work in progress",
+            "category": "Inventories \u2014 work in progress",
+            "count": 1
+          }
+        ],
+        "expense_increase": [
+          {
+            "reason": "Office electricity incurred as period cost for utilities",
+            "category": "Utilities expense",
+            "count": 1
+          }
+        ],
+        "liability_decrease": [],
+        "equity_decrease": [],
+        "revenue_decrease": [],
+        "tuple": [
+          1,
+          1,
+          0,
+          0,
+          0
+        ]
+      }
+    ],
+    "output_credit_classifier": [
+      {
+        "liability_increase": [
+          {
+            "reason": "Corporate credit card used to pay electricity charges",
+            "category": "Credit card payable",
+            "count": 1
+          }
+        ],
+        "equity_increase": [],
+        "revenue_increase": [],
+        "asset_decrease": [],
+        "expense_decrease": [],
+        "tuple": [
+          1,
+          0,
+          0,
+          0,
+          0
+        ]
+      }
+    ],
+    "output_debit_corrector": [],
+    "output_credit_corrector": [],
+    "output_entry_builder": [],
+    "output_approver": [],
+    "output_diagnostician": [],
+    "status_ambiguity_detector": 1,
+    "status_complexity_detector": 1,
+    "status_tax_specialist": 1,
+    "status_decision_maker": 1,
+    "status_entry_drafter": 1,
+    "status_disambiguator": 1,
+    "status_debit_classifier": 1,
+    "status_credit_classifier": 1,
+    "status_debit_corrector": 0,
+    "status_credit_corrector": 0,
+    "status_entry_builder": 0,
+    "status_approver": 0,
+    "status_diagnostician": 0,
+    "fix_context_disambiguator": [],
+    "fix_context_debit_classifier": [],
+    "fix_context_credit_classifier": [],
+    "fix_context_debit_corrector": [],
+    "fix_context_credit_corrector": [],
+    "fix_context_entry_builder": [],
+    "fix_context_approver": [],
+    "fix_context_diagnostician": [],
+    "decision": "APPROVED",
+    "validation_error": null,
+    "llm_calls": [
+      {
+        "node": "tax_specialist",
+        "stop_reason": "tool_use",
+        "input_tokens": 534,
+        "output_tokens": 138,
+        "input_token_details": {
+          "cache_read": 3842,
+          "cache_creation": 0
+        }
+      },
+      {
+        "node": "debit_classifier",
+        "stop_reason": "tool_use",
+        "input_tokens": 495,
+        "output_tokens": 175,
+        "input_token_details": {
+          "cache_read": 4885,
+          "cache_creation": 0
+        }
+      },
+      {
+        "node": "unknown",
+        "stop_reason": "tool_use",
+        "input_tokens": 551,
+        "output_tokens": 415,
+        "input_token_details": {
+          "cache_read": 4937,
+          "cache_creation": 0
+        }
+      },
+      {
+        "node": "credit_classifier",
+        "stop_reason": "tool_use",
+        "input_tokens": 492,
+        "output_tokens": 140,
+        "input_token_details": {
+          "cache_read": 4773,
+          "cache_creation": 0
+        }
+      },
+      {
+        "node": "entry_drafter",
+        "stop_reason": "tool_use",
+        "input_tokens": 1064,
+        "output_tokens": 161,
+        "input_token_details": {
+          "cache_read": 4573,
+          "cache_creation": 0
+        }
+      }
+    ],
+    "stop_reasons": {
+      "tax_specialist": "tool_use",
+      "debit_classifier": "tool_use",
+      "unknown": "tool_use",
+      "credit_classifier": "tool_use",
+      "entry_drafter": "tool_use"
+    }
+  }
+}

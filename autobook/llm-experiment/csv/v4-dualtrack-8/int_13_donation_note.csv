@@ -1,0 +1,5 @@
+test_case_id,tier,transaction_text,actual_cost_usd,total_latency_s,exp_relationship,exp_account,exp_debit,exp_credit,act_account,act_debit,act_credit,act_relationship,act_category,act_count
+int_13_donation_note,intermediate,"Target pledged a donation of $1,000,000 to a humanitarian food aid program in Somalia and issued a 1-month promissory note for the full amount.",0.0297,32.9,expense_increase,Donations expense,"1,000,000.00",,Donations expense,"1,000,000.00",,expense_increase,Donations expense,1
+,,,,,liability_increase,Notes payable,,"1,000,000.00",Notes payable,,"1,000,000.00",?,?,
+,,,,,,,,,,,,liability_increase,Short-term borrowings,1
+,,,,,,TOTAL,"1,000,000.00","1,000,000.00",TOTAL,"1,000,000.00","1,000,000.00",,,

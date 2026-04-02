@@ -1,0 +1,4 @@
+test_case_id,tier,transaction_text,actual_cost_usd,total_latency_s,exp_relationship,exp_account,exp_debit,exp_credit,act_account,act_debit,act_credit,act_relationship,act_category,act_count
+basic_07_loan_to_equity,basic,"Converted a $200 bank loan to equity, issuing 400 common shares",0.0275,35.1,liability_decrease,Notes payable,200.00,,Short-term borrowings,200.00,,liability_decrease,Short-term borrowings,1
+,,,,,equity_increase,Share capital — Common,,200.00,Issued capital,,200.00,equity_increase,Issued capital,1
+,,,,,,TOTAL,200.00,200.00,TOTAL,200.00,200.00,,,

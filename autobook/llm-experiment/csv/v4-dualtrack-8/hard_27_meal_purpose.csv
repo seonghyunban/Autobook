@@ -1,0 +1,4 @@
+test_case_id,tier,transaction_text,actual_cost_usd,total_latency_s,exp_relationship,exp_account,exp_debit,exp_credit,act_account,act_debit,act_credit,act_relationship,act_category,act_count
+hard_27_meal_purpose,hard,Mondelez paid $125 for a meal using the corporate credit card.,0.0240,11.5,,,,,,,,,,
+,,,,,,,,,,,,,,
+,,,,,,TOTAL,0.00,0.00,TOTAL,0.00,0.00,,,

@@ -1,0 +1,4 @@
+test_case_id,tier,transaction_text,actual_cost_usd,total_latency_s,exp_relationship,exp_account,exp_debit,exp_credit,act_account,act_debit,act_credit,act_relationship,act_category,act_count
+int_19_service_revenue_cash,intermediate,"Atlas Van Lines provided moving services to a customer for $25,500 and received a certified cheque as payment.",0.0297,22.3,asset_increase,Cash,"25,500.00",,Cash and cash equivalents,"25,500.00",,asset_increase,Cash and cash equivalents,1
+,,,,,revenue_increase,Revenue — Service revenue,,"25,500.00",Revenue from rendering of services,,"25,500.00",revenue_increase,Revenue from rendering of services,1
+,,,,,,TOTAL,"25,500.00","25,500.00",TOTAL,"25,500.00","25,500.00",,,

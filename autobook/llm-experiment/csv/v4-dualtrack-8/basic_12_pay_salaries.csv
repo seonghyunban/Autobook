@@ -1,0 +1,4 @@
+test_case_id,tier,transaction_text,actual_cost_usd,total_latency_s,exp_relationship,exp_account,exp_debit,exp_credit,act_account,act_debit,act_credit,act_relationship,act_category,act_count
+basic_12_pay_salaries,basic,Paid employee salaries of $100 in cash,0.0258,23.4,expense_increase,Salaries expense,100.00,,Employee benefits expense,100.00,,expense_increase,Employee benefits expense,1
+,,,,,asset_decrease,Cash,,100.00,Cash,,100.00,asset_decrease,Cash and cash equivalents,1
+,,,,,,TOTAL,100.00,100.00,TOTAL,100.00,100.00,,,

@@ -1,0 +1,6 @@
+test_case_id,tier,transaction_text,actual_cost_usd,total_latency_s,exp_relationship,exp_account,exp_debit,exp_credit,act_account,act_debit,act_credit,act_relationship,act_category,act_count
+int_07_decommissioning_provision,intermediate,"Tidewater acquired an offshore marine structure for $4,000,000 on account. The structure is subject to a 10-year operating permit, which requires full site restoration at the end of the permit term. Tidewater estimated the future restoration cost and determined its present value to be $1,950,000.",0.0326,20.6,asset_increase,PP&E — Marine structures,"5,950,000.00",,Offshore Marine Structure,"5,950,000.00",,?,?,
+,,,,,,,,,,,,asset_increase,Buildings,1
+,,,,,liability_increase,Trade payables,,"4,000,000.00",Trade Payables,,"4,000,000.00",liability_increase,Trade payables,1
+,,,,,liability_increase,Decommissioning provision,,"1,950,000.00",Decommissioning Provisions,,"1,950,000.00",liability_increase,Decommissioning provisions,1
+,,,,,,TOTAL,"5,950,000.00","5,950,000.00",TOTAL,"5,950,000.00","5,950,000.00",,,

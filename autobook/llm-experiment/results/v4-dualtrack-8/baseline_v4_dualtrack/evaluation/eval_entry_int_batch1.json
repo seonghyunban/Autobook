@@ -1,0 +1,208 @@
+{
+  "evaluator": "claude-opus-4-6",
+  "evaluated_at": "2026-04-01",
+  "prompt_version": "v4",
+  "batch": "int_batch1",
+  "test_case_range": "int_03 through int_15",
+  "summary": {
+    "total": 13,
+    "match": 13,
+    "mismatch": 0,
+    "match_rate": 1.0,
+    "tax_relaxed_match": 13,
+    "tax_relaxed_match_rate": 1.0
+  },
+  "results": {
+    "int_03_machinery_purchase": {
+      "match": true,
+      "tax_relaxed_match": true,
+      "expected": [
+        {"type": "debit", "account": "PP&E Machinery", "amount": 800000},
+        {"type": "credit", "account": "Trade payables", "amount": 700000},
+        {"type": "credit", "account": "Cash", "amount": 100000}
+      ],
+      "actual": [
+        {"type": "debit", "account": "Machinery", "amount": 800000.0},
+        {"type": "credit", "account": "Trade payables", "amount": 700000.0},
+        {"type": "credit", "account": "Cash and cash equivalents", "amount": 100000.0}
+      ],
+      "notes": "Account names semantically equivalent. Amounts exact match."
+    },
+    "int_04_major_overhaul": {
+      "match": true,
+      "tax_relaxed_match": true,
+      "expected": [
+        {"type": "debit", "account": "PP&E Machinery", "amount": 200000},
+        {"type": "credit", "account": "Cash", "amount": 200000}
+      ],
+      "actual": [
+        {"type": "debit", "account": "Machinery", "amount": 200000.0},
+        {"type": "credit", "account": "Cash", "amount": 200000.0}
+      ],
+      "notes": "Account names semantically equivalent. Amounts exact match."
+    },
+    "int_05_bond_issuance_discount": {
+      "match": true,
+      "tax_relaxed_match": true,
+      "expected": [
+        {"type": "debit", "account": "Cash", "amount": 2657510},
+        {"type": "debit", "account": "Discount on bonds payable", "amount": 342490},
+        {"type": "credit", "account": "Bonds payable", "amount": 3000000}
+      ],
+      "actual": [
+        {"type": "debit", "account": "Cash", "amount": 2657397.53},
+        {"type": "debit", "account": "Discount on Bonds Payable", "amount": 342602.47},
+        {"type": "credit", "account": "Bonds Payable", "amount": 3000000.0}
+      ],
+      "notes": "PV rounding difference: Cash $2,657,397.53 vs expected $2,657,510 (delta $112.47, within $250 tolerance). Bonds payable at face value is exact. Account names semantically equivalent."
+    },
+    "int_06_warranty_provision": {
+      "match": true,
+      "tax_relaxed_match": true,
+      "expected": [
+        {"type": "debit", "account": "Warranty expense", "amount": 900000},
+        {"type": "credit", "account": "Provision for warranties", "amount": 900000}
+      ],
+      "actual": [
+        {"type": "debit", "account": "Warranty Expense", "amount": 900000.0},
+        {"type": "credit", "account": "Warranty Provisions", "amount": 900000.0}
+      ],
+      "notes": "Account names semantically equivalent (Warranty Provisions ~ Provision for warranties). Amounts exact match."
+    },
+    "int_07_decommissioning_provision": {
+      "match": true,
+      "tax_relaxed_match": true,
+      "expected": [
+        {"type": "debit", "account": "PP&E Marine structures", "amount": 5950000},
+        {"type": "credit", "account": "Trade payables", "amount": 4000000},
+        {"type": "credit", "account": "Decommissioning provision", "amount": 1950000}
+      ],
+      "actual": [
+        {"type": "debit", "account": "Offshore Marine Structure", "amount": 5950000.0},
+        {"type": "credit", "account": "Trade Payables", "amount": 4000000.0},
+        {"type": "credit", "account": "Decommissioning Provisions", "amount": 1950000.0}
+      ],
+      "notes": "Account names semantically equivalent. Amounts exact match."
+    },
+    "int_08_share_repurchase_cancel": {
+      "match": true,
+      "tax_relaxed_match": true,
+      "expected": [
+        {"type": "debit", "account": "Share capital", "amount": 50000},
+        {"type": "debit", "account": "Retained earnings", "amount": 10000},
+        {"type": "credit", "account": "Cash", "amount": 60000}
+      ],
+      "actual": [
+        {"type": "debit", "account": "Issued capital", "amount": 50000.0},
+        {"type": "debit", "account": "Retained earnings", "amount": 10000.0},
+        {"type": "credit", "account": "Cash", "amount": 60000.0}
+      ],
+      "notes": "Issued capital = Share capital (semantically equivalent). Amounts exact match."
+    },
+    "int_09_merchandise_with_costs": {
+      "match": true,
+      "tax_relaxed_match": true,
+      "expected": [
+        {"type": "debit", "account": "Inventories", "amount": 1150000},
+        {"type": "debit", "account": "Warehousing expense", "amount": 20000},
+        {"type": "debit", "account": "Distribution costs", "amount": 50000},
+        {"type": "credit", "account": "Trade payables", "amount": 1000000},
+        {"type": "credit", "account": "Cash", "amount": 220000}
+      ],
+      "actual": [
+        {"type": "debit", "account": "Inventories \u2014 merchandise", "amount": 1150000.0},
+        {"type": "debit", "account": "Warehousing expense", "amount": 20000.0},
+        {"type": "debit", "account": "Transportation expense", "amount": 50000.0},
+        {"type": "credit", "account": "Trade payables", "amount": 1000000.0},
+        {"type": "credit", "account": "Cash and cash equivalents", "amount": 220000.0}
+      ],
+      "notes": "Transportation expense ~ Distribution costs (both refer to outbound delivery freight). All amounts exact match."
+    },
+    "int_10_prepayment": {
+      "match": true,
+      "tax_relaxed_match": true,
+      "expected": [
+        {"type": "debit", "account": "Prepayments", "amount": 1000000},
+        {"type": "credit", "account": "Cash", "amount": 1000000}
+      ],
+      "actual": [
+        {"type": "debit", "account": "Prepaid Raw Materials", "amount": 1000000.0},
+        {"type": "credit", "account": "Cash", "amount": 1000000.0}
+      ],
+      "notes": "Prepaid Raw Materials ~ Prepayments (semantically equivalent, more specific). Amounts exact match."
+    },
+    "int_11_land_instalment_discount": {
+      "match": true,
+      "tax_relaxed_match": true,
+      "expected": [
+        {"type": "debit", "account": "Land", "amount": 49173000},
+        {"type": "debit", "account": "Discount on long-term payables", "amount": 10827000},
+        {"type": "credit", "account": "Long-term payables", "amount": 60000000}
+      ],
+      "actual": [
+        {"type": "debit", "account": "Land", "amount": 49173243.44},
+        {"type": "debit", "account": "Discount on Notes Payable", "amount": 10826756.56},
+        {"type": "credit", "account": "Notes Payable", "amount": 60000000.0}
+      ],
+      "notes": "PV rounding difference: Land $49,173,243.44 vs expected $49,173,000 (delta $243.44, within $250 tolerance). Notes Payable ~ Long-term payables (semantically equivalent). Face value exact."
+    },
+    "int_12_site_improvements": {
+      "match": true,
+      "tax_relaxed_match": true,
+      "expected": [
+        {"type": "debit", "account": "PP&E Site improvements", "amount": 1750000},
+        {"type": "debit", "account": "Land", "amount": 2360000},
+        {"type": "credit", "account": "Cash", "amount": 1750000},
+        {"type": "credit", "account": "Cash\u2014chequing", "amount": 2360000}
+      ],
+      "actual": [
+        {"type": "debit", "account": "Site improvements", "amount": 1750000.0},
+        {"type": "debit", "account": "Land", "amount": 2360000.0},
+        {"type": "credit", "account": "Cash", "amount": 1750000.0},
+        {"type": "credit", "account": "Cash \u2014 chequing", "amount": 2360000.0}
+      ],
+      "notes": "Two separate credit lines present as required (Cash $1,750,000 and Cash\u2014chequing $2,360,000). Account names semantically equivalent. Amounts exact match."
+    },
+    "int_13_donation_note": {
+      "match": true,
+      "tax_relaxed_match": true,
+      "expected": [
+        {"type": "debit", "account": "Donations expense", "amount": 1000000},
+        {"type": "credit", "account": "Notes payable", "amount": 1000000}
+      ],
+      "actual": [
+        {"type": "debit", "account": "Donations expense", "amount": 1000000.0},
+        {"type": "credit", "account": "Notes payable", "amount": 1000000.0}
+      ],
+      "notes": "Exact match on both account names and amounts."
+    },
+    "int_14_vehicle_mixed_payment": {
+      "match": true,
+      "tax_relaxed_match": true,
+      "expected": [
+        {"type": "debit", "account": "PP&E Vehicles", "amount": 40000},
+        {"type": "credit", "account": "Cash", "amount": 20000},
+        {"type": "credit", "account": "Notes payable", "amount": 20000}
+      ],
+      "actual": [
+        {"type": "debit", "account": "Motor vehicles", "amount": 40000.0},
+        {"type": "credit", "account": "Cash and cash equivalents", "amount": 20000.0},
+        {"type": "credit", "account": "Short-term borrowings", "amount": 20000.0}
+      ],
+      "notes": "Motor vehicles ~ PP&E Vehicles (semantically equivalent). Short-term borrowings ~ Notes payable (both refer to 2-month promissory note). Amounts exact match."
+    },
+    "int_15_bank_loan": {
+      "match": true,
+      "tax_relaxed_match": true,
+      "expected": [
+        {"type": "debit", "account": "Cash", "amount": 200000},
+        {"type": "credit", "account": "Long-term borrowings", "amount": 200000}
+      ],
+      "actual": [
+        {"type": "debit", "account": "Cash and cash equivalents", "amount": 200000.0},
+        {"type": "credit", "account": "Long-term borrowings", "amount": 200000.0}
+      ],
+      "notes": "Account names semantically equivalent. Amounts exact match."
+    }
+  }
+}

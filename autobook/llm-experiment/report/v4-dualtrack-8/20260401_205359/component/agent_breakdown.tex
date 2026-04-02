@@ -1,0 +1,16 @@
+\begin{table}[htbp]
+\centering
+\caption{Agent Breakdown: baseline\_v4\_dualtrack}
+\label{tab:agent-baseline-v4-dualtrack}
+\begin{tabular}{l r rr rr rr}
+\toprule
+Agent & Calls & Input & Output & Cache R & Cache W & Raw \$ & Actual \$ \\
+\midrule
+  credit\_classifier & 61 & 30,830 & 9,301 & 286,380 & 4,773 & \$1.1055 & \$0.3466 \\
+  debit\_classifier & 61 & 31,013 & 7,067 & 293,100 & 4,885 & \$1.0930 & \$0.3163 \\
+  entry\_drafter & 56 & 59,240 & 7,974 & 251,515 & 4,573 & \$1.0656 & \$0.4002 \\
+  tax\_specialist & 61 & 33,392 & 9,668 & 234,362 & 0 & \$0.9483 & \$0.3155 \\
+  unknown & 61 & 34,429 & 27,417 & 301,157 & 0 & \$1.4180 & \$0.6049 \\
+\bottomrule
+\end{tabular}
+\end{table}

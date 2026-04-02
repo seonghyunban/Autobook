@@ -1,0 +1,9 @@
+test_case_id,tier,transaction_text,actual_cost_usd,total_latency_s,exp_relationship,exp_account,exp_debit,exp_credit,act_account,act_debit,act_credit,act_relationship,act_category,act_count
+int_25_building_purchase_allocation,intermediate,"Mondelez purchased land and a building from a vendor for $9,000,000 (exclusive of sales tax) to be used as a product storage warehouse. Fifty percent of the purchase price is due in 6 months, and the balance plus 10% sales tax on the building was paid by cheque. At the date of acquisition, the fair values of the land and building components were $8,000,000 and $4,000,000, respectively.",0.0432,29.9,asset_increase,Land,"6,000,000.00",,Land,"6,000,000.00",,asset_increase,Land,1
+,,,,,asset_increase,Building,"3,000,000.00",,Buildings,"3,000,000.00",,asset_increase,Buildings,1
+,,,,,asset_increase,VAT receivable,"300,000.00",,HST Receivable,"300,000.00",,?,?,
+,,,,,,,,,,,,asset_increase,Tax assets,1
+,,,,,asset_decrease,Cash — chequing,,"4,800,000.00",Cash — chequing,,"4,800,000.00",asset_decrease,Cash and cash equivalents,1
+,,,,,liability_increase,Other payables,,"4,500,000.00",Trade payables,,"4,500,000.00",liability_increase,Trade payables,1
+,,,,,,,,,,,,liability_increase,Tax liabilities,1
+,,,,,,TOTAL,"9,300,000.00","9,300,000.00",TOTAL,"9,300,000.00","9,300,000.00",,,

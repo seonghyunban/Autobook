@@ -1,0 +1,4 @@
+test_case_id,tier,transaction_text,actual_cost_usd,total_latency_s,exp_relationship,exp_account,exp_debit,exp_credit,act_account,act_debit,act_credit,act_relationship,act_category,act_count
+int_20_service_revenue_credit,intermediate,"Atlas Van Lines provided office relocation services to a customer for $31,500. Payment is due in 10 days.",0.0301,45.8,asset_increase,Trade receivables,"31,500.00",,Trade receivables,"31,500.00",,asset_increase,Trade receivables,1
+,,,,,revenue_increase,Revenue — Service revenue,,"31,500.00",Revenue from rendering of services,,"31,500.00",revenue_increase,Revenue from rendering of services,1
+,,,,,,TOTAL,"31,500.00","31,500.00",TOTAL,"31,500.00","31,500.00",,,

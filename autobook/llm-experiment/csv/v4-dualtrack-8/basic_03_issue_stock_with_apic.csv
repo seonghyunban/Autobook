@@ -1,0 +1,6 @@
+test_case_id,tier,transaction_text,actual_cost_usd,total_latency_s,exp_relationship,exp_account,exp_debit,exp_credit,act_account,act_debit,act_credit,act_relationship,act_category,act_count
+basic_03_issue_stock_with_apic,basic,"Issue common stock for $180 cash ($100 par, $80 APIC)",0.0283,37.8,asset_increase,Cash,180.00,,Cash,180.00,,asset_increase,Cash and cash equivalents,1
+,,,,,equity_increase,Share capital — Common,,100.00,Common Stock,,100.00,?,?,
+,,,,,equity_increase,Additional paid-in capital,,80.00,Share Premium,,80.00,equity_increase,Share premium,1
+,,,,,,,,,,,,equity_increase,Issued capital,1
+,,,,,,TOTAL,180.00,180.00,TOTAL,180.00,180.00,,,

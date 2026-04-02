@@ -1,0 +1,543 @@
+{
+  "test_case_id": "hard_01_note_discounting",
+  "variant_name": "baseline_v4_dualtrack",
+  "model": "sonnet",
+  "debit_tuple_exact_match": false,
+  "credit_tuple_exact_match": false,
+  "debit_tuple_slot_accuracy": 0.0,
+  "credit_tuple_slot_accuracy": 0.0,
+  "entry_valid": true,
+  "debit_tuple": [
+    1,
+    0,
+    0,
+    0,
+    1
+  ],
+  "credit_tuple": [
+    0,
+    0,
+    0,
+    1,
+    0
+  ],
+  "journal_entry": null,
+  "actual_cost_usd": 0.0299541,
+  "raw_cost_usd": 0.079734,
+  "total_latency_ms": 14653,
+  "total_input_tokens": 20693,
+  "total_output_tokens": 1177,
+  "total_llm_calls": 4,
+  "iteration_count": 1,
+  "final_decision": "INCOMPLETE_INFORMATION",
+  "fix_attempted": null,
+  "fix_succeeded": null,
+  "agent_metrics": {
+    "tax_specialist": {
+      "input_tokens": 580,
+      "output_tokens": 155,
+      "cache_read_tokens": 3842,
+      "cache_write_tokens": 0,
+      "total_input_tokens": 4422,
+      "llm_calls": 1,
+      "actual_cost_usd": 0.0052176,
+      "raw_cost_usd": 0.015591,
+      "output": {
+        "reasoning": "Transaction describes discounting a promissory note at the bank. This is a financial instrument transaction (derecognition of a receivable), not a taxable supply of goods or services. No tax is mentioned in the text.",
+        "tax_mentioned": false,
+        "taxable": false,
+        "tax_context": null,
+        "tax_rate": null,
+        "add_tax_lines": false,
+        "treatment": "not_applicable"
+      },
+      "reason": null
+    },
+    "credit_classifier": {
+      "input_tokens": 538,
+      "output_tokens": 152,
+      "cache_read_tokens": 4773,
+      "cache_write_tokens": 0,
+      "total_input_tokens": 5311,
+      "llm_calls": 1,
+      "actual_cost_usd": 0.0053259,
+      "raw_cost_usd": 0.018213,
+      "output": {
+        "liability_increase": [],
+        "equity_increase": [],
+        "revenue_increase": [],
+        "asset_decrease": [
+          {
+            "reason": "Trade receivable settled by receiving promissory note, now derecognized upon discounting at bank",
+            "category": "Trade receivables",
+            "count": 1
+          }
+        ],
+        "expense_decrease": [],
+        "tuple": [
+          0,
+          0,
+          0,
+          1,
+          0
+        ]
+      },
+      "reason": null
+    },
+    "unknown": {
+      "input_tokens": 597,
+      "output_tokens": 687,
+      "cache_read_tokens": 4937,
+      "cache_write_tokens": 0,
+      "total_input_tokens": 5534,
+      "llm_calls": 1,
+      "actual_cost_usd": 0.0135771,
+      "raw_cost_usd": 0.026907,
+      "output": null,
+      "reason": null
+    },
+    "debit_classifier": {
+      "input_tokens": 541,
+      "output_tokens": 183,
+      "cache_read_tokens": 4885,
+      "cache_write_tokens": 0,
+      "total_input_tokens": 5426,
+      "llm_calls": 1,
+      "actual_cost_usd": 0.0058335,
+      "raw_cost_usd": 0.019023,
+      "output": {
+        "asset_increase": [
+          {
+            "reason": "Cash received from discounting the note at the bank",
+            "category": "Cash and cash equivalents",
+            "count": 1
+          }
+        ],
+        "expense_increase": [],
+        "liability_decrease": [],
+        "equity_decrease": [],
+        "revenue_decrease": [
+          {
+            "reason": "Loss on disposal of note receivable (discount charges deducted by bank)",
+            "category": "Gains (losses) on disposals",
+            "count": 1
+          }
+        ],
+        "tuple": [
+          1,
+          0,
+          0,
+          0,
+          1
+        ]
+      },
+      "reason": null
+    }
+  },
+  "pre_fix_debit_tuple": null,
+  "post_fix_debit_tuple": null,
+  "pre_fix_credit_tuple": null,
+  "post_fix_credit_tuple": null,
+  "fix_root_cause_agent": null,
+  "rejection_reason": null,
+  "diagnostician_decision": null,
+  "validation_error": null,
+  "decision_correct": true,
+  "entry_match": false,
+  "clarification_correct": null,
+  "clarification_questions": [
+    "Was this a sale of the note (derecognition) or a secured borrowing with the note as collateral?"
+  ],
+  "ambiguous": true,
+  "tier": "hard",
+  "error": null,
+  "pipeline_state": {
+    "iteration": 0,
+    "output_ambiguity_detector": [
+      {
+        "ambiguities": [
+          {
+            "aspect": "Sale vs secured borrowing (derecognition)",
+            "input_contextualized_conventional_default": null,
+            "input_contextualized_ifrs_default": null,
+            "clarification_question": "Was this a sale of the note (derecognition) or a secured borrowing with the note as collateral?",
+            "cases": [
+              {
+                "case": "Sale (derecognition) - risks and rewards transferred to the bank",
+                "possible_entry": {
+                  "reason": "Note receivable is removed from books; difference between carrying amount and proceeds is a disposal loss",
+                  "lines": [
+                    {
+                      "type": "debit",
+                      "account_name": "Cash",
+                      "amount": 98356.16
+                    },
+                    {
+                      "type": "debit",
+                      "account_name": "Gains (losses) on disposals",
+                      "amount": 1643.84
+                    },
+                    {
+                      "type": "credit",
+                      "account_name": "Notes Receivable",
+                      "amount": 100000.0
+                    }
+                  ]
+                }
+              },
+              {
+                "case": "Collateralized borrowing - Ford retains risks and rewards",
+                "possible_entry": {
+                  "reason": "Note remains on books; cash received is a liability with discount as interest expense",
+                  "lines": [
+                    {
+                      "type": "debit",
+                      "account_name": "Cash",
+                      "amount": 98356.16
+                    },
+                    {
+                      "type": "debit",
+                      "account_name": "Interest Expense",
+                      "amount": 1643.84
+                    },
+                    {
+                      "type": "credit",
+                      "account_name": "Short-term Borrowings",
+                      "amount": 100000.0
+                    }
+                  ]
+                }
+              }
+            ],
+            "ambiguous": true
+          }
+        ]
+      }
+    ],
+    "output_complexity_detector": [
+      {
+        "flags": [
+          {
+            "aspect": "Discount calculation",
+            "best_attempt": {
+              "reason": "Discount = $100,000 \u00d7 15% \u00d7 40/365 = $1,643.84; Net proceeds = $100,000 - $1,643.84 = $98,356.16",
+              "lines": [
+                {
+                  "type": "debit",
+                  "account_name": "Cash",
+                  "amount": 98356.16
+                },
+                {
+                  "type": "debit",
+                  "account_name": "Gains (losses) on disposals",
+                  "amount": 1643.84
+                },
+                {
+                  "type": "credit",
+                  "account_name": "Notes Receivable",
+                  "amount": 100000.0
+                }
+              ]
+            },
+            "gap": null,
+            "beyond_llm_capability": false
+          }
+        ]
+      }
+    ],
+    "output_tax_specialist": [
+      {
+        "reasoning": "Transaction describes discounting a promissory note at the bank. This is a financial instrument transaction (derecognition of a receivable), not a taxable supply of goods or services. No tax is mentioned in the text.",
+        "tax_mentioned": false,
+        "taxable": false,
+        "tax_context": null,
+        "tax_rate": null,
+        "add_tax_lines": false,
+        "treatment": "not_applicable"
+      }
+    ],
+    "output_decision_maker": [
+      {
+        "ambiguities": [
+          {
+            "aspect": "Sale vs secured borrowing (derecognition)",
+            "input_contextualized_conventional_default": null,
+            "input_contextualized_ifrs_default": null,
+            "clarification_question": "Was this a sale of the note (derecognition) or a secured borrowing with the note as collateral?",
+            "cases": [
+              {
+                "case": "Sale (derecognition) - risks and rewards transferred to the bank",
+                "possible_entry": {
+                  "reason": "Note receivable is removed from books; difference between carrying amount and proceeds is a disposal loss",
+                  "lines": [
+                    {
+                      "type": "debit",
+                      "account_name": "Cash",
+                      "amount": 98356.16
+                    },
+                    {
+                      "type": "debit",
+                      "account_name": "Gains (losses) on disposals",
+                      "amount": 1643.84
+                    },
+                    {
+                      "type": "credit",
+                      "account_name": "Notes Receivable",
+                      "amount": 100000.0
+                    }
+                  ]
+                }
+              },
+              {
+                "case": "Collateralized borrowing - Ford retains risks and rewards",
+                "possible_entry": {
+                  "reason": "Note remains on books; cash received is a liability with discount as interest expense",
+                  "lines": [
+                    {
+                      "type": "debit",
+                      "account_name": "Cash",
+                      "amount": 98356.16
+                    },
+                    {
+                      "type": "debit",
+                      "account_name": "Interest Expense",
+                      "amount": 1643.84
+                    },
+                    {
+                      "type": "credit",
+                      "account_name": "Short-term Borrowings",
+                      "amount": 100000.0
+                    }
+                  ]
+                }
+              }
+            ],
+            "ambiguous": true
+          }
+        ],
+        "complexity_flags": [
+          {
+            "aspect": "Discount calculation",
+            "best_attempt": {
+              "reason": "Discount = $100,000 \u00d7 15% \u00d7 40/365 = $1,643.84; Net proceeds = $100,000 - $1,643.84 = $98,356.16",
+              "lines": [
+                {
+                  "type": "debit",
+                  "account_name": "Cash",
+                  "amount": 98356.16
+                },
+                {
+                  "type": "debit",
+                  "account_name": "Gains (losses) on disposals",
+                  "amount": 1643.84
+                },
+                {
+                  "type": "credit",
+                  "account_name": "Notes Receivable",
+                  "amount": 100000.0
+                }
+              ]
+            },
+            "gap": null,
+            "beyond_llm_capability": false
+          }
+        ],
+        "proceed_reason": null,
+        "clarification_questions": [
+          "Was this a sale of the note (derecognition) or a secured borrowing with the note as collateral?"
+        ],
+        "stuck_reason": null,
+        "overall_final_rationale": "\"Discounted at the bank\" is a known ambiguity requiring clarification on whether risks and rewards were transferred (sale) or retained (borrowing).",
+        "decision": "MISSING_INFO"
+      }
+    ],
+    "output_entry_drafter": [],
+    "output_disambiguator": [
+      {
+        "ambiguities": [
+          {
+            "aspect": "Sale vs secured borrowing (derecognition)",
+            "input_contextualized_conventional_default": null,
+            "input_contextualized_ifrs_default": null,
+            "clarification_question": "Was this a sale of the note (derecognition) or a secured borrowing with the note as collateral?",
+            "cases": [
+              {
+                "case": "Sale (derecognition) - risks and rewards transferred to the bank",
+                "possible_entry": {
+                  "reason": "Note receivable is removed from books; difference between carrying amount and proceeds is a disposal loss",
+                  "lines": [
+                    {
+                      "type": "debit",
+                      "account_name": "Cash",
+                      "amount": 98356.16
+                    },
+                    {
+                      "type": "debit",
+                      "account_name": "Gains (losses) on disposals",
+                      "amount": 1643.84
+                    },
+                    {
+                      "type": "credit",
+                      "account_name": "Notes Receivable",
+                      "amount": 100000.0
+                    }
+                  ]
+                }
+              },
+              {
+                "case": "Collateralized borrowing - Ford retains risks and rewards",
+                "possible_entry": {
+                  "reason": "Note remains on books; cash received is a liability with discount as interest expense",
+                  "lines": [
+                    {
+                      "type": "debit",
+                      "account_name": "Cash",
+                      "amount": 98356.16
+                    },
+                    {
+                      "type": "debit",
+                      "account_name": "Interest Expense",
+                      "amount": 1643.84
+                    },
+                    {
+                      "type": "credit",
+                      "account_name": "Short-term Borrowings",
+                      "amount": 100000.0
+                    }
+                  ]
+                }
+              }
+            ],
+            "ambiguous": true
+          }
+        ]
+      }
+    ],
+    "output_debit_classifier": [
+      {
+        "asset_increase": [
+          {
+            "reason": "Cash received from discounting the note at the bank",
+            "category": "Cash and cash equivalents",
+            "count": 1
+          }
+        ],
+        "expense_increase": [],
+        "liability_decrease": [],
+        "equity_decrease": [],
+        "revenue_decrease": [
+          {
+            "reason": "Loss on disposal of note receivable (discount charges deducted by bank)",
+            "category": "Gains (losses) on disposals",
+            "count": 1
+          }
+        ],
+        "tuple": [
+          1,
+          0,
+          0,
+          0,
+          1
+        ]
+      }
+    ],
+    "output_credit_classifier": [
+      {
+        "liability_increase": [],
+        "equity_increase": [],
+        "revenue_increase": [],
+        "asset_decrease": [
+          {
+            "reason": "Trade receivable settled by receiving promissory note, now derecognized upon discounting at bank",
+            "category": "Trade receivables",
+            "count": 1
+          }
+        ],
+        "expense_decrease": [],
+        "tuple": [
+          0,
+          0,
+          0,
+          1,
+          0
+        ]
+      }
+    ],
+    "output_debit_corrector": [],
+    "output_credit_corrector": [],
+    "output_entry_builder": [],
+    "output_approver": [],
+    "output_diagnostician": [],
+    "status_ambiguity_detector": 1,
+    "status_complexity_detector": 1,
+    "status_tax_specialist": 1,
+    "status_decision_maker": 1,
+    "status_entry_drafter": 0,
+    "status_disambiguator": 1,
+    "status_debit_classifier": 1,
+    "status_credit_classifier": 1,
+    "status_debit_corrector": 0,
+    "status_credit_corrector": 0,
+    "status_entry_builder": 0,
+    "status_approver": 0,
+    "status_diagnostician": 0,
+    "fix_context_disambiguator": [],
+    "fix_context_debit_classifier": [],
+    "fix_context_credit_classifier": [],
+    "fix_context_debit_corrector": [],
+    "fix_context_credit_corrector": [],
+    "fix_context_entry_builder": [],
+    "fix_context_approver": [],
+    "fix_context_diagnostician": [],
+    "decision": "INCOMPLETE_INFORMATION",
+    "validation_error": null,
+    "llm_calls": [
+      {
+        "node": "tax_specialist",
+        "stop_reason": "tool_use",
+        "input_tokens": 580,
+        "output_tokens": 155,
+        "input_token_details": {
+          "cache_read": 3842,
+          "cache_creation": 0
+        }
+      },
+      {
+        "node": "credit_classifier",
+        "stop_reason": "tool_use",
+        "input_tokens": 538,
+        "output_tokens": 152,
+        "input_token_details": {
+          "cache_read": 4773,
+          "cache_creation": 0
+        }
+      },
+      {
+        "node": "unknown",
+        "stop_reason": "tool_use",
+        "input_tokens": 597,
+        "output_tokens": 687,
+        "input_token_details": {
+          "cache_read": 4937,
+          "cache_creation": 0
+        }
+      },
+      {
+        "node": "debit_classifier",
+        "stop_reason": "tool_use",
+        "input_tokens": 541,
+        "output_tokens": 183,
+        "input_token_details": {
+          "cache_read": 4885,
+          "cache_creation": 0
+        }
+      }
+    ],
+    "stop_reasons": {
+      "tax_specialist": "tool_use",
+      "credit_classifier": "tool_use",
+      "unknown": "tool_use",
+      "debit_classifier": "tool_use"
+    }
+  }
+}

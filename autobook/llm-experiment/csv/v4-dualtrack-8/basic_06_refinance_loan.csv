@@ -1,0 +1,4 @@
+test_case_id,tier,transaction_text,actual_cost_usd,total_latency_s,exp_relationship,exp_account,exp_debit,exp_credit,act_account,act_debit,act_credit,act_relationship,act_category,act_count
+basic_06_refinance_loan,basic,Refinance bank loan — old $100 note replaced by new $100 note,0.0804,9.7,liability_decrease,Notes payable,100.00,,Short-term borrowings,100.00,,liability_decrease,Short-term borrowings,1
+,,,,,liability_increase,Notes payable,,100.00,Long-term borrowings,,100.00,liability_increase,Long-term borrowings,1
+,,,,,,TOTAL,100.00,100.00,TOTAL,100.00,100.00,,,

@@ -1,0 +1,4 @@
+test_case_id,tier,transaction_text,actual_cost_usd,total_latency_s,exp_relationship,exp_account,exp_debit,exp_credit,act_account,act_debit,act_credit,act_relationship,act_category,act_count
+basic_08_deliver_service_against_deposit,basic,Deliver service against $100 customer deposit,0.0264,19.3,liability_decrease,Contract liabilities,100.00,,Contract liabilities,100.00,,liability_decrease,Contract liabilities,1
+,,,,,revenue_increase,Revenue — Product sales,,100.00,Revenue from rendering of services,,100.00,revenue_increase,Revenue from rendering of services,1
+,,,,,,TOTAL,100.00,100.00,TOTAL,100.00,100.00,,,

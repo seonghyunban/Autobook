@@ -1,0 +1,6 @@
+test_case_id,tier,transaction_text,actual_cost_usd,total_latency_s,exp_relationship,exp_account,exp_debit,exp_credit,act_account,act_debit,act_credit,act_relationship,act_category,act_count
+int_18_multiple_assets,intermediate,"Atlas Van Lines purchased office desks for $2,000 and computers for $3,500, both paid in cash. Additionally, Atlas purchased a crane-equipped truck for $250,000 on account for use in moving operations.",0.0336,17.2,asset_increase,PP&E — Vehicles,"250,000.00",,Motor vehicles,"250,000.00",,asset_increase,Motor vehicles,1
+,,,,,asset_increase,PP&E — Office equipment,"5,500.00",,Office equipment,"5,500.00",,asset_increase,Office equipment,1
+,,,,,liability_increase,Trade payables,,"250,000.00",Trade payables,,"250,000.00",liability_increase,Trade payables,1
+,,,,,asset_decrease,Cash,,"5,500.00",Cash and cash equivalents,,"5,500.00",asset_decrease,Cash and cash equivalents,1
+,,,,,,TOTAL,"255,500.00","255,500.00",TOTAL,"255,500.00","255,500.00",,,

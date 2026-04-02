@@ -1,0 +1,6 @@
+test_case_id,tier,transaction_text,actual_cost_usd,total_latency_s,exp_relationship,exp_account,exp_debit,exp_credit,act_account,act_debit,act_credit,act_relationship,act_category,act_count
+int_12_site_improvements,intermediate,"Ford incurred $1,750,000 in cash for the construction of fencing, streetlights, and walkways surrounding the newly constructed factory. Additionally, Ford paid $2,360,000 by cheque for permanent landscaping installations.",0.0367,27.6,asset_increase,Land,"2,360,000.00",,Land,"2,360,000.00",,asset_increase,Land,1
+,,,,,asset_increase,PP&E — Site improvements,"1,750,000.00",,Site improvements,"1,750,000.00",,asset_increase,Site improvements,1
+,,,,,asset_decrease,Cash — chequing,,"2,360,000.00",Cash — chequing,,"2,360,000.00",asset_decrease,Cash and cash equivalents,1
+,,,,,asset_decrease,Cash,,"1,750,000.00",Cash,,"1,750,000.00",asset_decrease,Cash and cash equivalents,1
+,,,,,,TOTAL,"4,110,000.00","4,110,000.00",TOTAL,"4,110,000.00","4,110,000.00",,,

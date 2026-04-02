@@ -1,0 +1,4 @@
+test_case_id,tier,transaction_text,actual_cost_usd,total_latency_s,exp_relationship,exp_account,exp_debit,exp_credit,act_account,act_debit,act_credit,act_relationship,act_category,act_count
+hard_02_investment_classification,hard,"BlackRock acquired 10% of Ford's outstanding common shares for $3,000,000 and paid a transaction fee of $100,000 by cheque.",0.0279,34.0,,,,,,,,,,
+,,,,,,,,,,,,,,
+,,,,,,TOTAL,0.00,0.00,TOTAL,0.00,0.00,,,

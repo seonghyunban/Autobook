@@ -1,0 +1,4 @@
+test_case_id,tier,transaction_text,actual_cost_usd,total_latency_s,exp_relationship,exp_account,exp_debit,exp_credit,act_account,act_debit,act_credit,act_relationship,act_category,act_count
+basic_01_inventory_cash,basic,Purchase inventory for $100 cash,0.0268,15.1,asset_increase,Inventories — Merchandise,100.00,,Inventories — merchandise,100.00,,asset_increase,Inventories — merchandise,1
+,,,,,asset_decrease,Cash,,100.00,Cash,,100.00,asset_decrease,Cash and cash equivalents,1
+,,,,,,TOTAL,100.00,100.00,TOTAL,100.00,100.00,,,

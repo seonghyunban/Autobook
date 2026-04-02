@@ -1,0 +1,4 @@
+test_case_id,tier,transaction_text,actual_cost_usd,total_latency_s,exp_relationship,exp_account,exp_debit,exp_credit,act_account,act_debit,act_credit,act_relationship,act_category,act_count
+int_04_major_overhaul,intermediate,"Clorox originally purchased machinery for $800,000, intending to use it for 10 years. In year 5, Clorox spent $200,000 in cash on a major overhaul, which extended the remaining useful life by an additional 2 years.",0.0311,26.7,asset_increase,PP&E — Machinery,"200,000.00",,Machinery,"200,000.00",,asset_increase,Machinery,1
+,,,,,asset_decrease,Cash,,"200,000.00",Cash,,"200,000.00",asset_decrease,Cash and cash equivalents,1
+,,,,,,TOTAL,"200,000.00","200,000.00",TOTAL,"200,000.00","200,000.00",,,

@@ -1,0 +1,5 @@
+test_case_id,tier,transaction_text,actual_cost_usd,total_latency_s,exp_relationship,exp_account,exp_debit,exp_credit,act_account,act_debit,act_credit,act_relationship,act_category,act_count
+int_26b_payroll_remittance,intermediate,"Mondelez remitted January statutory deductions to the respective government agencies in cash, combining the employee withholdings with the company's matching contributions: pension $4,000, health insurance $6,500, employment insurance $2,100. Mondelez also remitted employee income tax withholdings of $1,450.",0.0375,36.6,liability_decrease,Statutory withholdings payable,"7,750.00",,Statutory withholdings payable,"7,750.00",,liability_decrease,Statutory withholdings payable,1
+,,,,,expense_increase,Employee benefits expense,"6,300.00",,Employee benefits expense,"6,300.00",,expense_increase,Employee benefits expense,1
+,,,,,asset_decrease,Cash,,"14,050.00",Cash,,"14,050.00",asset_decrease,Cash and cash equivalents,1
+,,,,,,TOTAL,"14,050.00","14,050.00",TOTAL,"14,050.00","14,050.00",,,

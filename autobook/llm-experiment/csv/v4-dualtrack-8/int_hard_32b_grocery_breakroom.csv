@@ -1,0 +1,6 @@
+test_case_id,tier,transaction_text,actual_cost_usd,total_latency_s,exp_relationship,exp_account,exp_debit,exp_credit,act_account,act_debit,act_credit,act_relationship,act_category,act_count
+int_hard_32b_grocery_breakroom,intermediate,"Target purchased tea, beverages, and refreshments from a grocery store for $1,200 plus 10% sales tax, totalling $1,320, paid by corporate credit card. The purchase was for the employee break room.",0.0329,24.4,expense_increase,Employee benefits expense,"1,320.00",,Employee benefits expense,"1,200.00",,expense_increase,Employee benefits expense,1
+,,,,,,,,,HST Receivable,120.00,,?,?,
+,,,,,,,,,,,,asset_increase,Tax assets,1
+,,,,,liability_increase,Credit card payable,,"1,320.00",Credit card payable,,"1,320.00",liability_increase,Credit card payable,1
+,,,,,,TOTAL,"1,320.00","1,320.00",TOTAL,"1,320.00","1,320.00",,,

@@ -1,0 +1,7 @@
+test_case_id,tier,transaction_text,actual_cost_usd,total_latency_s,exp_relationship,exp_account,exp_debit,exp_credit,act_account,act_debit,act_credit,act_relationship,act_category,act_count
+int_05_bond_issuance_discount,intermediate,"Clorox issued bonds with a face value of $3,000,000, a 3-year term, and a coupon rate of 10% with interest payable annually on December 31. The bonds were issued at a discount to reflect the market interest rate of 15%, and the proceeds were received in cash.",0.0342,25.2,asset_increase,Cash,"2,657,510.00",,Cash,"2,657,397.53",,asset_increase,Cash and cash equivalents,1
+,,,,,liability_decrease,Discount on bonds payable,"342,490.00",,Discount on Bonds Payable,"342,602.47",,?,?,
+,,,,,,,,,,,,liability_decrease,Long-term borrowings,1
+,,,,,liability_increase,Bonds payable,,"3,000,000.00",Bonds Payable,,"3,000,000.00",?,?,
+,,,,,,,,,,,,liability_increase,Long-term borrowings,1
+,,,,,,TOTAL,"3,000,000.00","3,000,000.00",TOTAL,"3,000,000.00","3,000,000.00",,,

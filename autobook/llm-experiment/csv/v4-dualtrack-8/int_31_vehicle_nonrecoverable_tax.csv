@@ -1,0 +1,4 @@
+test_case_id,tier,transaction_text,actual_cost_usd,total_latency_s,exp_relationship,exp_account,exp_debit,exp_credit,act_account,act_debit,act_credit,act_relationship,act_category,act_count
+int_31_vehicle_nonrecoverable_tax,intermediate,"Target purchased a sedan from Ford for $48,000 (exclusive of sales tax) for an executive's commuting and business use. The total amount of $52,800 (including 10% non-recoverable sales tax) was financed through a 3-month dealer payment plan.",0.0349,42.4,asset_increase,PP&E — Vehicles,"52,800.00",,Motor vehicles,"52,800.00",,asset_increase,Motor vehicles,1
+,,,,,liability_increase,Other payables,,"52,800.00",Trade payables,,"52,800.00",liability_increase,Trade payables,1
+,,,,,,TOTAL,"52,800.00","52,800.00",TOTAL,"52,800.00","52,800.00",,,

@@ -1,0 +1,4 @@
+test_case_id,tier,transaction_text,actual_cost_usd,total_latency_s,exp_relationship,exp_account,exp_debit,exp_credit,act_account,act_debit,act_credit,act_relationship,act_category,act_count
+int_hard_16b_rent_expense,intermediate,"Atlas Van Lines leased office space and paid $24,000 by cheque, representing 12 months of rent. The entity elected the short-term lease exemption under IFRS 16 and expenses the payment immediately.",0.0290,22.4,expense_increase,Rent expense,"24,000.00",,Rent Expense,"24,000.00",,expense_increase,Rent expense,1
+,,,,,asset_decrease,Cash — chequing,,"24,000.00",Cash,,"24,000.00",asset_decrease,Cash and cash equivalents,1
+,,,,,,TOTAL,"24,000.00","24,000.00",TOTAL,"24,000.00","24,000.00",,,
