@@ -207,3 +207,20 @@ export type RealtimeEvent = {
 };
 
 export type RealtimeListener = (event: RealtimeEvent) => void;
+
+export type LLMInteractionRequest = {
+  input_text: string;
+};
+
+export type LLMEntry = {
+  description: string;
+  lines: JournalLine[];
+};
+
+export type LLMInteractionResponse = {
+  input_text: string;
+  detected_language: "en" | "ko";
+  english_text: string;
+  english_entry: LLMEntry | null;
+  korean_entry: LLMEntry | null;
+};

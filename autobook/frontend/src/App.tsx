@@ -7,6 +7,7 @@ import { DashboardPage } from "./pages/DashboardPage";
 import { LedgerPage } from "./pages/LedgerPage";
 import { LoginPage } from "./pages/LoginPage";
 import { StatementsPage } from "./pages/StatementsPage";
+import { LLMInteractionPage } from "./pages/LLMInteractionPage";
 import { TransactionPage } from "./pages/TransactionPage";
 
 function ProtectedShell() {
@@ -31,6 +32,7 @@ export default function App() {
         <Route path="/ledger" element={<LedgerPage />} />
         <Route path="/statements" element={<StatementsPage />} />
       </Route>
+      <Route path="/llm" element={<LLMInteractionPage />} />
       <Route path="*" element={<Navigate to="/" replace />} />
     </Routes>
   );

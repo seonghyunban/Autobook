@@ -1716,3 +1716,77 @@ input[type="file"].text-input::file-selector-button {
   font-size: 0.9rem;
   flex-shrink: 0;
 }
+
+/* ── LLM Interaction page ── */
+.llm-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 24px;
+}
+
+@media (max-width: 980px) {
+  .llm-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* Panel container: grid handles sizing, panel handles padding */
+.llm-english-panel {
+  overflow: hidden;
+  padding: 0;
+  pointer-events: none;
+  /* On hide: shrink padding after content fades */
+  transition: padding 0.2s ease 0.2s;
+}
+
+.llm-english-panel.visible {
+  padding: 20px 22px;
+  pointer-events: auto;
+  /* On show: expand padding immediately */
+  transition: padding 0.2s ease 0s;
+}
+
+/* Inner content: fade in/out */
+.llm-english-content {
+  opacity: 0;
+  transform: translateX(16px);
+  /* On hide: fade out immediately */
+  transition: opacity 0.2s ease 0s, transform 0.2s ease 0s;
+}
+
+.llm-english-panel.visible .llm-english-content {
+  opacity: 1;
+  transform: translateX(0);
+  /* On show: fade in after grid finishes expanding */
+  transition: opacity 0.2s ease 0.2s, transform 0.2s ease 0.2s;
+}
+
+.llm-grid-animated {
+  transition: grid-template-columns 0.35s ease;
+}
+
+.llm-textarea {
+  overflow-y: overlay;
+  scrollbar-width: thin;
+  scrollbar-color: transparent transparent;
+  transition: scrollbar-color 0.3s;
+}
+.llm-textarea::-webkit-scrollbar {
+  width: 4px;
+}
+.llm-textarea::-webkit-scrollbar-track {
+  background: transparent;
+}
+.llm-textarea::-webkit-scrollbar-thumb {
+  background: transparent;
+  border-radius: 2px;
+  transition: background 0.3s;
+}
+.llm-textarea.scrolling,
+.llm-textarea:hover {
+  scrollbar-color: rgba(204, 197, 185, 0.4) transparent;
+}
+.llm-textarea.scrolling::-webkit-scrollbar-thumb,
+.llm-textarea:hover::-webkit-scrollbar-thumb {
+  background: rgba(204, 197, 185, 0.4);
+}

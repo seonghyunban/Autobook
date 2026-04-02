@@ -52,6 +52,7 @@ class Settings(BaseSettings):
         "tax_specialist":      "us.anthropic.claude-sonnet-4-5-20250929-v1:0",
         "decision_maker":      "us.anthropic.claude-sonnet-4-5-20250929-v1:0",
         "entry_drafter":       "us.anthropic.claude-sonnet-4-5-20250929-v1:0",
+        "decision_maker_v4":   "us.anthropic.claude-sonnet-4-5-20250929-v1:0",
         # Legacy agents
         "disambiguator":       "us.anthropic.claude-sonnet-4-5-20250929-v1:0",
         "debit_corrector":     "us.anthropic.claude-sonnet-4-5-20250929-v1:0",

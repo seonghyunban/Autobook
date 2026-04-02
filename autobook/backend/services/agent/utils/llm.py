@@ -18,6 +18,7 @@ MAX_TOKENS: dict[str, int] = {
     "tax_specialist":      2000,
     "decision_maker":      4000,
     "entry_drafter":       2000,
+    "decision_maker_v4":   4000,
     # Legacy agents
     "disambiguator":       2000,
     "debit_corrector":     2000,
