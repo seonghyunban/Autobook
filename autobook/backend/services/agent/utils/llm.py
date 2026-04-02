@@ -10,22 +10,11 @@ logger = logging.getLogger(__name__)
 
 # Per-agent max output tokens — accounts for JSON + reason via tool calling
 MAX_TOKENS: dict[str, int] = {
-    # V3 agents
-    "ambiguity_detector":  2000,
-    "complexity_detector": 2000,
-    "debit_classifier":    4000,
-    "credit_classifier":   4000,
-    "tax_specialist":      2000,
-    "decision_maker":      4000,
-    "entry_drafter":       2000,
-    "decision_maker_v4":   4000,
-    # Legacy agents
-    "disambiguator":       2000,
-    "debit_corrector":     2000,
-    "credit_corrector":    2000,
-    "entry_builder":       4000,
-    "approver":            2000,
-    "diagnostician":       2000,
+    "decision_maker":   4000,
+    "debit_classifier":  4000,
+    "credit_classifier": 4000,
+    "tax_specialist":    2000,
+    "entry_drafter":     2000,
 }
 
 

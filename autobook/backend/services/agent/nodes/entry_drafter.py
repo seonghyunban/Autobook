@@ -1,43 +1,45 @@
-"""Entry Drafter node.
+"""Entry Drafter — builds journal entry from upstream classifications.
 
-Simple composer. Trusts upstream classifications and tax treatment.
-Builds the journal entry from debit/credit structure + tax context.
-Two-step invocation: calculator tool call (LLM decides), then structured output.
+Trusts upstream classifications and tax treatment.
 Output: EntryDrafterOutput {reason, lines: [...]}
 """
 from langchain_core.messages import AIMessage, HumanMessage, ToolMessage
 from langchain_core.runnables import RunnableConfig
+from pydantic import BaseModel, Field
 
 from services.agent.graph.state import PipelineState, ENTRY_DRAFTER, COMPLETE
 from services.agent.prompts.entry_drafter import build_prompt
+from services.agent.schemas.journal import JournalLine
 from services.agent.utils.llm import get_llm, invoke_structured
 from services.agent.utils.calculator import CALCULATOR_TOOLS, safe_eval
-from services.agent.utils.parsers.json_output import EntryDrafterOutput
 
+
+# ── Output schema ───────────────────────────────────────────────────────
+
+class EntryDrafterOutput(BaseModel):
+    reason: str = Field(description="One sentence: why these accounts and amounts")
+    lines: list[JournalLine] = Field(description="Journal entry lines. Total debits must equal total credits.")
+
+
+# ── Calculator (disabled for now) ───────────────────────────────────────
 
 def _run_calculator_step(llm, messages):
-    """Pre-computation: let LLM call calculator tool if it needs to.
-
-    Returns computed values as a string to inject into the final prompt,
-    or None if LLM decides no computation is needed.
-    """
     try:
         calc_llm = llm.bind_tools(CALCULATOR_TOOLS)
         response = calc_llm.invoke(messages)
-
         if not response.tool_calls:
             return None
-
         results = []
         for tc in response.tool_calls:
             expr = tc["args"].get("expression", "")
             value = safe_eval(expr)
             results.append(f"{expr} = {round(value, 2)}")
-
         return "\n".join(results) if results else None
     except Exception:
         return None
 
+
+# ── Node ────────────────────────────────────────────────────────────────
 
 def entry_drafter_node(state: PipelineState, config: RunnableConfig) -> dict:
     """Build journal entry from upstream classifications."""
@@ -67,7 +69,6 @@ def entry_drafter_node(state: PipelineState, config: RunnableConfig) -> dict:
         "status_entry_drafter": COMPLETE,
     }
 
-    # Set decision to APPROVED if no decision_maker ran (confident mode)
     if not state.get("decision"):
         update["decision"] = "APPROVED"
 

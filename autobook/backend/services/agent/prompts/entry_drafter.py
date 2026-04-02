@@ -11,7 +11,7 @@ from services.agent.utils.prompt import (
     CACHE_POINT, build_transaction, build_user_context,
     build_input_section, to_bedrock_messages,
 )
-from services.agent.utils.parsers.json_output import DEBIT_SLOTS, CREDIT_SLOTS
+from services.agent.utils.slots import DEBIT_SLOTS, CREDIT_SLOTS
 
 # ── Role ─────────────────────────────────────────────────────────────────
 

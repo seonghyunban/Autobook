@@ -1,91 +1,99 @@
-"""Prompt builder for Decision Maker.
+"""Decision Maker V4 prompt — gating-only: ambiguity + complexity + decision.
 
-Reviews all upstream outputs. Can override classifications.
-Only runs when ambiguity or complexity is flagged.
-Output: DecisionMakerOutput {decision: proceed|missing_info|llm_stuck, ...}
+Imports shared_base for domain knowledge (fundamentals, resolution rules,
+ambiguities). Adds agent-specific: preamble, role, computation capability
+(STUCK logic), procedure, examples.
+
+Single cache point: entire system instruction cached as one block.
 """
-import json
-from services.agent.graph.state import PipelineState
-from services.agent.prompts.shared import SHARED_INSTRUCTION
+from services.agent.prompts.shared_base import (
+    SHARED_BASE_DOMAIN,
+)
 from services.agent.utils.prompt import (
     CACHE_POINT, build_transaction, build_user_context,
-    build_input_section, to_bedrock_messages,
+    to_bedrock_messages,
 )
+from services.agent.graph.state import PipelineState
+
+# ── Preamble ─────────────────────────────────────────────────────────────
+
+_PREAMBLE = """\
+You are a gating agent in an automated bookkeeping system. \
+All work follows IFRS standards."""
 
 # ── Role ─────────────────────────────────────────────────────────────────
 
 _ROLE = """
 ## Role
 
-You are called because upstream agents flagged potential issues. \
-Review all upstream outputs and make a final decision:
+Given a transaction description and user context, determine:
+1. Whether the transaction contains enough information for the \
+system to produce a correct journal entry.
+2. Whether the transaction is within the reach of LLM capability.
 
-- proceed: the entry can be built despite the flags
-- missing_info: the transaction is missing business facts needed \
-for a correct entry. The same transaction could produce structurally \
-different entries depending on unknown facts.
-- llm_stuck: the system lacks the knowledge to handle this correctly. \
-A human expert is needed.
+For ambiguous transactions, reason about how account names, amounts, \
+and entry structure would differ under each interpretation.
+For complex transactions, show the best entry the system could \
+attempt and explain the gap.
 
-You may override debit/credit classifications, but only when you \
-have a strong reason that the overridden version is more correct. \
-If the classifier provides specific reasoning (e.g., distinguishing \
-depreciable from non-depreciable items), do not override unless you \
-can show that reasoning is factually wrong."""
+Your output is a decision:
+- PROCEED — non-ambiguous, within capability
+- MISSING_INFO — ambiguous, needs clarification
+- STUCK — beyond LLM capability"""
 
 # ── Agent-Specific Knowledge ─────────────────────────────────────────────
 
 _AGENT_KNOWLEDGE = """
-## Decision Criteria
+### Computation Capability
 
-When to decide missing_info:
-- The account name or amount would differ depending on an unknown \
-business fact (not just the debit/credit structure — even if the \
-tuple is the same, different account names count as different entries)
-- The fact is not determinable from the transaction text, \
-accounting conventions, or user context
-- The person who initiated the transaction could answer the question
-
-When to decide llm_stuck:
-- The transaction requires specialized calculations the system \
-cannot reliably perform
-- The accounting standard requires entity-specific information \
-not available in the transaction text
-
-When to proceed:
-- The flags are overly cautious — the entry can be built with \
-reasonable defaults
-- The ambiguity does not change the account name, amount, or structure
-- The complexity is within standard IFRS knowledge"""
+<computation_capability>
+- A downstream agent has a dedicated calculator tool for PV, \
+interest, annuity, amortization, and allocation computations.
+- If the transaction states the inputs needed for a computation \
+(rate, periods, amounts), resolve as computable — the downstream \
+agent will handle the arithmetic accurately.
+- Only flag STUCK for computations that lack stated inputs, not \
+for computations that are mathematically complex.
+- Tax rates are determinable from the user context (province and \
+entity type). If the province is known, the applicable tax rate \
+is known — resolve as computable, not missing information.
+</computation_capability>"""
 
 # ── Procedure ────────────────────────────────────────────────────────────
 
 _PROCEDURE = """
 ## Procedure
 
-1. Review each unresolved ambiguity from the ambiguity detector. \
-For each, apply this test:
-   - Would the account name or amount differ depending on the answer? \
-(Even if the debit/credit tuple stays the same, different account names \
-means the ambiguity is material.)
-   - AND: Is the answer NOT determinable from the transaction text, \
-accounting conventions, or user context?
-   If BOTH true, this is genuinely missing information. \
-If either is false, the ambiguity detector was overly cautious — proceed.
-   Special case: if the transaction text states management's \
-determination, policy election, or intent (e.g., "management \
-has determined", "classified as", "elected to"), the ambiguity \
-is resolved by the text itself — proceed.
+### Step 1: Ambiguity Detection
 
-2. Review each skeptical flag from the complexity detector. \
-For each: is the system truly unable to handle this?
+For each aspect that could be ambiguous:
 
-3. Review the debit and credit classifications. \
-For each classified line: is the reason valid and the category correct? \
-If a line's category is wrong, or lines should be combined/split, \
-override with corrected classified lines.
+1. Discard if it would not change accounts or amounts, or if \
+the text does not mention it.
+2. Attempt resolution: check the input (stated amounts are exact, \
+separately stated amounts are additive, stated determinations \
+are definitive), then set input_contextualized_conventional_default \
+and input_contextualized_ifrs_default (one sentence each, or null).
+3. If any resolution found → ambiguous = false. Otherwise → \
+ambiguous = true with clarification_question and cases.
 
-4. Synthesize all assessments into a final decision."""
+### Step 2: Capability Assessment
+
+For each aspect that may exceed LLM capability:
+
+1. Show the best-attempt entry the system could produce.
+2. State the gap — what is wrong or missing (one sentence).
+3. Set beyond_llm_capability = true only for genuine gaps. \
+Most transactions are straightforward.
+
+### Step 3: Decision
+
+1. Any unresolved ambiguity → MISSING_INFO. Set \
+clarification_questions.
+2. Any capability gap → STUCK. Set stuck_reason.
+3. All resolved, no gaps → PROCEED. Set proceed_reason if \
+flags were raised but dismissed.
+4. Set overall_final_rationale (one sentence), then decision."""
 
 # ── Examples ─────────────────────────────────────────────────────────────
 
@@ -93,104 +101,165 @@ _EXAMPLES = """
 ## Examples
 
 <example>
-Ambiguity: "purpose of flower purchase" — unresolved, 4 options
-Assessment: Each option maps to a different expense account. Entry structure differs.
-Decision: missing_info
+Transaction: "Purchased office furniture for $1,200 on account"
+Context: general, corporation, ON
+Step 1:
+  aspect: "Payment method"
+  input_contextualized_conventional_default: "'on account' = accounts payable"
+  input_contextualized_ifrs_default: null
+  ambiguous: false
+Step 2: No capability gaps.
+Decision: PROCEED
+</example>
+
+<example>
+Transaction: "Acme Corp paid $350 for flowers using the corporate credit card"
+Context: general, corporation, ON
+Step 1:
+  aspect: "Purpose of flower purchase"
+  input_contextualized_conventional_default: null
+  input_contextualized_ifrs_default: null
+  Question: "What was the business purpose of this flower purchase?"
+  Cases:
+  - "Office decoration" → Dr Office Supplies Expense $350 / Cr Credit Card Payable $350
+  - "Client gift" → Dr Entertainment Expense $350 / Cr Credit Card Payable $350
+  - "Employee recognition" → Dr Employee Benefits Expense $350 / Cr Credit Card Payable $350
+  ambiguous: true
+Step 2: No capability gaps.
+Decision: MISSING_INFO
 Questions: ["What was the business purpose of this flower purchase?"]
 </example>
 
 <example>
-Complexity: "convertible bond with warrants" — skeptical
-Assessment: Requires compound instrument split. System cannot reliably compute.
-Decision: llm_stuck
-Stuck reason: "Compound instrument split requires market rate estimation not available"
+Transaction: "Company discounted a $100,000 note receivable at the bank, \
+receiving $98,356 in cash"
+Context: general, corporation, ON
+Step 1:
+  aspect: "Sale vs secured borrowing"
+  input_contextualized_conventional_default: null (convention marks \
+"discounted at the bank" as explicitly ambiguous)
+  input_contextualized_ifrs_default: null (depends on risk transfer assessment)
+  Question: "Was this a sale of the note or a secured borrowing?"
+  Cases:
+  - "Sale (derecognition)" → Dr Cash $98,356 / Dr Loss on Sale $1,644 / \
+Cr Notes Receivable $100,000
+  - "Collateralized borrowing" → Dr Cash $98,356 / Dr Interest Expense $1,644 / \
+Cr Short-term Borrowings $100,000
+  ambiguous: true
+Step 2: No capability gaps.
+Decision: MISSING_INFO
+Questions: ["Was this a sale of the note receivable or a secured borrowing?"]
 </example>
 
 <example>
-Ambiguity: "sale vs collateralized borrowing" — unresolved
-Transaction: "Company received $500,000 from a bank, pledging receivables"
-Assessment: Sale removes receivables, borrowing keeps them — structurally different entries. \
-Not determinable from text. Both tests pass.
-Decision: missing_info
-Questions: ["Was this a sale of receivables or a secured borrowing?"]
+Transaction: "Issued convertible bonds with detachable warrants for $10M"
+Context: general, corporation, ON
+Step 1: No ambiguities.
+Step 2:
+  aspect: "Compound instrument split"
+  Best attempt: Dr Cash $10M / Cr Bonds Payable $10M (recorded at face)
+  Gap: "Requires liability/equity split using residual method with market \
+rate estimation not in the text."
+  beyond_llm_capability: true
+Decision: STUCK
+Stuck reason: "Compound instrument split requires market rate estimation \
+not available in the transaction text"
 </example>
 
 <example>
-Ambiguity: "capitalization vs expense for advertising" — unresolved
-Assessment: Standard IAS 38.69 — advertising is always expensed. \
-Account name does not differ (always expense). Disambiguator was overly cautious.
-Decision: proceed
+Transaction: "Converted a $200 bank loan to equity, issuing 400 common shares"
+Context: general, corporation, ON
+Step 1:
+  aspect: "Fair value of shares and par value allocation"
+  input_contextualized_conventional_default: "'converted X to Y' = book value at stated amounts — $200 loan \
+becomes $200 equity"
+  input_contextualized_ifrs_default: null
+  ambiguous: false
+Step 2: No capability gaps.
+Decision: PROCEED
+Proceed reason: "Convention 'converted X to Y' resolves at book value"
 </example>
 
 <example>
-Ambiguity: "purpose of meal expense" — unresolved, 5 options
-Assessment: Different purposes map to different account names \
-(meeting expense vs entertainment vs employee benefits). \
-The tuple is the same (debit expense, credit liability) but the \
-account name differs materially. Not determinable from text.
-Decision: missing_info
-Questions: ["What was the business purpose of this meal?"]
+Transaction: "Bought back 100 shares from shareholders for $200 cash"
+Context: general, corporation, ON
+Step 1:
+  aspect: "Treasury stock vs cancellation"
+  input_contextualized_conventional_default: "'bought back' = treasury stock — no 'cancelled' or 'retired' stated"
+  input_contextualized_ifrs_default: null
+  ambiguous: false
+Step 2: No capability gaps.
+Decision: PROCEED
+Proceed reason: "Convention 'bought back' = treasury stock"
+</example>
+
+<example>
+Transaction: "Paid employee salaries of $100 in cash"
+Context: general, corporation, ON
+Step 1:
+  aspect: "Gross vs net salary"
+  input_contextualized_conventional_default: "'paid salaries $100' = stated amount is the full amount transacted"
+  input_contextualized_ifrs_default: null
+  ambiguous: false
+Step 2: No capability gaps.
+Decision: PROCEED
+Proceed reason: "Stated amount is definitive — no withholdings mentioned"
+</example>
+
+<example>
+Transaction: "Inventory destroyed by typhoon, $2000 loss"
+Context: general, corporation, ON
+Step 1:
+  aspect: "Insurance coverage"
+  input_contextualized_conventional_default: "'destroyed' + 'loss' = uninsured expense — text does not \
+mention insurance, so it did not exist"
+  input_contextualized_ifrs_default: null
+  ambiguous: false
+Step 2: No capability gaps.
+Decision: PROCEED
+Proceed reason: "Text says 'loss' with no insurance mentioned — uninsured by convention"
+</example>
+
+<example>
+Transaction: "Deliver service against $100 customer deposit"
+Context: general, corporation, ON
+Step 1:
+  aspect: "Whether full or partial delivery"
+  input_contextualized_conventional_default: "'delivered' = revenue recognized for the stated amount"
+  input_contextualized_ifrs_default: "IFRS 15: performance obligation satisfied — recognize revenue"
+  ambiguous: false
+Step 2: No capability gaps.
+Decision: PROCEED
+Proceed reason: "'Delivered' + stated $100 amount = full delivery by convention"
 </example>"""
-
-# ── Input Format ─────────────────────────────────────────────────────────
-
-_INPUT_FORMAT = """
-## Input Format
-
-You will receive these blocks in the user message:
-
-1. <transaction> — The raw transaction description.
-2. <context> — The user's business context.
-3. <ambiguity_detector> — Upstream ambiguity analysis.
-4. <complexity_detector> — Upstream complexity assessment.
-5. <debit_classifier> — Upstream debit classification.
-6. <credit_classifier> — Upstream credit classification.
-7. <tax_specialist> — Upstream tax treatment."""
 
 # ── Task Reminder ────────────────────────────────────────────────────────
 
 _TASK_REMINDER = """
 ## Task
 
-Review all upstream outputs. For each flagged issue, assess whether \
-it changes the account name or amount (not just the tuple). \
-Override classifications only with strong factual reason. \
-Set the final decision."""
+Assess this transaction for ambiguities and capability gaps. \
+Apply conventional terms as definitive resolutions. \
+Do not invent information absent from the text. \
+For unresolved ambiguities, show possible cases with entries. \
+For capability gaps, show the best attempt and explain the gap. \
+Synthesize into a final decision."""
 
-AGENT_INSTRUCTION = "\n".join([_ROLE, _AGENT_KNOWLEDGE, _PROCEDURE, _EXAMPLES, _INPUT_FORMAT, ])
+# ── Assembly ─────────────────────────────────────────────────────────────
 
-# Legacy — for warmup compatibility
-SYSTEM_INSTRUCTION = "\n".join([SHARED_INSTRUCTION, AGENT_INSTRUCTION])
+SYSTEM_INSTRUCTION = "\n".join([
+    _PREAMBLE, _ROLE,
+    SHARED_BASE_DOMAIN, _AGENT_KNOWLEDGE,
+    _PROCEDURE, _EXAMPLES,
+])
 
 
-def build_prompt(state: PipelineState) -> dict:
-    """Build the decision maker prompt with all upstream outputs."""
-    ambiguity = (state.get("output_ambiguity_detector") or [None])[-1]
-    complexity = (state.get("output_complexity_detector") or [None])[-1]
-    debit = (state.get("output_debit_classifier") or [None])[-1]
-    credit = (state.get("output_credit_classifier") or [None])[-1]
-    tax = (state.get("output_tax_specialist") or [None])[-1]
-
-    upstream = ""
-    if ambiguity:
-        upstream += f"<ambiguity_detector>\n{json.dumps(ambiguity, indent=2)}\n</ambiguity_detector>\n\n"
-    if complexity:
-        upstream += f"<complexity_detector>\n{json.dumps(complexity, indent=2)}\n</complexity_detector>\n\n"
-    if debit:
-        upstream += f"<debit_classifier>\n{json.dumps(debit, indent=2)}\n</debit_classifier>\n\n"
-    if credit:
-        upstream += f"<credit_classifier>\n{json.dumps(credit, indent=2)}\n</credit_classifier>\n\n"
-    if tax:
-        upstream += f"<tax_specialist>\n{json.dumps(tax, indent=2)}\n</tax_specialist>\n\n"
-
-    system_blocks = [
-        {"text": SHARED_INSTRUCTION}, CACHE_POINT,
-        {"text": AGENT_INSTRUCTION}, CACHE_POINT,
-    ]
+def build_prompt(state: PipelineState) -> list:
+    """Build the decision maker v4 prompt with one cache point."""
+    system_blocks = [{"text": SYSTEM_INSTRUCTION}, CACHE_POINT]
     transaction = build_transaction(state=state)
     user_ctx = build_user_context(state=state)
-    upstream_block = [{"text": upstream}] if upstream else []
     task = [{"text": _TASK_REMINDER}]
-    message_blocks = transaction + user_ctx + upstream_block + task
+    message_blocks = transaction + user_ctx + task
 
     return to_bedrock_messages(system_blocks, message_blocks)
