@@ -1,0 +1,1090 @@
+{
+  "generated_at": "2026-03-31T16:55:42.279496",
+  "experiment": "gate-test",
+  "variant_names": [
+    "single_agent_v3_1"
+  ],
+  "variants": {
+    "single_agent_v3_1": {
+      "variant_name": "single_agent_v3_1",
+      "num_test_cases": 61,
+      "num_non_ambiguous": 56,
+      "num_ambiguous": 5,
+      "exact_matches": 0,
+      "entry_matches": 0,
+      "entry_tax_relaxed_matches": 0,
+      "tuple_match_rate": 0.0,
+      "entry_match_rate": 0.0,
+      "entry_tax_relaxed_rate": 0.0,
+      "mean_slot_accuracy": 0.0,
+      "entry_valid_rate": 0.09836065573770492,
+      "decision_accuracy": 0.9180327868852459,
+      "decision_accuracy_non_ambig": 0.9107142857142857,
+      "decision_accuracy_ambig": 1.0,
+      "clarification_correct": 0,
+      "clarification_accuracy": 0.0,
+      "total_cost_usd": 1.665939,
+      "actual_cost_usd": 0.944715,
+      "cost_per_correct_entry": null,
+      "mean_latency_ms": 14252.11475409836,
+      "p50_latency_ms": 14335,
+      "p95_latency_ms": 19520,
+      "fix_rate": 0.0,
+      "fix_success_rate": 0.0,
+      "error_rate": 0.0,
+      "total_input_tokens": 309783,
+      "total_output_tokens": 49106,
+      "total_cache_read": 272160,
+      "total_cache_write": 4536,
+      "cache_hit_rate": 0.46767466916862993,
+      "token_efficiency_ratio": 0.13682782141553518,
+      "tokens_per_correct_entry": null
+    }
+  },
+  "tier_breakdown": {
+    "single_agent_v3_1": {
+      "basic": {
+        "n": 15,
+        "n_non_ambiguous": 15,
+        "n_ambiguous": 0,
+        "tuple_matches": 0,
+        "tuple_match_rate": 0.0,
+        "entry_matches": 0,
+        "entry_match_rate": 0.0,
+        "entry_tax_relaxed_matches": 0,
+        "entry_tax_relaxed_rate": 0.0,
+        "decision_correct": 12,
+        "decision_accuracy": 0.8,
+        "clarification_correct": 0,
+        "clarification_accuracy": 0,
+        "total_cost_usd": 0.387864
+      },
+      "intermediate": {
+        "n": 41,
+        "n_non_ambiguous": 41,
+        "n_ambiguous": 0,
+        "tuple_matches": 0,
+        "tuple_match_rate": 0.0,
+        "entry_matches": 0,
+        "entry_match_rate": 0.0,
+        "entry_tax_relaxed_matches": 0,
+        "entry_tax_relaxed_rate": 0.0,
+        "decision_correct": 39,
+        "decision_accuracy": 0.9512195121951219,
+        "clarification_correct": 0,
+        "clarification_accuracy": 0,
+        "total_cost_usd": 1.121085
+      },
+      "hard": {
+        "n": 5,
+        "n_non_ambiguous": 0,
+        "n_ambiguous": 5,
+        "tuple_matches": 0,
+        "tuple_match_rate": 0,
+        "entry_matches": 0,
+        "entry_match_rate": 0,
+        "entry_tax_relaxed_matches": 0,
+        "entry_tax_relaxed_rate": 0,
+        "decision_correct": 5,
+        "decision_accuracy": 1.0,
+        "clarification_correct": 0,
+        "clarification_accuracy": 0.0,
+        "total_cost_usd": 0.15699
+      }
+    }
+  },
+  "marginal_deltas": [],
+  "per_test_case": {
+    "basic_01_inventory_cash": {
+      "tier": "basic",
+      "ambiguous": false,
+      "single_agent_v3_1": {
+        "debit_match": false,
+        "credit_match": false,
+        "entry_match": null,
+        "decision_correct": true,
+        "clarification_correct": null,
+        "final_decision": "APPROVED",
+        "ambiguous": false,
+        "cost_usd": 0.022764,
+        "latency_ms": 10835,
+        "error": null
+      }
+    },
+    "basic_02_inventory_on_account": {
+      "tier": "basic",
+      "ambiguous": false,
+      "single_agent_v3_1": {
+        "debit_match": false,
+        "credit_match": false,
+        "entry_match": null,
+        "decision_correct": true,
+        "clarification_correct": null,
+        "final_decision": "APPROVED",
+        "ambiguous": false,
+        "cost_usd": 0.026169,
+        "latency_ms": 17162,
+        "error": null
+      }
+    },
+    "basic_03_issue_stock_with_apic": {
+      "tier": "basic",
+      "ambiguous": false,
+      "single_agent_v3_1": {
+        "debit_match": false,
+        "credit_match": false,
+        "entry_match": null,
+        "decision_correct": true,
+        "clarification_correct": null,
+        "final_decision": "APPROVED",
+        "ambiguous": false,
+        "cost_usd": 0.02211,
+        "latency_ms": 8950,
+        "error": null
+      }
+    },
+    "basic_04_sell_inventory": {
+      "tier": "basic",
+      "ambiguous": false,
+      "single_agent_v3_1": {
+        "debit_match": false,
+        "credit_match": false,
+        "entry_match": null,
+        "decision_correct": true,
+        "clarification_correct": null,
+        "final_decision": "APPROVED",
+        "ambiguous": false,
+        "cost_usd": 0.023712,
+        "latency_ms": 10546,
+        "error": null
+      }
+    },
+    "basic_05_pay_accounts_payable": {
+      "tier": "basic",
+      "ambiguous": false,
+      "single_agent_v3_1": {
+        "debit_match": false,
+        "credit_match": false,
+        "entry_match": null,
+        "decision_correct": true,
+        "clarification_correct": null,
+        "final_decision": "APPROVED",
+        "ambiguous": false,
+        "cost_usd": 0.02178,
+        "latency_ms": 9397,
+        "error": null
+      }
+    },
+    "basic_06_refinance_loan": {
+      "tier": "basic",
+      "ambiguous": false,
+      "single_agent_v3_1": {
+        "debit_match": false,
+        "credit_match": false,
+        "entry_match": null,
+        "decision_correct": true,
+        "clarification_correct": null,
+        "final_decision": "APPROVED",
+        "ambiguous": false,
+        "cost_usd": 0.028092,
+        "latency_ms": 15918,
+        "error": null
+      }
+    },
+    "basic_07_loan_to_equity": {
+      "tier": "basic",
+      "ambiguous": false,
+      "single_agent_v3_1": {
+        "debit_match": false,
+        "credit_match": false,
+        "entry_match": null,
+        "decision_correct": false,
+        "clarification_correct": null,
+        "final_decision": "INCOMPLETE_INFORMATION",
+        "ambiguous": false,
+        "cost_usd": 0.040782,
+        "latency_ms": 23346,
+        "error": null
+      }
+    },
+    "basic_08_deliver_service_against_deposit": {
+      "tier": "basic",
+      "ambiguous": false,
+      "single_agent_v3_1": {
+        "debit_match": false,
+        "credit_match": false,
+        "entry_match": null,
+        "decision_correct": true,
+        "clarification_correct": null,
+        "final_decision": "APPROVED",
+        "ambiguous": false,
+        "cost_usd": 0.02442,
+        "latency_ms": 12701,
+        "error": null
+      }
+    },
+    "basic_09_repurchase_stock": {
+      "tier": "basic",
+      "ambiguous": false,
+      "single_agent_v3_1": {
+        "debit_match": false,
+        "credit_match": false,
+        "entry_match": null,
+        "decision_correct": false,
+        "clarification_correct": null,
+        "final_decision": "INCOMPLETE_INFORMATION",
+        "ambiguous": false,
+        "cost_usd": 0.03228,
+        "latency_ms": 19520,
+        "error": null
+      }
+    },
+    "basic_10_declare_dividend": {
+      "tier": "basic",
+      "ambiguous": false,
+      "single_agent_v3_1": {
+        "debit_match": false,
+        "credit_match": false,
+        "entry_match": null,
+        "decision_correct": true,
+        "clarification_correct": null,
+        "final_decision": "APPROVED",
+        "ambiguous": false,
+        "cost_usd": 0.021267,
+        "latency_ms": 8578,
+        "error": null
+      }
+    },
+    "basic_11_convert_preferred_to_common": {
+      "tier": "basic",
+      "ambiguous": false,
+      "single_agent_v3_1": {
+        "debit_match": false,
+        "credit_match": false,
+        "entry_match": null,
+        "decision_correct": true,
+        "clarification_correct": null,
+        "final_decision": "APPROVED",
+        "ambiguous": false,
+        "cost_usd": 0.02517,
+        "latency_ms": 12906,
+        "error": null
+      }
+    },
+    "basic_12_pay_salaries": {
+      "tier": "basic",
+      "ambiguous": false,
+      "single_agent_v3_1": {
+        "debit_match": false,
+        "credit_match": false,
+        "entry_match": null,
+        "decision_correct": false,
+        "clarification_correct": null,
+        "final_decision": "INCOMPLETE_INFORMATION",
+        "ambiguous": false,
+        "cost_usd": 0.030891,
+        "latency_ms": 17817,
+        "error": null
+      }
+    },
+    "basic_13_accrue_utility": {
+      "tier": "basic",
+      "ambiguous": false,
+      "single_agent_v3_1": {
+        "debit_match": false,
+        "credit_match": false,
+        "entry_match": null,
+        "decision_correct": true,
+        "clarification_correct": null,
+        "final_decision": "APPROVED",
+        "ambiguous": false,
+        "cost_usd": 0.022377,
+        "latency_ms": 10413,
+        "error": null
+      }
+    },
+    "basic_14_casualty_loss": {
+      "tier": "basic",
+      "ambiguous": false,
+      "single_agent_v3_1": {
+        "debit_match": false,
+        "credit_match": false,
+        "entry_match": null,
+        "decision_correct": true,
+        "clarification_correct": null,
+        "final_decision": "APPROVED",
+        "ambiguous": false,
+        "cost_usd": 0.025404,
+        "latency_ms": 11999,
+        "error": null
+      }
+    },
+    "basic_15_no_entry": {
+      "tier": "basic",
+      "ambiguous": false,
+      "single_agent_v3_1": {
+        "debit_match": false,
+        "credit_match": false,
+        "entry_match": null,
+        "decision_correct": true,
+        "clarification_correct": null,
+        "final_decision": "APPROVED",
+        "ambiguous": false,
+        "cost_usd": 0.020646,
+        "latency_ms": 8298,
+        "error": null
+      }
+    },
+    "hard_01_note_discounting": {
+      "tier": "hard",
+      "ambiguous": true,
+      "single_agent_v3_1": {
+        "debit_match": false,
+        "credit_match": false,
+        "entry_match": false,
+        "decision_correct": true,
+        "clarification_correct": null,
+        "final_decision": "INCOMPLETE_INFORMATION",
+        "ambiguous": true,
+        "cost_usd": 0.032703,
+        "latency_ms": 17665,
+        "error": null
+      }
+    },
+    "hard_02_investment_classification": {
+      "tier": "hard",
+      "ambiguous": true,
+      "single_agent_v3_1": {
+        "debit_match": false,
+        "credit_match": false,
+        "entry_match": false,
+        "decision_correct": true,
+        "clarification_correct": null,
+        "final_decision": "INCOMPLETE_INFORMATION",
+        "ambiguous": true,
+        "cost_usd": 0.034008,
+        "latency_ms": 17533,
+        "error": null
+      }
+    },
+    "hard_16_rent_treatment": {
+      "tier": "hard",
+      "ambiguous": true,
+      "single_agent_v3_1": {
+        "debit_match": false,
+        "credit_match": false,
+        "entry_match": false,
+        "decision_correct": true,
+        "clarification_correct": null,
+        "final_decision": "INCOMPLETE_INFORMATION",
+        "ambiguous": true,
+        "cost_usd": 0.028563,
+        "latency_ms": 14335,
+        "error": null
+      }
+    },
+    "hard_27_meal_purpose": {
+      "tier": "hard",
+      "ambiguous": true,
+      "single_agent_v3_1": {
+        "debit_match": false,
+        "credit_match": false,
+        "entry_match": false,
+        "decision_correct": true,
+        "clarification_correct": null,
+        "final_decision": "INCOMPLETE_INFORMATION",
+        "ambiguous": true,
+        "cost_usd": 0.028476,
+        "latency_ms": 14608,
+        "error": null
+      }
+    },
+    "hard_32_grocery_purpose": {
+      "tier": "hard",
+      "ambiguous": true,
+      "single_agent_v3_1": {
+        "debit_match": false,
+        "credit_match": false,
+        "entry_match": false,
+        "decision_correct": true,
+        "clarification_correct": null,
+        "final_decision": "INCOMPLETE_INFORMATION",
+        "ambiguous": true,
+        "cost_usd": 0.03324,
+        "latency_ms": 16247,
+        "error": null
+      }
+    },
+    "int_03_machinery_purchase": {
+      "tier": "intermediate",
+      "ambiguous": false,
+      "single_agent_v3_1": {
+        "debit_match": false,
+        "credit_match": false,
+        "entry_match": null,
+        "decision_correct": true,
+        "clarification_correct": null,
+        "final_decision": "APPROVED",
+        "ambiguous": false,
+        "cost_usd": 0.025794,
+        "latency_ms": 13715,
+        "error": null
+      }
+    },
+    "int_04_major_overhaul": {
+      "tier": "intermediate",
+      "ambiguous": false,
+      "single_agent_v3_1": {
+        "debit_match": false,
+        "credit_match": false,
+        "entry_match": null,
+        "decision_correct": true,
+        "clarification_correct": null,
+        "final_decision": "APPROVED",
+        "ambiguous": false,
+        "cost_usd": 0.039141,
+        "latency_ms": 25871,
+        "error": null
+      }
+    },
+    "int_05_bond_issuance_discount": {
+      "tier": "intermediate",
+      "ambiguous": false,
+      "single_agent_v3_1": {
+        "debit_match": false,
+        "credit_match": false,
+        "entry_match": null,
+        "decision_correct": true,
+        "clarification_correct": null,
+        "final_decision": "APPROVED",
+        "ambiguous": false,
+        "cost_usd": 0.032502,
+        "latency_ms": 17318,
+        "error": null
+      }
+    },
+    "int_06_warranty_provision": {
+      "tier": "intermediate",
+      "ambiguous": false,
+      "single_agent_v3_1": {
+        "debit_match": false,
+        "credit_match": false,
+        "entry_match": null,
+        "decision_correct": true,
+        "clarification_correct": null,
+        "final_decision": "APPROVED",
+        "ambiguous": false,
+        "cost_usd": 0.028701,
+        "latency_ms": 15486,
+        "error": null
+      }
+    },
+    "int_07_decommissioning_provision": {
+      "tier": "intermediate",
+      "ambiguous": false,
+      "single_agent_v3_1": {
+        "debit_match": false,
+        "credit_match": false,
+        "entry_match": null,
+        "decision_correct": false,
+        "clarification_correct": null,
+        "final_decision": "INCOMPLETE_INFORMATION",
+        "ambiguous": false,
+        "cost_usd": 0.031917,
+        "latency_ms": 17405,
+        "error": null
+      }
+    },
+    "int_08_share_repurchase_cancel": {
+      "tier": "intermediate",
+      "ambiguous": false,
+      "single_agent_v3_1": {
+        "debit_match": false,
+        "credit_match": false,
+        "entry_match": null,
+        "decision_correct": true,
+        "clarification_correct": null,
+        "final_decision": "APPROVED",
+        "ambiguous": false,
+        "cost_usd": 0.025266,
+        "latency_ms": 12293,
+        "error": null
+      }
+    },
+    "int_09_merchandise_with_costs": {
+      "tier": "intermediate",
+      "ambiguous": false,
+      "single_agent_v3_1": {
+        "debit_match": false,
+        "credit_match": false,
+        "entry_match": null,
+        "decision_correct": true,
+        "clarification_correct": null,
+        "final_decision": "APPROVED",
+        "ambiguous": false,
+        "cost_usd": 0.02949,
+        "latency_ms": 16899,
+        "error": null
+      }
+    },
+    "int_10_prepayment": {
+      "tier": "intermediate",
+      "ambiguous": false,
+      "single_agent_v3_1": {
+        "debit_match": false,
+        "credit_match": false,
+        "entry_match": null,
+        "decision_correct": true,
+        "clarification_correct": null,
+        "final_decision": "APPROVED",
+        "ambiguous": false,
+        "cost_usd": 0.026148,
+        "latency_ms": 12913,
+        "error": null
+      }
+    },
+    "int_11_land_instalment_discount": {
+      "tier": "intermediate",
+      "ambiguous": false,
+      "single_agent_v3_1": {
+        "debit_match": false,
+        "credit_match": false,
+        "entry_match": null,
+        "decision_correct": true,
+        "clarification_correct": null,
+        "final_decision": "APPROVED",
+        "ambiguous": false,
+        "cost_usd": 0.0318,
+        "latency_ms": 20282,
+        "error": null
+      }
+    },
+    "int_12_site_improvements": {
+      "tier": "intermediate",
+      "ambiguous": false,
+      "single_agent_v3_1": {
+        "debit_match": false,
+        "credit_match": false,
+        "entry_match": null,
+        "decision_correct": true,
+        "clarification_correct": null,
+        "final_decision": "APPROVED",
+        "ambiguous": false,
+        "cost_usd": 0.027486,
+        "latency_ms": 13542,
+        "error": null
+      }
+    },
+    "int_13_donation_note": {
+      "tier": "intermediate",
+      "ambiguous": false,
+      "single_agent_v3_1": {
+        "debit_match": false,
+        "credit_match": false,
+        "entry_match": null,
+        "decision_correct": true,
+        "clarification_correct": null,
+        "final_decision": "APPROVED",
+        "ambiguous": false,
+        "cost_usd": 0.026136,
+        "latency_ms": 16486,
+        "error": null
+      }
+    },
+    "int_14_vehicle_mixed_payment": {
+      "tier": "intermediate",
+      "ambiguous": false,
+      "single_agent_v3_1": {
+        "debit_match": false,
+        "credit_match": false,
+        "entry_match": null,
+        "decision_correct": true,
+        "clarification_correct": null,
+        "final_decision": "APPROVED",
+        "ambiguous": false,
+        "cost_usd": 0.027063,
+        "latency_ms": 15157,
+        "error": null
+      }
+    },
+    "int_15_bank_loan": {
+      "tier": "intermediate",
+      "ambiguous": false,
+      "single_agent_v3_1": {
+        "debit_match": false,
+        "credit_match": false,
+        "entry_match": null,
+        "decision_correct": true,
+        "clarification_correct": null,
+        "final_decision": "APPROVED",
+        "ambiguous": false,
+        "cost_usd": 0.02838,
+        "latency_ms": 15665,
+        "error": null
+      }
+    },
+    "int_17_customer_deposit": {
+      "tier": "intermediate",
+      "ambiguous": false,
+      "single_agent_v3_1": {
+        "debit_match": false,
+        "credit_match": false,
+        "entry_match": null,
+        "decision_correct": true,
+        "clarification_correct": null,
+        "final_decision": "APPROVED",
+        "ambiguous": false,
+        "cost_usd": 0.028653,
+        "latency_ms": 15590,
+        "error": null
+      }
+    },
+    "int_18_multiple_assets": {
+      "tier": "intermediate",
+      "ambiguous": false,
+      "single_agent_v3_1": {
+        "debit_match": false,
+        "credit_match": false,
+        "entry_match": null,
+        "decision_correct": true,
+        "clarification_correct": null,
+        "final_decision": "APPROVED",
+        "ambiguous": false,
+        "cost_usd": 0.029472,
+        "latency_ms": 15056,
+        "error": null
+      }
+    },
+    "int_19_service_revenue_cash": {
+      "tier": "intermediate",
+      "ambiguous": false,
+      "single_agent_v3_1": {
+        "debit_match": false,
+        "credit_match": false,
+        "entry_match": null,
+        "decision_correct": true,
+        "clarification_correct": null,
+        "final_decision": "APPROVED",
+        "ambiguous": false,
+        "cost_usd": 0.023832,
+        "latency_ms": 11367,
+        "error": null
+      }
+    },
+    "int_20_service_revenue_credit": {
+      "tier": "intermediate",
+      "ambiguous": false,
+      "single_agent_v3_1": {
+        "debit_match": false,
+        "credit_match": false,
+        "entry_match": null,
+        "decision_correct": true,
+        "clarification_correct": null,
+        "final_decision": "APPROVED",
+        "ambiguous": false,
+        "cost_usd": 0.024618,
+        "latency_ms": 13006,
+        "error": null
+      }
+    },
+    "int_21_rd_expense": {
+      "tier": "intermediate",
+      "ambiguous": false,
+      "single_agent_v3_1": {
+        "debit_match": false,
+        "credit_match": false,
+        "entry_match": null,
+        "decision_correct": true,
+        "clarification_correct": null,
+        "final_decision": "APPROVED",
+        "ambiguous": false,
+        "cost_usd": 0.023343,
+        "latency_ms": 10027,
+        "error": null
+      }
+    },
+    "int_22_compound_sale_with_tax": {
+      "tier": "intermediate",
+      "ambiguous": false,
+      "single_agent_v3_1": {
+        "debit_match": false,
+        "credit_match": false,
+        "entry_match": null,
+        "decision_correct": true,
+        "clarification_correct": null,
+        "final_decision": "APPROVED",
+        "ambiguous": false,
+        "cost_usd": 0.026052,
+        "latency_ms": 12398,
+        "error": null
+      }
+    },
+    "int_23_split_electricity": {
+      "tier": "intermediate",
+      "ambiguous": false,
+      "single_agent_v3_1": {
+        "debit_match": false,
+        "credit_match": false,
+        "entry_match": null,
+        "decision_correct": true,
+        "clarification_correct": null,
+        "final_decision": "APPROVED",
+        "ambiguous": false,
+        "cost_usd": 0.02667,
+        "latency_ms": 12797,
+        "error": null
+      }
+    },
+    "int_24_advertising": {
+      "tier": "intermediate",
+      "ambiguous": false,
+      "single_agent_v3_1": {
+        "debit_match": false,
+        "credit_match": false,
+        "entry_match": null,
+        "decision_correct": true,
+        "clarification_correct": null,
+        "final_decision": "APPROVED",
+        "ambiguous": false,
+        "cost_usd": 0.026475,
+        "latency_ms": 14544,
+        "error": null
+      }
+    },
+    "int_25_building_purchase_allocation": {
+      "tier": "intermediate",
+      "ambiguous": false,
+      "single_agent_v3_1": {
+        "debit_match": false,
+        "credit_match": false,
+        "entry_match": null,
+        "decision_correct": true,
+        "clarification_correct": null,
+        "final_decision": "APPROVED",
+        "ambiguous": false,
+        "cost_usd": 0.032553,
+        "latency_ms": 18231,
+        "error": null
+      }
+    },
+    "int_26a_payroll_recognition": {
+      "tier": "intermediate",
+      "ambiguous": false,
+      "single_agent_v3_1": {
+        "debit_match": false,
+        "credit_match": false,
+        "entry_match": null,
+        "decision_correct": true,
+        "clarification_correct": null,
+        "final_decision": "APPROVED",
+        "ambiguous": false,
+        "cost_usd": 0.02802,
+        "latency_ms": 18016,
+        "error": null
+      }
+    },
+    "int_26b_payroll_remittance": {
+      "tier": "intermediate",
+      "ambiguous": false,
+      "single_agent_v3_1": {
+        "debit_match": false,
+        "credit_match": false,
+        "entry_match": null,
+        "decision_correct": true,
+        "clarification_correct": null,
+        "final_decision": "APPROVED",
+        "ambiguous": false,
+        "cost_usd": 0.02889,
+        "latency_ms": 16177,
+        "error": null
+      }
+    },
+    "int_28_promotional_literature": {
+      "tier": "intermediate",
+      "ambiguous": false,
+      "single_agent_v3_1": {
+        "debit_match": false,
+        "credit_match": false,
+        "entry_match": null,
+        "decision_correct": true,
+        "clarification_correct": null,
+        "final_decision": "APPROVED",
+        "ambiguous": false,
+        "cost_usd": 0.023778,
+        "latency_ms": 10522,
+        "error": null
+      }
+    },
+    "int_29_security_deposit_received": {
+      "tier": "intermediate",
+      "ambiguous": false,
+      "single_agent_v3_1": {
+        "debit_match": false,
+        "credit_match": false,
+        "entry_match": null,
+        "decision_correct": false,
+        "clarification_correct": null,
+        "final_decision": "INCOMPLETE_INFORMATION",
+        "ambiguous": false,
+        "cost_usd": 0.03387,
+        "latency_ms": 17280,
+        "error": null
+      }
+    },
+    "int_30_short_term_loan_advance": {
+      "tier": "intermediate",
+      "ambiguous": false,
+      "single_agent_v3_1": {
+        "debit_match": false,
+        "credit_match": false,
+        "entry_match": null,
+        "decision_correct": true,
+        "clarification_correct": null,
+        "final_decision": "APPROVED",
+        "ambiguous": false,
+        "cost_usd": 0.025089,
+        "latency_ms": 11832,
+        "error": null
+      }
+    },
+    "int_31_vehicle_nonrecoverable_tax": {
+      "tier": "intermediate",
+      "ambiguous": false,
+      "single_agent_v3_1": {
+        "debit_match": false,
+        "credit_match": false,
+        "entry_match": null,
+        "decision_correct": true,
+        "clarification_correct": null,
+        "final_decision": "APPROVED",
+        "ambiguous": false,
+        "cost_usd": 0.029391,
+        "latency_ms": 16482,
+        "error": null
+      }
+    },
+    "int_hard_01a_note_derecognition": {
+      "tier": "intermediate",
+      "ambiguous": false,
+      "single_agent_v3_1": {
+        "debit_match": false,
+        "credit_match": false,
+        "entry_match": null,
+        "decision_correct": true,
+        "clarification_correct": null,
+        "final_decision": "APPROVED",
+        "ambiguous": false,
+        "cost_usd": 0.029811,
+        "latency_ms": 17488,
+        "error": null
+      }
+    },
+    "int_hard_01b_note_collateralized": {
+      "tier": "intermediate",
+      "ambiguous": false,
+      "single_agent_v3_1": {
+        "debit_match": false,
+        "credit_match": false,
+        "entry_match": null,
+        "decision_correct": true,
+        "clarification_correct": null,
+        "final_decision": "APPROVED",
+        "ambiguous": false,
+        "cost_usd": 0.028158,
+        "latency_ms": 14953,
+        "error": null
+      }
+    },
+    "int_hard_02a_investment_fvtpl": {
+      "tier": "intermediate",
+      "ambiguous": false,
+      "single_agent_v3_1": {
+        "debit_match": false,
+        "credit_match": false,
+        "entry_match": null,
+        "decision_correct": true,
+        "clarification_correct": null,
+        "final_decision": "APPROVED",
+        "ambiguous": false,
+        "cost_usd": 0.025782,
+        "latency_ms": 12491,
+        "error": null
+      }
+    },
+    "int_hard_02b_investment_fvoci": {
+      "tier": "intermediate",
+      "ambiguous": false,
+      "single_agent_v3_1": {
+        "debit_match": false,
+        "credit_match": false,
+        "entry_match": null,
+        "decision_correct": true,
+        "clarification_correct": null,
+        "final_decision": "APPROVED",
+        "ambiguous": false,
+        "cost_usd": 0.027447,
+        "latency_ms": 17006,
+        "error": null
+      }
+    },
+    "int_hard_02c_investment_equity_method": {
+      "tier": "intermediate",
+      "ambiguous": false,
+      "single_agent_v3_1": {
+        "debit_match": false,
+        "credit_match": false,
+        "entry_match": null,
+        "decision_correct": true,
+        "clarification_correct": null,
+        "final_decision": "APPROVED",
+        "ambiguous": false,
+        "cost_usd": 0.026457,
+        "latency_ms": 13718,
+        "error": null
+      }
+    },
+    "int_hard_16a_rent_prepaid": {
+      "tier": "intermediate",
+      "ambiguous": false,
+      "single_agent_v3_1": {
+        "debit_match": false,
+        "credit_match": false,
+        "entry_match": null,
+        "decision_correct": true,
+        "clarification_correct": null,
+        "final_decision": "APPROVED",
+        "ambiguous": false,
+        "cost_usd": 0.024081,
+        "latency_ms": 10030,
+        "error": null
+      }
+    },
+    "int_hard_16b_rent_expense": {
+      "tier": "intermediate",
+      "ambiguous": false,
+      "single_agent_v3_1": {
+        "debit_match": false,
+        "credit_match": false,
+        "entry_match": null,
+        "decision_correct": true,
+        "clarification_correct": null,
+        "final_decision": "APPROVED",
+        "ambiguous": false,
+        "cost_usd": 0.024462,
+        "latency_ms": 11463,
+        "error": null
+      }
+    },
+    "int_hard_27a_meal_overtime": {
+      "tier": "intermediate",
+      "ambiguous": false,
+      "single_agent_v3_1": {
+        "debit_match": false,
+        "credit_match": false,
+        "entry_match": null,
+        "decision_correct": true,
+        "clarification_correct": null,
+        "final_decision": "APPROVED",
+        "ambiguous": false,
+        "cost_usd": 0.023955,
+        "latency_ms": 12963,
+        "error": null
+      }
+    },
+    "int_hard_27b_meal_meeting": {
+      "tier": "intermediate",
+      "ambiguous": false,
+      "single_agent_v3_1": {
+        "debit_match": false,
+        "credit_match": false,
+        "entry_match": null,
+        "decision_correct": true,
+        "clarification_correct": null,
+        "final_decision": "APPROVED",
+        "ambiguous": false,
+        "cost_usd": 0.022191,
+        "latency_ms": 9005,
+        "error": null
+      }
+    },
+    "int_hard_27c_meal_entertainment": {
+      "tier": "intermediate",
+      "ambiguous": false,
+      "single_agent_v3_1": {
+        "debit_match": false,
+        "credit_match": false,
+        "entry_match": null,
+        "decision_correct": true,
+        "clarification_correct": null,
+        "final_decision": "APPROVED",
+        "ambiguous": false,
+        "cost_usd": 0.022617,
+        "latency_ms": 9519,
+        "error": null
+      }
+    },
+    "int_hard_27d_meal_factory": {
+      "tier": "intermediate",
+      "ambiguous": false,
+      "single_agent_v3_1": {
+        "debit_match": false,
+        "credit_match": false,
+        "entry_match": null,
+        "decision_correct": true,
+        "clarification_correct": null,
+        "final_decision": "APPROVED",
+        "ambiguous": false,
+        "cost_usd": 0.025251,
+        "latency_ms": 10801,
+        "error": null
+      }
+    },
+    "int_hard_32a_grocery_entertainment": {
+      "tier": "intermediate",
+      "ambiguous": false,
+      "single_agent_v3_1": {
+        "debit_match": false,
+        "credit_match": false,
+        "entry_match": null,
+        "decision_correct": true,
+        "clarification_correct": null,
+        "final_decision": "APPROVED",
+        "ambiguous": false,
+        "cost_usd": 0.024066,
+        "latency_ms": 10374,
+        "error": null
+      }
+    },
+    "int_hard_32b_grocery_breakroom": {
+      "tier": "intermediate",
+      "ambiguous": false,
+      "single_agent_v3_1": {
+        "debit_match": false,
+        "credit_match": false,
+        "entry_match": null,
+        "decision_correct": true,
+        "clarification_correct": null,
+        "final_decision": "APPROVED",
+        "ambiguous": false,
+        "cost_usd": 0.026277,
+        "latency_ms": 14437,
+        "error": null
+      }
+    }
+  },
+  "agent_breakdown": {
+    "single_agent_v3_1": {
+      "single_agent": {
+        "input_tokens": 33087,
+        "output_tokens": 49106,
+        "cache_read_tokens": 272160,
+        "cache_write_tokens": 4536,
+        "total_input_tokens": 309783,
+        "llm_calls": 61,
+        "actual_cost_usd": 0.944715,
+        "raw_cost_usd": 1.665939
+      }
+    }
+  },
+  "multi_run_consistency": {}
+}
