@@ -1,6 +1,8 @@
 import logging
 from datetime import datetime, timezone
 
+from sqlalchemy.exc import IntegrityError
+
 from config import get_settings
 from db.connection import SessionLocal
 from db.dao.journal_entries import JournalEntryDAO
@@ -97,6 +99,10 @@ def execute(message: dict) -> None:
 
         journal_entry = JournalEntryDAO.insert_with_lines(db, transaction.user_id, entry_payload, line_payload)
         db.commit()
+    except IntegrityError:
+        db.rollback()
+        logger.info("Duplicate posting skipped for transaction_id=%s status=%s", transaction_id, entry_payload.get("status"))
+        return
     except Exception:
         db.rollback()
         raise
