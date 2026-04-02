@@ -6,11 +6,19 @@ PRICING: dict[str, dict[str, float]] = {
         "input": 3.00, "output": 15.00,
         "cache_read": 0.30, "cache_write_5m": 3.75, "cache_write_1h": 6.00,
     },
+    "sonnet4.6": {
+        "input": 3.00, "output": 15.00,
+        "cache_read": 0.30, "cache_write_5m": 3.75, "cache_write_1h": 6.00,
+    },
     "haiku": {
         "input": 1.00, "output": 5.00,
         "cache_read": 0.10, "cache_write_5m": 1.25, "cache_write_1h": 2.00,
     },
     "opus": {
+        "input": 5.00, "output": 25.00,
+        "cache_read": 0.50, "cache_write_5m": 6.25, "cache_write_1h": 10.00,
+    },
+    "opus4.6": {
         "input": 5.00, "output": 25.00,
         "cache_read": 0.50, "cache_write_5m": 6.25, "cache_write_1h": 10.00,
     },

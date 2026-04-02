@@ -21,7 +21,6 @@ TIERS = {"basic", "intermediate", "hard"}
 
 from variants.variants import VARIANTS
 from pricing import PRICING
-from warmup import warmup_caches
 from runner import run_variant_async
 from serialize import save_results
 
@@ -104,38 +103,72 @@ def _print_summary(all_results: list[list], n_cases: int) -> None:
     console.print(avgs)
 
 
+def _parse_agent_models(raw: list[str] | None) -> tuple[str, dict[str, str]]:
+    """Parse --agent-model pairs. Returns (default_model, per_agent_overrides).
+
+    'default=sonnet' sets the base model for all agents.
+    'agent_name=model' overrides a specific agent.
+    """
+    if not raw:
+        console.print("[red]At least --agent-model default=<model> is required[/red]")
+        sys.exit(1)
+
+    default_model = None
+    overrides = {}
+    for item in raw:
+        if "=" not in item:
+            console.print(f"[red]Invalid --agent-model format: {item} (expected agent=model)[/red]")
+            sys.exit(1)
+        agent, model = item.split("=", 1)
+        if agent == "default":
+            default_model = model
+        else:
+            overrides[agent] = model
+
+    if not default_model:
+        console.print("[red]--agent-model default=<model> is required[/red]")
+        sys.exit(1)
+
+    return default_model, overrides
+
+
 def main():
     parser = argparse.ArgumentParser(description="Run ablation experiment")
     parser.add_argument("--experiment", default="default")
     parser.add_argument("--variant", required=False, choices=list(VARIANTS.keys()))
     parser.add_argument("--tier", default=None, choices=sorted(TIERS))
     parser.add_argument("--runs", type=int, default=1)
-    parser.add_argument("--model", default="sonnet", choices=list(PRICING.keys()))
+    parser.add_argument("--thinking", default=None, choices=["low", "medium", "high"],
+                        help="Adaptive thinking effort (default: off)")
+    parser.add_argument("--agent-model", action="append", default=None,
+                        help="Model config: default=model sets base, agent=model overrides specific agent")
     parser.add_argument("--test-case", action="append", default=None)
-    parser.add_argument("--warmup", action="store_true")
     args = parser.parse_args()
 
-    pricing = PRICING[args.model]
-
-    warmup_only = args.warmup and not args.tier
-    if args.warmup:
-        warmup_caches()
-        if warmup_only:
-            return
+    default_model, agent_overrides = _parse_agent_models(args.agent_model)
+    pricing = PRICING[default_model]
 
     if not args.variant:
-        console.print("[red]--variant is required (unless using --warmup alone)[/red]")
+        console.print("[red]--variant is required[/red]")
         sys.exit(1)
 
     cases = _filter_cases(args)
     tier_label = f" | tier: {args.tier}" if args.tier else ""
     runs_label = f" | runs: {args.runs}" if args.runs > 1 else ""
-    console.print(f"\n[bold]{args.experiment}:[/bold] {args.variant}{tier_label}{runs_label} | {args.model} | {len(cases)} cases\n")
+    thinking_label = f" | thinking: {args.thinking}" if args.thinking else ""
+    model_label = f" | default={default_model}"
+    if agent_overrides:
+        model_label += " " + " ".join(f"{a}={m}" for a, m in agent_overrides.items())
+    console.print(f"\n[bold]{args.experiment}:[/bold] {args.variant}{tier_label}{runs_label}{model_label}{thinking_label} | {len(cases)} cases\n")
 
-    all_results = asyncio.run(run_variant_async(args.variant, cases, pricing, total_runs=args.runs))
+    all_results = asyncio.run(run_variant_async(
+        args.variant, cases, pricing,
+        total_runs=args.runs, model=default_model, thinking=args.thinking,
+        agent_model_overrides=agent_overrides,
+    ))
 
     for run_results in all_results:
-        save_results(run_results, args.variant, args.model, experiment=args.experiment)
+        save_results(run_results, args.variant, default_model, experiment=args.experiment)
 
     if [m for run in all_results for m in run if m.error]:
         console.print(f"\n[bold red]Errors:[/bold red]")

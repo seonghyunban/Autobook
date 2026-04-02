@@ -12,7 +12,8 @@ from __future__ import annotations
 import json
 from pathlib import Path
 
-_SKIP_PREFIXES = ("entry_accuracy", "clarification_relevance", "meta")
+_SKIP_PREFIXES = ("entry_accuracy", "clarification_relevance", "meta", "eval_")
+_SKIP_DIRS = {"evaluation"}
 
 
 def _should_skip(filename: str) -> bool:
@@ -75,7 +76,7 @@ def load_variant(experiment_dir: Path, variant_name: str) -> list[dict]:
     all_cases = []
     seen_ids = set()
     for run_dir in sorted(variant_dir.iterdir()):
-        if not run_dir.is_dir():
+        if not run_dir.is_dir() or run_dir.name in _SKIP_DIRS:
             continue
         cases = _load_cases_from_dir(run_dir)
         _merge_evals(cases, run_dir)

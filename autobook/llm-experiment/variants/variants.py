@@ -58,4 +58,13 @@ VARIANTS: dict[str, dict | None] = {
 
     # V3 Simple: classifiers + tax + drafter only (no detection/decision layer)
     "v3_simple": None,
+
+    # V3.1: gating-only single agent (ambiguity + complexity + decision, no entry)
+    "single_agent_v3_1": None,
+
+    # V4: decision maker (renamed v3.1 gating agent)
+    "decision_maker_v4": None,
+
+    # V4 Dual-Track: decision_maker_v4 + classifiers + tax parallel, then entry_drafter if PROCEED
+    "baseline_v4_dualtrack": None,
 }

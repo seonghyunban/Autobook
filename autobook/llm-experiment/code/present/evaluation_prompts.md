@@ -91,7 +91,7 @@ Write one file per variant: `results/<experiment>/<variant>/entry_accuracy.json`
 {
   "evaluator": "claude",
   "evaluated_at": "<ISO timestamp>",
-  "prompt_version": "v3",
+  "prompt_version": "v4",
   "results": {
     "test_case_id": {
       "match": true,
@@ -134,7 +134,7 @@ Write one file per variant: `results/<experiment>/<variant>/clarification_releva
 {
   "evaluator": "claude",
   "evaluated_at": "<ISO timestamp>",
-  "prompt_version": "v1",
+  "prompt_version": "v4",
   "results": {
     "test_case_id": {
       "actual_decision": "...",
@@ -149,9 +149,41 @@ Write one file per variant: `results/<experiment>/<variant>/clarification_releva
 
 ---
 
+## Parallel Evaluation
+
+Run 6 agents in parallel to evaluate all 61 test cases:
+
+| Agent | Task | Cases |
+|-------|------|-------|
+| 1 | Entry accuracy — basic | basic_01 through basic_15 (15 cases) |
+| 2 | Entry accuracy — intermediate batch 1 | int_03 through int_15 (10 cases) |
+| 3 | Entry accuracy — intermediate batch 2 | int_17 through int_26a (10 cases) |
+| 4 | Entry accuracy — intermediate batch 3 | int_26b through int_hard_02c (10 cases) |
+| 5 | Entry accuracy — intermediate batch 4 | int_hard_27a through int_hard_16b (11 cases) |
+| 6 | Clarification relevance | hard_01 through hard_32 (5 cases) |
+
+Each agent:
+1. Reads result files from `results/<experiment>/<variant>/`
+2. Compares `journal_entry` (or `final_decision` + `clarification_questions`) against expected
+3. Writes a separate evaluation file to `results/<experiment>/<variant>/evaluation/`:
+   - Agent 1: `eval_entry_basic.json`
+   - Agent 2: `eval_entry_int_batch1.json`
+   - Agent 3: `eval_entry_int_batch2.json`
+   - Agent 4: `eval_entry_int_batch3.json`
+   - Agent 5: `eval_entry_int_batch4.json`
+   - Agent 6: `eval_clarification.json`
+
+After all agents complete, run merge script:
+```bash
+./run_merge_eval.sh --experiment <name> --variant <variant>
+```
+This merges the partial files from `evaluation/` into:
+- `results/<experiment>/<variant>/entry_accuracy.json` (agents 1-5 merged)
+- `results/<experiment>/<variant>/clarification_relevance.json` (agent 6 renamed)
+
 ## Workflow
 
 1. `./run_experiment.sh` — runs pipeline, saves result JSONs
-2. Evaluate using this prompt — write `entry_accuracy.json` + `clarification_relevance.json` per variant
+2. Evaluate using this prompt with parallel agents — write `entry_accuracy.json` + `clarification_relevance.json` per variant
 3. `./run_analysis.sh` — merges evaluation files, computes metrics
 4. `./run_present.sh` — generates report
