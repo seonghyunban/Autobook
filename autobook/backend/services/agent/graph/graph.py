@@ -38,7 +38,7 @@ def route_start(state: PipelineState) -> list[str]:
 def route_after_join(state: PipelineState) -> str:
     """Route based on decision maker output."""
     decision = state.get("decision")
-    if decision == "APPROVED":
+    if decision == "PROCEED":
         return "entry_drafter"
     return "end"
 
