@@ -8,7 +8,7 @@ from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session
 
 from auth.deps import AuthContext, get_current_user, require_role
-from auth.schemas import UserRole
+from schemas.auth import UserRole
 from config import get_settings
 from db.connection import get_db
 from db.dao.clarifications import ClarificationDAO

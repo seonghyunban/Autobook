@@ -11,7 +11,7 @@ from cryptography.exceptions import InvalidSignature
 from cryptography.hazmat.primitives import hashes
 from cryptography.hazmat.primitives.asymmetric import padding, rsa
 
-from auth.schemas import TokenPayload
+from schemas.auth import TokenPayload
 from config import get_settings
 
 

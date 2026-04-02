@@ -8,7 +8,7 @@ from fastapi import Depends, HTTPException, Request, status
 from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
 from sqlalchemy.orm import Session
 
-from auth.schemas import TokenPayload, UserRole
+from schemas.auth import TokenPayload, UserRole
 from auth.token_service import decode_access_token
 from config import get_settings
 from db.dao.auth_sessions import AuthSessionDAO
