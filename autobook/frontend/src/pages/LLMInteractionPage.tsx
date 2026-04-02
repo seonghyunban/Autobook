@@ -231,14 +231,17 @@ export function LLMInteractionPage() {
     }
   }
 
+  const DUR = "0.25s";
+  const DELAY = "0.25s";
+
   const grid: React.CSSProperties = {
     display: "grid",
     gridTemplateColumns: showEnglish ? "1fr 1fr" : "1fr 0fr",
     gap: showEnglish ? 20 : 0,
     alignItems: "stretch",
     transition: showEnglish
-      ? "grid-template-columns 0.2s ease, gap 0.2s ease"
-      : "grid-template-columns 0.2s ease 0.2s, gap 0.2s ease 0.2s",
+      ? `grid-template-columns ${DUR} ease, gap ${DUR} ease`
+      : `grid-template-columns ${DUR} ease ${DELAY}, gap ${DUR} ease ${DELAY}`,
   };
 
   return (
@@ -253,7 +256,17 @@ export function LLMInteractionPage() {
         overflow: "hidden",
       }}
     >
-      <div style={{ maxWidth: 1060, margin: "0 auto", display: "flex", flexDirection: "column", gap: 20, height: "100%" }}>
+      <div style={{
+        maxWidth: showEnglish ? "90vw" : "70vw",
+        margin: "0 auto",
+        display: "flex",
+        flexDirection: "column",
+        gap: 20,
+        height: "100%",
+        transition: showEnglish
+          ? `max-width ${DUR} ease`
+          : `max-width ${DUR} ease ${DELAY}`,
+      }}>
 
         {/* Header */}
         <div>
@@ -268,6 +281,12 @@ export function LLMInteractionPage() {
             translates if needed, and produces journal entries in both.
           </p>
         </div>
+
+        {/* Main content: panels + reasoning side by side */}
+        <div style={{ display: "flex", gap: 20, flex: 1, minHeight: 0 }}>
+
+        {/* Panels wrapper (left) */}
+        <div style={{ display: "flex", flexDirection: "column", gap: 20, flex: 1, minHeight: 0 }}>
 
         {/* Row 1: Entry (fills remaining space) */}
         <div className="llm-grid-animated" style={{ ...grid, flex: 1, minHeight: 0 }}>
@@ -299,22 +318,6 @@ export function LLMInteractionPage() {
                 })()}
               </div>
 
-              {/* Progress & Reasoning section */}
-              <div className="llm-textarea" style={{ overflowY: "scroll", flexShrink: 0 }}>
-              <div style={{
-                background: "rgba(204, 197, 185, 0.2)",
-                backdropFilter: "blur(16px)",
-                WebkitBackdropFilter: "blur(16px)",
-                borderRadius: T.inputRadius,
-                padding: "10px 12px",
-                margin: "0 5px",
-                border: "1px solid rgba(204, 197, 185, 0.1)",
-              }}>
-                <p style={{ margin: 0, fontSize: 13, color: palette.floralWhite }}>
-                  {result ? "Processing complete." : "Progress and reasoning will appear here."}
-                </p>
-              </div>
-              </div>
             </div>
           </section>
 
@@ -324,12 +327,6 @@ export function LLMInteractionPage() {
               <PanelHeader title="English Entry" help="Journal entry generated from the English text." />
               <div style={{ display: "flex", flexDirection: "column", gap: 16, flex: 1, minHeight: 0 }}>
                 <EntryTable lines={result?.english_entry?.lines ?? []} scrollRef={englishEntryScrollRef} onScroll={() => syncScroll("english")} />
-                {/* Spacer matching reasoning block height */}
-                <div className="llm-textarea" style={{ overflowY: "scroll", flexShrink: 0, visibility: "hidden" }}>
-                  <div style={{ padding: "10px 12px", margin: "0 5px" }}>
-                    <p style={{ margin: 0, fontSize: 13 }}>&nbsp;</p>
-                  </div>
-                </div>
               </div>
             </div>
           </section>
@@ -476,6 +473,44 @@ export function LLMInteractionPage() {
             </div>
           </section>
         </div>
+
+        </div>{/* end panels wrapper */}
+
+        {/* Reasoning & Progress viewer (right) */}
+        <section style={{
+          width: 320,
+          flexShrink: 0,
+          overflow: "hidden",
+          background: "rgba(204, 197, 185, 0.2)",
+          backdropFilter: "blur(16px)",
+          WebkitBackdropFilter: "blur(16px)",
+          borderRadius: T.panelRadius,
+          padding: T.panelPadding,
+          display: "flex",
+          flexDirection: "column",
+          gap: T.panelGap,
+          border: "1px solid rgba(204, 197, 185, 0.1)",
+        }}>
+          <PanelHeader
+            title="Reasoning"
+            help="Agent trace and progress"
+          />
+          <div
+            className="llm-textarea"
+            style={{
+              flex: 1,
+              overflowY: "auto",
+              fontSize: 13,
+              lineHeight: 1.6,
+              color: T.textSecondary,
+              whiteSpace: "pre-wrap",
+            }}
+          >
+            {result ? "Processing complete." : "Agent reasoning and progress will appear here as the pipeline runs."}
+          </div>
+        </section>
+
+        </div>{/* end main content */}
 
       </div>
     </div>

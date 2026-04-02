@@ -1735,30 +1735,50 @@ input[type="file"].text-input::file-selector-button {
   overflow: hidden;
   padding: 0;
   pointer-events: none;
-  /* On hide: shrink padding after content fades */
-  transition: padding 0.2s ease 0.2s;
+  border-color: transparent !important;
+  box-shadow: none !important;
+  background: transparent !important;
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+  /* Hide: panel visuals disappear at END of shrink (0.25s delay + 0.25s duration) */
+  transition:
+    padding 0.25s ease 0.25s,
+    background 0.25s ease 0.25s,
+    border-color 0.25s ease 0.25s,
+    box-shadow 0.25s ease 0.25s,
+    backdrop-filter 0.25s ease 0.25s;
 }
 
 .llm-english-panel.visible {
   padding: 20px 22px;
   pointer-events: auto;
-  /* On show: expand padding immediately */
-  transition: padding 0.2s ease 0s;
+  border-color: rgba(204, 197, 185, 0.1) !important;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3), 0 16px 40px rgba(0, 0, 0, 0.2) !important;
+  background: rgba(64, 61, 57, 0.6) !important;
+  backdrop-filter: blur(16px) !important;
+  -webkit-backdrop-filter: blur(16px) !important;
+  /* Show: panel visuals appear immediately with grid expand */
+  transition:
+    padding 0.25s ease 0s,
+    background 0.25s ease 0s,
+    border-color 0.25s ease 0s,
+    box-shadow 0.25s ease 0s,
+    backdrop-filter 0.25s ease 0s;
 }
 
 /* Inner content: fade in/out */
 .llm-english-content {
   opacity: 0;
   transform: translateX(16px);
-  /* On hide: fade out immediately */
+  /* Hide: fade out immediately (then grid shrinks after 0.25s) */
   transition: opacity 0.2s ease 0s, transform 0.2s ease 0s;
 }
 
 .llm-english-panel.visible .llm-english-content {
   opacity: 1;
   transform: translateX(0);
-  /* On show: fade in after grid finishes expanding */
-  transition: opacity 0.2s ease 0.2s, transform 0.2s ease 0.2s;
+  /* Show: fade in after grid finishes expanding (0.25s delay) */
+  transition: opacity 0.25s ease 0.25s, transform 0.25s ease 0.25s;
 }
 
 .llm-grid-animated {
