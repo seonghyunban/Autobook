@@ -1,0 +1,57 @@
+{
+  "evaluator": "claude",
+  "evaluated_at": "2026-03-31T12:00:00Z",
+  "prompt_version": "v4",
+  "results": {
+    "int_13_donation_note": {
+      "match": true,
+      "tax_relaxed_match": true,
+      "reason": "Exact match: Dr Donations expense $1,000,000 / Cr Notes payable $1,000,000 matches expected entry on all accounts and amounts."
+    },
+    "int_14_vehicle_mixed_payment": {
+      "match": true,
+      "tax_relaxed_match": true,
+      "reason": "All amounts match; 'Motor vehicles' is semantically equivalent to 'PP&E Vehicles', 'Cash and cash equivalents' to 'Cash', and 'Short-term borrowings' to 'Notes payable' (promissory note liability)."
+    },
+    "int_15_bank_loan": {
+      "match": true,
+      "tax_relaxed_match": true,
+      "reason": "All amounts match; 'Cash and cash equivalents' is semantically equivalent to 'Cash' and 'Long-term borrowings' matches exactly."
+    },
+    "int_17_customer_deposit": {
+      "match": true,
+      "tax_relaxed_match": true,
+      "reason": "All amounts match; 'Cash and cash equivalents' is semantically equivalent to 'Cash--chequing' and 'Contract liabilities' matches exactly."
+    },
+    "int_18_multiple_assets": {
+      "match": true,
+      "tax_relaxed_match": true,
+      "reason": "All four lines match; 'Office equipment' and 'Motor vehicles' are semantically equivalent to 'PP&E Office equipment' and 'PP&E Vehicles'; amounts and credit accounts are correct."
+    },
+    "int_19_service_revenue_cash": {
+      "match": true,
+      "tax_relaxed_match": true,
+      "reason": "All amounts match; 'Cash and cash equivalents' is semantically equivalent to 'Cash' and 'Revenue from rendering of services' to 'Revenue--Service revenue'."
+    },
+    "int_20_service_revenue_credit": {
+      "match": true,
+      "tax_relaxed_match": true,
+      "reason": "All amounts match; 'Trade receivables' matches exactly and 'Revenue from rendering of services' is semantically equivalent to 'Revenue--Service revenue'."
+    },
+    "int_21_rd_expense": {
+      "match": true,
+      "tax_relaxed_match": true,
+      "reason": "All amounts match; 'Research and development expense' is semantically equivalent to 'R&D expense' and 'Cash and cash equivalents' to 'Cash--chequing'."
+    },
+    "int_22_compound_sale_with_tax": {
+      "match": true,
+      "tax_relaxed_match": true,
+      "reason": "All six lines match with correct amounts; 'Cost of sales' equals 'COGS', 'Tax liabilities' equals 'Sales tax payable', 'Revenue from sale of goods' equals 'Revenue', and 'Inventories -- finished goods' equals 'Inventories'."
+    },
+    "int_23_split_electricity": {
+      "match": true,
+      "tax_relaxed_match": true,
+      "reason": "All amounts match; 'Inventories -- work in progress' is semantically equivalent to 'WIP Manufacturing overhead', 'Utilities expense' matches exactly, and 'Accrued liabilities' is semantically equivalent to 'Credit card payable' as credit card obligations are classified under accrued/other current liabilities."
+    }
+  }
+}

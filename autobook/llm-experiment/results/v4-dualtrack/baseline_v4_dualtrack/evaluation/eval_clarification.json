@@ -1,0 +1,70 @@
+{
+  "evaluator": "claude",
+  "evaluated_at": "2026-03-31T12:00:00Z",
+  "prompt_version": "v4",
+  "results": {
+    "hard_01_note_discounting": {
+      "actual_decision": "INCOMPLETE_INFORMATION",
+      "actual_questions": [
+        "Was this a sale of the note receivable (derecognition) or a secured borrowing using the note as collateral?"
+      ],
+      "expected_cases": [
+        "Derecognition (sale)",
+        "Collateralized borrowing"
+      ],
+      "relevant": true,
+      "reason": "Pipeline correctly identified the sale-vs-secured-borrowing ambiguity, produced a clarification question asking about the business fact (nature of the transaction), and the two cases map exactly to the expected interpretations."
+    },
+    "hard_02_investment_classification": {
+      "actual_decision": "INCOMPLETE_INFORMATION",
+      "actual_questions": [
+        "How does BlackRock intend to classify this 10% investment in Ford - as FVTPL, FVOCI, or does it have significant influence requiring equity method?"
+      ],
+      "expected_cases": [
+        "FVTPL (short-term trading)",
+        "FVOCI (long-term strategic)",
+        "Equity method (significant influence)"
+      ],
+      "relevant": false,
+      "reason": "The question asks about accounting classification choice (FVTPL/FVOCI/equity method) rather than the underlying business facts such as trading intent, holding period, or degree of influence over the investee."
+    },
+    "hard_16_rent_treatment": {
+      "actual_decision": "INCOMPLETE_INFORMATION",
+      "actual_questions": [
+        "Should this 12-month rent payment be recorded as a prepaid asset (to be expensed monthly) or as an immediate expense under the short-term lease exemption?"
+      ],
+      "expected_cases": [
+        "Prepaid asset",
+        "Immediate expense (short-term lease exemption)"
+      ],
+      "relevant": false,
+      "reason": "The question asks how the payment should be recorded (accounting treatment) rather than asking about the business fact, such as whether the entity has elected the IFRS 16.5 short-term lease exemption in its accounting policy."
+    },
+    "hard_27_meal_purpose": {
+      "actual_decision": "INCOMPLETE_INFORMATION",
+      "actual_questions": [
+        "What was the business purpose of this meal?"
+      ],
+      "expected_cases": [
+        "Overtime meal",
+        "Working meeting",
+        "Client entertainment",
+        "Factory staff meal (production overhead)"
+      ],
+      "relevant": true,
+      "reason": "Pipeline recognized the ambiguity, asked a clean business-fact question about the meal's purpose, and the listed cases (client entertainment, travel meal, team meeting) sufficiently distinguish the expected interpretations."
+    },
+    "hard_32_grocery_purpose": {
+      "actual_decision": "INCOMPLETE_INFORMATION",
+      "actual_questions": [
+        "What was the business purpose of this purchase (e.g., office supplies for staff, client entertainment, meeting refreshments)?"
+      ],
+      "expected_cases": [
+        "Client entertainment",
+        "Employee break room supplies"
+      ],
+      "relevant": true,
+      "reason": "Pipeline recognized the ambiguity, asked about the business purpose of the purchase (a factual question), and the cases cover both expected interpretations: client entertainment and office supplies for staff consumption (break room supplies)."
+    }
+  }
+}

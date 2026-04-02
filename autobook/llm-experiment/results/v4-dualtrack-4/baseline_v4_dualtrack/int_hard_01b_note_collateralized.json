@@ -1,0 +1,504 @@
+{
+  "test_case_id": "int_hard_01b_note_collateralized",
+  "variant_name": "baseline_v4_dualtrack",
+  "model": "sonnet",
+  "debit_tuple_exact_match": true,
+  "credit_tuple_exact_match": true,
+  "debit_tuple_slot_accuracy": 0.8333333333333334,
+  "credit_tuple_slot_accuracy": 0.8333333333333334,
+  "entry_valid": true,
+  "debit_tuple": [
+    1,
+    1,
+    0,
+    0,
+    0
+  ],
+  "credit_tuple": [
+    1,
+    0,
+    0,
+    0,
+    0
+  ],
+  "journal_entry": {
+    "reason": "Collateralized borrowing using promissory note as security \u2014 cash received net of discount charges, with discount recognized as interest expense and liability recorded for borrowing",
+    "lines": [
+      {
+        "type": "debit",
+        "account_name": "Cash and cash equivalents",
+        "amount": 98356.16
+      },
+      {
+        "type": "debit",
+        "account_name": "Interest expense",
+        "amount": 1643.84
+      },
+      {
+        "type": "credit",
+        "account_name": "Short-term borrowings",
+        "amount": 100000.0
+      }
+    ]
+  },
+  "actual_cost_usd": 0.0346599,
+  "raw_cost_usd": 0.09315,
+  "total_latency_ms": 18553,
+  "total_input_tokens": 25160,
+  "total_output_tokens": 1178,
+  "total_llm_calls": 5,
+  "iteration_count": 1,
+  "final_decision": "APPROVED",
+  "fix_attempted": null,
+  "fix_succeeded": null,
+  "agent_metrics": {
+    "tax_specialist": {
+      "input_tokens": 600,
+      "output_tokens": 156,
+      "cache_read_tokens": 3676,
+      "cache_write_tokens": 0,
+      "total_input_tokens": 4276,
+      "llm_calls": 1,
+      "actual_cost_usd": 0.005242800000000001,
+      "raw_cost_usd": 0.015168,
+      "output": {
+        "reasoning": "Transaction involves discounting a promissory note at a bank as collateralized borrowing. This is a financial transaction (loan secured by note receivable), not a taxable supply of goods or services. No tax mentioned in text.",
+        "tax_mentioned": false,
+        "taxable": false,
+        "tax_context": null,
+        "tax_rate": null,
+        "add_tax_lines": false,
+        "treatment": "not_applicable"
+      },
+      "reason": null
+    },
+    "debit_classifier": {
+      "input_tokens": 561,
+      "output_tokens": 178,
+      "cache_read_tokens": 4714,
+      "cache_write_tokens": 0,
+      "total_input_tokens": 5275,
+      "llm_calls": 1,
+      "actual_cost_usd": 0.0057672,
+      "raw_cost_usd": 0.018495,
+      "output": {
+        "asset_increase": [
+          {
+            "reason": "Cash received from bank as net proceeds after discount charges deducted",
+            "category": "Cash and cash equivalents",
+            "count": 1
+          }
+        ],
+        "expense_increase": [
+          {
+            "reason": "Discount charges on collateralized borrowing recognized as interest expense",
+            "category": "Interest expense",
+            "count": 1
+          }
+        ],
+        "liability_decrease": [],
+        "equity_decrease": [],
+        "revenue_decrease": [],
+        "tuple": [
+          1,
+          1,
+          0,
+          0,
+          0
+        ]
+      },
+      "reason": null
+    },
+    "credit_classifier": {
+      "input_tokens": 558,
+      "output_tokens": 148,
+      "cache_read_tokens": 4602,
+      "cache_write_tokens": 0,
+      "total_input_tokens": 5160,
+      "llm_calls": 1,
+      "actual_cost_usd": 0.0052746,
+      "raw_cost_usd": 0.0177,
+      "output": {
+        "liability_increase": [
+          {
+            "reason": "Collateralized borrowing from bank using note as security per management determination",
+            "category": "Short-term borrowings",
+            "count": 1
+          }
+        ],
+        "equity_increase": [],
+        "revenue_increase": [],
+        "asset_decrease": [],
+        "expense_decrease": [],
+        "tuple": [
+          1,
+          0,
+          0,
+          0,
+          0
+        ]
+      },
+      "reason": null
+    },
+    "unknown": {
+      "input_tokens": 617,
+      "output_tokens": 499,
+      "cache_read_tokens": 4771,
+      "cache_write_tokens": 0,
+      "total_input_tokens": 5388,
+      "llm_calls": 1,
+      "actual_cost_usd": 0.010767299999999999,
+      "raw_cost_usd": 0.023649,
+      "output": null,
+      "reason": null
+    },
+    "entry_drafter": {
+      "input_tokens": 1161,
+      "output_tokens": 197,
+      "cache_read_tokens": 3900,
+      "cache_write_tokens": 0,
+      "total_input_tokens": 5061,
+      "llm_calls": 1,
+      "actual_cost_usd": 0.007608,
+      "raw_cost_usd": 0.018138,
+      "output": {
+        "reason": "Collateralized borrowing using promissory note as security \u2014 cash received net of discount charges, with discount recognized as interest expense and liability recorded for borrowing",
+        "lines": [
+          {
+            "type": "debit",
+            "account_name": "Cash and cash equivalents",
+            "amount": 98356.16
+          },
+          {
+            "type": "debit",
+            "account_name": "Interest expense",
+            "amount": 1643.84
+          },
+          {
+            "type": "credit",
+            "account_name": "Short-term borrowings",
+            "amount": 100000.0
+          }
+        ]
+      },
+      "reason": "Collateralized borrowing using promissory note as security \u2014 cash received net of discount charges, with discount recognized as interest expense and liability recorded for borrowing"
+    }
+  },
+  "pre_fix_debit_tuple": null,
+  "post_fix_debit_tuple": null,
+  "pre_fix_credit_tuple": null,
+  "post_fix_credit_tuple": null,
+  "fix_root_cause_agent": null,
+  "rejection_reason": null,
+  "diagnostician_decision": null,
+  "validation_error": null,
+  "decision_correct": true,
+  "entry_match": null,
+  "clarification_correct": null,
+  "clarification_questions": null,
+  "ambiguous": false,
+  "tier": "intermediate",
+  "error": null,
+  "pipeline_state": {
+    "iteration": 0,
+    "output_ambiguity_detector": [
+      {
+        "ambiguities": [
+          {
+            "aspect": "Sale vs secured borrowing",
+            "input_contextualized_conventional_default": null,
+            "input_contextualized_ifrs_default": "Management has explicitly determined this is a collateralized borrowing (risks and rewards not transferred), which is definitive per source of truth rules.",
+            "clarification_question": null,
+            "cases": null,
+            "ambiguous": false
+          },
+          {
+            "aspect": "Discount calculation method",
+            "input_contextualized_conventional_default": null,
+            "input_contextualized_ifrs_default": "IFRS default uses 365-day year for discount calculations: $100,000 \u00d7 15% \u00d7 40/365 for the remaining 40 days.",
+            "clarification_question": null,
+            "cases": null,
+            "ambiguous": false
+          }
+        ]
+      }
+    ],
+    "output_complexity_detector": [
+      {
+        "flags": [
+          {
+            "aspect": "Discount and proceeds calculation",
+            "best_attempt": {
+              "reason": "Collateralized borrowing: Cash received equals face value less discount for remaining 40 days; note remains on books, liability created for borrowing amount.",
+              "lines": [
+                {
+                  "type": "debit",
+                  "account_name": "Cash",
+                  "amount": 98356.16
+                },
+                {
+                  "type": "debit",
+                  "account_name": "Interest Expense",
+                  "amount": 1643.84
+                },
+                {
+                  "type": "credit",
+                  "account_name": "Short-term Borrowings",
+                  "amount": 100000.0
+                }
+              ]
+            },
+            "gap": null,
+            "beyond_llm_capability": false
+          }
+        ]
+      }
+    ],
+    "output_tax_specialist": [
+      {
+        "reasoning": "Transaction involves discounting a promissory note at a bank as collateralized borrowing. This is a financial transaction (loan secured by note receivable), not a taxable supply of goods or services. No tax mentioned in text.",
+        "tax_mentioned": false,
+        "taxable": false,
+        "tax_context": null,
+        "tax_rate": null,
+        "add_tax_lines": false,
+        "treatment": "not_applicable"
+      }
+    ],
+    "output_decision_maker": [
+      {
+        "ambiguities": [
+          {
+            "aspect": "Sale vs secured borrowing",
+            "input_contextualized_conventional_default": null,
+            "input_contextualized_ifrs_default": "Management has explicitly determined this is a collateralized borrowing (risks and rewards not transferred), which is definitive per source of truth rules.",
+            "clarification_question": null,
+            "cases": null,
+            "ambiguous": false
+          },
+          {
+            "aspect": "Discount calculation method",
+            "input_contextualized_conventional_default": null,
+            "input_contextualized_ifrs_default": "IFRS default uses 365-day year for discount calculations: $100,000 \u00d7 15% \u00d7 40/365 for the remaining 40 days.",
+            "clarification_question": null,
+            "cases": null,
+            "ambiguous": false
+          }
+        ],
+        "complexity_flags": [
+          {
+            "aspect": "Discount and proceeds calculation",
+            "best_attempt": {
+              "reason": "Collateralized borrowing: Cash received equals face value less discount for remaining 40 days; note remains on books, liability created for borrowing amount.",
+              "lines": [
+                {
+                  "type": "debit",
+                  "account_name": "Cash",
+                  "amount": 98356.16
+                },
+                {
+                  "type": "debit",
+                  "account_name": "Interest Expense",
+                  "amount": 1643.84
+                },
+                {
+                  "type": "credit",
+                  "account_name": "Short-term Borrowings",
+                  "amount": 100000.0
+                }
+              ]
+            },
+            "gap": null,
+            "beyond_llm_capability": false
+          }
+        ],
+        "proceed_reason": "Management determination is definitive per source of truth rules, and all inputs for discount calculation (face value $100,000, 15% annual rate, 40 remaining days, 365-day convention) are stated or determinable.",
+        "clarification_questions": null,
+        "stuck_reason": null,
+        "overall_final_rationale": "Management's explicit determination resolves the sale vs borrowing ambiguity, and all computation inputs (face value, rate, days remaining) are stated, allowing the downstream calculator to compute the exact proceeds.",
+        "decision": "PROCEED"
+      }
+    ],
+    "output_entry_drafter": [
+      {
+        "reason": "Collateralized borrowing using promissory note as security \u2014 cash received net of discount charges, with discount recognized as interest expense and liability recorded for borrowing",
+        "lines": [
+          {
+            "type": "debit",
+            "account_name": "Cash and cash equivalents",
+            "amount": 98356.16
+          },
+          {
+            "type": "debit",
+            "account_name": "Interest expense",
+            "amount": 1643.84
+          },
+          {
+            "type": "credit",
+            "account_name": "Short-term borrowings",
+            "amount": 100000.0
+          }
+        ]
+      }
+    ],
+    "output_disambiguator": [
+      {
+        "ambiguities": [
+          {
+            "aspect": "Sale vs secured borrowing",
+            "input_contextualized_conventional_default": null,
+            "input_contextualized_ifrs_default": "Management has explicitly determined this is a collateralized borrowing (risks and rewards not transferred), which is definitive per source of truth rules.",
+            "clarification_question": null,
+            "cases": null,
+            "ambiguous": false
+          },
+          {
+            "aspect": "Discount calculation method",
+            "input_contextualized_conventional_default": null,
+            "input_contextualized_ifrs_default": "IFRS default uses 365-day year for discount calculations: $100,000 \u00d7 15% \u00d7 40/365 for the remaining 40 days.",
+            "clarification_question": null,
+            "cases": null,
+            "ambiguous": false
+          }
+        ]
+      }
+    ],
+    "output_debit_classifier": [
+      {
+        "asset_increase": [
+          {
+            "reason": "Cash received from bank as net proceeds after discount charges deducted",
+            "category": "Cash and cash equivalents",
+            "count": 1
+          }
+        ],
+        "expense_increase": [
+          {
+            "reason": "Discount charges on collateralized borrowing recognized as interest expense",
+            "category": "Interest expense",
+            "count": 1
+          }
+        ],
+        "liability_decrease": [],
+        "equity_decrease": [],
+        "revenue_decrease": [],
+        "tuple": [
+          1,
+          1,
+          0,
+          0,
+          0
+        ]
+      }
+    ],
+    "output_credit_classifier": [
+      {
+        "liability_increase": [
+          {
+            "reason": "Collateralized borrowing from bank using note as security per management determination",
+            "category": "Short-term borrowings",
+            "count": 1
+          }
+        ],
+        "equity_increase": [],
+        "revenue_increase": [],
+        "asset_decrease": [],
+        "expense_decrease": [],
+        "tuple": [
+          1,
+          0,
+          0,
+          0,
+          0
+        ]
+      }
+    ],
+    "output_debit_corrector": [],
+    "output_credit_corrector": [],
+    "output_entry_builder": [],
+    "output_approver": [],
+    "output_diagnostician": [],
+    "status_ambiguity_detector": 1,
+    "status_complexity_detector": 1,
+    "status_tax_specialist": 1,
+    "status_decision_maker": 1,
+    "status_entry_drafter": 1,
+    "status_disambiguator": 1,
+    "status_debit_classifier": 1,
+    "status_credit_classifier": 1,
+    "status_debit_corrector": 0,
+    "status_credit_corrector": 0,
+    "status_entry_builder": 0,
+    "status_approver": 0,
+    "status_diagnostician": 0,
+    "fix_context_disambiguator": [],
+    "fix_context_debit_classifier": [],
+    "fix_context_credit_classifier": [],
+    "fix_context_debit_corrector": [],
+    "fix_context_credit_corrector": [],
+    "fix_context_entry_builder": [],
+    "fix_context_approver": [],
+    "fix_context_diagnostician": [],
+    "decision": "APPROVED",
+    "validation_error": null,
+    "llm_calls": [
+      {
+        "node": "tax_specialist",
+        "stop_reason": "tool_use",
+        "input_tokens": 600,
+        "output_tokens": 156,
+        "input_token_details": {
+          "cache_read": 3676,
+          "cache_creation": 0
+        }
+      },
+      {
+        "node": "debit_classifier",
+        "stop_reason": "tool_use",
+        "input_tokens": 561,
+        "output_tokens": 178,
+        "input_token_details": {
+          "cache_read": 4714,
+          "cache_creation": 0
+        }
+      },
+      {
+        "node": "credit_classifier",
+        "stop_reason": "tool_use",
+        "input_tokens": 558,
+        "output_tokens": 148,
+        "input_token_details": {
+          "cache_read": 4602,
+          "cache_creation": 0
+        }
+      },
+      {
+        "node": "unknown",
+        "stop_reason": "tool_use",
+        "input_tokens": 617,
+        "output_tokens": 499,
+        "input_token_details": {
+          "cache_read": 4771,
+          "cache_creation": 0
+        }
+      },
+      {
+        "node": "entry_drafter",
+        "stop_reason": "tool_use",
+        "input_tokens": 1161,
+        "output_tokens": 197,
+        "input_token_details": {
+          "cache_read": 3900,
+          "cache_creation": 0
+        }
+      }
+    ],
+    "stop_reasons": {
+      "tax_specialist": "tool_use",
+      "debit_classifier": "tool_use",
+      "credit_classifier": "tool_use",
+      "unknown": "tool_use",
+      "entry_drafter": "tool_use"
+    }
+  }
+}

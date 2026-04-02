@@ -1,0 +1,736 @@
+{
+  "test_case_id": "int_26a_payroll_recognition",
+  "variant_name": "baseline_v4_dualtrack",
+  "model": "sonnet",
+  "debit_tuple_exact_match": false,
+  "credit_tuple_exact_match": false,
+  "debit_tuple_slot_accuracy": 0.6666666666666666,
+  "credit_tuple_slot_accuracy": 0.6666666666666666,
+  "entry_valid": true,
+  "debit_tuple": [
+    1,
+    1,
+    4,
+    0,
+    0
+  ],
+  "credit_tuple": [
+    4,
+    0,
+    0,
+    1,
+    0
+  ],
+  "journal_entry": {
+    "reason": "January payroll recognized with production wages capitalized to WIP, administrative salaries expensed, statutory deductions creating liabilities, and net pay disbursed from chequing account.",
+    "lines": [
+      {
+        "type": "debit",
+        "account_name": "Inventories \u2014 work in progress",
+        "amount": 25000.0
+      },
+      {
+        "type": "debit",
+        "account_name": "Employee benefits expense",
+        "amount": 20000.0
+      },
+      {
+        "type": "credit",
+        "account_name": "Pension contributions payable",
+        "amount": 2000.0
+      },
+      {
+        "type": "credit",
+        "account_name": "Health insurance premiums payable",
+        "amount": 3250.0
+      },
+      {
+        "type": "credit",
+        "account_name": "Employment insurance payable",
+        "amount": 1050.0
+      },
+      {
+        "type": "credit",
+        "account_name": "Income tax withholdings payable",
+        "amount": 1450.0
+      },
+      {
+        "type": "credit",
+        "account_name": "Cash \u2014 chequing",
+        "amount": 37250.0
+      }
+    ]
+  },
+  "actual_cost_usd": 0.045846,
+  "raw_cost_usd": 0.106407,
+  "total_latency_ms": 46072,
+  "total_input_tokens": 26359,
+  "total_output_tokens": 1822,
+  "total_llm_calls": 5,
+  "iteration_count": 1,
+  "final_decision": "APPROVED",
+  "fix_attempted": null,
+  "fix_succeeded": null,
+  "agent_metrics": {
+    "tax_specialist": {
+      "input_tokens": 609,
+      "output_tokens": 143,
+      "cache_read_tokens": 3726,
+      "cache_write_tokens": 0,
+      "total_input_tokens": 4335,
+      "llm_calls": 1,
+      "actual_cost_usd": 0.0050898,
+      "raw_cost_usd": 0.01515,
+      "output": {
+        "reasoning": "Payroll transactions (wages, salaries, and employee withholdings) are not taxable supplies under sales tax rules. No tax is mentioned in the transaction text.",
+        "tax_mentioned": false,
+        "taxable": false,
+        "tax_context": null,
+        "tax_rate": null,
+        "add_tax_lines": false,
+        "treatment": "not_applicable"
+      },
+      "reason": null
+    },
+    "debit_classifier": {
+      "input_tokens": 570,
+      "output_tokens": 327,
+      "cache_read_tokens": 4769,
+      "cache_write_tokens": 0,
+      "total_input_tokens": 5339,
+      "llm_calls": 1,
+      "actual_cost_usd": 0.0080457,
+      "raw_cost_usd": 0.020922,
+      "output": {
+        "asset_increase": [
+          {
+            "reason": "Production worker wages capitalized as manufacturing cost to work in progress inventory",
+            "category": "Inventories \u2014 work in progress",
+            "count": 1
+          }
+        ],
+        "expense_increase": [
+          {
+            "reason": "Administrative salaries incurred as period cost for employee benefits",
+            "category": "Employee benefits expense",
+            "count": 1
+          }
+        ],
+        "liability_decrease": [
+          {
+            "reason": "Pension contributions withheld from employees now remitted, reducing payable",
+            "category": "Employee benefits payable",
+            "count": 1
+          },
+          {
+            "reason": "Health insurance premiums withheld from employees now remitted, reducing payable",
+            "category": "Employee benefits payable",
+            "count": 1
+          },
+          {
+            "reason": "Employment insurance premiums withheld from employees now remitted, reducing payable",
+            "category": "Statutory withholdings payable",
+            "count": 1
+          },
+          {
+            "reason": "Income tax withholdings from employees now remitted, reducing payable",
+            "category": "Statutory withholdings payable",
+            "count": 1
+          }
+        ],
+        "equity_decrease": [],
+        "revenue_decrease": [],
+        "tuple": [
+          1,
+          1,
+          4,
+          0,
+          0
+        ]
+      },
+      "reason": null
+    },
+    "credit_classifier": {
+      "input_tokens": 567,
+      "output_tokens": 278,
+      "cache_read_tokens": 4657,
+      "cache_write_tokens": 0,
+      "total_input_tokens": 5224,
+      "llm_calls": 1,
+      "actual_cost_usd": 0.0072681,
+      "raw_cost_usd": 0.019842,
+      "output": {
+        "liability_increase": [
+          {
+            "reason": "Pension contributions withheld from employees' wages",
+            "category": "Statutory withholdings payable",
+            "count": 1
+          },
+          {
+            "reason": "Health insurance premiums withheld from employees' wages",
+            "category": "Statutory withholdings payable",
+            "count": 1
+          },
+          {
+            "reason": "Employment insurance premiums withheld from employees' wages",
+            "category": "Statutory withholdings payable",
+            "count": 1
+          },
+          {
+            "reason": "Income tax withheld from employees' wages",
+            "category": "Statutory withholdings payable",
+            "count": 1
+          }
+        ],
+        "equity_increase": [],
+        "revenue_increase": [],
+        "asset_decrease": [
+          {
+            "reason": "Net payroll transferred from chequing account to employees",
+            "category": "Cash and cash equivalents",
+            "count": 1
+          }
+        ],
+        "expense_decrease": [],
+        "tuple": [
+          4,
+          0,
+          0,
+          1,
+          0
+        ]
+      },
+      "reason": null
+    },
+    "unknown": {
+      "input_tokens": 626,
+      "output_tokens": 793,
+      "cache_read_tokens": 4821,
+      "cache_write_tokens": 0,
+      "total_input_tokens": 5447,
+      "llm_calls": 1,
+      "actual_cost_usd": 0.0152193,
+      "raw_cost_usd": 0.028236,
+      "output": null,
+      "reason": null
+    },
+    "entry_drafter": {
+      "input_tokens": 1557,
+      "output_tokens": 281,
+      "cache_read_tokens": 4457,
+      "cache_write_tokens": 0,
+      "total_input_tokens": 6014,
+      "llm_calls": 1,
+      "actual_cost_usd": 0.0102231,
+      "raw_cost_usd": 0.022257,
+      "output": {
+        "reason": "January payroll recognized with production wages capitalized to WIP, administrative salaries expensed, statutory deductions creating liabilities, and net pay disbursed from chequing account.",
+        "lines": [
+          {
+            "type": "debit",
+            "account_name": "Inventories \u2014 work in progress",
+            "amount": 25000.0
+          },
+          {
+            "type": "debit",
+            "account_name": "Employee benefits expense",
+            "amount": 20000.0
+          },
+          {
+            "type": "credit",
+            "account_name": "Pension contributions payable",
+            "amount": 2000.0
+          },
+          {
+            "type": "credit",
+            "account_name": "Health insurance premiums payable",
+            "amount": 3250.0
+          },
+          {
+            "type": "credit",
+            "account_name": "Employment insurance payable",
+            "amount": 1050.0
+          },
+          {
+            "type": "credit",
+            "account_name": "Income tax withholdings payable",
+            "amount": 1450.0
+          },
+          {
+            "type": "credit",
+            "account_name": "Cash \u2014 chequing",
+            "amount": 37250.0
+          }
+        ]
+      },
+      "reason": "January payroll recognized with production wages capitalized to WIP, administrative salaries expensed, statutory deductions creating liabilities, and net pay disbursed from chequing account."
+    }
+  },
+  "pre_fix_debit_tuple": null,
+  "post_fix_debit_tuple": null,
+  "pre_fix_credit_tuple": null,
+  "post_fix_credit_tuple": null,
+  "fix_root_cause_agent": null,
+  "rejection_reason": null,
+  "diagnostician_decision": null,
+  "validation_error": null,
+  "decision_correct": true,
+  "entry_match": null,
+  "clarification_correct": null,
+  "clarification_questions": null,
+  "ambiguous": false,
+  "tier": "intermediate",
+  "error": null,
+  "pipeline_state": {
+    "iteration": 0,
+    "output_ambiguity_detector": [
+      {
+        "ambiguities": [
+          {
+            "aspect": "Allocation of deductions between production and administrative employees",
+            "input_contextualized_conventional_default": null,
+            "input_contextualized_ifrs_default": null,
+            "clarification_question": null,
+            "cases": null,
+            "ambiguous": false
+          },
+          {
+            "aspect": "Classification of production wages vs administrative salaries",
+            "input_contextualized_conventional_default": null,
+            "input_contextualized_ifrs_default": "Manufacturing costs (production worker wages) are capitalized to inventory/WIP as product costs; administrative salaries are period expenses.",
+            "clarification_question": null,
+            "cases": null,
+            "ambiguous": false
+          },
+          {
+            "aspect": "Payment method for net payroll",
+            "input_contextualized_conventional_default": "'transferred from the chequing account' = cash payment from bank account.",
+            "input_contextualized_ifrs_default": null,
+            "clarification_question": null,
+            "cases": null,
+            "ambiguous": false
+          },
+          {
+            "aspect": "Gross vs net salary treatment",
+            "input_contextualized_conventional_default": "Stated amounts ($25,000 and $20,000) are gross wages; deductions are separately stated and additive.",
+            "input_contextualized_ifrs_default": null,
+            "clarification_question": null,
+            "cases": null,
+            "ambiguous": false
+          }
+        ]
+      }
+    ],
+    "output_complexity_detector": [
+      {
+        "flags": [
+          {
+            "aspect": "Payroll entry with multiple deductions and cost classifications",
+            "best_attempt": {
+              "reason": "Production wages capitalize to WIP/Inventory, administrative salaries expense; deductions create liabilities; net paid from cash.",
+              "lines": [
+                {
+                  "type": "debit",
+                  "account_name": "Work in Process - Direct Labor",
+                  "amount": 25000.0
+                },
+                {
+                  "type": "debit",
+                  "account_name": "Administrative Salaries Expense",
+                  "amount": 20000.0
+                },
+                {
+                  "type": "credit",
+                  "account_name": "Pension Contributions Payable",
+                  "amount": 2000.0
+                },
+                {
+                  "type": "credit",
+                  "account_name": "Health Insurance Premiums Payable",
+                  "amount": 3250.0
+                },
+                {
+                  "type": "credit",
+                  "account_name": "Employment Insurance Premiums Payable",
+                  "amount": 1050.0
+                },
+                {
+                  "type": "credit",
+                  "account_name": "Income Tax Withholdings Payable",
+                  "amount": 1450.0
+                },
+                {
+                  "type": "credit",
+                  "account_name": "Cash - Chequing Account",
+                  "amount": 37250.0
+                }
+              ]
+            },
+            "gap": null,
+            "beyond_llm_capability": false
+          }
+        ]
+      }
+    ],
+    "output_tax_specialist": [
+      {
+        "reasoning": "Payroll transactions (wages, salaries, and employee withholdings) are not taxable supplies under sales tax rules. No tax is mentioned in the transaction text.",
+        "tax_mentioned": false,
+        "taxable": false,
+        "tax_context": null,
+        "tax_rate": null,
+        "add_tax_lines": false,
+        "treatment": "not_applicable"
+      }
+    ],
+    "output_decision_maker": [
+      {
+        "ambiguities": [
+          {
+            "aspect": "Allocation of deductions between production and administrative employees",
+            "input_contextualized_conventional_default": null,
+            "input_contextualized_ifrs_default": null,
+            "clarification_question": null,
+            "cases": null,
+            "ambiguous": false
+          },
+          {
+            "aspect": "Classification of production wages vs administrative salaries",
+            "input_contextualized_conventional_default": null,
+            "input_contextualized_ifrs_default": "Manufacturing costs (production worker wages) are capitalized to inventory/WIP as product costs; administrative salaries are period expenses.",
+            "clarification_question": null,
+            "cases": null,
+            "ambiguous": false
+          },
+          {
+            "aspect": "Payment method for net payroll",
+            "input_contextualized_conventional_default": "'transferred from the chequing account' = cash payment from bank account.",
+            "input_contextualized_ifrs_default": null,
+            "clarification_question": null,
+            "cases": null,
+            "ambiguous": false
+          },
+          {
+            "aspect": "Gross vs net salary treatment",
+            "input_contextualized_conventional_default": "Stated amounts ($25,000 and $20,000) are gross wages; deductions are separately stated and additive.",
+            "input_contextualized_ifrs_default": null,
+            "clarification_question": null,
+            "cases": null,
+            "ambiguous": false
+          }
+        ],
+        "complexity_flags": [
+          {
+            "aspect": "Payroll entry with multiple deductions and cost classifications",
+            "best_attempt": {
+              "reason": "Production wages capitalize to WIP/Inventory, administrative salaries expense; deductions create liabilities; net paid from cash.",
+              "lines": [
+                {
+                  "type": "debit",
+                  "account_name": "Work in Process - Direct Labor",
+                  "amount": 25000.0
+                },
+                {
+                  "type": "debit",
+                  "account_name": "Administrative Salaries Expense",
+                  "amount": 20000.0
+                },
+                {
+                  "type": "credit",
+                  "account_name": "Pension Contributions Payable",
+                  "amount": 2000.0
+                },
+                {
+                  "type": "credit",
+                  "account_name": "Health Insurance Premiums Payable",
+                  "amount": 3250.0
+                },
+                {
+                  "type": "credit",
+                  "account_name": "Employment Insurance Premiums Payable",
+                  "amount": 1050.0
+                },
+                {
+                  "type": "credit",
+                  "account_name": "Income Tax Withholdings Payable",
+                  "amount": 1450.0
+                },
+                {
+                  "type": "credit",
+                  "account_name": "Cash - Chequing Account",
+                  "amount": 37250.0
+                }
+              ]
+            },
+            "gap": null,
+            "beyond_llm_capability": false
+          }
+        ],
+        "proceed_reason": "Gross wages, deductions, and payment method are all explicitly stated; IFRS rules resolve production wages as capitalizable product costs and administrative salaries as period expenses.",
+        "clarification_questions": null,
+        "stuck_reason": null,
+        "overall_final_rationale": "All amounts are stated, cost classifications are clear under IFRS (production wages to WIP, admin salaries to expense), deductions are employee-borne creating liabilities, and net payment is explicitly described.",
+        "decision": "PROCEED"
+      }
+    ],
+    "output_entry_drafter": [
+      {
+        "reason": "January payroll recognized with production wages capitalized to WIP, administrative salaries expensed, statutory deductions creating liabilities, and net pay disbursed from chequing account.",
+        "lines": [
+          {
+            "type": "debit",
+            "account_name": "Inventories \u2014 work in progress",
+            "amount": 25000.0
+          },
+          {
+            "type": "debit",
+            "account_name": "Employee benefits expense",
+            "amount": 20000.0
+          },
+          {
+            "type": "credit",
+            "account_name": "Pension contributions payable",
+            "amount": 2000.0
+          },
+          {
+            "type": "credit",
+            "account_name": "Health insurance premiums payable",
+            "amount": 3250.0
+          },
+          {
+            "type": "credit",
+            "account_name": "Employment insurance payable",
+            "amount": 1050.0
+          },
+          {
+            "type": "credit",
+            "account_name": "Income tax withholdings payable",
+            "amount": 1450.0
+          },
+          {
+            "type": "credit",
+            "account_name": "Cash \u2014 chequing",
+            "amount": 37250.0
+          }
+        ]
+      }
+    ],
+    "output_disambiguator": [
+      {
+        "ambiguities": [
+          {
+            "aspect": "Allocation of deductions between production and administrative employees",
+            "input_contextualized_conventional_default": null,
+            "input_contextualized_ifrs_default": null,
+            "clarification_question": null,
+            "cases": null,
+            "ambiguous": false
+          },
+          {
+            "aspect": "Classification of production wages vs administrative salaries",
+            "input_contextualized_conventional_default": null,
+            "input_contextualized_ifrs_default": "Manufacturing costs (production worker wages) are capitalized to inventory/WIP as product costs; administrative salaries are period expenses.",
+            "clarification_question": null,
+            "cases": null,
+            "ambiguous": false
+          },
+          {
+            "aspect": "Payment method for net payroll",
+            "input_contextualized_conventional_default": "'transferred from the chequing account' = cash payment from bank account.",
+            "input_contextualized_ifrs_default": null,
+            "clarification_question": null,
+            "cases": null,
+            "ambiguous": false
+          },
+          {
+            "aspect": "Gross vs net salary treatment",
+            "input_contextualized_conventional_default": "Stated amounts ($25,000 and $20,000) are gross wages; deductions are separately stated and additive.",
+            "input_contextualized_ifrs_default": null,
+            "clarification_question": null,
+            "cases": null,
+            "ambiguous": false
+          }
+        ]
+      }
+    ],
+    "output_debit_classifier": [
+      {
+        "asset_increase": [
+          {
+            "reason": "Production worker wages capitalized as manufacturing cost to work in progress inventory",
+            "category": "Inventories \u2014 work in progress",
+            "count": 1
+          }
+        ],
+        "expense_increase": [
+          {
+            "reason": "Administrative salaries incurred as period cost for employee benefits",
+            "category": "Employee benefits expense",
+            "count": 1
+          }
+        ],
+        "liability_decrease": [
+          {
+            "reason": "Pension contributions withheld from employees now remitted, reducing payable",
+            "category": "Employee benefits payable",
+            "count": 1
+          },
+          {
+            "reason": "Health insurance premiums withheld from employees now remitted, reducing payable",
+            "category": "Employee benefits payable",
+            "count": 1
+          },
+          {
+            "reason": "Employment insurance premiums withheld from employees now remitted, reducing payable",
+            "category": "Statutory withholdings payable",
+            "count": 1
+          },
+          {
+            "reason": "Income tax withholdings from employees now remitted, reducing payable",
+            "category": "Statutory withholdings payable",
+            "count": 1
+          }
+        ],
+        "equity_decrease": [],
+        "revenue_decrease": [],
+        "tuple": [
+          1,
+          1,
+          4,
+          0,
+          0
+        ]
+      }
+    ],
+    "output_credit_classifier": [
+      {
+        "liability_increase": [
+          {
+            "reason": "Pension contributions withheld from employees' wages",
+            "category": "Statutory withholdings payable",
+            "count": 1
+          },
+          {
+            "reason": "Health insurance premiums withheld from employees' wages",
+            "category": "Statutory withholdings payable",
+            "count": 1
+          },
+          {
+            "reason": "Employment insurance premiums withheld from employees' wages",
+            "category": "Statutory withholdings payable",
+            "count": 1
+          },
+          {
+            "reason": "Income tax withheld from employees' wages",
+            "category": "Statutory withholdings payable",
+            "count": 1
+          }
+        ],
+        "equity_increase": [],
+        "revenue_increase": [],
+        "asset_decrease": [
+          {
+            "reason": "Net payroll transferred from chequing account to employees",
+            "category": "Cash and cash equivalents",
+            "count": 1
+          }
+        ],
+        "expense_decrease": [],
+        "tuple": [
+          4,
+          0,
+          0,
+          1,
+          0
+        ]
+      }
+    ],
+    "output_debit_corrector": [],
+    "output_credit_corrector": [],
+    "output_entry_builder": [],
+    "output_approver": [],
+    "output_diagnostician": [],
+    "status_ambiguity_detector": 1,
+    "status_complexity_detector": 1,
+    "status_tax_specialist": 1,
+    "status_decision_maker": 1,
+    "status_entry_drafter": 1,
+    "status_disambiguator": 1,
+    "status_debit_classifier": 1,
+    "status_credit_classifier": 1,
+    "status_debit_corrector": 0,
+    "status_credit_corrector": 0,
+    "status_entry_builder": 0,
+    "status_approver": 0,
+    "status_diagnostician": 0,
+    "fix_context_disambiguator": [],
+    "fix_context_debit_classifier": [],
+    "fix_context_credit_classifier": [],
+    "fix_context_debit_corrector": [],
+    "fix_context_credit_corrector": [],
+    "fix_context_entry_builder": [],
+    "fix_context_approver": [],
+    "fix_context_diagnostician": [],
+    "decision": "APPROVED",
+    "validation_error": null,
+    "llm_calls": [
+      {
+        "node": "tax_specialist",
+        "stop_reason": "tool_use",
+        "input_tokens": 609,
+        "output_tokens": 143,
+        "input_token_details": {
+          "cache_read": 3726,
+          "cache_creation": 0
+        }
+      },
+      {
+        "node": "debit_classifier",
+        "stop_reason": "tool_use",
+        "input_tokens": 570,
+        "output_tokens": 327,
+        "input_token_details": {
+          "cache_read": 4769,
+          "cache_creation": 0
+        }
+      },
+      {
+        "node": "credit_classifier",
+        "stop_reason": "tool_use",
+        "input_tokens": 567,
+        "output_tokens": 278,
+        "input_token_details": {
+          "cache_read": 4657,
+          "cache_creation": 0
+        }
+      },
+      {
+        "node": "unknown",
+        "stop_reason": "tool_use",
+        "input_tokens": 626,
+        "output_tokens": 793,
+        "input_token_details": {
+          "cache_read": 4821,
+          "cache_creation": 0
+        }
+      },
+      {
+        "node": "entry_drafter",
+        "stop_reason": "tool_use",
+        "input_tokens": 1557,
+        "output_tokens": 281,
+        "input_token_details": {
+          "cache_read": 4457,
+          "cache_creation": 0
+        }
+      }
+    ],
+    "stop_reasons": {
+      "tax_specialist": "tool_use",
+      "debit_classifier": "tool_use",
+      "credit_classifier": "tool_use",
+      "unknown": "tool_use",
+      "entry_drafter": "tool_use"
+    }
+  }
+}

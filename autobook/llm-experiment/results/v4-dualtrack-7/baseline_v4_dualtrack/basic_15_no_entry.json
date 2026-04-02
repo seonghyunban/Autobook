@@ -1,0 +1,358 @@
+{
+  "test_case_id": "basic_15_no_entry",
+  "variant_name": "baseline_v4_dualtrack",
+  "model": "sonnet",
+  "debit_tuple_exact_match": true,
+  "credit_tuple_exact_match": true,
+  "debit_tuple_slot_accuracy": 0.8333333333333334,
+  "credit_tuple_slot_accuracy": 0.8333333333333334,
+  "entry_valid": false,
+  "debit_tuple": [
+    0,
+    0,
+    0,
+    0,
+    0
+  ],
+  "credit_tuple": [
+    0,
+    0,
+    0,
+    0,
+    0
+  ],
+  "journal_entry": {
+    "reason": "Board resolution with no financial impact requires no journal entry \u2014 memo entry only.",
+    "lines": []
+  },
+  "actual_cost_usd": 0.025326,
+  "raw_cost_usd": 0.085887,
+  "total_latency_ms": 16906,
+  "total_input_tokens": 25209,
+  "total_output_tokens": 684,
+  "total_llm_calls": 5,
+  "iteration_count": 1,
+  "final_decision": "APPROVED",
+  "fix_attempted": null,
+  "fix_succeeded": null,
+  "agent_metrics": {
+    "tax_specialist": {
+      "input_tokens": 511,
+      "output_tokens": 128,
+      "cache_read_tokens": 3726,
+      "cache_write_tokens": 0,
+      "total_input_tokens": 4237,
+      "llm_calls": 1,
+      "actual_cost_usd": 0.0045708,
+      "raw_cost_usd": 0.014631,
+      "output": {
+        "reasoning": "Board resolution has no financial impact and no economic transaction occurs; tax is not mentioned and not applicable",
+        "tax_mentioned": false,
+        "taxable": false,
+        "tax_context": null,
+        "tax_rate": null,
+        "add_tax_lines": false,
+        "treatment": "not_applicable"
+      },
+      "reason": null
+    },
+    "credit_classifier": {
+      "input_tokens": 469,
+      "output_tokens": 111,
+      "cache_read_tokens": 4657,
+      "cache_write_tokens": 0,
+      "total_input_tokens": 5126,
+      "llm_calls": 1,
+      "actual_cost_usd": 0.0044691,
+      "raw_cost_usd": 0.017043,
+      "output": {
+        "liability_increase": [],
+        "equity_increase": [],
+        "revenue_increase": [],
+        "asset_decrease": [],
+        "expense_decrease": [],
+        "tuple": [
+          0,
+          0,
+          0,
+          0,
+          0
+        ]
+      },
+      "reason": null
+    },
+    "debit_classifier": {
+      "input_tokens": 472,
+      "output_tokens": 111,
+      "cache_read_tokens": 4769,
+      "cache_write_tokens": 0,
+      "total_input_tokens": 5241,
+      "llm_calls": 1,
+      "actual_cost_usd": 0.0045116999999999996,
+      "raw_cost_usd": 0.017388,
+      "output": {
+        "asset_increase": [],
+        "expense_increase": [],
+        "liability_decrease": [],
+        "equity_decrease": [],
+        "revenue_decrease": [],
+        "tuple": [
+          0,
+          0,
+          0,
+          0,
+          0
+        ]
+      },
+      "reason": null
+    },
+    "unknown": {
+      "input_tokens": 528,
+      "output_tokens": 271,
+      "cache_read_tokens": 4821,
+      "cache_write_tokens": 0,
+      "total_input_tokens": 5349,
+      "llm_calls": 1,
+      "actual_cost_usd": 0.0070953000000000006,
+      "raw_cost_usd": 0.020112,
+      "output": null,
+      "reason": null
+    },
+    "entry_drafter": {
+      "input_tokens": 799,
+      "output_tokens": 63,
+      "cache_read_tokens": 4457,
+      "cache_write_tokens": 0,
+      "total_input_tokens": 5256,
+      "llm_calls": 1,
+      "actual_cost_usd": 0.0046791,
+      "raw_cost_usd": 0.016713,
+      "output": {
+        "reason": "Board resolution with no financial impact requires no journal entry \u2014 memo entry only.",
+        "lines": []
+      },
+      "reason": "Board resolution with no financial impact requires no journal entry \u2014 memo entry only."
+    }
+  },
+  "pre_fix_debit_tuple": null,
+  "post_fix_debit_tuple": null,
+  "pre_fix_credit_tuple": null,
+  "post_fix_credit_tuple": null,
+  "fix_root_cause_agent": null,
+  "rejection_reason": null,
+  "diagnostician_decision": null,
+  "validation_error": null,
+  "decision_correct": true,
+  "entry_match": null,
+  "clarification_correct": null,
+  "clarification_questions": null,
+  "ambiguous": false,
+  "tier": "basic",
+  "error": null,
+  "pipeline_state": {
+    "iteration": 0,
+    "output_ambiguity_detector": [
+      {
+        "ambiguities": [
+          {
+            "aspect": "Whether a journal entry is required",
+            "input_contextualized_conventional_default": "Text explicitly states 'no financial impact' \u2014 no journal entry is required.",
+            "input_contextualized_ifrs_default": "IFRS requires entries only for transactions with financial impact; board resolutions without financial consequences do not require accounting entries.",
+            "clarification_question": null,
+            "cases": null,
+            "ambiguous": false
+          }
+        ]
+      }
+    ],
+    "output_complexity_detector": [
+      {
+        "flags": [
+          {
+            "aspect": "Non-financial event processing",
+            "best_attempt": null,
+            "gap": null,
+            "beyond_llm_capability": false
+          }
+        ]
+      }
+    ],
+    "output_tax_specialist": [
+      {
+        "reasoning": "Board resolution has no financial impact and no economic transaction occurs; tax is not mentioned and not applicable",
+        "tax_mentioned": false,
+        "taxable": false,
+        "tax_context": null,
+        "tax_rate": null,
+        "add_tax_lines": false,
+        "treatment": "not_applicable"
+      }
+    ],
+    "output_decision_maker": [
+      {
+        "ambiguities": [
+          {
+            "aspect": "Whether a journal entry is required",
+            "input_contextualized_conventional_default": "Text explicitly states 'no financial impact' \u2014 no journal entry is required.",
+            "input_contextualized_ifrs_default": "IFRS requires entries only for transactions with financial impact; board resolutions without financial consequences do not require accounting entries.",
+            "clarification_question": null,
+            "cases": null,
+            "ambiguous": false
+          }
+        ],
+        "complexity_flags": [
+          {
+            "aspect": "Non-financial event processing",
+            "best_attempt": null,
+            "gap": null,
+            "beyond_llm_capability": false
+          }
+        ],
+        "proceed_reason": "Text explicitly states 'no financial impact' \u2014 this is a memo entry requiring no journal entry.",
+        "clarification_questions": null,
+        "stuck_reason": null,
+        "overall_final_rationale": "The transaction explicitly states 'no financial impact,' meaning no journal entry is required and the system can proceed with a null entry.",
+        "decision": "PROCEED"
+      }
+    ],
+    "output_entry_drafter": [
+      {
+        "reason": "Board resolution with no financial impact requires no journal entry \u2014 memo entry only.",
+        "lines": []
+      }
+    ],
+    "output_disambiguator": [
+      {
+        "ambiguities": [
+          {
+            "aspect": "Whether a journal entry is required",
+            "input_contextualized_conventional_default": "Text explicitly states 'no financial impact' \u2014 no journal entry is required.",
+            "input_contextualized_ifrs_default": "IFRS requires entries only for transactions with financial impact; board resolutions without financial consequences do not require accounting entries.",
+            "clarification_question": null,
+            "cases": null,
+            "ambiguous": false
+          }
+        ]
+      }
+    ],
+    "output_debit_classifier": [
+      {
+        "asset_increase": [],
+        "expense_increase": [],
+        "liability_decrease": [],
+        "equity_decrease": [],
+        "revenue_decrease": [],
+        "tuple": [
+          0,
+          0,
+          0,
+          0,
+          0
+        ]
+      }
+    ],
+    "output_credit_classifier": [
+      {
+        "liability_increase": [],
+        "equity_increase": [],
+        "revenue_increase": [],
+        "asset_decrease": [],
+        "expense_decrease": [],
+        "tuple": [
+          0,
+          0,
+          0,
+          0,
+          0
+        ]
+      }
+    ],
+    "output_debit_corrector": [],
+    "output_credit_corrector": [],
+    "output_entry_builder": [],
+    "output_approver": [],
+    "output_diagnostician": [],
+    "status_ambiguity_detector": 1,
+    "status_complexity_detector": 1,
+    "status_tax_specialist": 1,
+    "status_decision_maker": 1,
+    "status_entry_drafter": 1,
+    "status_disambiguator": 1,
+    "status_debit_classifier": 1,
+    "status_credit_classifier": 1,
+    "status_debit_corrector": 0,
+    "status_credit_corrector": 0,
+    "status_entry_builder": 0,
+    "status_approver": 0,
+    "status_diagnostician": 0,
+    "fix_context_disambiguator": [],
+    "fix_context_debit_classifier": [],
+    "fix_context_credit_classifier": [],
+    "fix_context_debit_corrector": [],
+    "fix_context_credit_corrector": [],
+    "fix_context_entry_builder": [],
+    "fix_context_approver": [],
+    "fix_context_diagnostician": [],
+    "decision": "APPROVED",
+    "validation_error": null,
+    "llm_calls": [
+      {
+        "node": "tax_specialist",
+        "stop_reason": "tool_use",
+        "input_tokens": 511,
+        "output_tokens": 128,
+        "input_token_details": {
+          "cache_read": 3726,
+          "cache_creation": 0
+        }
+      },
+      {
+        "node": "credit_classifier",
+        "stop_reason": "tool_use",
+        "input_tokens": 469,
+        "output_tokens": 111,
+        "input_token_details": {
+          "cache_read": 4657,
+          "cache_creation": 0
+        }
+      },
+      {
+        "node": "debit_classifier",
+        "stop_reason": "tool_use",
+        "input_tokens": 472,
+        "output_tokens": 111,
+        "input_token_details": {
+          "cache_read": 4769,
+          "cache_creation": 0
+        }
+      },
+      {
+        "node": "unknown",
+        "stop_reason": "tool_use",
+        "input_tokens": 528,
+        "output_tokens": 271,
+        "input_token_details": {
+          "cache_read": 4821,
+          "cache_creation": 0
+        }
+      },
+      {
+        "node": "entry_drafter",
+        "stop_reason": "tool_use",
+        "input_tokens": 799,
+        "output_tokens": 63,
+        "input_token_details": {
+          "cache_read": 4457,
+          "cache_creation": 0
+        }
+      }
+    ],
+    "stop_reasons": {
+      "tax_specialist": "tool_use",
+      "credit_classifier": "tool_use",
+      "debit_classifier": "tool_use",
+      "unknown": "tool_use",
+      "entry_drafter": "tool_use"
+    }
+  }
+}

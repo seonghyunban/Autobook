@@ -1,0 +1,463 @@
+{
+  "test_case_id": "hard_16_rent_treatment",
+  "variant_name": "baseline_v4_dualtrack",
+  "model": "sonnet",
+  "debit_tuple_exact_match": false,
+  "credit_tuple_exact_match": false,
+  "debit_tuple_slot_accuracy": 0.0,
+  "credit_tuple_slot_accuracy": 0.0,
+  "entry_valid": true,
+  "debit_tuple": [
+    1,
+    0,
+    0,
+    0,
+    0
+  ],
+  "credit_tuple": [
+    0,
+    0,
+    0,
+    1,
+    0
+  ],
+  "journal_entry": null,
+  "actual_cost_usd": 0.026165400000000002,
+  "raw_cost_usd": 0.070737,
+  "total_latency_ms": 11084,
+  "total_input_tokens": 18564,
+  "total_output_tokens": 1003,
+  "total_llm_calls": 4,
+  "iteration_count": 1,
+  "final_decision": "INCOMPLETE_INFORMATION",
+  "fix_attempted": null,
+  "fix_succeeded": null,
+  "agent_metrics": {
+    "tax_specialist": {
+      "input_tokens": 530,
+      "output_tokens": 135,
+      "cache_read_tokens": 3455,
+      "cache_write_tokens": 0,
+      "total_input_tokens": 3985,
+      "llm_calls": 1,
+      "actual_cost_usd": 0.0046515,
+      "raw_cost_usd": 0.01398,
+      "output": {
+        "reasoning": "Rent is a taxable supply, but the transaction text does not mention any tax component in the $24,000 payment",
+        "tax_mentioned": false,
+        "taxable": true,
+        "tax_context": null,
+        "tax_rate": null,
+        "add_tax_lines": false,
+        "treatment": "not_applicable"
+      },
+      "reason": null
+    },
+    "debit_classifier": {
+      "input_tokens": 491,
+      "output_tokens": 144,
+      "cache_read_tokens": 4291,
+      "cache_write_tokens": 0,
+      "total_input_tokens": 4782,
+      "llm_calls": 1,
+      "actual_cost_usd": 0.0049203,
+      "raw_cost_usd": 0.016506,
+      "output": {
+        "asset_increase": [
+          {
+            "reason": "Prepaid rent for 12 months paid in advance",
+            "category": "Prepaid expenses",
+            "count": 1
+          }
+        ],
+        "expense_increase": [],
+        "liability_decrease": [],
+        "equity_decrease": [],
+        "revenue_decrease": [],
+        "tuple": [
+          1,
+          0,
+          0,
+          0,
+          0
+        ]
+      },
+      "reason": null
+    },
+    "credit_classifier": {
+      "input_tokens": 488,
+      "output_tokens": 146,
+      "cache_read_tokens": 4212,
+      "cache_write_tokens": 0,
+      "total_input_tokens": 4700,
+      "llm_calls": 1,
+      "actual_cost_usd": 0.0049176,
+      "raw_cost_usd": 0.01629,
+      "output": {
+        "liability_increase": [],
+        "equity_increase": [],
+        "revenue_increase": [],
+        "asset_decrease": [
+          {
+            "reason": "Cash paid by cheque for 12 months of office rent",
+            "category": "Cash and cash equivalents",
+            "count": 1
+          }
+        ],
+        "expense_decrease": [],
+        "tuple": [
+          0,
+          0,
+          0,
+          1,
+          0
+        ]
+      },
+      "reason": null
+    },
+    "unknown": {
+      "input_tokens": 547,
+      "output_tokens": 578,
+      "cache_read_tokens": 4550,
+      "cache_write_tokens": 0,
+      "total_input_tokens": 5097,
+      "llm_calls": 1,
+      "actual_cost_usd": 0.011676,
+      "raw_cost_usd": 0.023961,
+      "output": null,
+      "reason": null
+    }
+  },
+  "pre_fix_debit_tuple": null,
+  "post_fix_debit_tuple": null,
+  "pre_fix_credit_tuple": null,
+  "post_fix_credit_tuple": null,
+  "fix_root_cause_agent": null,
+  "rejection_reason": null,
+  "diagnostician_decision": null,
+  "validation_error": null,
+  "decision_correct": true,
+  "entry_match": false,
+  "clarification_correct": null,
+  "clarification_questions": [
+    "Does the company elect the IFRS 16 short-term lease exemption to expense this rent immediately, or should it be recorded as a prepaid asset?"
+  ],
+  "ambiguous": true,
+  "tier": "hard",
+  "error": null,
+  "pipeline_state": {
+    "iteration": 0,
+    "output_ambiguity_detector": [
+      {
+        "ambiguities": [
+          {
+            "aspect": "Prepaid asset vs immediate expense (short-term lease exemption)",
+            "input_contextualized_conventional_default": "'prepaid' or 'advance' would resolve as asset, but text says 'paid... representing 12 months' which describes the coverage period, not explicitly prepaid treatment.",
+            "input_contextualized_ifrs_default": null,
+            "clarification_question": "Does the company elect the IFRS 16 short-term lease exemption to expense this rent, or should it be recorded as a prepaid asset?",
+            "cases": [
+              {
+                "case": "Company elects short-term lease exemption and expenses rent immediately",
+                "possible_entry": {
+                  "reason": "Under IFRS 16.5 short-term lease exemption, the full $24,000 is recognized as rent expense immediately.",
+                  "lines": [
+                    {
+                      "type": "debit",
+                      "account_name": "Rent Expense",
+                      "amount": 24000.0
+                    },
+                    {
+                      "type": "credit",
+                      "account_name": "Cash",
+                      "amount": 24000.0
+                    }
+                  ]
+                }
+              },
+              {
+                "case": "Company records as prepaid asset to be amortized over 12 months",
+                "possible_entry": {
+                  "reason": "Payment covers future periods, so $24,000 is recorded as prepaid rent asset to be expensed monthly.",
+                  "lines": [
+                    {
+                      "type": "debit",
+                      "account_name": "Prepaid Rent",
+                      "amount": 24000.0
+                    },
+                    {
+                      "type": "credit",
+                      "account_name": "Cash",
+                      "amount": 24000.0
+                    }
+                  ]
+                }
+              }
+            ],
+            "ambiguous": true
+          }
+        ]
+      }
+    ],
+    "output_complexity_detector": [
+      {
+        "flags": [
+          {
+            "aspect": "Standard rent payment transaction",
+            "best_attempt": null,
+            "gap": null,
+            "beyond_llm_capability": false
+          }
+        ]
+      }
+    ],
+    "output_tax_specialist": [
+      {
+        "reasoning": "Rent is a taxable supply, but the transaction text does not mention any tax component in the $24,000 payment",
+        "tax_mentioned": false,
+        "taxable": true,
+        "tax_context": null,
+        "tax_rate": null,
+        "add_tax_lines": false,
+        "treatment": "not_applicable"
+      }
+    ],
+    "output_decision_maker": [
+      {
+        "ambiguities": [
+          {
+            "aspect": "Prepaid asset vs immediate expense (short-term lease exemption)",
+            "input_contextualized_conventional_default": "'prepaid' or 'advance' would resolve as asset, but text says 'paid... representing 12 months' which describes the coverage period, not explicitly prepaid treatment.",
+            "input_contextualized_ifrs_default": null,
+            "clarification_question": "Does the company elect the IFRS 16 short-term lease exemption to expense this rent, or should it be recorded as a prepaid asset?",
+            "cases": [
+              {
+                "case": "Company elects short-term lease exemption and expenses rent immediately",
+                "possible_entry": {
+                  "reason": "Under IFRS 16.5 short-term lease exemption, the full $24,000 is recognized as rent expense immediately.",
+                  "lines": [
+                    {
+                      "type": "debit",
+                      "account_name": "Rent Expense",
+                      "amount": 24000.0
+                    },
+                    {
+                      "type": "credit",
+                      "account_name": "Cash",
+                      "amount": 24000.0
+                    }
+                  ]
+                }
+              },
+              {
+                "case": "Company records as prepaid asset to be amortized over 12 months",
+                "possible_entry": {
+                  "reason": "Payment covers future periods, so $24,000 is recorded as prepaid rent asset to be expensed monthly.",
+                  "lines": [
+                    {
+                      "type": "debit",
+                      "account_name": "Prepaid Rent",
+                      "amount": 24000.0
+                    },
+                    {
+                      "type": "credit",
+                      "account_name": "Cash",
+                      "amount": 24000.0
+                    }
+                  ]
+                }
+              }
+            ],
+            "ambiguous": true
+          }
+        ],
+        "complexity_flags": [
+          {
+            "aspect": "Standard rent payment transaction",
+            "best_attempt": null,
+            "gap": null,
+            "beyond_llm_capability": false
+          }
+        ],
+        "proceed_reason": null,
+        "clarification_questions": [
+          "Does the company elect the IFRS 16 short-term lease exemption to expense this rent immediately, or should it be recorded as a prepaid asset?"
+        ],
+        "stuck_reason": null,
+        "overall_final_rationale": "A 12-month rent payment is explicitly flagged as ambiguous under IFRS 16.5 short-term lease exemption, requiring clarification on entity policy for prepaid vs immediate expense treatment.",
+        "decision": "MISSING_INFO"
+      }
+    ],
+    "output_entry_drafter": [],
+    "output_disambiguator": [
+      {
+        "ambiguities": [
+          {
+            "aspect": "Prepaid asset vs immediate expense (short-term lease exemption)",
+            "input_contextualized_conventional_default": "'prepaid' or 'advance' would resolve as asset, but text says 'paid... representing 12 months' which describes the coverage period, not explicitly prepaid treatment.",
+            "input_contextualized_ifrs_default": null,
+            "clarification_question": "Does the company elect the IFRS 16 short-term lease exemption to expense this rent, or should it be recorded as a prepaid asset?",
+            "cases": [
+              {
+                "case": "Company elects short-term lease exemption and expenses rent immediately",
+                "possible_entry": {
+                  "reason": "Under IFRS 16.5 short-term lease exemption, the full $24,000 is recognized as rent expense immediately.",
+                  "lines": [
+                    {
+                      "type": "debit",
+                      "account_name": "Rent Expense",
+                      "amount": 24000.0
+                    },
+                    {
+                      "type": "credit",
+                      "account_name": "Cash",
+                      "amount": 24000.0
+                    }
+                  ]
+                }
+              },
+              {
+                "case": "Company records as prepaid asset to be amortized over 12 months",
+                "possible_entry": {
+                  "reason": "Payment covers future periods, so $24,000 is recorded as prepaid rent asset to be expensed monthly.",
+                  "lines": [
+                    {
+                      "type": "debit",
+                      "account_name": "Prepaid Rent",
+                      "amount": 24000.0
+                    },
+                    {
+                      "type": "credit",
+                      "account_name": "Cash",
+                      "amount": 24000.0
+                    }
+                  ]
+                }
+              }
+            ],
+            "ambiguous": true
+          }
+        ]
+      }
+    ],
+    "output_debit_classifier": [
+      {
+        "asset_increase": [
+          {
+            "reason": "Prepaid rent for 12 months paid in advance",
+            "category": "Prepaid expenses",
+            "count": 1
+          }
+        ],
+        "expense_increase": [],
+        "liability_decrease": [],
+        "equity_decrease": [],
+        "revenue_decrease": [],
+        "tuple": [
+          1,
+          0,
+          0,
+          0,
+          0
+        ]
+      }
+    ],
+    "output_credit_classifier": [
+      {
+        "liability_increase": [],
+        "equity_increase": [],
+        "revenue_increase": [],
+        "asset_decrease": [
+          {
+            "reason": "Cash paid by cheque for 12 months of office rent",
+            "category": "Cash and cash equivalents",
+            "count": 1
+          }
+        ],
+        "expense_decrease": [],
+        "tuple": [
+          0,
+          0,
+          0,
+          1,
+          0
+        ]
+      }
+    ],
+    "output_debit_corrector": [],
+    "output_credit_corrector": [],
+    "output_entry_builder": [],
+    "output_approver": [],
+    "output_diagnostician": [],
+    "status_ambiguity_detector": 1,
+    "status_complexity_detector": 1,
+    "status_tax_specialist": 1,
+    "status_decision_maker": 1,
+    "status_entry_drafter": 0,
+    "status_disambiguator": 1,
+    "status_debit_classifier": 1,
+    "status_credit_classifier": 1,
+    "status_debit_corrector": 0,
+    "status_credit_corrector": 0,
+    "status_entry_builder": 0,
+    "status_approver": 0,
+    "status_diagnostician": 0,
+    "fix_context_disambiguator": [],
+    "fix_context_debit_classifier": [],
+    "fix_context_credit_classifier": [],
+    "fix_context_debit_corrector": [],
+    "fix_context_credit_corrector": [],
+    "fix_context_entry_builder": [],
+    "fix_context_approver": [],
+    "fix_context_diagnostician": [],
+    "decision": "INCOMPLETE_INFORMATION",
+    "validation_error": null,
+    "llm_calls": [
+      {
+        "node": "tax_specialist",
+        "stop_reason": "tool_use",
+        "input_tokens": 530,
+        "output_tokens": 135,
+        "input_token_details": {
+          "cache_read": 3455,
+          "cache_creation": 0
+        }
+      },
+      {
+        "node": "debit_classifier",
+        "stop_reason": "tool_use",
+        "input_tokens": 491,
+        "output_tokens": 144,
+        "input_token_details": {
+          "cache_read": 4291,
+          "cache_creation": 0
+        }
+      },
+      {
+        "node": "credit_classifier",
+        "stop_reason": "tool_use",
+        "input_tokens": 488,
+        "output_tokens": 146,
+        "input_token_details": {
+          "cache_read": 4212,
+          "cache_creation": 0
+        }
+      },
+      {
+        "node": "unknown",
+        "stop_reason": "tool_use",
+        "input_tokens": 547,
+        "output_tokens": 578,
+        "input_token_details": {
+          "cache_read": 4550,
+          "cache_creation": 0
+        }
+      }
+    ],
+    "stop_reasons": {
+      "tax_specialist": "tool_use",
+      "debit_classifier": "tool_use",
+      "credit_classifier": "tool_use",
+      "unknown": "tool_use"
+    }
+  }
+}

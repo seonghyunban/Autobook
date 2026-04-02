@@ -1,0 +1,425 @@
+{
+  "test_case_id": "basic_10_declare_dividend",
+  "variant_name": "baseline_v4_dualtrack",
+  "model": "sonnet",
+  "debit_tuple_exact_match": true,
+  "credit_tuple_exact_match": true,
+  "debit_tuple_slot_accuracy": 0.8333333333333334,
+  "credit_tuple_slot_accuracy": 0.8333333333333334,
+  "entry_valid": true,
+  "debit_tuple": [
+    0,
+    0,
+    0,
+    1,
+    0
+  ],
+  "credit_tuple": [
+    1,
+    0,
+    0,
+    0,
+    0
+  ],
+  "journal_entry": {
+    "reason": "Board declared cash dividend reducing retained earnings and creating liability to shareholders",
+    "lines": [
+      {
+        "type": "debit",
+        "account_name": "Retained earnings",
+        "amount": 500000.0
+      },
+      {
+        "type": "credit",
+        "account_name": "Dividends payable",
+        "amount": 500000.0
+      }
+    ]
+  },
+  "actual_cost_usd": 0.0321606,
+  "raw_cost_usd": 0.094428,
+  "total_latency_ms": 12801,
+  "total_input_tokens": 26836,
+  "total_output_tokens": 928,
+  "total_llm_calls": 6,
+  "iteration_count": 1,
+  "final_decision": "APPROVED",
+  "fix_attempted": null,
+  "fix_succeeded": null,
+  "agent_metrics": {
+    "credit_classifier": {
+      "input_tokens": 481,
+      "output_tokens": 141,
+      "cache_read_tokens": 4203,
+      "cache_write_tokens": 0,
+      "total_input_tokens": 4684,
+      "llm_calls": 1,
+      "actual_cost_usd": 0.004818899999999999,
+      "raw_cost_usd": 0.016167,
+      "output": {
+        "liability_increase": [
+          {
+            "reason": "Dividend declared and payable to shareholders",
+            "category": "Dividends payable",
+            "count": 1
+          }
+        ],
+        "equity_increase": [],
+        "revenue_increase": [],
+        "asset_decrease": [],
+        "expense_decrease": [],
+        "tuple": [
+          1,
+          0,
+          0,
+          0,
+          0
+        ]
+      },
+      "reason": null
+    },
+    "tax_specialist": {
+      "input_tokens": 506,
+      "output_tokens": 133,
+      "cache_read_tokens": 3277,
+      "cache_write_tokens": 0,
+      "total_input_tokens": 3783,
+      "llm_calls": 1,
+      "actual_cost_usd": 0.0044961,
+      "raw_cost_usd": 0.013344,
+      "output": {
+        "reasoning": "Dividend declaration is an equity transaction, not a taxable supply of goods or services. No tax mentioned in the text.",
+        "tax_mentioned": false,
+        "taxable": false,
+        "add_tax_lines": false,
+        "tax_rate": null,
+        "tax_amount": null,
+        "treatment": "not_applicable"
+      },
+      "reason": null
+    },
+    "debit_classifier": {
+      "input_tokens": 484,
+      "output_tokens": 138,
+      "cache_read_tokens": 4282,
+      "cache_write_tokens": 0,
+      "total_input_tokens": 4766,
+      "llm_calls": 1,
+      "actual_cost_usd": 0.0048066,
+      "raw_cost_usd": 0.016368,
+      "output": {
+        "asset_increase": [],
+        "expense_increase": [],
+        "liability_decrease": [],
+        "equity_decrease": [
+          {
+            "reason": "Board declared cash dividend reducing retained earnings",
+            "category": "Retained earnings",
+            "count": 1
+          }
+        ],
+        "revenue_decrease": [],
+        "tuple": [
+          0,
+          0,
+          0,
+          1,
+          0
+        ]
+      },
+      "reason": null
+    },
+    "unknown": {
+      "input_tokens": 540,
+      "output_tokens": 326,
+      "cache_read_tokens": 4550,
+      "cache_write_tokens": 0,
+      "total_input_tokens": 5090,
+      "llm_calls": 1,
+      "actual_cost_usd": 0.007875,
+      "raw_cost_usd": 0.02016,
+      "output": null,
+      "reason": null
+    },
+    "entry_drafter": {
+      "input_tokens": 1763,
+      "output_tokens": 190,
+      "cache_read_tokens": 6750,
+      "cache_write_tokens": 0,
+      "total_input_tokens": 8513,
+      "llm_calls": 2,
+      "actual_cost_usd": 0.010164,
+      "raw_cost_usd": 0.028388999999999998,
+      "output": {
+        "reason": "Board declared cash dividend reducing retained earnings and creating liability to shareholders",
+        "lines": [
+          {
+            "type": "debit",
+            "account_name": "Retained earnings",
+            "amount": 500000.0
+          },
+          {
+            "type": "credit",
+            "account_name": "Dividends payable",
+            "amount": 500000.0
+          }
+        ]
+      },
+      "reason": "Board declared cash dividend reducing retained earnings and creating liability to shareholders"
+    }
+  },
+  "pre_fix_debit_tuple": null,
+  "post_fix_debit_tuple": null,
+  "pre_fix_credit_tuple": null,
+  "post_fix_credit_tuple": null,
+  "fix_root_cause_agent": null,
+  "rejection_reason": null,
+  "diagnostician_decision": null,
+  "validation_error": null,
+  "decision_correct": true,
+  "entry_match": null,
+  "clarification_correct": null,
+  "clarification_questions": null,
+  "ambiguous": false,
+  "tier": "basic",
+  "error": null,
+  "pipeline_state": {
+    "iteration": 0,
+    "output_ambiguity_detector": [
+      {
+        "ambiguities": [
+          {
+            "aspect": "Dividend declaration vs distribution",
+            "input_contextualized_conventional_default": "'declared' = equity decrease (Retained Earnings) + liability increase (Dividends Payable) \u2014 not yet paid",
+            "input_contextualized_ifrs_default": null,
+            "clarification_question": null,
+            "cases": null,
+            "ambiguous": false
+          }
+        ]
+      }
+    ],
+    "output_complexity_detector": [
+      {
+        "flags": [
+          {
+            "aspect": "Standard dividend declaration entry",
+            "best_attempt": null,
+            "gap": null,
+            "beyond_llm_capability": false
+          }
+        ]
+      }
+    ],
+    "output_tax_specialist": [
+      {
+        "reasoning": "Dividend declaration is an equity transaction, not a taxable supply of goods or services. No tax mentioned in the text.",
+        "tax_mentioned": false,
+        "taxable": false,
+        "add_tax_lines": false,
+        "tax_rate": null,
+        "tax_amount": null,
+        "treatment": "not_applicable"
+      }
+    ],
+    "output_decision_maker": [
+      {
+        "ambiguities": [
+          {
+            "aspect": "Dividend declaration vs distribution",
+            "input_contextualized_conventional_default": "'declared' = equity decrease (Retained Earnings) + liability increase (Dividends Payable) \u2014 not yet paid",
+            "input_contextualized_ifrs_default": null,
+            "clarification_question": null,
+            "cases": null,
+            "ambiguous": false
+          }
+        ],
+        "complexity_flags": [
+          {
+            "aspect": "Standard dividend declaration entry",
+            "best_attempt": null,
+            "gap": null,
+            "beyond_llm_capability": false
+          }
+        ],
+        "proceed_reason": "Convention 'declared' resolves as Retained Earnings decrease and Dividends Payable increase at stated amount of $500,000.",
+        "clarification_questions": null,
+        "stuck_reason": null,
+        "overall_final_rationale": "\"Declared\" resolves definitively to equity decrease and liability creation at the stated $500,000 amount, with no ambiguity or capability gap.",
+        "decision": "PROCEED"
+      }
+    ],
+    "output_entry_drafter": [
+      {
+        "reason": "Board declared cash dividend reducing retained earnings and creating liability to shareholders",
+        "lines": [
+          {
+            "type": "debit",
+            "account_name": "Retained earnings",
+            "amount": 500000.0
+          },
+          {
+            "type": "credit",
+            "account_name": "Dividends payable",
+            "amount": 500000.0
+          }
+        ]
+      }
+    ],
+    "output_disambiguator": [
+      {
+        "ambiguities": [
+          {
+            "aspect": "Dividend declaration vs distribution",
+            "input_contextualized_conventional_default": "'declared' = equity decrease (Retained Earnings) + liability increase (Dividends Payable) \u2014 not yet paid",
+            "input_contextualized_ifrs_default": null,
+            "clarification_question": null,
+            "cases": null,
+            "ambiguous": false
+          }
+        ]
+      }
+    ],
+    "output_debit_classifier": [
+      {
+        "asset_increase": [],
+        "expense_increase": [],
+        "liability_decrease": [],
+        "equity_decrease": [
+          {
+            "reason": "Board declared cash dividend reducing retained earnings",
+            "category": "Retained earnings",
+            "count": 1
+          }
+        ],
+        "revenue_decrease": [],
+        "tuple": [
+          0,
+          0,
+          0,
+          1,
+          0
+        ]
+      }
+    ],
+    "output_credit_classifier": [
+      {
+        "liability_increase": [
+          {
+            "reason": "Dividend declared and payable to shareholders",
+            "category": "Dividends payable",
+            "count": 1
+          }
+        ],
+        "equity_increase": [],
+        "revenue_increase": [],
+        "asset_decrease": [],
+        "expense_decrease": [],
+        "tuple": [
+          1,
+          0,
+          0,
+          0,
+          0
+        ]
+      }
+    ],
+    "output_debit_corrector": [],
+    "output_credit_corrector": [],
+    "output_entry_builder": [],
+    "output_approver": [],
+    "output_diagnostician": [],
+    "status_ambiguity_detector": 1,
+    "status_complexity_detector": 1,
+    "status_tax_specialist": 1,
+    "status_decision_maker": 1,
+    "status_entry_drafter": 1,
+    "status_disambiguator": 1,
+    "status_debit_classifier": 1,
+    "status_credit_classifier": 1,
+    "status_debit_corrector": 0,
+    "status_credit_corrector": 0,
+    "status_entry_builder": 0,
+    "status_approver": 0,
+    "status_diagnostician": 0,
+    "fix_context_disambiguator": [],
+    "fix_context_debit_classifier": [],
+    "fix_context_credit_classifier": [],
+    "fix_context_debit_corrector": [],
+    "fix_context_credit_corrector": [],
+    "fix_context_entry_builder": [],
+    "fix_context_approver": [],
+    "fix_context_diagnostician": [],
+    "decision": "APPROVED",
+    "validation_error": null,
+    "llm_calls": [
+      {
+        "node": "credit_classifier",
+        "stop_reason": "tool_use",
+        "input_tokens": 481,
+        "output_tokens": 141,
+        "input_token_details": {
+          "cache_read": 4203,
+          "cache_creation": 0
+        }
+      },
+      {
+        "node": "tax_specialist",
+        "stop_reason": "tool_use",
+        "input_tokens": 506,
+        "output_tokens": 133,
+        "input_token_details": {
+          "cache_read": 3277,
+          "cache_creation": 0
+        }
+      },
+      {
+        "node": "debit_classifier",
+        "stop_reason": "tool_use",
+        "input_tokens": 484,
+        "output_tokens": 138,
+        "input_token_details": {
+          "cache_read": 4282,
+          "cache_creation": 0
+        }
+      },
+      {
+        "node": "unknown",
+        "stop_reason": "tool_use",
+        "input_tokens": 540,
+        "output_tokens": 326,
+        "input_token_details": {
+          "cache_read": 4550,
+          "cache_creation": 0
+        }
+      },
+      {
+        "node": "entry_drafter",
+        "stop_reason": "tool_use",
+        "input_tokens": 816,
+        "output_tokens": 52,
+        "input_token_details": {
+          "cache_read": 3405,
+          "cache_creation": 0
+        }
+      },
+      {
+        "node": "entry_drafter",
+        "stop_reason": "tool_use",
+        "input_tokens": 947,
+        "output_tokens": 138,
+        "input_token_details": {
+          "cache_read": 3345,
+          "cache_creation": 0
+        }
+      }
+    ],
+    "stop_reasons": {
+      "credit_classifier": "tool_use",
+      "tax_specialist": "tool_use",
+      "debit_classifier": "tool_use",
+      "unknown": "tool_use",
+      "entry_drafter": "tool_use"
+    }
+  }
+}

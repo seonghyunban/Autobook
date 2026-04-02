@@ -1,0 +1,294 @@
+{
+  "evaluator": "claude",
+  "evaluated_at": "2026-03-31T22:07:24.540922",
+  "prompt_version": "v4",
+  "source_files": [
+    "eval_entry_basic.json",
+    "eval_entry_int_batch1.json",
+    "eval_entry_int_batch2.json",
+    "eval_entry_int_batch3.json",
+    "eval_entry_int_batch4.json"
+  ],
+  "results": {
+    "basic_01_inventory_cash": {
+      "match": true,
+      "tax_relaxed_match": true,
+      "reason": "Dr Inventories -- merchandise $100 / Cr Cash and cash equivalents $100 is semantically equivalent to expected Dr Inventories $100 / Cr Cash $100 with exact amounts."
+    },
+    "basic_02_inventory_on_account": {
+      "match": true,
+      "tax_relaxed_match": true,
+      "reason": "Dr Inventories -- merchandise $300 / Cr Trade payables $300 matches expected accounts and amounts exactly."
+    },
+    "basic_03_issue_stock_with_apic": {
+      "match": true,
+      "tax_relaxed_match": true,
+      "reason": "Dr Cash $180 / Cr Issued capital $100 / Cr Share premium $80 is semantically equivalent to expected Dr Cash $180 / Cr Share capital--Common $100 / Cr APIC $80."
+    },
+    "basic_04_sell_inventory": {
+      "match": true,
+      "tax_relaxed_match": true,
+      "reason": "Dr Cash $500 / Dr Cost of sales $300 / Cr Revenue from sale of goods $500 / Cr Inventories $300 matches all four expected lines with semantically equivalent account names and exact amounts."
+    },
+    "basic_05_pay_accounts_payable": {
+      "match": true,
+      "tax_relaxed_match": true,
+      "reason": "Dr Trade payables $50 / Cr Cash and cash equivalents $50 matches expected Dr Trade payables $50 / Cr Cash $50 exactly."
+    },
+    "basic_06_refinance_loan": {
+      "match": true,
+      "tax_relaxed_match": true,
+      "reason": "Dr Long-term borrowings $100 / Cr Long-term borrowings $100 is semantically equivalent to expected Dr Notes payable $100 / Cr Notes payable $100 as both represent the same loan liability."
+    },
+    "basic_07_loan_to_equity": {
+      "match": true,
+      "tax_relaxed_match": true,
+      "reason": "Dr Short-term borrowings $200 / Cr Issued capital $200 is semantically equivalent to expected Dr Notes payable $200 / Cr Share capital--Common $200."
+    },
+    "basic_08_deliver_service_against_deposit": {
+      "match": true,
+      "tax_relaxed_match": true,
+      "reason": "Dr Contract liabilities $100 / Cr Revenue from rendering of services $100 matches expected Dr Contract liabilities $100 / Cr Revenue $100 with exact amounts."
+    },
+    "basic_09_repurchase_stock": {
+      "match": true,
+      "tax_relaxed_match": true,
+      "reason": "Dr Treasury shares $200 / Cr Cash and cash equivalents $200 matches expected Dr Treasury shares $200 / Cr Cash $200 exactly."
+    },
+    "basic_10_declare_dividend": {
+      "match": false,
+      "tax_relaxed_match": false,
+      "reason": "Debit uses Dividends declared ($500,000) instead of expected Retained earnings ($500,000); these are distinct accounts even though Dividends declared ultimately closes to Retained earnings."
+    },
+    "basic_11_convert_preferred_to_common": {
+      "match": true,
+      "tax_relaxed_match": true,
+      "reason": "Dr Issued capital -- preferred shares $100 / Cr Issued capital -- common shares $100 is semantically equivalent to expected Dr Share capital--Preferred $100 / Cr Share capital--Common $100."
+    },
+    "basic_12_pay_salaries": {
+      "match": true,
+      "tax_relaxed_match": true,
+      "reason": "Dr Employee benefits expense $100 / Cr Cash and cash equivalents $100 is semantically equivalent to expected Dr Salaries expense $100 / Cr Cash $100."
+    },
+    "basic_13_accrue_utility": {
+      "match": true,
+      "tax_relaxed_match": true,
+      "reason": "Dr Utilities expense $50 / Cr Accrued liabilities $50 matches expected accounts and amounts exactly."
+    },
+    "basic_14_casualty_loss": {
+      "match": true,
+      "tax_relaxed_match": true,
+      "reason": "Dr Casualty loss $2,000 / Cr Inventories -- merchandise $2,000 matches expected Dr Casualty loss $2,000 / Cr Inventories $2,000 exactly."
+    },
+    "basic_15_no_entry": {
+      "match": true,
+      "tax_relaxed_match": true,
+      "reason": "Output has empty lines array (no journal entry), matching expected null entry for a non-financial event."
+    },
+    "int_03_machinery_purchase": {
+      "match": true,
+      "tax_relaxed_match": true,
+      "reason": "All 3 lines match: Machinery/PP&E Machinery semantically equivalent, amounts exact ($800k/$700k/$100k), Cash and cash equivalents = Cash."
+    },
+    "int_04_major_overhaul": {
+      "match": true,
+      "tax_relaxed_match": true,
+      "reason": "All 2 lines match: Machinery = PP&E Machinery semantically, amounts exact ($200k/$200k), Cash and cash equivalents = Cash."
+    },
+    "int_05_bond_issuance_discount": {
+      "match": true,
+      "tax_relaxed_match": true,
+      "reason": "All 3 lines match: Cash $2,657,516.24 vs expected $2,657,510 and Discount $342,483.76 vs expected $342,490 are within minor PV rounding tolerance ($6.24); Long-term borrowings = Bonds payable semantically."
+    },
+    "int_06_warranty_provision": {
+      "match": true,
+      "tax_relaxed_match": true,
+      "reason": "All 2 lines match: Warranty expense $900,000 exact, Warranty provisions = Provision for warranties semantically."
+    },
+    "int_07_decommissioning_provision": {
+      "match": true,
+      "tax_relaxed_match": true,
+      "reason": "All 3 lines match: Machinery is a reasonable PP&E sub-account for marine structures, amounts exact ($5,950k/$4,000k/$1,950k), Decommissioning provisions = Decommissioning provision."
+    },
+    "int_08_share_repurchase_cancel": {
+      "match": true,
+      "tax_relaxed_match": true,
+      "reason": "All 3 lines match: Issued capital = Share capital semantically, Retained earnings exact, amounts exact ($50k/$10k/$60k), Cash and cash equivalents = Cash."
+    },
+    "int_09_merchandise_with_costs": {
+      "match": true,
+      "tax_relaxed_match": true,
+      "reason": "All 5 lines match: Inventories - merchandise = Inventories, Transportation expense = Distribution costs (both outbound delivery), Warehousing expense exact, amounts exact ($1,150k/$20k/$50k/$1,000k/$220k)."
+    },
+    "int_10_prepayment": {
+      "match": true,
+      "tax_relaxed_match": true,
+      "reason": "All 2 lines match: Prepaid expenses = Prepayments semantically, amounts exact ($1,000k/$1,000k), Cash and cash equivalents = Cash."
+    },
+    "int_11_land_instalment_discount": {
+      "match": true,
+      "tax_relaxed_match": true,
+      "reason": "All 3 lines match: Land $49,173,243 vs expected $49,173,000 and Discount $10,826,757 vs expected $10,827,000 are within minor PV rounding tolerance ($243); Discount on long-term borrowings = Discount on long-term payables, Long-term borrowings = Long-term payables semantically."
+    },
+    "int_12_site_improvements": {
+      "match": false,
+      "tax_relaxed_match": false,
+      "reason": "Debit side correct (Site improvements $1,750k and Land $2,360k), but credit side has 1 combined Cash line of $4,110k instead of expected 2 separate lines (Cr Cash $1,750k / Cr Cash-chequing $2,360k); line count mismatch (3 vs 4)."
+    },
+    "int_13_donation_note": {
+      "match": true,
+      "tax_relaxed_match": true,
+      "reason": "Exact match: Dr Donations expense $1,000,000 / Cr Notes payable $1,000,000 matches expected entry on all accounts and amounts."
+    },
+    "int_14_vehicle_mixed_payment": {
+      "match": true,
+      "tax_relaxed_match": true,
+      "reason": "All amounts match; 'Motor vehicles' is semantically equivalent to 'PP&E Vehicles', 'Cash and cash equivalents' to 'Cash', and 'Short-term borrowings' to 'Notes payable' (promissory note liability)."
+    },
+    "int_15_bank_loan": {
+      "match": true,
+      "tax_relaxed_match": true,
+      "reason": "All amounts match; 'Cash and cash equivalents' is semantically equivalent to 'Cash' and 'Long-term borrowings' matches exactly."
+    },
+    "int_17_customer_deposit": {
+      "match": true,
+      "tax_relaxed_match": true,
+      "reason": "All amounts match; 'Cash and cash equivalents' is semantically equivalent to 'Cash--chequing' and 'Contract liabilities' matches exactly."
+    },
+    "int_18_multiple_assets": {
+      "match": true,
+      "tax_relaxed_match": true,
+      "reason": "All four lines match; 'Office equipment' and 'Motor vehicles' are semantically equivalent to 'PP&E Office equipment' and 'PP&E Vehicles'; amounts and credit accounts are correct."
+    },
+    "int_19_service_revenue_cash": {
+      "match": true,
+      "tax_relaxed_match": true,
+      "reason": "All amounts match; 'Cash and cash equivalents' is semantically equivalent to 'Cash' and 'Revenue from rendering of services' to 'Revenue--Service revenue'."
+    },
+    "int_20_service_revenue_credit": {
+      "match": true,
+      "tax_relaxed_match": true,
+      "reason": "All amounts match; 'Trade receivables' matches exactly and 'Revenue from rendering of services' is semantically equivalent to 'Revenue--Service revenue'."
+    },
+    "int_21_rd_expense": {
+      "match": true,
+      "tax_relaxed_match": true,
+      "reason": "All amounts match; 'Research and development expense' is semantically equivalent to 'R&D expense' and 'Cash and cash equivalents' to 'Cash--chequing'."
+    },
+    "int_22_compound_sale_with_tax": {
+      "match": true,
+      "tax_relaxed_match": true,
+      "reason": "All six lines match with correct amounts; 'Cost of sales' equals 'COGS', 'Tax liabilities' equals 'Sales tax payable', 'Revenue from sale of goods' equals 'Revenue', and 'Inventories -- finished goods' equals 'Inventories'."
+    },
+    "int_23_split_electricity": {
+      "match": true,
+      "tax_relaxed_match": true,
+      "reason": "All amounts match; 'Inventories -- work in progress' is semantically equivalent to 'WIP Manufacturing overhead', 'Utilities expense' matches exactly, and 'Accrued liabilities' is semantically equivalent to 'Credit card payable' as credit card obligations are classified under accrued/other current liabilities."
+    },
+    "int_24_advertising": {
+      "match": false,
+      "tax_relaxed_match": false,
+      "reason": "No journal entry produced; pipeline returned INCOMPLETE_INFORMATION because tax rate was unknown, so no entry could be compared."
+    },
+    "int_25_building_purchase_allocation": {
+      "match": true,
+      "tax_relaxed_match": true,
+      "reason": "All 5 lines present with exact amounts; account names semantically equivalent (Tax assets ~ VAT receivable, Trade payables ~ Other payables, Cash and cash equivalents ~ Cash-chequing)."
+    },
+    "int_26a_payroll_recognition": {
+      "match": false,
+      "tax_relaxed_match": false,
+      "reason": "Actual has 5 lines vs expected 4; withholdings split into Employee benefits payable $6,300 and Tax liabilities $1,450 instead of single Statutory withholdings payable $7,750, violating same-number-of-lines rule."
+    },
+    "int_26b_payroll_remittance": {
+      "match": false,
+      "tax_relaxed_match": false,
+      "reason": "Amounts differ: actual Dr Employee benefits payable $7,850 and Cr Cash $14,150 vs expected $7,750 and $14,050 respectively, a $100 overstatement on both sides."
+    },
+    "int_28_promotional_literature": {
+      "match": true,
+      "tax_relaxed_match": true,
+      "reason": "Exact match on 2 lines; Advertising expense $7,000 and Cash and cash equivalents $7,000 are semantically equivalent to expected accounts and amounts."
+    },
+    "int_29_security_deposit_received": {
+      "match": false,
+      "tax_relaxed_match": false,
+      "reason": "No journal entry produced; pipeline returned INCOMPLETE_INFORMATION asking whether first month's rent was also collected at signing."
+    },
+    "int_30_short_term_loan_advance": {
+      "match": true,
+      "tax_relaxed_match": true,
+      "reason": "Exact match on 2 lines; Short-term loans receivable $2,000,000 and Cash and cash equivalents $2,000,000 are semantically equivalent to expected accounts and amounts."
+    },
+    "int_31_vehicle_nonrecoverable_tax": {
+      "match": true,
+      "tax_relaxed_match": true,
+      "reason": "Exact match on 2 lines with correct amounts; Motor vehicles ~ PP&E Vehicles and Trade payables ~ Other payables are semantically equivalent."
+    },
+    "int_hard_01a_note_derecognition": {
+      "match": false,
+      "tax_relaxed_match": false,
+      "reason": "Amounts within rounding tolerance but account names differ: Interest expense used instead of Loss on derecognition, and Short-term loans receivable used instead of Trade receivables."
+    },
+    "int_hard_01b_note_collateralized": {
+      "match": true,
+      "tax_relaxed_match": true,
+      "reason": "All 3 lines match with amounts within minor rounding tolerance ($98,356.16 vs $98,356 and $1,643.84 vs $1,644); Cash and cash equivalents ~ Cash, Interest expense and Short-term borrowings match exactly."
+    },
+    "int_hard_02a_investment_fvtpl": {
+      "match": true,
+      "tax_relaxed_match": true,
+      "reason": "All three lines semantically match: 'Investments \u2014 FVTPL' equals 'Financial assets at FVTPL', 'Professional fees expense' is semantically equivalent to 'Investment transaction costs' (both represent the expensed transaction fee), and 'Cash and cash equivalents' equals 'Cash'; amounts $3,000,000 / $100,000 / $3,100,000 are exact."
+    },
+    "int_hard_02b_investment_fvoci": {
+      "match": true,
+      "tax_relaxed_match": true,
+      "reason": "Two lines semantically match: 'Investments \u2014 FVOCI' equals 'Financial assets at FVOCI' and 'Cash and cash equivalents' equals 'Cash'; amounts $3,100,000 / $3,100,000 are exact."
+    },
+    "int_hard_02c_investment_equity_method": {
+      "match": true,
+      "tax_relaxed_match": true,
+      "reason": "Two lines semantically match: 'Investments \u2014 equity method' equals 'Investment in associate' and 'Cash and cash equivalents' equals 'Cash'; amounts $3,100,000 / $3,100,000 are exact."
+    },
+    "int_hard_27a_meal_overtime": {
+      "match": true,
+      "tax_relaxed_match": true,
+      "reason": "Exact match on both account names ('Employee benefits expense' and 'Credit card payable') and amount ($125)."
+    },
+    "int_hard_27b_meal_meeting": {
+      "match": true,
+      "tax_relaxed_match": true,
+      "reason": "Exact match on both account names ('Meeting expense' and 'Credit card payable') and amount ($125)."
+    },
+    "int_hard_27c_meal_entertainment": {
+      "match": true,
+      "tax_relaxed_match": true,
+      "reason": "Exact match on both account names ('Entertainment expense' and 'Credit card payable') and amount ($125)."
+    },
+    "int_hard_27d_meal_factory": {
+      "match": true,
+      "tax_relaxed_match": true,
+      "reason": "Semantically equivalent: 'Inventories \u2014 work in progress' matches 'WIP Manufacturing overhead' (both capitalize the meal cost into inventory as manufacturing overhead); credit 'Credit card payable' exact match; amount $125 exact."
+    },
+    "int_hard_32a_grocery_entertainment": {
+      "match": false,
+      "tax_relaxed_match": true,
+      "reason": "Actual entry splits out $120 recoverable tax as a separate Dr Tax assets line, recording expense at $1,200 net (3 lines vs expected 2 lines at $1,320 gross); the only difference is the tax breakout which is a valid realistic treatment."
+    },
+    "int_hard_32b_grocery_breakroom": {
+      "match": false,
+      "tax_relaxed_match": true,
+      "reason": "Actual entry splits out $120 recoverable tax as a separate Dr Tax assets line and records expense at $1,200 net (3 lines vs expected 2 lines at $1,320 gross); credit 'Accrued liabilities' is semantically equivalent to 'Credit card payable'; the only material difference is the tax breakout which is a valid realistic treatment."
+    },
+    "int_hard_16a_rent_prepaid": {
+      "match": true,
+      "tax_relaxed_match": true,
+      "reason": "Semantically equivalent: 'Prepaid expenses' matches 'Prepaid rent' and 'Cash and cash equivalents' matches 'Cash\u2014chequing'; amount $24,000 exact on both lines."
+    },
+    "int_hard_16b_rent_expense": {
+      "match": true,
+      "tax_relaxed_match": true,
+      "reason": "Semantically equivalent: 'Occupancy expense' is the standard IFRS term matching 'Rent expense' and 'Cash and cash equivalents' matches 'Cash\u2014chequing'; amount $24,000 exact on both lines."
+    }
+  }
+}

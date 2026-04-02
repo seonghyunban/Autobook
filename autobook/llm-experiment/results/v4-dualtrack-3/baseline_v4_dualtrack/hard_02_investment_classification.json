@@ -1,0 +1,532 @@
+{
+  "test_case_id": "hard_02_investment_classification",
+  "variant_name": "baseline_v4_dualtrack",
+  "model": "sonnet",
+  "debit_tuple_exact_match": false,
+  "credit_tuple_exact_match": false,
+  "debit_tuple_slot_accuracy": 0.0,
+  "credit_tuple_slot_accuracy": 0.0,
+  "entry_valid": true,
+  "debit_tuple": [
+    1,
+    0,
+    0,
+    0,
+    0
+  ],
+  "credit_tuple": [
+    0,
+    0,
+    0,
+    1,
+    0
+  ],
+  "journal_entry": null,
+  "actual_cost_usd": 0.0281154,
+  "raw_cost_usd": 0.072687,
+  "total_latency_ms": 11186,
+  "total_input_tokens": 18604,
+  "total_output_tokens": 1125,
+  "total_llm_calls": 4,
+  "iteration_count": 1,
+  "final_decision": "INCOMPLETE_INFORMATION",
+  "fix_attempted": null,
+  "fix_succeeded": null,
+  "agent_metrics": {
+    "credit_classifier": {
+      "input_tokens": 498,
+      "output_tokens": 155,
+      "cache_read_tokens": 4212,
+      "cache_write_tokens": 0,
+      "total_input_tokens": 4710,
+      "llm_calls": 1,
+      "actual_cost_usd": 0.0050826000000000005,
+      "raw_cost_usd": 0.016455,
+      "output": {
+        "liability_increase": [],
+        "equity_increase": [],
+        "revenue_increase": [],
+        "asset_decrease": [
+          {
+            "reason": "Cash paid for acquisition of Ford shares and transaction fee",
+            "category": "Cash and cash equivalents",
+            "count": 1
+          }
+        ],
+        "expense_decrease": [],
+        "tuple": [
+          0,
+          0,
+          0,
+          1,
+          0
+        ]
+      },
+      "reason": null
+    },
+    "debit_classifier": {
+      "input_tokens": 501,
+      "output_tokens": 160,
+      "cache_read_tokens": 4291,
+      "cache_write_tokens": 0,
+      "total_input_tokens": 4792,
+      "llm_calls": 1,
+      "actual_cost_usd": 0.0051903,
+      "raw_cost_usd": 0.016776,
+      "output": {
+        "asset_increase": [
+          {
+            "reason": "Acquired 10% equity investment in Ford at purchase price plus transaction costs",
+            "category": "Investments \u2014 equity method",
+            "count": 1
+          }
+        ],
+        "expense_increase": [],
+        "liability_decrease": [],
+        "equity_decrease": [],
+        "revenue_decrease": [],
+        "tuple": [
+          1,
+          0,
+          0,
+          0,
+          0
+        ]
+      },
+      "reason": null
+    },
+    "tax_specialist": {
+      "input_tokens": 540,
+      "output_tokens": 142,
+      "cache_read_tokens": 3455,
+      "cache_write_tokens": 0,
+      "total_input_tokens": 3995,
+      "llm_calls": 1,
+      "actual_cost_usd": 0.0047865,
+      "raw_cost_usd": 0.014115,
+      "output": {
+        "reasoning": "Transaction involves purchase of equity investment (shares) and transaction fee. Equity investments are not taxable supplies. Transaction fees for equity investments are not subject to sales tax.",
+        "tax_mentioned": false,
+        "taxable": false,
+        "tax_context": null,
+        "tax_rate": null,
+        "add_tax_lines": false,
+        "treatment": "not_applicable"
+      },
+      "reason": null
+    },
+    "unknown": {
+      "input_tokens": 557,
+      "output_tokens": 668,
+      "cache_read_tokens": 4550,
+      "cache_write_tokens": 0,
+      "total_input_tokens": 5107,
+      "llm_calls": 1,
+      "actual_cost_usd": 0.013056,
+      "raw_cost_usd": 0.025341,
+      "output": null,
+      "reason": null
+    }
+  },
+  "pre_fix_debit_tuple": null,
+  "post_fix_debit_tuple": null,
+  "pre_fix_credit_tuple": null,
+  "post_fix_credit_tuple": null,
+  "fix_root_cause_agent": null,
+  "rejection_reason": null,
+  "diagnostician_decision": null,
+  "validation_error": null,
+  "decision_correct": true,
+  "entry_match": false,
+  "clarification_correct": null,
+  "clarification_questions": [
+    "How does BlackRock intend to classify this 10% investment in Ford - as FVTPL, FVOCI, or does it have significant influence requiring equity method?"
+  ],
+  "ambiguous": true,
+  "tier": "hard",
+  "error": null,
+  "pipeline_state": {
+    "iteration": 0,
+    "output_ambiguity_detector": [
+      {
+        "ambiguities": [
+          {
+            "aspect": "Investment classification (FVTPL, FVOCI, or equity method)",
+            "input_contextualized_conventional_default": null,
+            "input_contextualized_ifrs_default": null,
+            "clarification_question": "How does BlackRock intend to classify this 10% investment in Ford - as FVTPL, FVOCI, or does it have significant influence requiring equity method?",
+            "cases": [
+              {
+                "case": "Investment classified as FVTPL (fair value through profit or loss)",
+                "possible_entry": {
+                  "reason": "Under FVTPL, transaction costs are expensed immediately per IFRS rules",
+                  "lines": [
+                    {
+                      "type": "debit",
+                      "account_name": "Investment in Ford (FVTPL)",
+                      "amount": 3000000.0
+                    },
+                    {
+                      "type": "debit",
+                      "account_name": "Transaction Costs Expense",
+                      "amount": 100000.0
+                    },
+                    {
+                      "type": "credit",
+                      "account_name": "Cash",
+                      "amount": 3100000.0
+                    }
+                  ]
+                }
+              },
+              {
+                "case": "Investment classified as FVOCI (fair value through other comprehensive income)",
+                "possible_entry": {
+                  "reason": "Under FVOCI, transaction costs are capitalized into the investment per IFRS rules",
+                  "lines": [
+                    {
+                      "type": "debit",
+                      "account_name": "Investment in Ford (FVOCI)",
+                      "amount": 3100000.0
+                    },
+                    {
+                      "type": "credit",
+                      "account_name": "Cash",
+                      "amount": 3100000.0
+                    }
+                  ]
+                }
+              },
+              {
+                "case": "Investment accounted for using equity method (significant influence)",
+                "possible_entry": {
+                  "reason": "Under equity method, transaction costs are capitalized into the investment per IFRS rules",
+                  "lines": [
+                    {
+                      "type": "debit",
+                      "account_name": "Investment in Ford (Equity Method)",
+                      "amount": 3100000.0
+                    },
+                    {
+                      "type": "credit",
+                      "account_name": "Cash",
+                      "amount": 3100000.0
+                    }
+                  ]
+                }
+              }
+            ],
+            "ambiguous": true
+          }
+        ]
+      }
+    ],
+    "output_complexity_detector": [
+      {
+        "flags": [
+          {
+            "aspect": "Standard equity investment acquisition",
+            "best_attempt": null,
+            "gap": null,
+            "beyond_llm_capability": false
+          }
+        ]
+      }
+    ],
+    "output_tax_specialist": [
+      {
+        "reasoning": "Transaction involves purchase of equity investment (shares) and transaction fee. Equity investments are not taxable supplies. Transaction fees for equity investments are not subject to sales tax.",
+        "tax_mentioned": false,
+        "taxable": false,
+        "tax_context": null,
+        "tax_rate": null,
+        "add_tax_lines": false,
+        "treatment": "not_applicable"
+      }
+    ],
+    "output_decision_maker": [
+      {
+        "ambiguities": [
+          {
+            "aspect": "Investment classification (FVTPL, FVOCI, or equity method)",
+            "input_contextualized_conventional_default": null,
+            "input_contextualized_ifrs_default": null,
+            "clarification_question": "How does BlackRock intend to classify this 10% investment in Ford - as FVTPL, FVOCI, or does it have significant influence requiring equity method?",
+            "cases": [
+              {
+                "case": "Investment classified as FVTPL (fair value through profit or loss)",
+                "possible_entry": {
+                  "reason": "Under FVTPL, transaction costs are expensed immediately per IFRS rules",
+                  "lines": [
+                    {
+                      "type": "debit",
+                      "account_name": "Investment in Ford (FVTPL)",
+                      "amount": 3000000.0
+                    },
+                    {
+                      "type": "debit",
+                      "account_name": "Transaction Costs Expense",
+                      "amount": 100000.0
+                    },
+                    {
+                      "type": "credit",
+                      "account_name": "Cash",
+                      "amount": 3100000.0
+                    }
+                  ]
+                }
+              },
+              {
+                "case": "Investment classified as FVOCI (fair value through other comprehensive income)",
+                "possible_entry": {
+                  "reason": "Under FVOCI, transaction costs are capitalized into the investment per IFRS rules",
+                  "lines": [
+                    {
+                      "type": "debit",
+                      "account_name": "Investment in Ford (FVOCI)",
+                      "amount": 3100000.0
+                    },
+                    {
+                      "type": "credit",
+                      "account_name": "Cash",
+                      "amount": 3100000.0
+                    }
+                  ]
+                }
+              },
+              {
+                "case": "Investment accounted for using equity method (significant influence)",
+                "possible_entry": {
+                  "reason": "Under equity method, transaction costs are capitalized into the investment per IFRS rules",
+                  "lines": [
+                    {
+                      "type": "debit",
+                      "account_name": "Investment in Ford (Equity Method)",
+                      "amount": 3100000.0
+                    },
+                    {
+                      "type": "credit",
+                      "account_name": "Cash",
+                      "amount": 3100000.0
+                    }
+                  ]
+                }
+              }
+            ],
+            "ambiguous": true
+          }
+        ],
+        "complexity_flags": [
+          {
+            "aspect": "Standard equity investment acquisition",
+            "best_attempt": null,
+            "gap": null,
+            "beyond_llm_capability": false
+          }
+        ],
+        "proceed_reason": null,
+        "clarification_questions": [
+          "How does BlackRock intend to classify this 10% investment in Ford - as FVTPL, FVOCI, or does it have significant influence requiring equity method?"
+        ],
+        "stuck_reason": null,
+        "overall_final_rationale": "The treatment of the $100,000 transaction fee depends on the investment classification, which is not stated and cannot be presumed from a 10% ownership stake alone.",
+        "decision": "MISSING_INFO"
+      }
+    ],
+    "output_entry_drafter": [],
+    "output_disambiguator": [
+      {
+        "ambiguities": [
+          {
+            "aspect": "Investment classification (FVTPL, FVOCI, or equity method)",
+            "input_contextualized_conventional_default": null,
+            "input_contextualized_ifrs_default": null,
+            "clarification_question": "How does BlackRock intend to classify this 10% investment in Ford - as FVTPL, FVOCI, or does it have significant influence requiring equity method?",
+            "cases": [
+              {
+                "case": "Investment classified as FVTPL (fair value through profit or loss)",
+                "possible_entry": {
+                  "reason": "Under FVTPL, transaction costs are expensed immediately per IFRS rules",
+                  "lines": [
+                    {
+                      "type": "debit",
+                      "account_name": "Investment in Ford (FVTPL)",
+                      "amount": 3000000.0
+                    },
+                    {
+                      "type": "debit",
+                      "account_name": "Transaction Costs Expense",
+                      "amount": 100000.0
+                    },
+                    {
+                      "type": "credit",
+                      "account_name": "Cash",
+                      "amount": 3100000.0
+                    }
+                  ]
+                }
+              },
+              {
+                "case": "Investment classified as FVOCI (fair value through other comprehensive income)",
+                "possible_entry": {
+                  "reason": "Under FVOCI, transaction costs are capitalized into the investment per IFRS rules",
+                  "lines": [
+                    {
+                      "type": "debit",
+                      "account_name": "Investment in Ford (FVOCI)",
+                      "amount": 3100000.0
+                    },
+                    {
+                      "type": "credit",
+                      "account_name": "Cash",
+                      "amount": 3100000.0
+                    }
+                  ]
+                }
+              },
+              {
+                "case": "Investment accounted for using equity method (significant influence)",
+                "possible_entry": {
+                  "reason": "Under equity method, transaction costs are capitalized into the investment per IFRS rules",
+                  "lines": [
+                    {
+                      "type": "debit",
+                      "account_name": "Investment in Ford (Equity Method)",
+                      "amount": 3100000.0
+                    },
+                    {
+                      "type": "credit",
+                      "account_name": "Cash",
+                      "amount": 3100000.0
+                    }
+                  ]
+                }
+              }
+            ],
+            "ambiguous": true
+          }
+        ]
+      }
+    ],
+    "output_debit_classifier": [
+      {
+        "asset_increase": [
+          {
+            "reason": "Acquired 10% equity investment in Ford at purchase price plus transaction costs",
+            "category": "Investments \u2014 equity method",
+            "count": 1
+          }
+        ],
+        "expense_increase": [],
+        "liability_decrease": [],
+        "equity_decrease": [],
+        "revenue_decrease": [],
+        "tuple": [
+          1,
+          0,
+          0,
+          0,
+          0
+        ]
+      }
+    ],
+    "output_credit_classifier": [
+      {
+        "liability_increase": [],
+        "equity_increase": [],
+        "revenue_increase": [],
+        "asset_decrease": [
+          {
+            "reason": "Cash paid for acquisition of Ford shares and transaction fee",
+            "category": "Cash and cash equivalents",
+            "count": 1
+          }
+        ],
+        "expense_decrease": [],
+        "tuple": [
+          0,
+          0,
+          0,
+          1,
+          0
+        ]
+      }
+    ],
+    "output_debit_corrector": [],
+    "output_credit_corrector": [],
+    "output_entry_builder": [],
+    "output_approver": [],
+    "output_diagnostician": [],
+    "status_ambiguity_detector": 1,
+    "status_complexity_detector": 1,
+    "status_tax_specialist": 1,
+    "status_decision_maker": 1,
+    "status_entry_drafter": 0,
+    "status_disambiguator": 1,
+    "status_debit_classifier": 1,
+    "status_credit_classifier": 1,
+    "status_debit_corrector": 0,
+    "status_credit_corrector": 0,
+    "status_entry_builder": 0,
+    "status_approver": 0,
+    "status_diagnostician": 0,
+    "fix_context_disambiguator": [],
+    "fix_context_debit_classifier": [],
+    "fix_context_credit_classifier": [],
+    "fix_context_debit_corrector": [],
+    "fix_context_credit_corrector": [],
+    "fix_context_entry_builder": [],
+    "fix_context_approver": [],
+    "fix_context_diagnostician": [],
+    "decision": "INCOMPLETE_INFORMATION",
+    "validation_error": null,
+    "llm_calls": [
+      {
+        "node": "credit_classifier",
+        "stop_reason": "tool_use",
+        "input_tokens": 498,
+        "output_tokens": 155,
+        "input_token_details": {
+          "cache_read": 4212,
+          "cache_creation": 0
+        }
+      },
+      {
+        "node": "debit_classifier",
+        "stop_reason": "tool_use",
+        "input_tokens": 501,
+        "output_tokens": 160,
+        "input_token_details": {
+          "cache_read": 4291,
+          "cache_creation": 0
+        }
+      },
+      {
+        "node": "tax_specialist",
+        "stop_reason": "tool_use",
+        "input_tokens": 540,
+        "output_tokens": 142,
+        "input_token_details": {
+          "cache_read": 3455,
+          "cache_creation": 0
+        }
+      },
+      {
+        "node": "unknown",
+        "stop_reason": "tool_use",
+        "input_tokens": 557,
+        "output_tokens": 668,
+        "input_token_details": {
+          "cache_read": 4550,
+          "cache_creation": 0
+        }
+      }
+    ],
+    "stop_reasons": {
+      "credit_classifier": "tool_use",
+      "debit_classifier": "tool_use",
+      "tax_specialist": "tool_use",
+      "unknown": "tool_use"
+    }
+  }
+}

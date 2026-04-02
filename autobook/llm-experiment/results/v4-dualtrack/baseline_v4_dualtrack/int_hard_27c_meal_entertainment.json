@@ -1,0 +1,526 @@
+{
+  "test_case_id": "int_hard_27c_meal_entertainment",
+  "variant_name": "baseline_v4_dualtrack",
+  "model": "sonnet",
+  "debit_tuple_exact_match": true,
+  "credit_tuple_exact_match": true,
+  "debit_tuple_slot_accuracy": 0.8333333333333334,
+  "credit_tuple_slot_accuracy": 0.8333333333333334,
+  "entry_valid": true,
+  "debit_tuple": [
+    0,
+    1,
+    0,
+    0,
+    0
+  ],
+  "credit_tuple": [
+    1,
+    0,
+    0,
+    0,
+    0
+  ],
+  "journal_entry": {
+    "reason": "Client entertainment meal paid by corporate credit card with HST recoverable as input tax credit",
+    "lines": [
+      {
+        "type": "debit",
+        "account_name": "Entertainment expense",
+        "amount": 110.62
+      },
+      {
+        "type": "debit",
+        "account_name": "Tax assets",
+        "amount": 14.38
+      },
+      {
+        "type": "credit",
+        "account_name": "Accrued liabilities",
+        "amount": 125.0
+      }
+    ]
+  },
+  "actual_cost_usd": 0.0386106,
+  "raw_cost_usd": 0.10087800000000001,
+  "total_latency_ms": 21305,
+  "total_input_tokens": 26956,
+  "total_output_tokens": 1334,
+  "total_llm_calls": 6,
+  "iteration_count": 1,
+  "final_decision": "APPROVED",
+  "fix_attempted": null,
+  "fix_succeeded": null,
+  "agent_metrics": {
+    "tax_specialist": {
+      "input_tokens": 511,
+      "output_tokens": 132,
+      "cache_read_tokens": 3277,
+      "cache_write_tokens": 0,
+      "total_input_tokens": 3788,
+      "llm_calls": 1,
+      "actual_cost_usd": 0.0044961,
+      "raw_cost_usd": 0.013344,
+      "output": {
+        "reasoning": "Meal for client entertainment is a taxable supply, but the transaction text does not mention any tax amount or rate",
+        "tax_mentioned": false,
+        "taxable": true,
+        "add_tax_lines": false,
+        "tax_rate": null,
+        "tax_amount": null,
+        "treatment": "not_applicable"
+      },
+      "reason": null
+    },
+    "debit_classifier": {
+      "input_tokens": 489,
+      "output_tokens": 138,
+      "cache_read_tokens": 4282,
+      "cache_write_tokens": 0,
+      "total_input_tokens": 4771,
+      "llm_calls": 1,
+      "actual_cost_usd": 0.0048216000000000005,
+      "raw_cost_usd": 0.016383,
+      "output": {
+        "asset_increase": [],
+        "expense_increase": [
+          {
+            "reason": "Client entertainment meal incurred as period cost",
+            "category": "Entertainment expense",
+            "count": 1
+          }
+        ],
+        "liability_decrease": [],
+        "equity_decrease": [],
+        "revenue_decrease": [],
+        "tuple": [
+          0,
+          1,
+          0,
+          0,
+          0
+        ]
+      },
+      "reason": null
+    },
+    "credit_classifier": {
+      "input_tokens": 486,
+      "output_tokens": 156,
+      "cache_read_tokens": 4203,
+      "cache_write_tokens": 0,
+      "total_input_tokens": 4689,
+      "llm_calls": 1,
+      "actual_cost_usd": 0.0050589,
+      "raw_cost_usd": 0.016407,
+      "output": {
+        "liability_increase": [
+          {
+            "reason": "Corporate credit card used to pay for client entertainment meal",
+            "category": "Accrued liabilities",
+            "count": 1
+          }
+        ],
+        "equity_increase": [],
+        "revenue_increase": [],
+        "asset_decrease": [],
+        "expense_decrease": [],
+        "tuple": [
+          1,
+          0,
+          0,
+          0,
+          0
+        ]
+      },
+      "reason": null
+    },
+    "unknown": {
+      "input_tokens": 545,
+      "output_tokens": 517,
+      "cache_read_tokens": 4550,
+      "cache_write_tokens": 0,
+      "total_input_tokens": 5095,
+      "llm_calls": 1,
+      "actual_cost_usd": 0.010755,
+      "raw_cost_usd": 0.02304,
+      "output": null,
+      "reason": null
+    },
+    "entry_drafter": {
+      "input_tokens": 1863,
+      "output_tokens": 391,
+      "cache_read_tokens": 6750,
+      "cache_write_tokens": 0,
+      "total_input_tokens": 8613,
+      "llm_calls": 2,
+      "actual_cost_usd": 0.013479,
+      "raw_cost_usd": 0.031703999999999996,
+      "output": {
+        "reason": "Client entertainment meal paid by corporate credit card with HST recoverable as input tax credit",
+        "lines": [
+          {
+            "type": "debit",
+            "account_name": "Entertainment expense",
+            "amount": 110.62
+          },
+          {
+            "type": "debit",
+            "account_name": "Tax assets",
+            "amount": 14.38
+          },
+          {
+            "type": "credit",
+            "account_name": "Accrued liabilities",
+            "amount": 125.0
+          }
+        ]
+      },
+      "reason": "Client entertainment meal paid by corporate credit card with HST recoverable as input tax credit"
+    }
+  },
+  "pre_fix_debit_tuple": null,
+  "post_fix_debit_tuple": null,
+  "pre_fix_credit_tuple": null,
+  "post_fix_credit_tuple": null,
+  "fix_root_cause_agent": null,
+  "rejection_reason": null,
+  "diagnostician_decision": null,
+  "validation_error": null,
+  "decision_correct": true,
+  "entry_match": null,
+  "clarification_correct": null,
+  "clarification_questions": null,
+  "ambiguous": false,
+  "tier": "intermediate",
+  "error": null,
+  "pipeline_state": {
+    "iteration": 0,
+    "output_ambiguity_detector": [
+      {
+        "ambiguities": [
+          {
+            "aspect": "Purpose of meal expense",
+            "input_contextualized_conventional_default": "Text explicitly states 'client entertainment' \u2014 resolves as entertainment expense.",
+            "input_contextualized_ifrs_default": "IAS 38.69 advertising/promotional costs expensed when incurred \u2014 client entertainment is an operating expense.",
+            "clarification_question": null,
+            "cases": null,
+            "ambiguous": false
+          },
+          {
+            "aspect": "Payment method",
+            "input_contextualized_conventional_default": "'paid using the corporate credit card' = credit card payable liability.",
+            "input_contextualized_ifrs_default": null,
+            "clarification_question": null,
+            "cases": null,
+            "ambiguous": false
+          },
+          {
+            "aspect": "Tax treatment",
+            "input_contextualized_conventional_default": null,
+            "input_contextualized_ifrs_default": "Province ON = 13% HST; buyer-side tax on purchases is recoverable as Input Tax Credit (asset).",
+            "clarification_question": null,
+            "cases": null,
+            "ambiguous": false
+          }
+        ]
+      }
+    ],
+    "output_complexity_detector": [
+      {
+        "flags": [
+          {
+            "aspect": "HST calculation from stated amount",
+            "best_attempt": {
+              "reason": "Client entertainment expense with HST extracted from $125 total (ON 13% HST): pre-tax $110.62, HST $14.38.",
+              "lines": [
+                {
+                  "type": "debit",
+                  "account_name": "Entertainment Expense",
+                  "amount": 110.62
+                },
+                {
+                  "type": "debit",
+                  "account_name": "HST Receivable",
+                  "amount": 14.38
+                },
+                {
+                  "type": "credit",
+                  "account_name": "Credit Card Payable",
+                  "amount": 125.0
+                }
+              ]
+            },
+            "gap": null,
+            "beyond_llm_capability": false
+          }
+        ]
+      }
+    ],
+    "output_tax_specialist": [
+      {
+        "reasoning": "Meal for client entertainment is a taxable supply, but the transaction text does not mention any tax amount or rate",
+        "tax_mentioned": false,
+        "taxable": true,
+        "add_tax_lines": false,
+        "tax_rate": null,
+        "tax_amount": null,
+        "treatment": "not_applicable"
+      }
+    ],
+    "output_decision_maker": [
+      {
+        "ambiguities": [
+          {
+            "aspect": "Purpose of meal expense",
+            "input_contextualized_conventional_default": "Text explicitly states 'client entertainment' \u2014 resolves as entertainment expense.",
+            "input_contextualized_ifrs_default": "IAS 38.69 advertising/promotional costs expensed when incurred \u2014 client entertainment is an operating expense.",
+            "clarification_question": null,
+            "cases": null,
+            "ambiguous": false
+          },
+          {
+            "aspect": "Payment method",
+            "input_contextualized_conventional_default": "'paid using the corporate credit card' = credit card payable liability.",
+            "input_contextualized_ifrs_default": null,
+            "clarification_question": null,
+            "cases": null,
+            "ambiguous": false
+          },
+          {
+            "aspect": "Tax treatment",
+            "input_contextualized_conventional_default": null,
+            "input_contextualized_ifrs_default": "Province ON = 13% HST; buyer-side tax on purchases is recoverable as Input Tax Credit (asset).",
+            "clarification_question": null,
+            "cases": null,
+            "ambiguous": false
+          }
+        ],
+        "complexity_flags": [
+          {
+            "aspect": "HST calculation from stated amount",
+            "best_attempt": {
+              "reason": "Client entertainment expense with HST extracted from $125 total (ON 13% HST): pre-tax $110.62, HST $14.38.",
+              "lines": [
+                {
+                  "type": "debit",
+                  "account_name": "Entertainment Expense",
+                  "amount": 110.62
+                },
+                {
+                  "type": "debit",
+                  "account_name": "HST Receivable",
+                  "amount": 14.38
+                },
+                {
+                  "type": "credit",
+                  "account_name": "Credit Card Payable",
+                  "amount": 125.0
+                }
+              ]
+            },
+            "gap": null,
+            "beyond_llm_capability": false
+          }
+        ],
+        "proceed_reason": "Text explicitly states 'client entertainment' purpose and 'corporate credit card' payment; ON province provides determinable HST rate.",
+        "clarification_questions": null,
+        "stuck_reason": null,
+        "overall_final_rationale": "Transaction explicitly states client entertainment purpose and payment method; ON province determines 13% HST rate for tax extraction \u2014 all aspects resolved.",
+        "decision": "PROCEED"
+      }
+    ],
+    "output_entry_drafter": [
+      {
+        "reason": "Client entertainment meal paid by corporate credit card with HST recoverable as input tax credit",
+        "lines": [
+          {
+            "type": "debit",
+            "account_name": "Entertainment expense",
+            "amount": 110.62
+          },
+          {
+            "type": "debit",
+            "account_name": "Tax assets",
+            "amount": 14.38
+          },
+          {
+            "type": "credit",
+            "account_name": "Accrued liabilities",
+            "amount": 125.0
+          }
+        ]
+      }
+    ],
+    "output_disambiguator": [
+      {
+        "ambiguities": [
+          {
+            "aspect": "Purpose of meal expense",
+            "input_contextualized_conventional_default": "Text explicitly states 'client entertainment' \u2014 resolves as entertainment expense.",
+            "input_contextualized_ifrs_default": "IAS 38.69 advertising/promotional costs expensed when incurred \u2014 client entertainment is an operating expense.",
+            "clarification_question": null,
+            "cases": null,
+            "ambiguous": false
+          },
+          {
+            "aspect": "Payment method",
+            "input_contextualized_conventional_default": "'paid using the corporate credit card' = credit card payable liability.",
+            "input_contextualized_ifrs_default": null,
+            "clarification_question": null,
+            "cases": null,
+            "ambiguous": false
+          },
+          {
+            "aspect": "Tax treatment",
+            "input_contextualized_conventional_default": null,
+            "input_contextualized_ifrs_default": "Province ON = 13% HST; buyer-side tax on purchases is recoverable as Input Tax Credit (asset).",
+            "clarification_question": null,
+            "cases": null,
+            "ambiguous": false
+          }
+        ]
+      }
+    ],
+    "output_debit_classifier": [
+      {
+        "asset_increase": [],
+        "expense_increase": [
+          {
+            "reason": "Client entertainment meal incurred as period cost",
+            "category": "Entertainment expense",
+            "count": 1
+          }
+        ],
+        "liability_decrease": [],
+        "equity_decrease": [],
+        "revenue_decrease": [],
+        "tuple": [
+          0,
+          1,
+          0,
+          0,
+          0
+        ]
+      }
+    ],
+    "output_credit_classifier": [
+      {
+        "liability_increase": [
+          {
+            "reason": "Corporate credit card used to pay for client entertainment meal",
+            "category": "Accrued liabilities",
+            "count": 1
+          }
+        ],
+        "equity_increase": [],
+        "revenue_increase": [],
+        "asset_decrease": [],
+        "expense_decrease": [],
+        "tuple": [
+          1,
+          0,
+          0,
+          0,
+          0
+        ]
+      }
+    ],
+    "output_debit_corrector": [],
+    "output_credit_corrector": [],
+    "output_entry_builder": [],
+    "output_approver": [],
+    "output_diagnostician": [],
+    "status_ambiguity_detector": 1,
+    "status_complexity_detector": 1,
+    "status_tax_specialist": 1,
+    "status_decision_maker": 1,
+    "status_entry_drafter": 1,
+    "status_disambiguator": 1,
+    "status_debit_classifier": 1,
+    "status_credit_classifier": 1,
+    "status_debit_corrector": 0,
+    "status_credit_corrector": 0,
+    "status_entry_builder": 0,
+    "status_approver": 0,
+    "status_diagnostician": 0,
+    "fix_context_disambiguator": [],
+    "fix_context_debit_classifier": [],
+    "fix_context_credit_classifier": [],
+    "fix_context_debit_corrector": [],
+    "fix_context_credit_corrector": [],
+    "fix_context_entry_builder": [],
+    "fix_context_approver": [],
+    "fix_context_diagnostician": [],
+    "decision": "APPROVED",
+    "validation_error": null,
+    "llm_calls": [
+      {
+        "node": "tax_specialist",
+        "stop_reason": "tool_use",
+        "input_tokens": 511,
+        "output_tokens": 132,
+        "input_token_details": {
+          "cache_read": 3277,
+          "cache_creation": 0
+        }
+      },
+      {
+        "node": "debit_classifier",
+        "stop_reason": "tool_use",
+        "input_tokens": 489,
+        "output_tokens": 138,
+        "input_token_details": {
+          "cache_read": 4282,
+          "cache_creation": 0
+        }
+      },
+      {
+        "node": "credit_classifier",
+        "stop_reason": "tool_use",
+        "input_tokens": 486,
+        "output_tokens": 156,
+        "input_token_details": {
+          "cache_read": 4203,
+          "cache_creation": 0
+        }
+      },
+      {
+        "node": "unknown",
+        "stop_reason": "tool_use",
+        "input_tokens": 545,
+        "output_tokens": 517,
+        "input_token_details": {
+          "cache_read": 4550,
+          "cache_creation": 0
+        }
+      },
+      {
+        "node": "entry_drafter",
+        "stop_reason": "tool_use",
+        "input_tokens": 855,
+        "output_tokens": 215,
+        "input_token_details": {
+          "cache_read": 3405,
+          "cache_creation": 0
+        }
+      },
+      {
+        "node": "entry_drafter",
+        "stop_reason": "tool_use",
+        "input_tokens": 1008,
+        "output_tokens": 176,
+        "input_token_details": {
+          "cache_read": 3345,
+          "cache_creation": 0
+        }
+      }
+    ],
+    "stop_reasons": {
+      "tax_specialist": "tool_use",
+      "debit_classifier": "tool_use",
+      "credit_classifier": "tool_use",
+      "unknown": "tool_use",
+      "entry_drafter": "tool_use"
+    }
+  }
+}

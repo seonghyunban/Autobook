@@ -1,0 +1,439 @@
+{
+  "test_case_id": "int_28_promotional_literature",
+  "variant_name": "baseline_v4_dualtrack",
+  "model": "sonnet",
+  "debit_tuple_exact_match": true,
+  "credit_tuple_exact_match": true,
+  "debit_tuple_slot_accuracy": 0.8333333333333334,
+  "credit_tuple_slot_accuracy": 0.8333333333333334,
+  "entry_valid": true,
+  "debit_tuple": [
+    0,
+    1,
+    0,
+    0,
+    0
+  ],
+  "credit_tuple": [
+    0,
+    0,
+    0,
+    1,
+    0
+  ],
+  "journal_entry": {
+    "reason": "Promotional literature for sales department display expensed when incurred per IAS 38.69, paid in cash",
+    "lines": [
+      {
+        "type": "debit",
+        "account_name": "Advertising expense",
+        "amount": 7000.0
+      },
+      {
+        "type": "credit",
+        "account_name": "Cash",
+        "amount": 7000.0
+      }
+    ]
+  },
+  "actual_cost_usd": 0.029697,
+  "raw_cost_usd": 0.090258,
+  "total_latency_ms": 42486,
+  "total_input_tokens": 25506,
+  "total_output_tokens": 916,
+  "total_llm_calls": 5,
+  "iteration_count": 1,
+  "final_decision": "APPROVED",
+  "fix_attempted": null,
+  "fix_succeeded": null,
+  "agent_metrics": {
+    "tax_specialist": {
+      "input_tokens": 540,
+      "output_tokens": 166,
+      "cache_read_tokens": 3726,
+      "cache_write_tokens": 0,
+      "total_input_tokens": 4266,
+      "llm_calls": 1,
+      "actual_cost_usd": 0.0052278,
+      "raw_cost_usd": 0.015288,
+      "output": {
+        "reasoning": "Transaction states $7,000 cash purchase of promotional literature; no tax mentioned in the text",
+        "tax_mentioned": false,
+        "taxable": true,
+        "tax_context": null,
+        "tax_rate": null,
+        "add_tax_lines": false,
+        "treatment": "not_applicable"
+      },
+      "reason": null
+    },
+    "credit_classifier": {
+      "input_tokens": 498,
+      "output_tokens": 138,
+      "cache_read_tokens": 4657,
+      "cache_write_tokens": 0,
+      "total_input_tokens": 5155,
+      "llm_calls": 1,
+      "actual_cost_usd": 0.0049611,
+      "raw_cost_usd": 0.017535,
+      "output": {
+        "liability_increase": [],
+        "equity_increase": [],
+        "revenue_increase": [],
+        "asset_decrease": [
+          {
+            "reason": "Cash paid for promotional literature",
+            "category": "Cash and cash equivalents",
+            "count": 1
+          }
+        ],
+        "expense_decrease": [],
+        "tuple": [
+          0,
+          0,
+          0,
+          1,
+          0
+        ]
+      },
+      "reason": null
+    },
+    "unknown": {
+      "input_tokens": 557,
+      "output_tokens": 332,
+      "cache_read_tokens": 4821,
+      "cache_write_tokens": 0,
+      "total_input_tokens": 5378,
+      "llm_calls": 1,
+      "actual_cost_usd": 0.0080973,
+      "raw_cost_usd": 0.021114,
+      "output": null,
+      "reason": null
+    },
+    "debit_classifier": {
+      "input_tokens": 501,
+      "output_tokens": 157,
+      "cache_read_tokens": 4769,
+      "cache_write_tokens": 0,
+      "total_input_tokens": 5270,
+      "llm_calls": 1,
+      "actual_cost_usd": 0.0052886999999999995,
+      "raw_cost_usd": 0.018165,
+      "output": {
+        "asset_increase": [],
+        "expense_increase": [
+          {
+            "reason": "Promotional literature purchased for sales department display is advertising/promotional cost expensed when incurred per IAS 38.69",
+            "category": "Advertising expense",
+            "count": 1
+          }
+        ],
+        "liability_decrease": [],
+        "equity_decrease": [],
+        "revenue_decrease": [],
+        "tuple": [
+          0,
+          1,
+          0,
+          0,
+          0
+        ]
+      },
+      "reason": null
+    },
+    "entry_drafter": {
+      "input_tokens": 980,
+      "output_tokens": 123,
+      "cache_read_tokens": 4457,
+      "cache_write_tokens": 0,
+      "total_input_tokens": 5437,
+      "llm_calls": 1,
+      "actual_cost_usd": 0.0061221,
+      "raw_cost_usd": 0.018156,
+      "output": {
+        "reason": "Promotional literature for sales department display expensed when incurred per IAS 38.69, paid in cash",
+        "lines": [
+          {
+            "type": "debit",
+            "account_name": "Advertising expense",
+            "amount": 7000.0
+          },
+          {
+            "type": "credit",
+            "account_name": "Cash",
+            "amount": 7000.0
+          }
+        ]
+      },
+      "reason": "Promotional literature for sales department display expensed when incurred per IAS 38.69, paid in cash"
+    }
+  },
+  "pre_fix_debit_tuple": null,
+  "post_fix_debit_tuple": null,
+  "pre_fix_credit_tuple": null,
+  "post_fix_credit_tuple": null,
+  "fix_root_cause_agent": null,
+  "rejection_reason": null,
+  "diagnostician_decision": null,
+  "validation_error": null,
+  "decision_correct": true,
+  "entry_match": null,
+  "clarification_correct": null,
+  "clarification_questions": null,
+  "ambiguous": false,
+  "tier": "intermediate",
+  "error": null,
+  "pipeline_state": {
+    "iteration": 0,
+    "output_ambiguity_detector": [
+      {
+        "ambiguities": [
+          {
+            "aspect": "Classification of promotional literature purchase",
+            "input_contextualized_conventional_default": null,
+            "input_contextualized_ifrs_default": "IAS 38.69 requires advertising and promotional costs to be expensed when incurred \u2014 promotional literature for customer reference is advertising/promotional material.",
+            "clarification_question": null,
+            "cases": null,
+            "ambiguous": false
+          },
+          {
+            "aspect": "Payment method",
+            "input_contextualized_conventional_default": "'paid in cash' = cash payment at the stated amount",
+            "input_contextualized_ifrs_default": null,
+            "clarification_question": null,
+            "cases": null,
+            "ambiguous": false
+          }
+        ]
+      }
+    ],
+    "output_complexity_detector": [
+      {
+        "flags": [
+          {
+            "aspect": "Straightforward expense transaction",
+            "best_attempt": null,
+            "gap": null,
+            "beyond_llm_capability": false
+          }
+        ]
+      }
+    ],
+    "output_tax_specialist": [
+      {
+        "reasoning": "Transaction states $7,000 cash purchase of promotional literature; no tax mentioned in the text",
+        "tax_mentioned": false,
+        "taxable": true,
+        "tax_context": null,
+        "tax_rate": null,
+        "add_tax_lines": false,
+        "treatment": "not_applicable"
+      }
+    ],
+    "output_decision_maker": [
+      {
+        "ambiguities": [
+          {
+            "aspect": "Classification of promotional literature purchase",
+            "input_contextualized_conventional_default": null,
+            "input_contextualized_ifrs_default": "IAS 38.69 requires advertising and promotional costs to be expensed when incurred \u2014 promotional literature for customer reference is advertising/promotional material.",
+            "clarification_question": null,
+            "cases": null,
+            "ambiguous": false
+          },
+          {
+            "aspect": "Payment method",
+            "input_contextualized_conventional_default": "'paid in cash' = cash payment at the stated amount",
+            "input_contextualized_ifrs_default": null,
+            "clarification_question": null,
+            "cases": null,
+            "ambiguous": false
+          }
+        ],
+        "complexity_flags": [
+          {
+            "aspect": "Straightforward expense transaction",
+            "best_attempt": null,
+            "gap": null,
+            "beyond_llm_capability": false
+          }
+        ],
+        "proceed_reason": "IAS 38.69 resolves promotional literature as expense when incurred, and cash payment is explicitly stated.",
+        "clarification_questions": null,
+        "stuck_reason": null,
+        "overall_final_rationale": "IFRS (IAS 38.69) clearly requires promotional literature costs to be expensed when incurred, and the cash payment is explicitly stated, making this a straightforward transaction.",
+        "decision": "PROCEED"
+      }
+    ],
+    "output_entry_drafter": [
+      {
+        "reason": "Promotional literature for sales department display expensed when incurred per IAS 38.69, paid in cash",
+        "lines": [
+          {
+            "type": "debit",
+            "account_name": "Advertising expense",
+            "amount": 7000.0
+          },
+          {
+            "type": "credit",
+            "account_name": "Cash",
+            "amount": 7000.0
+          }
+        ]
+      }
+    ],
+    "output_disambiguator": [
+      {
+        "ambiguities": [
+          {
+            "aspect": "Classification of promotional literature purchase",
+            "input_contextualized_conventional_default": null,
+            "input_contextualized_ifrs_default": "IAS 38.69 requires advertising and promotional costs to be expensed when incurred \u2014 promotional literature for customer reference is advertising/promotional material.",
+            "clarification_question": null,
+            "cases": null,
+            "ambiguous": false
+          },
+          {
+            "aspect": "Payment method",
+            "input_contextualized_conventional_default": "'paid in cash' = cash payment at the stated amount",
+            "input_contextualized_ifrs_default": null,
+            "clarification_question": null,
+            "cases": null,
+            "ambiguous": false
+          }
+        ]
+      }
+    ],
+    "output_debit_classifier": [
+      {
+        "asset_increase": [],
+        "expense_increase": [
+          {
+            "reason": "Promotional literature purchased for sales department display is advertising/promotional cost expensed when incurred per IAS 38.69",
+            "category": "Advertising expense",
+            "count": 1
+          }
+        ],
+        "liability_decrease": [],
+        "equity_decrease": [],
+        "revenue_decrease": [],
+        "tuple": [
+          0,
+          1,
+          0,
+          0,
+          0
+        ]
+      }
+    ],
+    "output_credit_classifier": [
+      {
+        "liability_increase": [],
+        "equity_increase": [],
+        "revenue_increase": [],
+        "asset_decrease": [
+          {
+            "reason": "Cash paid for promotional literature",
+            "category": "Cash and cash equivalents",
+            "count": 1
+          }
+        ],
+        "expense_decrease": [],
+        "tuple": [
+          0,
+          0,
+          0,
+          1,
+          0
+        ]
+      }
+    ],
+    "output_debit_corrector": [],
+    "output_credit_corrector": [],
+    "output_entry_builder": [],
+    "output_approver": [],
+    "output_diagnostician": [],
+    "status_ambiguity_detector": 1,
+    "status_complexity_detector": 1,
+    "status_tax_specialist": 1,
+    "status_decision_maker": 1,
+    "status_entry_drafter": 1,
+    "status_disambiguator": 1,
+    "status_debit_classifier": 1,
+    "status_credit_classifier": 1,
+    "status_debit_corrector": 0,
+    "status_credit_corrector": 0,
+    "status_entry_builder": 0,
+    "status_approver": 0,
+    "status_diagnostician": 0,
+    "fix_context_disambiguator": [],
+    "fix_context_debit_classifier": [],
+    "fix_context_credit_classifier": [],
+    "fix_context_debit_corrector": [],
+    "fix_context_credit_corrector": [],
+    "fix_context_entry_builder": [],
+    "fix_context_approver": [],
+    "fix_context_diagnostician": [],
+    "decision": "APPROVED",
+    "validation_error": null,
+    "llm_calls": [
+      {
+        "node": "tax_specialist",
+        "stop_reason": "tool_use",
+        "input_tokens": 540,
+        "output_tokens": 166,
+        "input_token_details": {
+          "cache_read": 3726,
+          "cache_creation": 0
+        }
+      },
+      {
+        "node": "credit_classifier",
+        "stop_reason": "tool_use",
+        "input_tokens": 498,
+        "output_tokens": 138,
+        "input_token_details": {
+          "cache_read": 4657,
+          "cache_creation": 0
+        }
+      },
+      {
+        "node": "unknown",
+        "stop_reason": "tool_use",
+        "input_tokens": 557,
+        "output_tokens": 332,
+        "input_token_details": {
+          "cache_read": 4821,
+          "cache_creation": 0
+        }
+      },
+      {
+        "node": "debit_classifier",
+        "stop_reason": "tool_use",
+        "input_tokens": 501,
+        "output_tokens": 157,
+        "input_token_details": {
+          "cache_read": 4769,
+          "cache_creation": 0
+        }
+      },
+      {
+        "node": "entry_drafter",
+        "stop_reason": "tool_use",
+        "input_tokens": 980,
+        "output_tokens": 123,
+        "input_token_details": {
+          "cache_read": 4457,
+          "cache_creation": 0
+        }
+      }
+    ],
+    "stop_reasons": {
+      "tax_specialist": "tool_use",
+      "credit_classifier": "tool_use",
+      "unknown": "tool_use",
+      "debit_classifier": "tool_use",
+      "entry_drafter": "tool_use"
+    }
+  }
+}

@@ -1,0 +1,57 @@
+{
+  "evaluator": "claude",
+  "evaluated_at": "2026-04-01T00:00:00Z",
+  "prompt_version": "v4",
+  "results": {
+    "int_17_customer_deposit": {
+      "match": true,
+      "tax_relaxed_match": true,
+      "reason": "Dr Cash and cash equivalents $5,000 / Cr Contract liabilities $5,000. 'Cash and cash equivalents' is semantically equivalent to 'Cash—chequing' per scoring rules. Amounts exact, structure matches."
+    },
+    "int_18_multiple_assets": {
+      "match": true,
+      "tax_relaxed_match": true,
+      "reason": "Dr Office equipment $5,500 / Dr Motor vehicles $250,000 / Cr Cash and cash equivalents $5,500 / Cr Trade payables $250,000. Two debit lines (not split further), matching expected structure. 'Office equipment' = 'PP&E Office equipment'; 'Motor vehicles' = 'PP&E Vehicles'; 'Cash and cash equivalents' = 'Cash'; 'Trade payables' = 'Trade payables'. All amounts exact."
+    },
+    "int_19_service_revenue_cash": {
+      "match": false,
+      "tax_relaxed_match": true,
+      "reason": "Actual adds 13% HST: Dr Cash $28,815 / Cr Revenue $25,500 / Cr Tax liabilities $3,315. Expected has Dr Cash $25,500 / Cr Revenue $25,500 (no tax split). Cash debit is $3,315 higher due to HST inclusion. The sole difference is the tax treatment — the revenue line amount ($25,500) and account names are correct. Tax-relaxed match is true."
+    },
+    "int_20_service_revenue_credit": {
+      "match": false,
+      "tax_relaxed_match": true,
+      "reason": "Actual adds 13% HST: Dr Trade receivables $35,595 / Cr Revenue $31,500 / Cr Tax liabilities $4,095. Expected has Dr Trade receivables $31,500 / Cr Revenue $31,500. Receivable is overstated by $4,095 due to HST inclusion. Revenue amount and account names are correct. The only difference is the tax treatment, so tax-relaxed match is true."
+    },
+    "int_21_rd_expense": {
+      "match": true,
+      "tax_relaxed_match": true,
+      "reason": "Dr Research and development expense $50,000 / Cr Cash and cash equivalents $50,000. 'Research and development expense' = 'R&D expense'; 'Cash and cash equivalents' = 'Cash—chequing'. Amounts exact, correct 2-line structure."
+    },
+    "int_22_compound_sale_with_tax": {
+      "match": true,
+      "tax_relaxed_match": true,
+      "reason": "All 6 lines present with correct amounts and types: Dr Cash $45,900 / Dr Trade receivables $30,000 / Dr Cost of sales $55,500 / Cr Revenue from sale of goods $69,000 / Cr Tax liabilities $6,900 / Cr Inventories—finished goods $55,500. 'Cost of sales' = 'COGS'; 'Tax liabilities' = 'Sales tax payable'; 'Revenue from sale of goods' = 'Revenue'. All amounts exact."
+    },
+    "int_23_split_electricity": {
+      "match": false,
+      "tax_relaxed_match": false,
+      "reason": "Credit account mismatch: actual uses 'Accrued liabilities $20,500' but expected is 'Credit card payable $20,500'. These are distinct liability accounts — a credit card payable is a specific identified liability, not a generic accrual. WIP debit ('Inventories — work in progress') vs expected 'WIP Manufacturing overhead' is a borderline naming difference, but the credit account name error alone fails the match. No tax-related differences involved."
+    },
+    "int_24_advertising": {
+      "match": false,
+      "tax_relaxed_match": true,
+      "reason": "Actual splits out HST: Dr Advertising expense $19,469.03 / Dr Tax assets $2,530.97 / Cr Cash $22,000. Expected: Dr Advertising expense $22,000 / Cr Cash $22,000 (no tax split). Advertising expense amount is reduced from $22,000 to $19,469.03. Per scoring rules, splitting out HST on an advertising expense when expected does not → match = false, tax_relaxed_match = true."
+    },
+    "int_25_building_purchase_allocation": {
+      "match": false,
+      "tax_relaxed_match": false,
+      "reason": "Two amount errors caused by incorrect tax base: model applied 10% tax to the building's full fair value ($4,000,000) yielding Tax assets $400,000, whereas expected uses allocated book value ($3,000,000) yielding VAT receivable $300,000. This cascades: actual Cash $4,900,000 vs expected $4,800,000 (difference = $100,000 = tax error). Tax payables account names differ ('Tax assets' vs 'VAT receivable') but are semantically equivalent; however the amounts are wrong. The error is a tax calculation mistake (wrong base), not merely the presence/absence of a tax line, so tax_relaxed_match is also false."
+    },
+    "int_26a_payroll_recognition": {
+      "match": false,
+      "tax_relaxed_match": false,
+      "reason": "Multiple errors: (1) Debit: 'Employee benefits expense $20,000' vs expected 'Salaries expense $20,000' — different account categories. (2) Credits: actual splits withholdings into 'Employee benefits payable $5,250' + 'Tax liabilities $1,450' = $6,700 total vs expected consolidated 'Statutory withholdings payable $7,750' — split into multiple lines per scoring rule → match = false, and the total withholding amount ($6,700 vs $7,750) is also wrong. (3) 'Inventories—work in progress' vs 'WIP Direct labour' is a further sub-account mismatch. No tax-related differences; errors are in payroll account classification and consolidation."
+    }
+  }
+}

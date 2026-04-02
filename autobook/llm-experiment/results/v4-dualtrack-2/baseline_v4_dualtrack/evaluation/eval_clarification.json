@@ -1,0 +1,42 @@
+{
+  "evaluator": "claude",
+  "evaluated_at": "2026-04-01T12:00:00",
+  "prompt_version": "v4",
+  "results": {
+    "hard_01_note_discounting": {
+      "actual_decision": "INCOMPLETE_INFORMATION",
+      "actual_questions": ["Was this a sale of the note receivable (derecognition) or a secured borrowing with the note as collateral?"],
+      "expected_cases": ["Derecognition (sale of receivable)", "Collateralized borrowing"],
+      "relevant": true,
+      "reason": "Decision correct (INCOMPLETE_INFORMATION). Question directly distinguishes between sale (derecognition) and secured borrowing — asks about the business fact of risk/reward transfer."
+    },
+    "hard_02_investment_classification": {
+      "actual_decision": "INCOMPLETE_INFORMATION",
+      "actual_questions": ["How does BlackRock intend to classify this 10% investment in Ford - as FVTPL, FVOCI, or does it have significant influence requiring equity method?"],
+      "expected_cases": ["FVTPL (short-term trading)", "FVOCI (long-term strategic)", "Equity method (significant influence)"],
+      "relevant": false,
+      "reason": "Decision correct, question produced, but question names accounting treatment categories (FVTPL/FVOCI/equity method) directly instead of asking about observable business facts like trading intent or significant influence indicators."
+    },
+    "hard_16_rent_treatment": {
+      "actual_decision": "INCOMPLETE_INFORMATION",
+      "actual_questions": ["Does the company elect the IFRS 16 short-term lease exemption to expense this rent, or should it be recorded as a prepaid asset?"],
+      "expected_cases": ["Prepaid asset", "Immediate expense (short-term lease exemption)"],
+      "relevant": false,
+      "reason": "Decision correct, question produced, but question asks about an IFRS 16 policy election (accounting treatment choice) rather than a business fact like the lease term or whether the payment covers future periods."
+    },
+    "hard_27_meal_purpose": {
+      "actual_decision": "INCOMPLETE_INFORMATION",
+      "actual_questions": ["What was the business purpose of this meal?"],
+      "expected_cases": ["Overtime meal", "Working meeting", "Client entertainment", "Factory staff meal"],
+      "relevant": true,
+      "reason": "Decision correct. Open-ended business-fact question that resolves all four expected interpretations by asking for the actual purpose."
+    },
+    "hard_32_grocery_purpose": {
+      "actual_decision": "INCOMPLETE_INFORMATION",
+      "actual_questions": ["What was the business purpose of this purchase (e.g., office supplies for staff, client entertainment, meeting refreshments)?"],
+      "expected_cases": ["Client entertainment", "Employee break room supplies"],
+      "relevant": true,
+      "reason": "Decision correct. Business-fact question with illustrative examples that distinguishes client entertainment from employee break room use."
+    }
+  }
+}

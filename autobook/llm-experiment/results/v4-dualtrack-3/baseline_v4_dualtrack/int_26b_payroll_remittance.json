@@ -1,0 +1,623 @@
+{
+  "test_case_id": "int_26b_payroll_remittance",
+  "variant_name": "baseline_v4_dualtrack",
+  "model": "sonnet",
+  "debit_tuple_exact_match": false,
+  "credit_tuple_exact_match": true,
+  "debit_tuple_slot_accuracy": 0.5,
+  "credit_tuple_slot_accuracy": 0.8333333333333334,
+  "entry_valid": true,
+  "debit_tuple": [
+    0,
+    3,
+    4,
+    0,
+    0
+  ],
+  "credit_tuple": [
+    0,
+    0,
+    0,
+    1,
+    0
+  ],
+  "journal_entry": {
+    "reason": "Remittance of statutory deductions combining employee withholdings (liability decrease) and employer matching contributions (expense) for pension, health insurance, and employment insurance, plus employee income tax withholdings (liability decrease only)",
+    "lines": [
+      {
+        "type": "debit",
+        "account_name": "Employee Benefits Expense",
+        "amount": 6300.0
+      },
+      {
+        "type": "debit",
+        "account_name": "Pension Payable",
+        "amount": 2000.0
+      },
+      {
+        "type": "debit",
+        "account_name": "Health Insurance Payable",
+        "amount": 3250.0
+      },
+      {
+        "type": "debit",
+        "account_name": "Employment Insurance Payable",
+        "amount": 1050.0
+      },
+      {
+        "type": "debit",
+        "account_name": "Income Tax Payable",
+        "amount": 1450.0
+      },
+      {
+        "type": "credit",
+        "account_name": "Cash",
+        "amount": 14050.0
+      }
+    ]
+  },
+  "actual_cost_usd": 0.0404577,
+  "raw_cost_usd": 0.094509,
+  "total_latency_ms": 19166,
+  "total_input_tokens": 23443,
+  "total_output_tokens": 1612,
+  "total_llm_calls": 5,
+  "iteration_count": 1,
+  "final_decision": "APPROVED",
+  "fix_attempted": null,
+  "fix_succeeded": null,
+  "agent_metrics": {
+    "tax_specialist": {
+      "input_tokens": 574,
+      "output_tokens": 185,
+      "cache_read_tokens": 3455,
+      "cache_write_tokens": 0,
+      "total_input_tokens": 4029,
+      "llm_calls": 1,
+      "actual_cost_usd": 0.0055335,
+      "raw_cost_usd": 0.014862,
+      "output": {
+        "reasoning": "Transaction describes payroll remittances (pension, health insurance, employment insurance, income tax withholdings). Payroll and statutory deductions are not taxable supplies under sales tax rules.",
+        "tax_mentioned": false,
+        "taxable": false,
+        "tax_context": null,
+        "tax_rate": null,
+        "add_tax_lines": false,
+        "treatment": "not_applicable"
+      },
+      "reason": null
+    },
+    "credit_classifier": {
+      "input_tokens": 532,
+      "output_tokens": 158,
+      "cache_read_tokens": 4212,
+      "cache_write_tokens": 0,
+      "total_input_tokens": 4744,
+      "llm_calls": 1,
+      "actual_cost_usd": 0.0052296,
+      "raw_cost_usd": 0.016602,
+      "output": {
+        "liability_increase": [],
+        "equity_increase": [],
+        "revenue_increase": [],
+        "asset_decrease": [
+          {
+            "reason": "Cash remitted for statutory deductions and matching contributions to government agencies",
+            "category": "Cash and cash equivalents",
+            "count": 1
+          }
+        ],
+        "expense_decrease": [],
+        "tuple": [
+          0,
+          0,
+          0,
+          1,
+          0
+        ]
+      },
+      "reason": null
+    },
+    "debit_classifier": {
+      "input_tokens": 535,
+      "output_tokens": 197,
+      "cache_read_tokens": 4291,
+      "cache_write_tokens": 0,
+      "total_input_tokens": 4826,
+      "llm_calls": 1,
+      "actual_cost_usd": 0.005847300000000001,
+      "raw_cost_usd": 0.017433,
+      "output": {
+        "asset_increase": [],
+        "expense_increase": [
+          {
+            "reason": "Company matching contributions for pension, health insurance, and employment insurance incurred as employee benefits expense",
+            "category": "Employee benefits expense",
+            "count": 3
+          }
+        ],
+        "liability_decrease": [
+          {
+            "reason": "Employee withholdings for pension, health insurance, employment insurance, and income tax remitted to government agencies",
+            "category": "Employee benefits payable",
+            "count": 4
+          }
+        ],
+        "equity_decrease": [],
+        "revenue_decrease": [],
+        "tuple": [
+          0,
+          3,
+          4,
+          0,
+          0
+        ]
+      },
+      "reason": null
+    },
+    "unknown": {
+      "input_tokens": 591,
+      "output_tokens": 748,
+      "cache_read_tokens": 4550,
+      "cache_write_tokens": 0,
+      "total_input_tokens": 5141,
+      "llm_calls": 1,
+      "actual_cost_usd": 0.014358,
+      "raw_cost_usd": 0.026643,
+      "output": null,
+      "reason": null
+    },
+    "entry_drafter": {
+      "input_tokens": 1192,
+      "output_tokens": 324,
+      "cache_read_tokens": 3511,
+      "cache_write_tokens": 0,
+      "total_input_tokens": 4703,
+      "llm_calls": 1,
+      "actual_cost_usd": 0.009489299999999999,
+      "raw_cost_usd": 0.018969,
+      "output": {
+        "reason": "Remittance of statutory deductions combining employee withholdings (liability decrease) and employer matching contributions (expense) for pension, health insurance, and employment insurance, plus employee income tax withholdings (liability decrease only)",
+        "lines": [
+          {
+            "type": "debit",
+            "account_name": "Employee Benefits Expense",
+            "amount": 6300.0
+          },
+          {
+            "type": "debit",
+            "account_name": "Pension Payable",
+            "amount": 2000.0
+          },
+          {
+            "type": "debit",
+            "account_name": "Health Insurance Payable",
+            "amount": 3250.0
+          },
+          {
+            "type": "debit",
+            "account_name": "Employment Insurance Payable",
+            "amount": 1050.0
+          },
+          {
+            "type": "debit",
+            "account_name": "Income Tax Payable",
+            "amount": 1450.0
+          },
+          {
+            "type": "credit",
+            "account_name": "Cash",
+            "amount": 14050.0
+          }
+        ]
+      },
+      "reason": "Remittance of statutory deductions combining employee withholdings (liability decrease) and employer matching contributions (expense) for pension, health insurance, and employment insurance, plus employee income tax withholdings (liability decrease only)"
+    }
+  },
+  "pre_fix_debit_tuple": null,
+  "post_fix_debit_tuple": null,
+  "pre_fix_credit_tuple": null,
+  "post_fix_credit_tuple": null,
+  "fix_root_cause_agent": null,
+  "rejection_reason": null,
+  "diagnostician_decision": null,
+  "validation_error": null,
+  "decision_correct": true,
+  "entry_match": null,
+  "clarification_correct": null,
+  "clarification_questions": null,
+  "ambiguous": false,
+  "tier": "intermediate",
+  "error": null,
+  "pipeline_state": {
+    "iteration": 0,
+    "output_ambiguity_detector": [
+      {
+        "ambiguities": [
+          {
+            "aspect": "Split of employee withholdings vs employer matching contributions",
+            "input_contextualized_conventional_default": "IFRS payroll remittance rule: employee portion = liability decrease, employer portion = expense; text states 'combining employee withholdings with company's matching contributions' which implies equal split (50/50) for pension, health insurance, and employment insurance.",
+            "input_contextualized_ifrs_default": "IAS 19 requires employer contributions to be expensed when services are rendered; the remittance reduces the accrued liability for employee withholdings and records employer matching as expense.",
+            "clarification_question": null,
+            "cases": null,
+            "ambiguous": false
+          },
+          {
+            "aspect": "Treatment of income tax withholdings",
+            "input_contextualized_conventional_default": "Income tax withholdings of $1,450 are purely employee amounts withheld from wages \u2014 remittance reduces the liability with no employer expense component.",
+            "input_contextualized_ifrs_default": null,
+            "clarification_question": null,
+            "cases": null,
+            "ambiguous": false
+          },
+          {
+            "aspect": "Payment method",
+            "input_contextualized_conventional_default": "'remitted in cash' = cash payment at stated amounts.",
+            "input_contextualized_ifrs_default": null,
+            "clarification_question": null,
+            "cases": null,
+            "ambiguous": false
+          }
+        ]
+      }
+    ],
+    "output_complexity_detector": [
+      {
+        "flags": [
+          {
+            "aspect": "Multi-component payroll remittance with employer matching",
+            "best_attempt": {
+              "reason": "Remittance of statutory deductions: employee withholdings reduce liabilities, employer matching portions are expenses, all paid in cash.",
+              "lines": [
+                {
+                  "type": "debit",
+                  "account_name": "Pension Payable",
+                  "amount": 2000.0
+                },
+                {
+                  "type": "debit",
+                  "account_name": "Pension Expense",
+                  "amount": 2000.0
+                },
+                {
+                  "type": "debit",
+                  "account_name": "Health Insurance Payable",
+                  "amount": 3250.0
+                },
+                {
+                  "type": "debit",
+                  "account_name": "Health Insurance Expense",
+                  "amount": 3250.0
+                },
+                {
+                  "type": "debit",
+                  "account_name": "Employment Insurance Payable",
+                  "amount": 1050.0
+                },
+                {
+                  "type": "debit",
+                  "account_name": "Employment Insurance Expense",
+                  "amount": 1050.0
+                },
+                {
+                  "type": "debit",
+                  "account_name": "Income Tax Payable",
+                  "amount": 1450.0
+                },
+                {
+                  "type": "credit",
+                  "account_name": "Cash",
+                  "amount": 14050.0
+                }
+              ]
+            },
+            "gap": null,
+            "beyond_llm_capability": false
+          }
+        ]
+      }
+    ],
+    "output_tax_specialist": [
+      {
+        "reasoning": "Transaction describes payroll remittances (pension, health insurance, employment insurance, income tax withholdings). Payroll and statutory deductions are not taxable supplies under sales tax rules.",
+        "tax_mentioned": false,
+        "taxable": false,
+        "tax_context": null,
+        "tax_rate": null,
+        "add_tax_lines": false,
+        "treatment": "not_applicable"
+      }
+    ],
+    "output_decision_maker": [
+      {
+        "ambiguities": [
+          {
+            "aspect": "Split of employee withholdings vs employer matching contributions",
+            "input_contextualized_conventional_default": "IFRS payroll remittance rule: employee portion = liability decrease, employer portion = expense; text states 'combining employee withholdings with company's matching contributions' which implies equal split (50/50) for pension, health insurance, and employment insurance.",
+            "input_contextualized_ifrs_default": "IAS 19 requires employer contributions to be expensed when services are rendered; the remittance reduces the accrued liability for employee withholdings and records employer matching as expense.",
+            "clarification_question": null,
+            "cases": null,
+            "ambiguous": false
+          },
+          {
+            "aspect": "Treatment of income tax withholdings",
+            "input_contextualized_conventional_default": "Income tax withholdings of $1,450 are purely employee amounts withheld from wages \u2014 remittance reduces the liability with no employer expense component.",
+            "input_contextualized_ifrs_default": null,
+            "clarification_question": null,
+            "cases": null,
+            "ambiguous": false
+          },
+          {
+            "aspect": "Payment method",
+            "input_contextualized_conventional_default": "'remitted in cash' = cash payment at stated amounts.",
+            "input_contextualized_ifrs_default": null,
+            "clarification_question": null,
+            "cases": null,
+            "ambiguous": false
+          }
+        ],
+        "complexity_flags": [
+          {
+            "aspect": "Multi-component payroll remittance with employer matching",
+            "best_attempt": {
+              "reason": "Remittance of statutory deductions: employee withholdings reduce liabilities, employer matching portions are expenses, all paid in cash.",
+              "lines": [
+                {
+                  "type": "debit",
+                  "account_name": "Pension Payable",
+                  "amount": 2000.0
+                },
+                {
+                  "type": "debit",
+                  "account_name": "Pension Expense",
+                  "amount": 2000.0
+                },
+                {
+                  "type": "debit",
+                  "account_name": "Health Insurance Payable",
+                  "amount": 3250.0
+                },
+                {
+                  "type": "debit",
+                  "account_name": "Health Insurance Expense",
+                  "amount": 3250.0
+                },
+                {
+                  "type": "debit",
+                  "account_name": "Employment Insurance Payable",
+                  "amount": 1050.0
+                },
+                {
+                  "type": "debit",
+                  "account_name": "Employment Insurance Expense",
+                  "amount": 1050.0
+                },
+                {
+                  "type": "debit",
+                  "account_name": "Income Tax Payable",
+                  "amount": 1450.0
+                },
+                {
+                  "type": "credit",
+                  "account_name": "Cash",
+                  "amount": 14050.0
+                }
+              ]
+            },
+            "gap": null,
+            "beyond_llm_capability": false
+          }
+        ],
+        "proceed_reason": "IFRS payroll remittance convention resolves the split: employee withholdings reduce liabilities, employer matching is expense, and income tax withholdings are purely liability reductions.",
+        "clarification_questions": null,
+        "stuck_reason": null,
+        "overall_final_rationale": "The transaction clearly states remittance of combined employee withholdings and employer matching contributions with specific amounts, and IFRS payroll remittance rules resolve the treatment as 50/50 split for matching items and full liability reduction for income tax withholdings.",
+        "decision": "PROCEED"
+      }
+    ],
+    "output_entry_drafter": [
+      {
+        "reason": "Remittance of statutory deductions combining employee withholdings (liability decrease) and employer matching contributions (expense) for pension, health insurance, and employment insurance, plus employee income tax withholdings (liability decrease only)",
+        "lines": [
+          {
+            "type": "debit",
+            "account_name": "Employee Benefits Expense",
+            "amount": 6300.0
+          },
+          {
+            "type": "debit",
+            "account_name": "Pension Payable",
+            "amount": 2000.0
+          },
+          {
+            "type": "debit",
+            "account_name": "Health Insurance Payable",
+            "amount": 3250.0
+          },
+          {
+            "type": "debit",
+            "account_name": "Employment Insurance Payable",
+            "amount": 1050.0
+          },
+          {
+            "type": "debit",
+            "account_name": "Income Tax Payable",
+            "amount": 1450.0
+          },
+          {
+            "type": "credit",
+            "account_name": "Cash",
+            "amount": 14050.0
+          }
+        ]
+      }
+    ],
+    "output_disambiguator": [
+      {
+        "ambiguities": [
+          {
+            "aspect": "Split of employee withholdings vs employer matching contributions",
+            "input_contextualized_conventional_default": "IFRS payroll remittance rule: employee portion = liability decrease, employer portion = expense; text states 'combining employee withholdings with company's matching contributions' which implies equal split (50/50) for pension, health insurance, and employment insurance.",
+            "input_contextualized_ifrs_default": "IAS 19 requires employer contributions to be expensed when services are rendered; the remittance reduces the accrued liability for employee withholdings and records employer matching as expense.",
+            "clarification_question": null,
+            "cases": null,
+            "ambiguous": false
+          },
+          {
+            "aspect": "Treatment of income tax withholdings",
+            "input_contextualized_conventional_default": "Income tax withholdings of $1,450 are purely employee amounts withheld from wages \u2014 remittance reduces the liability with no employer expense component.",
+            "input_contextualized_ifrs_default": null,
+            "clarification_question": null,
+            "cases": null,
+            "ambiguous": false
+          },
+          {
+            "aspect": "Payment method",
+            "input_contextualized_conventional_default": "'remitted in cash' = cash payment at stated amounts.",
+            "input_contextualized_ifrs_default": null,
+            "clarification_question": null,
+            "cases": null,
+            "ambiguous": false
+          }
+        ]
+      }
+    ],
+    "output_debit_classifier": [
+      {
+        "asset_increase": [],
+        "expense_increase": [
+          {
+            "reason": "Company matching contributions for pension, health insurance, and employment insurance incurred as employee benefits expense",
+            "category": "Employee benefits expense",
+            "count": 3
+          }
+        ],
+        "liability_decrease": [
+          {
+            "reason": "Employee withholdings for pension, health insurance, employment insurance, and income tax remitted to government agencies",
+            "category": "Employee benefits payable",
+            "count": 4
+          }
+        ],
+        "equity_decrease": [],
+        "revenue_decrease": [],
+        "tuple": [
+          0,
+          3,
+          4,
+          0,
+          0
+        ]
+      }
+    ],
+    "output_credit_classifier": [
+      {
+        "liability_increase": [],
+        "equity_increase": [],
+        "revenue_increase": [],
+        "asset_decrease": [
+          {
+            "reason": "Cash remitted for statutory deductions and matching contributions to government agencies",
+            "category": "Cash and cash equivalents",
+            "count": 1
+          }
+        ],
+        "expense_decrease": [],
+        "tuple": [
+          0,
+          0,
+          0,
+          1,
+          0
+        ]
+      }
+    ],
+    "output_debit_corrector": [],
+    "output_credit_corrector": [],
+    "output_entry_builder": [],
+    "output_approver": [],
+    "output_diagnostician": [],
+    "status_ambiguity_detector": 1,
+    "status_complexity_detector": 1,
+    "status_tax_specialist": 1,
+    "status_decision_maker": 1,
+    "status_entry_drafter": 1,
+    "status_disambiguator": 1,
+    "status_debit_classifier": 1,
+    "status_credit_classifier": 1,
+    "status_debit_corrector": 0,
+    "status_credit_corrector": 0,
+    "status_entry_builder": 0,
+    "status_approver": 0,
+    "status_diagnostician": 0,
+    "fix_context_disambiguator": [],
+    "fix_context_debit_classifier": [],
+    "fix_context_credit_classifier": [],
+    "fix_context_debit_corrector": [],
+    "fix_context_credit_corrector": [],
+    "fix_context_entry_builder": [],
+    "fix_context_approver": [],
+    "fix_context_diagnostician": [],
+    "decision": "APPROVED",
+    "validation_error": null,
+    "llm_calls": [
+      {
+        "node": "tax_specialist",
+        "stop_reason": "tool_use",
+        "input_tokens": 574,
+        "output_tokens": 185,
+        "input_token_details": {
+          "cache_read": 3455,
+          "cache_creation": 0
+        }
+      },
+      {
+        "node": "credit_classifier",
+        "stop_reason": "tool_use",
+        "input_tokens": 532,
+        "output_tokens": 158,
+        "input_token_details": {
+          "cache_read": 4212,
+          "cache_creation": 0
+        }
+      },
+      {
+        "node": "debit_classifier",
+        "stop_reason": "tool_use",
+        "input_tokens": 535,
+        "output_tokens": 197,
+        "input_token_details": {
+          "cache_read": 4291,
+          "cache_creation": 0
+        }
+      },
+      {
+        "node": "unknown",
+        "stop_reason": "tool_use",
+        "input_tokens": 591,
+        "output_tokens": 748,
+        "input_token_details": {
+          "cache_read": 4550,
+          "cache_creation": 0
+        }
+      },
+      {
+        "node": "entry_drafter",
+        "stop_reason": "tool_use",
+        "input_tokens": 1192,
+        "output_tokens": 324,
+        "input_token_details": {
+          "cache_read": 3511,
+          "cache_creation": 0
+        }
+      }
+    ],
+    "stop_reasons": {
+      "tax_specialist": "tool_use",
+      "credit_classifier": "tool_use",
+      "debit_classifier": "tool_use",
+      "unknown": "tool_use",
+      "entry_drafter": "tool_use"
+    }
+  }
+}

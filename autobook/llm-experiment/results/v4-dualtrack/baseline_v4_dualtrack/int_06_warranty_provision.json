@@ -1,0 +1,453 @@
+{
+  "test_case_id": "int_06_warranty_provision",
+  "variant_name": "baseline_v4_dualtrack",
+  "model": "sonnet",
+  "debit_tuple_exact_match": true,
+  "credit_tuple_exact_match": true,
+  "debit_tuple_slot_accuracy": 0.8333333333333334,
+  "credit_tuple_slot_accuracy": 0.8333333333333334,
+  "entry_valid": true,
+  "debit_tuple": [
+    0,
+    1,
+    0,
+    0,
+    0
+  ],
+  "credit_tuple": [
+    1,
+    0,
+    0,
+    0,
+    0
+  ],
+  "journal_entry": {
+    "reason": "Warranty provision recognized at expected value based on probability-weighted repair and replacement costs",
+    "lines": [
+      {
+        "type": "debit",
+        "account_name": "Warranty expense",
+        "amount": 900000.0
+      },
+      {
+        "type": "credit",
+        "account_name": "Warranty provisions",
+        "amount": 900000.0
+      }
+    ]
+  },
+  "actual_cost_usd": 0.0362046,
+  "raw_cost_usd": 0.098472,
+  "total_latency_ms": 16361,
+  "total_input_tokens": 27274,
+  "total_output_tokens": 1110,
+  "total_llm_calls": 6,
+  "iteration_count": 1,
+  "final_decision": "APPROVED",
+  "fix_attempted": null,
+  "fix_succeeded": null,
+  "agent_metrics": {
+    "tax_specialist": {
+      "input_tokens": 569,
+      "output_tokens": 136,
+      "cache_read_tokens": 3277,
+      "cache_write_tokens": 0,
+      "total_input_tokens": 3846,
+      "llm_calls": 1,
+      "actual_cost_usd": 0.0047301,
+      "raw_cost_usd": 0.013578,
+      "output": {
+        "reasoning": "Transaction describes recording a warranty provision based on probability-weighted expected costs. Provisions are not taxable supplies; no tax mentioned in text.",
+        "tax_mentioned": false,
+        "taxable": false,
+        "add_tax_lines": false,
+        "tax_rate": null,
+        "tax_amount": null,
+        "treatment": "not_applicable"
+      },
+      "reason": null
+    },
+    "credit_classifier": {
+      "input_tokens": 544,
+      "output_tokens": 160,
+      "cache_read_tokens": 4203,
+      "cache_write_tokens": 0,
+      "total_input_tokens": 4747,
+      "llm_calls": 1,
+      "actual_cost_usd": 0.0052929,
+      "raw_cost_usd": 0.016641,
+      "output": {
+        "liability_increase": [
+          {
+            "reason": "Warranty provision recognized for expected future repair and replacement costs based on probability-weighted estimates",
+            "category": "Warranty provisions",
+            "count": 1
+          }
+        ],
+        "equity_increase": [],
+        "revenue_increase": [],
+        "asset_decrease": [],
+        "expense_decrease": [],
+        "tuple": [
+          1,
+          0,
+          0,
+          0,
+          0
+        ]
+      },
+      "reason": null
+    },
+    "debit_classifier": {
+      "input_tokens": 547,
+      "output_tokens": 147,
+      "cache_read_tokens": 4282,
+      "cache_write_tokens": 0,
+      "total_input_tokens": 4829,
+      "llm_calls": 1,
+      "actual_cost_usd": 0.005130600000000001,
+      "raw_cost_usd": 0.016692,
+      "output": {
+        "asset_increase": [],
+        "expense_increase": [
+          {
+            "reason": "Warranty expense recognized for expected cost of repairs and replacements based on historical probability",
+            "category": "Cost of sales",
+            "count": 1
+          }
+        ],
+        "liability_decrease": [],
+        "equity_decrease": [],
+        "revenue_decrease": [],
+        "tuple": [
+          0,
+          1,
+          0,
+          0,
+          0
+        ]
+      },
+      "reason": null
+    },
+    "unknown": {
+      "input_tokens": 603,
+      "output_tokens": 433,
+      "cache_read_tokens": 4550,
+      "cache_write_tokens": 0,
+      "total_input_tokens": 5153,
+      "llm_calls": 1,
+      "actual_cost_usd": 0.009669,
+      "raw_cost_usd": 0.021954,
+      "output": null,
+      "reason": null
+    },
+    "entry_drafter": {
+      "input_tokens": 1949,
+      "output_tokens": 234,
+      "cache_read_tokens": 6750,
+      "cache_write_tokens": 0,
+      "total_input_tokens": 8699,
+      "llm_calls": 2,
+      "actual_cost_usd": 0.011382,
+      "raw_cost_usd": 0.029607,
+      "output": {
+        "reason": "Warranty provision recognized at expected value based on probability-weighted repair and replacement costs",
+        "lines": [
+          {
+            "type": "debit",
+            "account_name": "Warranty expense",
+            "amount": 900000.0
+          },
+          {
+            "type": "credit",
+            "account_name": "Warranty provisions",
+            "amount": 900000.0
+          }
+        ]
+      },
+      "reason": "Warranty provision recognized at expected value based on probability-weighted repair and replacement costs"
+    }
+  },
+  "pre_fix_debit_tuple": null,
+  "post_fix_debit_tuple": null,
+  "pre_fix_credit_tuple": null,
+  "post_fix_credit_tuple": null,
+  "fix_root_cause_agent": null,
+  "rejection_reason": null,
+  "diagnostician_decision": null,
+  "validation_error": null,
+  "decision_correct": true,
+  "entry_match": null,
+  "clarification_correct": null,
+  "clarification_questions": null,
+  "ambiguous": false,
+  "tier": "intermediate",
+  "error": null,
+  "pipeline_state": {
+    "iteration": 0,
+    "output_ambiguity_detector": [
+      {
+        "ambiguities": [
+          {
+            "aspect": "Timing of provision recognition",
+            "input_contextualized_conventional_default": "Product warranty provisions are recognized when the sale occurs, creating a present obligation \u2014 the text describes the warranty policy and probability estimates, implying recognition is required now.",
+            "input_contextualized_ifrs_default": "IAS 37 requires recognition of a provision when there is a present obligation, probable outflow, and reliable estimate \u2014 all conditions are met here with stated probabilities and costs.",
+            "clarification_question": null,
+            "cases": null,
+            "ambiguous": false
+          }
+        ]
+      }
+    ],
+    "output_complexity_detector": [
+      {
+        "flags": [
+          {
+            "aspect": "Expected value calculation for warranty provision",
+            "best_attempt": {
+              "reason": "IAS 37 requires expected value when there is a large population of items \u2014 calculated as (20% \u00d7 $2,000,000) + (5% \u00d7 $10,000,000) = $400,000 + $500,000 = $900,000 provision.",
+              "lines": [
+                {
+                  "type": "debit",
+                  "account_name": "Warranty Expense",
+                  "amount": 900000.0
+                },
+                {
+                  "type": "credit",
+                  "account_name": "Warranty Provision",
+                  "amount": 900000.0
+                }
+              ]
+            },
+            "gap": null,
+            "beyond_llm_capability": false
+          }
+        ]
+      }
+    ],
+    "output_tax_specialist": [
+      {
+        "reasoning": "Transaction describes recording a warranty provision based on probability-weighted expected costs. Provisions are not taxable supplies; no tax mentioned in text.",
+        "tax_mentioned": false,
+        "taxable": false,
+        "add_tax_lines": false,
+        "tax_rate": null,
+        "tax_amount": null,
+        "treatment": "not_applicable"
+      }
+    ],
+    "output_decision_maker": [
+      {
+        "ambiguities": [
+          {
+            "aspect": "Timing of provision recognition",
+            "input_contextualized_conventional_default": "Product warranty provisions are recognized when the sale occurs, creating a present obligation \u2014 the text describes the warranty policy and probability estimates, implying recognition is required now.",
+            "input_contextualized_ifrs_default": "IAS 37 requires recognition of a provision when there is a present obligation, probable outflow, and reliable estimate \u2014 all conditions are met here with stated probabilities and costs.",
+            "clarification_question": null,
+            "cases": null,
+            "ambiguous": false
+          }
+        ],
+        "complexity_flags": [
+          {
+            "aspect": "Expected value calculation for warranty provision",
+            "best_attempt": {
+              "reason": "IAS 37 requires expected value when there is a large population of items \u2014 calculated as (20% \u00d7 $2,000,000) + (5% \u00d7 $10,000,000) = $400,000 + $500,000 = $900,000 provision.",
+              "lines": [
+                {
+                  "type": "debit",
+                  "account_name": "Warranty Expense",
+                  "amount": 900000.0
+                },
+                {
+                  "type": "credit",
+                  "account_name": "Warranty Provision",
+                  "amount": 900000.0
+                }
+              ]
+            },
+            "gap": null,
+            "beyond_llm_capability": false
+          }
+        ],
+        "proceed_reason": "Transaction provides all necessary inputs (probabilities and estimated costs) for computing the warranty provision under IAS 37 expected value method.",
+        "clarification_questions": null,
+        "stuck_reason": null,
+        "overall_final_rationale": "All inputs for the expected value calculation are stated (probabilities and costs), and IAS 37 provides clear guidance on warranty provision recognition using expected value method.",
+        "decision": "PROCEED"
+      }
+    ],
+    "output_entry_drafter": [
+      {
+        "reason": "Warranty provision recognized at expected value based on probability-weighted repair and replacement costs",
+        "lines": [
+          {
+            "type": "debit",
+            "account_name": "Warranty expense",
+            "amount": 900000.0
+          },
+          {
+            "type": "credit",
+            "account_name": "Warranty provisions",
+            "amount": 900000.0
+          }
+        ]
+      }
+    ],
+    "output_disambiguator": [
+      {
+        "ambiguities": [
+          {
+            "aspect": "Timing of provision recognition",
+            "input_contextualized_conventional_default": "Product warranty provisions are recognized when the sale occurs, creating a present obligation \u2014 the text describes the warranty policy and probability estimates, implying recognition is required now.",
+            "input_contextualized_ifrs_default": "IAS 37 requires recognition of a provision when there is a present obligation, probable outflow, and reliable estimate \u2014 all conditions are met here with stated probabilities and costs.",
+            "clarification_question": null,
+            "cases": null,
+            "ambiguous": false
+          }
+        ]
+      }
+    ],
+    "output_debit_classifier": [
+      {
+        "asset_increase": [],
+        "expense_increase": [
+          {
+            "reason": "Warranty expense recognized for expected cost of repairs and replacements based on historical probability",
+            "category": "Cost of sales",
+            "count": 1
+          }
+        ],
+        "liability_decrease": [],
+        "equity_decrease": [],
+        "revenue_decrease": [],
+        "tuple": [
+          0,
+          1,
+          0,
+          0,
+          0
+        ]
+      }
+    ],
+    "output_credit_classifier": [
+      {
+        "liability_increase": [
+          {
+            "reason": "Warranty provision recognized for expected future repair and replacement costs based on probability-weighted estimates",
+            "category": "Warranty provisions",
+            "count": 1
+          }
+        ],
+        "equity_increase": [],
+        "revenue_increase": [],
+        "asset_decrease": [],
+        "expense_decrease": [],
+        "tuple": [
+          1,
+          0,
+          0,
+          0,
+          0
+        ]
+      }
+    ],
+    "output_debit_corrector": [],
+    "output_credit_corrector": [],
+    "output_entry_builder": [],
+    "output_approver": [],
+    "output_diagnostician": [],
+    "status_ambiguity_detector": 1,
+    "status_complexity_detector": 1,
+    "status_tax_specialist": 1,
+    "status_decision_maker": 1,
+    "status_entry_drafter": 1,
+    "status_disambiguator": 1,
+    "status_debit_classifier": 1,
+    "status_credit_classifier": 1,
+    "status_debit_corrector": 0,
+    "status_credit_corrector": 0,
+    "status_entry_builder": 0,
+    "status_approver": 0,
+    "status_diagnostician": 0,
+    "fix_context_disambiguator": [],
+    "fix_context_debit_classifier": [],
+    "fix_context_credit_classifier": [],
+    "fix_context_debit_corrector": [],
+    "fix_context_credit_corrector": [],
+    "fix_context_entry_builder": [],
+    "fix_context_approver": [],
+    "fix_context_diagnostician": [],
+    "decision": "APPROVED",
+    "validation_error": null,
+    "llm_calls": [
+      {
+        "node": "tax_specialist",
+        "stop_reason": "tool_use",
+        "input_tokens": 569,
+        "output_tokens": 136,
+        "input_token_details": {
+          "cache_read": 3277,
+          "cache_creation": 0
+        }
+      },
+      {
+        "node": "credit_classifier",
+        "stop_reason": "tool_use",
+        "input_tokens": 544,
+        "output_tokens": 160,
+        "input_token_details": {
+          "cache_read": 4203,
+          "cache_creation": 0
+        }
+      },
+      {
+        "node": "debit_classifier",
+        "stop_reason": "tool_use",
+        "input_tokens": 547,
+        "output_tokens": 147,
+        "input_token_details": {
+          "cache_read": 4282,
+          "cache_creation": 0
+        }
+      },
+      {
+        "node": "unknown",
+        "stop_reason": "tool_use",
+        "input_tokens": 603,
+        "output_tokens": 433,
+        "input_token_details": {
+          "cache_read": 4550,
+          "cache_creation": 0
+        }
+      },
+      {
+        "node": "entry_drafter",
+        "stop_reason": "tool_use",
+        "input_tokens": 899,
+        "output_tokens": 94,
+        "input_token_details": {
+          "cache_read": 3405,
+          "cache_creation": 0
+        }
+      },
+      {
+        "node": "entry_drafter",
+        "stop_reason": "tool_use",
+        "input_tokens": 1050,
+        "output_tokens": 140,
+        "input_token_details": {
+          "cache_read": 3345,
+          "cache_creation": 0
+        }
+      }
+    ],
+    "stop_reasons": {
+      "tax_specialist": "tool_use",
+      "credit_classifier": "tool_use",
+      "debit_classifier": "tool_use",
+      "unknown": "tool_use",
+      "entry_drafter": "tool_use"
+    }
+  }
+}

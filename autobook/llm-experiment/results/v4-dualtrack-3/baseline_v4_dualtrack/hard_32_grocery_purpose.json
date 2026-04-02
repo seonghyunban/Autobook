@@ -1,0 +1,608 @@
+{
+  "test_case_id": "hard_32_grocery_purpose",
+  "variant_name": "baseline_v4_dualtrack",
+  "model": "sonnet",
+  "debit_tuple_exact_match": false,
+  "credit_tuple_exact_match": false,
+  "debit_tuple_slot_accuracy": 0.0,
+  "credit_tuple_slot_accuracy": 0.0,
+  "entry_valid": true,
+  "debit_tuple": [
+    1,
+    1,
+    0,
+    0,
+    0
+  ],
+  "credit_tuple": [
+    2,
+    0,
+    0,
+    0,
+    0
+  ],
+  "journal_entry": null,
+  "actual_cost_usd": 0.0308034,
+  "raw_cost_usd": 0.075375,
+  "total_latency_ms": 11067,
+  "total_input_tokens": 18620,
+  "total_output_tokens": 1301,
+  "total_llm_calls": 4,
+  "iteration_count": 1,
+  "final_decision": "INCOMPLETE_INFORMATION",
+  "fix_attempted": null,
+  "fix_succeeded": null,
+  "agent_metrics": {
+    "debit_classifier": {
+      "input_tokens": 505,
+      "output_tokens": 199,
+      "cache_read_tokens": 4291,
+      "cache_write_tokens": 0,
+      "total_input_tokens": 4796,
+      "llm_calls": 1,
+      "actual_cost_usd": 0.0057873,
+      "raw_cost_usd": 0.017373,
+      "output": {
+        "asset_increase": [
+          {
+            "reason": "Recoverable sales tax on taxable purchase recorded as input tax credit",
+            "category": "Tax assets",
+            "count": 1
+          }
+        ],
+        "expense_increase": [
+          {
+            "reason": "Tea, beverages, and refreshments purchased for office consumption",
+            "category": "Entertainment expense",
+            "count": 1
+          }
+        ],
+        "liability_decrease": [],
+        "equity_decrease": [],
+        "revenue_decrease": [],
+        "tuple": [
+          1,
+          1,
+          0,
+          0,
+          0
+        ]
+      },
+      "reason": null
+    },
+    "credit_classifier": {
+      "input_tokens": 502,
+      "output_tokens": 192,
+      "cache_read_tokens": 4212,
+      "cache_write_tokens": 0,
+      "total_input_tokens": 4714,
+      "llm_calls": 1,
+      "actual_cost_usd": 0.0056496,
+      "raw_cost_usd": 0.017022,
+      "output": {
+        "liability_increase": [
+          {
+            "reason": "Sales tax payable on grocery purchase",
+            "category": "Tax liabilities",
+            "count": 1
+          },
+          {
+            "reason": "Amount charged to corporate credit card for grocery purchase",
+            "category": "Accrued liabilities",
+            "count": 1
+          }
+        ],
+        "equity_increase": [],
+        "revenue_increase": [],
+        "asset_decrease": [],
+        "expense_decrease": [],
+        "tuple": [
+          2,
+          0,
+          0,
+          0,
+          0
+        ]
+      },
+      "reason": null
+    },
+    "tax_specialist": {
+      "input_tokens": 544,
+      "output_tokens": 213,
+      "cache_read_tokens": 3455,
+      "cache_write_tokens": 0,
+      "total_input_tokens": 3999,
+      "llm_calls": 1,
+      "actual_cost_usd": 0.0058635,
+      "raw_cost_usd": 0.015192,
+      "output": {
+        "reasoning": "Text explicitly states \"10% sales tax\" on $1,200 purchase of groceries/refreshments. This is a taxable supply and tax is mentioned.",
+        "tax_mentioned": true,
+        "taxable": true,
+        "tax_context": "10% sales tax applies to the $1,200 purchase amount (groceries/refreshments are taxable supplies). Tax is recoverable as input tax credit.",
+        "tax_rate": 0.1,
+        "add_tax_lines": true,
+        "treatment": "recoverable"
+      },
+      "reason": null
+    },
+    "unknown": {
+      "input_tokens": 561,
+      "output_tokens": 697,
+      "cache_read_tokens": 4550,
+      "cache_write_tokens": 0,
+      "total_input_tokens": 5111,
+      "llm_calls": 1,
+      "actual_cost_usd": 0.013503,
+      "raw_cost_usd": 0.025788,
+      "output": null,
+      "reason": null
+    }
+  },
+  "pre_fix_debit_tuple": null,
+  "post_fix_debit_tuple": null,
+  "pre_fix_credit_tuple": null,
+  "post_fix_credit_tuple": null,
+  "fix_root_cause_agent": null,
+  "rejection_reason": null,
+  "diagnostician_decision": null,
+  "validation_error": null,
+  "decision_correct": true,
+  "entry_match": false,
+  "clarification_correct": null,
+  "clarification_questions": [
+    "What was the business purpose of this purchase (e.g., office supplies for staff, client entertainment, meeting refreshments)?"
+  ],
+  "ambiguous": true,
+  "tier": "hard",
+  "error": null,
+  "pipeline_state": {
+    "iteration": 0,
+    "output_ambiguity_detector": [
+      {
+        "ambiguities": [
+          {
+            "aspect": "Purpose of tea, beverages, and refreshments purchase",
+            "input_contextualized_conventional_default": null,
+            "input_contextualized_ifrs_default": null,
+            "clarification_question": "What was the business purpose of this purchase (e.g., office supplies for staff, client entertainment, meeting refreshments)?",
+            "cases": [
+              {
+                "case": "Office supplies for staff consumption",
+                "possible_entry": {
+                  "reason": "Refreshments for general office use are classified as office supplies expense",
+                  "lines": [
+                    {
+                      "type": "debit",
+                      "account_name": "Office Supplies Expense",
+                      "amount": 1200.0
+                    },
+                    {
+                      "type": "debit",
+                      "account_name": "Input Tax Credit / Tax Assets",
+                      "amount": 120.0
+                    },
+                    {
+                      "type": "credit",
+                      "account_name": "Credit Card Payable",
+                      "amount": 1320.0
+                    }
+                  ]
+                }
+              },
+              {
+                "case": "Client entertainment or hospitality",
+                "possible_entry": {
+                  "reason": "Refreshments for client entertainment are classified as entertainment expense",
+                  "lines": [
+                    {
+                      "type": "debit",
+                      "account_name": "Entertainment Expense",
+                      "amount": 1200.0
+                    },
+                    {
+                      "type": "debit",
+                      "account_name": "Input Tax Credit / Tax Assets",
+                      "amount": 120.0
+                    },
+                    {
+                      "type": "credit",
+                      "account_name": "Credit Card Payable",
+                      "amount": 1320.0
+                    }
+                  ]
+                }
+              },
+              {
+                "case": "Meeting or conference refreshments",
+                "possible_entry": {
+                  "reason": "Refreshments for business meetings are classified as meeting expense",
+                  "lines": [
+                    {
+                      "type": "debit",
+                      "account_name": "Meeting Expense",
+                      "amount": 1200.0
+                    },
+                    {
+                      "type": "debit",
+                      "account_name": "Input Tax Credit / Tax Assets",
+                      "amount": 120.0
+                    },
+                    {
+                      "type": "credit",
+                      "account_name": "Credit Card Payable",
+                      "amount": 1320.0
+                    }
+                  ]
+                }
+              }
+            ],
+            "ambiguous": true
+          },
+          {
+            "aspect": "Tax treatment - recoverable vs non-recoverable",
+            "input_contextualized_conventional_default": null,
+            "input_contextualized_ifrs_default": "Buyer-side tax on purchases is recoverable as Input Tax Credit / Tax Assets per IFRS rules for registered corporations",
+            "clarification_question": null,
+            "cases": null,
+            "ambiguous": false
+          }
+        ]
+      }
+    ],
+    "output_complexity_detector": [
+      {
+        "flags": [
+          {
+            "aspect": "Tax calculation and allocation",
+            "best_attempt": null,
+            "gap": null,
+            "beyond_llm_capability": false
+          }
+        ]
+      }
+    ],
+    "output_tax_specialist": [
+      {
+        "reasoning": "Text explicitly states \"10% sales tax\" on $1,200 purchase of groceries/refreshments. This is a taxable supply and tax is mentioned.",
+        "tax_mentioned": true,
+        "taxable": true,
+        "tax_context": "10% sales tax applies to the $1,200 purchase amount (groceries/refreshments are taxable supplies). Tax is recoverable as input tax credit.",
+        "tax_rate": 0.1,
+        "add_tax_lines": true,
+        "treatment": "recoverable"
+      }
+    ],
+    "output_decision_maker": [
+      {
+        "ambiguities": [
+          {
+            "aspect": "Purpose of tea, beverages, and refreshments purchase",
+            "input_contextualized_conventional_default": null,
+            "input_contextualized_ifrs_default": null,
+            "clarification_question": "What was the business purpose of this purchase (e.g., office supplies for staff, client entertainment, meeting refreshments)?",
+            "cases": [
+              {
+                "case": "Office supplies for staff consumption",
+                "possible_entry": {
+                  "reason": "Refreshments for general office use are classified as office supplies expense",
+                  "lines": [
+                    {
+                      "type": "debit",
+                      "account_name": "Office Supplies Expense",
+                      "amount": 1200.0
+                    },
+                    {
+                      "type": "debit",
+                      "account_name": "Input Tax Credit / Tax Assets",
+                      "amount": 120.0
+                    },
+                    {
+                      "type": "credit",
+                      "account_name": "Credit Card Payable",
+                      "amount": 1320.0
+                    }
+                  ]
+                }
+              },
+              {
+                "case": "Client entertainment or hospitality",
+                "possible_entry": {
+                  "reason": "Refreshments for client entertainment are classified as entertainment expense",
+                  "lines": [
+                    {
+                      "type": "debit",
+                      "account_name": "Entertainment Expense",
+                      "amount": 1200.0
+                    },
+                    {
+                      "type": "debit",
+                      "account_name": "Input Tax Credit / Tax Assets",
+                      "amount": 120.0
+                    },
+                    {
+                      "type": "credit",
+                      "account_name": "Credit Card Payable",
+                      "amount": 1320.0
+                    }
+                  ]
+                }
+              },
+              {
+                "case": "Meeting or conference refreshments",
+                "possible_entry": {
+                  "reason": "Refreshments for business meetings are classified as meeting expense",
+                  "lines": [
+                    {
+                      "type": "debit",
+                      "account_name": "Meeting Expense",
+                      "amount": 1200.0
+                    },
+                    {
+                      "type": "debit",
+                      "account_name": "Input Tax Credit / Tax Assets",
+                      "amount": 120.0
+                    },
+                    {
+                      "type": "credit",
+                      "account_name": "Credit Card Payable",
+                      "amount": 1320.0
+                    }
+                  ]
+                }
+              }
+            ],
+            "ambiguous": true
+          },
+          {
+            "aspect": "Tax treatment - recoverable vs non-recoverable",
+            "input_contextualized_conventional_default": null,
+            "input_contextualized_ifrs_default": "Buyer-side tax on purchases is recoverable as Input Tax Credit / Tax Assets per IFRS rules for registered corporations",
+            "clarification_question": null,
+            "cases": null,
+            "ambiguous": false
+          }
+        ],
+        "complexity_flags": [
+          {
+            "aspect": "Tax calculation and allocation",
+            "best_attempt": null,
+            "gap": null,
+            "beyond_llm_capability": false
+          }
+        ],
+        "proceed_reason": null,
+        "clarification_questions": [
+          "What was the business purpose of this purchase (e.g., office supplies for staff, client entertainment, meeting refreshments)?"
+        ],
+        "stuck_reason": null,
+        "overall_final_rationale": "The expense account classification depends on the business purpose of the refreshments, which is not stated in the transaction text.",
+        "decision": "MISSING_INFO"
+      }
+    ],
+    "output_entry_drafter": [],
+    "output_disambiguator": [
+      {
+        "ambiguities": [
+          {
+            "aspect": "Purpose of tea, beverages, and refreshments purchase",
+            "input_contextualized_conventional_default": null,
+            "input_contextualized_ifrs_default": null,
+            "clarification_question": "What was the business purpose of this purchase (e.g., office supplies for staff, client entertainment, meeting refreshments)?",
+            "cases": [
+              {
+                "case": "Office supplies for staff consumption",
+                "possible_entry": {
+                  "reason": "Refreshments for general office use are classified as office supplies expense",
+                  "lines": [
+                    {
+                      "type": "debit",
+                      "account_name": "Office Supplies Expense",
+                      "amount": 1200.0
+                    },
+                    {
+                      "type": "debit",
+                      "account_name": "Input Tax Credit / Tax Assets",
+                      "amount": 120.0
+                    },
+                    {
+                      "type": "credit",
+                      "account_name": "Credit Card Payable",
+                      "amount": 1320.0
+                    }
+                  ]
+                }
+              },
+              {
+                "case": "Client entertainment or hospitality",
+                "possible_entry": {
+                  "reason": "Refreshments for client entertainment are classified as entertainment expense",
+                  "lines": [
+                    {
+                      "type": "debit",
+                      "account_name": "Entertainment Expense",
+                      "amount": 1200.0
+                    },
+                    {
+                      "type": "debit",
+                      "account_name": "Input Tax Credit / Tax Assets",
+                      "amount": 120.0
+                    },
+                    {
+                      "type": "credit",
+                      "account_name": "Credit Card Payable",
+                      "amount": 1320.0
+                    }
+                  ]
+                }
+              },
+              {
+                "case": "Meeting or conference refreshments",
+                "possible_entry": {
+                  "reason": "Refreshments for business meetings are classified as meeting expense",
+                  "lines": [
+                    {
+                      "type": "debit",
+                      "account_name": "Meeting Expense",
+                      "amount": 1200.0
+                    },
+                    {
+                      "type": "debit",
+                      "account_name": "Input Tax Credit / Tax Assets",
+                      "amount": 120.0
+                    },
+                    {
+                      "type": "credit",
+                      "account_name": "Credit Card Payable",
+                      "amount": 1320.0
+                    }
+                  ]
+                }
+              }
+            ],
+            "ambiguous": true
+          },
+          {
+            "aspect": "Tax treatment - recoverable vs non-recoverable",
+            "input_contextualized_conventional_default": null,
+            "input_contextualized_ifrs_default": "Buyer-side tax on purchases is recoverable as Input Tax Credit / Tax Assets per IFRS rules for registered corporations",
+            "clarification_question": null,
+            "cases": null,
+            "ambiguous": false
+          }
+        ]
+      }
+    ],
+    "output_debit_classifier": [
+      {
+        "asset_increase": [
+          {
+            "reason": "Recoverable sales tax on taxable purchase recorded as input tax credit",
+            "category": "Tax assets",
+            "count": 1
+          }
+        ],
+        "expense_increase": [
+          {
+            "reason": "Tea, beverages, and refreshments purchased for office consumption",
+            "category": "Entertainment expense",
+            "count": 1
+          }
+        ],
+        "liability_decrease": [],
+        "equity_decrease": [],
+        "revenue_decrease": [],
+        "tuple": [
+          1,
+          1,
+          0,
+          0,
+          0
+        ]
+      }
+    ],
+    "output_credit_classifier": [
+      {
+        "liability_increase": [
+          {
+            "reason": "Sales tax payable on grocery purchase",
+            "category": "Tax liabilities",
+            "count": 1
+          },
+          {
+            "reason": "Amount charged to corporate credit card for grocery purchase",
+            "category": "Accrued liabilities",
+            "count": 1
+          }
+        ],
+        "equity_increase": [],
+        "revenue_increase": [],
+        "asset_decrease": [],
+        "expense_decrease": [],
+        "tuple": [
+          2,
+          0,
+          0,
+          0,
+          0
+        ]
+      }
+    ],
+    "output_debit_corrector": [],
+    "output_credit_corrector": [],
+    "output_entry_builder": [],
+    "output_approver": [],
+    "output_diagnostician": [],
+    "status_ambiguity_detector": 1,
+    "status_complexity_detector": 1,
+    "status_tax_specialist": 1,
+    "status_decision_maker": 1,
+    "status_entry_drafter": 0,
+    "status_disambiguator": 1,
+    "status_debit_classifier": 1,
+    "status_credit_classifier": 1,
+    "status_debit_corrector": 0,
+    "status_credit_corrector": 0,
+    "status_entry_builder": 0,
+    "status_approver": 0,
+    "status_diagnostician": 0,
+    "fix_context_disambiguator": [],
+    "fix_context_debit_classifier": [],
+    "fix_context_credit_classifier": [],
+    "fix_context_debit_corrector": [],
+    "fix_context_credit_corrector": [],
+    "fix_context_entry_builder": [],
+    "fix_context_approver": [],
+    "fix_context_diagnostician": [],
+    "decision": "INCOMPLETE_INFORMATION",
+    "validation_error": null,
+    "llm_calls": [
+      {
+        "node": "debit_classifier",
+        "stop_reason": "tool_use",
+        "input_tokens": 505,
+        "output_tokens": 199,
+        "input_token_details": {
+          "cache_read": 4291,
+          "cache_creation": 0
+        }
+      },
+      {
+        "node": "credit_classifier",
+        "stop_reason": "tool_use",
+        "input_tokens": 502,
+        "output_tokens": 192,
+        "input_token_details": {
+          "cache_read": 4212,
+          "cache_creation": 0
+        }
+      },
+      {
+        "node": "tax_specialist",
+        "stop_reason": "tool_use",
+        "input_tokens": 544,
+        "output_tokens": 213,
+        "input_token_details": {
+          "cache_read": 3455,
+          "cache_creation": 0
+        }
+      },
+      {
+        "node": "unknown",
+        "stop_reason": "tool_use",
+        "input_tokens": 561,
+        "output_tokens": 697,
+        "input_token_details": {
+          "cache_read": 4550,
+          "cache_creation": 0
+        }
+      }
+    ],
+    "stop_reasons": {
+      "debit_classifier": "tool_use",
+      "credit_classifier": "tool_use",
+      "tax_specialist": "tool_use",
+      "unknown": "tool_use"
+    }
+  }
+}

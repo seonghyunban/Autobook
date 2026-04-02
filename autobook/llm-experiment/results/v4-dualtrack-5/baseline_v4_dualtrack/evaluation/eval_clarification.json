@@ -1,0 +1,42 @@
+{
+  "evaluator": "claude",
+  "evaluated_at": "2026-04-01T18:00:00Z",
+  "prompt_version": "v4",
+  "results": {
+    "hard_01_note_discounting": {
+      "actual_decision": "INCOMPLETE_INFORMATION",
+      "actual_questions": ["Was this a sale of the note receivable (derecognition) or a secured borrowing with the note as collateral?"],
+      "expected_cases": ["Derecognition", "Collateralized borrowing"],
+      "relevant": true,
+      "reason": "Business fact question distinguishing sale vs borrowing arrangement."
+    },
+    "hard_02_investment_classification": {
+      "actual_decision": "INCOMPLETE_INFORMATION",
+      "actual_questions": ["What is the intended classification for this investment: FVTPL, FVOCI, or equity method (significant influence)?"],
+      "expected_cases": ["FVTPL", "FVOCI", "Equity method"],
+      "relevant": false,
+      "reason": "Asks about accounting classification directly rather than business facts like significant influence or trading intent."
+    },
+    "hard_16_rent_treatment": {
+      "actual_decision": "INCOMPLETE_INFORMATION",
+      "actual_questions": ["Does the company elect to recognize this 12-month lease as a short-term lease expense immediately, or as a prepaid asset to be amortized monthly?"],
+      "expected_cases": ["Prepaid asset", "Immediate expense (IFRS 16)"],
+      "relevant": false,
+      "reason": "Asks about accounting policy election rather than business facts like lease term or existing policy."
+    },
+    "hard_27_meal_purpose": {
+      "actual_decision": "INCOMPLETE_INFORMATION",
+      "actual_questions": ["What was the business purpose of this meal?"],
+      "expected_cases": ["Overtime meal", "Working meeting", "Client entertainment", "Factory staff meal"],
+      "relevant": true,
+      "reason": "Open-ended business fact question that resolves all interpretations."
+    },
+    "hard_32_grocery_purpose": {
+      "actual_decision": "INCOMPLETE_INFORMATION",
+      "actual_questions": ["What was the business purpose of this purchase (e.g., office supplies for employee use, client entertainment, meeting refreshments)?"],
+      "expected_cases": ["Client entertainment", "Employee break room supplies"],
+      "relevant": true,
+      "reason": "Business fact question with examples covering both interpretations."
+    }
+  }
+}

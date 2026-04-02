@@ -1,0 +1,466 @@
+{
+  "test_case_id": "int_14_vehicle_mixed_payment",
+  "variant_name": "baseline_v4_dualtrack",
+  "model": "sonnet",
+  "debit_tuple_exact_match": true,
+  "credit_tuple_exact_match": true,
+  "debit_tuple_slot_accuracy": 0.8333333333333334,
+  "credit_tuple_slot_accuracy": 0.8333333333333334,
+  "entry_valid": true,
+  "debit_tuple": [
+    1,
+    0,
+    0,
+    0,
+    0
+  ],
+  "credit_tuple": [
+    1,
+    0,
+    0,
+    1,
+    0
+  ],
+  "journal_entry": {
+    "reason": "Delivery vehicle acquired for $40,000 with $20,000 cash payment and $20,000 short-term promissory note",
+    "lines": [
+      {
+        "type": "debit",
+        "account_name": "Motor Vehicles",
+        "amount": 40000.0
+      },
+      {
+        "type": "credit",
+        "account_name": "Cash and Cash Equivalents",
+        "amount": 20000.0
+      },
+      {
+        "type": "credit",
+        "account_name": "Notes Payable",
+        "amount": 20000.0
+      }
+    ]
+  },
+  "actual_cost_usd": 0.0311457,
+  "raw_cost_usd": 0.085197,
+  "total_latency_ms": 14627,
+  "total_input_tokens": 23199,
+  "total_output_tokens": 1040,
+  "total_llm_calls": 5,
+  "iteration_count": 1,
+  "final_decision": "APPROVED",
+  "fix_attempted": null,
+  "fix_succeeded": null,
+  "agent_metrics": {
+    "tax_specialist": {
+      "input_tokens": 540,
+      "output_tokens": 158,
+      "cache_read_tokens": 3455,
+      "cache_write_tokens": 0,
+      "total_input_tokens": 3995,
+      "llm_calls": 1,
+      "actual_cost_usd": 0.0050265,
+      "raw_cost_usd": 0.014355,
+      "output": {
+        "reasoning": "Transaction describes purchase of delivery vehicle for $40,000 with no mention of tax. Vehicles are taxable supplies in Ontario (13% HST), but since tax is not stated in the transaction text, no tax lines should be added.",
+        "tax_mentioned": false,
+        "taxable": true,
+        "tax_context": null,
+        "tax_rate": null,
+        "add_tax_lines": false,
+        "treatment": "not_applicable"
+      },
+      "reason": null
+    },
+    "credit_classifier": {
+      "input_tokens": 498,
+      "output_tokens": 180,
+      "cache_read_tokens": 4212,
+      "cache_write_tokens": 0,
+      "total_input_tokens": 4710,
+      "llm_calls": 1,
+      "actual_cost_usd": 0.0054576,
+      "raw_cost_usd": 0.01683,
+      "output": {
+        "liability_increase": [
+          {
+            "reason": "Promissory note issued for remaining 50% of vehicle purchase price",
+            "category": "Short-term borrowings",
+            "count": 1
+          }
+        ],
+        "equity_increase": [],
+        "revenue_increase": [],
+        "asset_decrease": [
+          {
+            "reason": "Cash paid for 50% of vehicle purchase price",
+            "category": "Cash and cash equivalents",
+            "count": 1
+          }
+        ],
+        "expense_decrease": [],
+        "tuple": [
+          1,
+          0,
+          0,
+          1,
+          0
+        ]
+      },
+      "reason": null
+    },
+    "debit_classifier": {
+      "input_tokens": 501,
+      "output_tokens": 150,
+      "cache_read_tokens": 4291,
+      "cache_write_tokens": 0,
+      "total_input_tokens": 4792,
+      "llm_calls": 1,
+      "actual_cost_usd": 0.0050403,
+      "raw_cost_usd": 0.016626,
+      "output": {
+        "asset_increase": [
+          {
+            "reason": "Delivery vehicle purchased as motor vehicle asset",
+            "category": "Motor vehicles",
+            "count": 1
+          }
+        ],
+        "expense_increase": [],
+        "liability_decrease": [],
+        "equity_decrease": [],
+        "revenue_decrease": [],
+        "tuple": [
+          1,
+          0,
+          0,
+          0,
+          0
+        ]
+      },
+      "reason": null
+    },
+    "unknown": {
+      "input_tokens": 557,
+      "output_tokens": 357,
+      "cache_read_tokens": 4550,
+      "cache_write_tokens": 0,
+      "total_input_tokens": 5107,
+      "llm_calls": 1,
+      "actual_cost_usd": 0.008391,
+      "raw_cost_usd": 0.020676,
+      "output": null,
+      "reason": null
+    },
+    "entry_drafter": {
+      "input_tokens": 1084,
+      "output_tokens": 195,
+      "cache_read_tokens": 3511,
+      "cache_write_tokens": 0,
+      "total_input_tokens": 4595,
+      "llm_calls": 1,
+      "actual_cost_usd": 0.0072303,
+      "raw_cost_usd": 0.01671,
+      "output": {
+        "reason": "Delivery vehicle acquired for $40,000 with $20,000 cash payment and $20,000 short-term promissory note",
+        "lines": [
+          {
+            "type": "debit",
+            "account_name": "Motor Vehicles",
+            "amount": 40000.0
+          },
+          {
+            "type": "credit",
+            "account_name": "Cash and Cash Equivalents",
+            "amount": 20000.0
+          },
+          {
+            "type": "credit",
+            "account_name": "Notes Payable",
+            "amount": 20000.0
+          }
+        ]
+      },
+      "reason": "Delivery vehicle acquired for $40,000 with $20,000 cash payment and $20,000 short-term promissory note"
+    }
+  },
+  "pre_fix_debit_tuple": null,
+  "post_fix_debit_tuple": null,
+  "pre_fix_credit_tuple": null,
+  "post_fix_credit_tuple": null,
+  "fix_root_cause_agent": null,
+  "rejection_reason": null,
+  "diagnostician_decision": null,
+  "validation_error": null,
+  "decision_correct": true,
+  "entry_match": null,
+  "clarification_correct": null,
+  "clarification_questions": null,
+  "ambiguous": false,
+  "tier": "intermediate",
+  "error": null,
+  "pipeline_state": {
+    "iteration": 0,
+    "output_ambiguity_detector": [
+      {
+        "ambiguities": [
+          {
+            "aspect": "Payment method and note classification",
+            "input_contextualized_conventional_default": "'paid' = cash payment at stated amount ($20,000); 'promissory note' = liability created for the remainder ($20,000)",
+            "input_contextualized_ifrs_default": null,
+            "clarification_question": null,
+            "cases": null,
+            "ambiguous": false
+          },
+          {
+            "aspect": "Short-term note measurement",
+            "input_contextualized_conventional_default": null,
+            "input_contextualized_ifrs_default": "2-month promissory note is short-term (\u22643 months) \u2014 resolve at face value within normal credit terms per IFRS rules",
+            "clarification_question": null,
+            "cases": null,
+            "ambiguous": false
+          }
+        ]
+      }
+    ],
+    "output_complexity_detector": [
+      {
+        "flags": [
+          {
+            "aspect": "Vehicle acquisition with mixed payment",
+            "best_attempt": null,
+            "gap": null,
+            "beyond_llm_capability": false
+          }
+        ]
+      }
+    ],
+    "output_tax_specialist": [
+      {
+        "reasoning": "Transaction describes purchase of delivery vehicle for $40,000 with no mention of tax. Vehicles are taxable supplies in Ontario (13% HST), but since tax is not stated in the transaction text, no tax lines should be added.",
+        "tax_mentioned": false,
+        "taxable": true,
+        "tax_context": null,
+        "tax_rate": null,
+        "add_tax_lines": false,
+        "treatment": "not_applicable"
+      }
+    ],
+    "output_decision_maker": [
+      {
+        "ambiguities": [
+          {
+            "aspect": "Payment method and note classification",
+            "input_contextualized_conventional_default": "'paid' = cash payment at stated amount ($20,000); 'promissory note' = liability created for the remainder ($20,000)",
+            "input_contextualized_ifrs_default": null,
+            "clarification_question": null,
+            "cases": null,
+            "ambiguous": false
+          },
+          {
+            "aspect": "Short-term note measurement",
+            "input_contextualized_conventional_default": null,
+            "input_contextualized_ifrs_default": "2-month promissory note is short-term (\u22643 months) \u2014 resolve at face value within normal credit terms per IFRS rules",
+            "clarification_question": null,
+            "cases": null,
+            "ambiguous": false
+          }
+        ],
+        "complexity_flags": [
+          {
+            "aspect": "Vehicle acquisition with mixed payment",
+            "best_attempt": null,
+            "gap": null,
+            "beyond_llm_capability": false
+          }
+        ],
+        "proceed_reason": "Transaction provides complete information: $40,000 vehicle, 50% cash ($20,000), 50% short-term note ($20,000) recorded at face value.",
+        "clarification_questions": null,
+        "stuck_reason": null,
+        "overall_final_rationale": "All amounts are stated, payment terms are clear, and the 2-month note resolves at face value under IFRS short-term payment rules \u2014 no ambiguities or capability gaps.",
+        "decision": "PROCEED"
+      }
+    ],
+    "output_entry_drafter": [
+      {
+        "reason": "Delivery vehicle acquired for $40,000 with $20,000 cash payment and $20,000 short-term promissory note",
+        "lines": [
+          {
+            "type": "debit",
+            "account_name": "Motor Vehicles",
+            "amount": 40000.0
+          },
+          {
+            "type": "credit",
+            "account_name": "Cash and Cash Equivalents",
+            "amount": 20000.0
+          },
+          {
+            "type": "credit",
+            "account_name": "Notes Payable",
+            "amount": 20000.0
+          }
+        ]
+      }
+    ],
+    "output_disambiguator": [
+      {
+        "ambiguities": [
+          {
+            "aspect": "Payment method and note classification",
+            "input_contextualized_conventional_default": "'paid' = cash payment at stated amount ($20,000); 'promissory note' = liability created for the remainder ($20,000)",
+            "input_contextualized_ifrs_default": null,
+            "clarification_question": null,
+            "cases": null,
+            "ambiguous": false
+          },
+          {
+            "aspect": "Short-term note measurement",
+            "input_contextualized_conventional_default": null,
+            "input_contextualized_ifrs_default": "2-month promissory note is short-term (\u22643 months) \u2014 resolve at face value within normal credit terms per IFRS rules",
+            "clarification_question": null,
+            "cases": null,
+            "ambiguous": false
+          }
+        ]
+      }
+    ],
+    "output_debit_classifier": [
+      {
+        "asset_increase": [
+          {
+            "reason": "Delivery vehicle purchased as motor vehicle asset",
+            "category": "Motor vehicles",
+            "count": 1
+          }
+        ],
+        "expense_increase": [],
+        "liability_decrease": [],
+        "equity_decrease": [],
+        "revenue_decrease": [],
+        "tuple": [
+          1,
+          0,
+          0,
+          0,
+          0
+        ]
+      }
+    ],
+    "output_credit_classifier": [
+      {
+        "liability_increase": [
+          {
+            "reason": "Promissory note issued for remaining 50% of vehicle purchase price",
+            "category": "Short-term borrowings",
+            "count": 1
+          }
+        ],
+        "equity_increase": [],
+        "revenue_increase": [],
+        "asset_decrease": [
+          {
+            "reason": "Cash paid for 50% of vehicle purchase price",
+            "category": "Cash and cash equivalents",
+            "count": 1
+          }
+        ],
+        "expense_decrease": [],
+        "tuple": [
+          1,
+          0,
+          0,
+          1,
+          0
+        ]
+      }
+    ],
+    "output_debit_corrector": [],
+    "output_credit_corrector": [],
+    "output_entry_builder": [],
+    "output_approver": [],
+    "output_diagnostician": [],
+    "status_ambiguity_detector": 1,
+    "status_complexity_detector": 1,
+    "status_tax_specialist": 1,
+    "status_decision_maker": 1,
+    "status_entry_drafter": 1,
+    "status_disambiguator": 1,
+    "status_debit_classifier": 1,
+    "status_credit_classifier": 1,
+    "status_debit_corrector": 0,
+    "status_credit_corrector": 0,
+    "status_entry_builder": 0,
+    "status_approver": 0,
+    "status_diagnostician": 0,
+    "fix_context_disambiguator": [],
+    "fix_context_debit_classifier": [],
+    "fix_context_credit_classifier": [],
+    "fix_context_debit_corrector": [],
+    "fix_context_credit_corrector": [],
+    "fix_context_entry_builder": [],
+    "fix_context_approver": [],
+    "fix_context_diagnostician": [],
+    "decision": "APPROVED",
+    "validation_error": null,
+    "llm_calls": [
+      {
+        "node": "tax_specialist",
+        "stop_reason": "tool_use",
+        "input_tokens": 540,
+        "output_tokens": 158,
+        "input_token_details": {
+          "cache_read": 3455,
+          "cache_creation": 0
+        }
+      },
+      {
+        "node": "credit_classifier",
+        "stop_reason": "tool_use",
+        "input_tokens": 498,
+        "output_tokens": 180,
+        "input_token_details": {
+          "cache_read": 4212,
+          "cache_creation": 0
+        }
+      },
+      {
+        "node": "debit_classifier",
+        "stop_reason": "tool_use",
+        "input_tokens": 501,
+        "output_tokens": 150,
+        "input_token_details": {
+          "cache_read": 4291,
+          "cache_creation": 0
+        }
+      },
+      {
+        "node": "unknown",
+        "stop_reason": "tool_use",
+        "input_tokens": 557,
+        "output_tokens": 357,
+        "input_token_details": {
+          "cache_read": 4550,
+          "cache_creation": 0
+        }
+      },
+      {
+        "node": "entry_drafter",
+        "stop_reason": "tool_use",
+        "input_tokens": 1084,
+        "output_tokens": 195,
+        "input_token_details": {
+          "cache_read": 3511,
+          "cache_creation": 0
+        }
+      }
+    ],
+    "stop_reasons": {
+      "tax_specialist": "tool_use",
+      "credit_classifier": "tool_use",
+      "debit_classifier": "tool_use",
+      "unknown": "tool_use",
+      "entry_drafter": "tool_use"
+    }
+  }
+}

@@ -1,0 +1,57 @@
+{
+  "evaluator": "claude",
+  "evaluated_at": "2026-04-01T12:00:00Z",
+  "prompt_version": "v4",
+  "results": {
+    "int_17_customer_deposit": {
+      "match": true,
+      "tax_relaxed_match": true,
+      "reason": "Dr Cash $5,000 / Cr Unearned Revenue $5,000. Cash=Cash-chequing; Unearned Revenue=Contract liabilities (same IFRS 15 concept). Amounts exact."
+    },
+    "int_18_multiple_assets": {
+      "match": true,
+      "tax_relaxed_match": true,
+      "reason": "Dr Office Equipment $5,500 / Dr Motor Vehicles $250,000 / Cr Cash $5,500 / Cr Accounts Payable $250,000. Office Equipment=PP&E Office equipment; Motor Vehicles=PP&E Vehicles; Accounts Payable=Trade payables. All amounts exact."
+    },
+    "int_19_service_revenue_cash": {
+      "match": true,
+      "tax_relaxed_match": true,
+      "reason": "Dr Cash and cash equivalents $25,500 / Cr Revenue from rendering of services $25,500. Cash equivalents=Cash; Revenue from rendering of services=Service revenue. Amounts exact."
+    },
+    "int_20_service_revenue_credit": {
+      "match": true,
+      "tax_relaxed_match": true,
+      "reason": "Dr Accounts Receivable $31,500 / Cr Service Revenue $31,500. Accounts Receivable=Trade receivables; Service Revenue=Service revenue. Amounts exact."
+    },
+    "int_21_rd_expense": {
+      "match": true,
+      "tax_relaxed_match": true,
+      "reason": "Dr Research and Development Expense $50,000 / Cr Cash $50,000. R&D Expense=R&D expense; Cash=Cash-chequing. Amounts exact."
+    },
+    "int_22_compound_sale_with_tax": {
+      "match": true,
+      "tax_relaxed_match": true,
+      "reason": "Dr Cash $45,900 / Dr Accounts Receivable $30,000 / Dr COGS $55,500 / Cr Sales Revenue $69,000 / Cr Inventory-Finished Goods $55,500 / Cr Sales Tax Payable $6,900. All accounts semantically equivalent; all amounts exact."
+    },
+    "int_23_split_electricity": {
+      "match": true,
+      "tax_relaxed_match": true,
+      "reason": "Dr Inventories-WIP $15,000 / Dr Utilities expense $5,500 / Cr Credit card payable $20,500. WIP inventory=WIP Manufacturing overhead (factory electricity capitalized). All accounts and amounts match."
+    },
+    "int_24_advertising": {
+      "match": false,
+      "tax_relaxed_match": true,
+      "reason": "Model split HST from gross: Dr Advertising $19,469.03 + Dr ITC $2,530.97 / Cr Cash $22,000. Expected: Dr Advertising $22,000 / Cr Cash $22,000. Tax-only difference; amounts reconcile to same $22,000 total."
+    },
+    "int_25_building_purchase_allocation": {
+      "match": false,
+      "tax_relaxed_match": false,
+      "reason": "Amounts and most accounts correct, but model used Accounts Payable ($4,500,000) where expected is Other payables. Deferred purchase obligation for a building is not a trade payable; Other payables is the correct classification."
+    },
+    "int_26a_payroll_recognition": {
+      "match": false,
+      "tax_relaxed_match": false,
+      "reason": "Withholdings split into 4 separate payable lines (Pension $2,000, Health $3,250, EI $1,050, Income Tax $1,450) instead of consolidated Statutory withholdings payable $7,750. Debit side and cash correct; withholdings not consolidated as required."
+    }
+  }
+}

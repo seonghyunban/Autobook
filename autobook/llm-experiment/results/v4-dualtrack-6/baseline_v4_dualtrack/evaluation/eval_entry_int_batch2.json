@@ -1,0 +1,57 @@
+{
+  "evaluator": "claude",
+  "evaluated_at": "2026-04-01T00:00:00Z",
+  "prompt_version": "v4",
+  "results": {
+    "int_17_customer_deposit": {
+      "match": true,
+      "tax_relaxed_match": true,
+      "reason": "Dr Cash and cash equivalents $5,000 / Cr Contract liabilities $5,000. Semantically equivalent to expected (Cash--chequing vs Cash and cash equivalents is acceptable). Amounts exact."
+    },
+    "int_18_multiple_assets": {
+      "match": true,
+      "tax_relaxed_match": true,
+      "reason": "Dr Office equipment $5,500, Dr Motor vehicles $250,000 / Cr Cash $5,500, Cr Trade payables $250,000. Semantically equivalent to expected PP&E sub-accounts and payment structure. Amounts exact."
+    },
+    "int_19_service_revenue_cash": {
+      "match": true,
+      "tax_relaxed_match": true,
+      "reason": "Dr Cash $25,500 / Cr Revenue from rendering of services $25,500. Semantically equivalent to expected. Amounts exact."
+    },
+    "int_20_service_revenue_credit": {
+      "match": false,
+      "tax_relaxed_match": true,
+      "reason": "Pipeline returned null journal_entry (decision INCOMPLETE_INFORMATION) due to HST ambiguity on the $31,500 amount. Expected Dr Trade receivables $31,500 / Cr Revenue $31,500. The blocking issue was purely tax-related."
+    },
+    "int_21_rd_expense": {
+      "match": true,
+      "tax_relaxed_match": true,
+      "reason": "Dr R&D expense $50,000 / Cr Cash $50,000. Semantically equivalent to expected. Amounts exact."
+    },
+    "int_22_compound_sale_with_tax": {
+      "match": true,
+      "tax_relaxed_match": true,
+      "reason": "Dr Cash $45,900, Dr Trade receivables $30,000, Dr Cost of sales $55,500 / Cr Revenue $69,000, Cr Inventories $55,500, Cr Tax liabilities $6,900. All accounts semantically equivalent to expected (COGS, Sales tax payable). Amounts exact."
+    },
+    "int_23_split_electricity": {
+      "match": true,
+      "tax_relaxed_match": true,
+      "reason": "Dr WIP $15,000, Dr Utilities expense $5,500 / Cr Credit card payable $20,500. Semantically equivalent to expected. Amounts exact."
+    },
+    "int_24_advertising": {
+      "match": false,
+      "tax_relaxed_match": true,
+      "reason": "Pipeline split HST from total: Dr Advertising expense $19,469.03, Dr Tax assets $2,530.97 / Cr Cash $22,000. Expected simple Dr Advertising expense $22,000 / Cr Cash $22,000. Mismatch is tax-only (HST ITC split)."
+    },
+    "int_25_building_purchase_allocation": {
+      "match": false,
+      "tax_relaxed_match": false,
+      "reason": "Amounts and asset/tax accounts correct (Land $6M, Building $3M, VAT/Tax assets $300K, Cash $4.8M). Credit side uses Trade payables $4.5M but expected Other payables $4.5M. Non-tax account mismatch: deferred property payment is not a trade payable."
+    },
+    "int_26a_payroll_recognition": {
+      "match": false,
+      "tax_relaxed_match": false,
+      "reason": "Withholdings itemized into 4 separate credit lines ($2,000 + $3,250 + $1,050 + $1,450 = $7,750) instead of consolidated Statutory withholdings payable $7,750. Also used Employee benefits expense instead of Salaries expense. Amounts individually correct but structure does not match consolidated requirement."
+    }
+  }
+}

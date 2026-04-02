@@ -1,0 +1,501 @@
+{
+  "test_case_id": "int_15_bank_loan",
+  "variant_name": "baseline_v4_dualtrack",
+  "model": "sonnet",
+  "debit_tuple_exact_match": true,
+  "credit_tuple_exact_match": true,
+  "debit_tuple_slot_accuracy": 0.8333333333333334,
+  "credit_tuple_slot_accuracy": 0.8333333333333334,
+  "entry_valid": true,
+  "debit_tuple": [
+    1,
+    0,
+    0,
+    0,
+    0
+  ],
+  "credit_tuple": [
+    1,
+    0,
+    0,
+    0,
+    0
+  ],
+  "journal_entry": {
+    "reason": "Cash borrowed from bank creating a 3-year loan liability at face value",
+    "lines": [
+      {
+        "type": "debit",
+        "account_name": "Cash and cash equivalents",
+        "amount": 200000.0
+      },
+      {
+        "type": "credit",
+        "account_name": "Long-term borrowings",
+        "amount": 200000.0
+      }
+    ]
+  },
+  "actual_cost_usd": 0.041607599999999995,
+  "raw_cost_usd": 0.103875,
+  "total_latency_ms": 45546,
+  "total_input_tokens": 27125,
+  "total_output_tokens": 1500,
+  "total_llm_calls": 6,
+  "iteration_count": 1,
+  "final_decision": "APPROVED",
+  "fix_attempted": null,
+  "fix_succeeded": null,
+  "agent_metrics": {
+    "credit_classifier": {
+      "input_tokens": 502,
+      "output_tokens": 156,
+      "cache_read_tokens": 4203,
+      "cache_write_tokens": 0,
+      "total_input_tokens": 4705,
+      "llm_calls": 1,
+      "actual_cost_usd": 0.005106899999999999,
+      "raw_cost_usd": 0.016455,
+      "output": {
+        "liability_increase": [
+          {
+            "reason": "Loan borrowed from bank for 3-year term",
+            "category": "Long-term borrowings",
+            "count": 1
+          }
+        ],
+        "equity_increase": [],
+        "revenue_increase": [],
+        "asset_decrease": [],
+        "expense_decrease": [],
+        "tuple": [
+          1,
+          0,
+          0,
+          0,
+          0
+        ]
+      },
+      "reason": null
+    },
+    "tax_specialist": {
+      "input_tokens": 527,
+      "output_tokens": 137,
+      "cache_read_tokens": 3277,
+      "cache_write_tokens": 0,
+      "total_input_tokens": 3804,
+      "llm_calls": 1,
+      "actual_cost_usd": 0.0046191,
+      "raw_cost_usd": 0.013467,
+      "output": {
+        "reasoning": "Borrowing cash from a bank is a financing transaction creating a liability. Loans and interest obligations are not taxable supplies under tax law.",
+        "tax_mentioned": false,
+        "taxable": false,
+        "add_tax_lines": false,
+        "tax_rate": null,
+        "tax_amount": null,
+        "treatment": "not_applicable"
+      },
+      "reason": null
+    },
+    "debit_classifier": {
+      "input_tokens": 505,
+      "output_tokens": 149,
+      "cache_read_tokens": 4282,
+      "cache_write_tokens": 0,
+      "total_input_tokens": 4787,
+      "llm_calls": 1,
+      "actual_cost_usd": 0.0050346,
+      "raw_cost_usd": 0.016596,
+      "output": {
+        "asset_increase": [
+          {
+            "reason": "Cash borrowed from bank",
+            "category": "Cash and cash equivalents",
+            "count": 1
+          }
+        ],
+        "expense_increase": [],
+        "liability_decrease": [],
+        "equity_decrease": [],
+        "revenue_decrease": [],
+        "tuple": [
+          1,
+          0,
+          0,
+          0,
+          0
+        ]
+      },
+      "reason": null
+    },
+    "unknown": {
+      "input_tokens": 561,
+      "output_tokens": 578,
+      "cache_read_tokens": 4550,
+      "cache_write_tokens": 0,
+      "total_input_tokens": 5111,
+      "llm_calls": 1,
+      "actual_cost_usd": 0.011718,
+      "raw_cost_usd": 0.024003,
+      "output": null,
+      "reason": null
+    },
+    "entry_drafter": {
+      "input_tokens": 1968,
+      "output_tokens": 480,
+      "cache_read_tokens": 6750,
+      "cache_write_tokens": 0,
+      "total_input_tokens": 8718,
+      "llm_calls": 2,
+      "actual_cost_usd": 0.015129,
+      "raw_cost_usd": 0.033354,
+      "output": {
+        "reason": "Cash borrowed from bank creating a 3-year loan liability at face value",
+        "lines": [
+          {
+            "type": "debit",
+            "account_name": "Cash and cash equivalents",
+            "amount": 200000.0
+          },
+          {
+            "type": "credit",
+            "account_name": "Long-term borrowings",
+            "amount": 200000.0
+          }
+        ]
+      },
+      "reason": "Cash borrowed from bank creating a 3-year loan liability at face value"
+    }
+  },
+  "pre_fix_debit_tuple": null,
+  "post_fix_debit_tuple": null,
+  "pre_fix_credit_tuple": null,
+  "post_fix_credit_tuple": null,
+  "fix_root_cause_agent": null,
+  "rejection_reason": null,
+  "diagnostician_decision": null,
+  "validation_error": null,
+  "decision_correct": true,
+  "entry_match": null,
+  "clarification_correct": null,
+  "clarification_questions": null,
+  "ambiguous": false,
+  "tier": "intermediate",
+  "error": null,
+  "pipeline_state": {
+    "iteration": 0,
+    "output_ambiguity_detector": [
+      {
+        "ambiguities": [
+          {
+            "aspect": "Loan classification (current vs non-current)",
+            "input_contextualized_conventional_default": "3-year term loan is non-current liability; the portion due within 12 months (principal payments, if any) would be current, but no principal repayment schedule is stated so full amount is non-current.",
+            "input_contextualized_ifrs_default": "Under IAS 1, liabilities are classified as non-current when the entity has an unconditional right to defer settlement for at least 12 months \u2014 a 3-year term loan qualifies as non-current.",
+            "clarification_question": null,
+            "cases": null,
+            "ambiguous": false
+          },
+          {
+            "aspect": "Initial measurement of loan",
+            "input_contextualized_conventional_default": "'borrowed $200,000 in cash' = cash received equals loan principal at face value.",
+            "input_contextualized_ifrs_default": "IFRS 9 requires initial recognition at fair value; for a market-rate bank loan, fair value equals cash received ($200,000).",
+            "clarification_question": null,
+            "cases": null,
+            "ambiguous": false
+          },
+          {
+            "aspect": "Interest accrual timing",
+            "input_contextualized_conventional_default": "This entry records the initial borrowing only; interest accrual entries will be separate periodic entries.",
+            "input_contextualized_ifrs_default": null,
+            "clarification_question": null,
+            "cases": null,
+            "ambiguous": false
+          }
+        ]
+      }
+    ],
+    "output_complexity_detector": [
+      {
+        "flags": [
+          {
+            "aspect": "Standard loan transaction",
+            "best_attempt": {
+              "reason": "Cash received from bank loan increases assets; corresponding liability recorded at face value for the loan principal.",
+              "lines": [
+                {
+                  "type": "debit",
+                  "account_name": "Cash",
+                  "amount": 200000.0
+                },
+                {
+                  "type": "credit",
+                  "account_name": "Bank Loan Payable",
+                  "amount": 200000.0
+                }
+              ]
+            },
+            "gap": null,
+            "beyond_llm_capability": false
+          }
+        ]
+      }
+    ],
+    "output_tax_specialist": [
+      {
+        "reasoning": "Borrowing cash from a bank is a financing transaction creating a liability. Loans and interest obligations are not taxable supplies under tax law.",
+        "tax_mentioned": false,
+        "taxable": false,
+        "add_tax_lines": false,
+        "tax_rate": null,
+        "tax_amount": null,
+        "treatment": "not_applicable"
+      }
+    ],
+    "output_decision_maker": [
+      {
+        "ambiguities": [
+          {
+            "aspect": "Loan classification (current vs non-current)",
+            "input_contextualized_conventional_default": "3-year term loan is non-current liability; the portion due within 12 months (principal payments, if any) would be current, but no principal repayment schedule is stated so full amount is non-current.",
+            "input_contextualized_ifrs_default": "Under IAS 1, liabilities are classified as non-current when the entity has an unconditional right to defer settlement for at least 12 months \u2014 a 3-year term loan qualifies as non-current.",
+            "clarification_question": null,
+            "cases": null,
+            "ambiguous": false
+          },
+          {
+            "aspect": "Initial measurement of loan",
+            "input_contextualized_conventional_default": "'borrowed $200,000 in cash' = cash received equals loan principal at face value.",
+            "input_contextualized_ifrs_default": "IFRS 9 requires initial recognition at fair value; for a market-rate bank loan, fair value equals cash received ($200,000).",
+            "clarification_question": null,
+            "cases": null,
+            "ambiguous": false
+          },
+          {
+            "aspect": "Interest accrual timing",
+            "input_contextualized_conventional_default": "This entry records the initial borrowing only; interest accrual entries will be separate periodic entries.",
+            "input_contextualized_ifrs_default": null,
+            "clarification_question": null,
+            "cases": null,
+            "ambiguous": false
+          }
+        ],
+        "complexity_flags": [
+          {
+            "aspect": "Standard loan transaction",
+            "best_attempt": {
+              "reason": "Cash received from bank loan increases assets; corresponding liability recorded at face value for the loan principal.",
+              "lines": [
+                {
+                  "type": "debit",
+                  "account_name": "Cash",
+                  "amount": 200000.0
+                },
+                {
+                  "type": "credit",
+                  "account_name": "Bank Loan Payable",
+                  "amount": 200000.0
+                }
+              ]
+            },
+            "gap": null,
+            "beyond_llm_capability": false
+          }
+        ],
+        "proceed_reason": "All loan terms are explicitly stated and the initial borrowing entry records cash received against the loan liability at face value per standard conventions.",
+        "clarification_questions": null,
+        "stuck_reason": null,
+        "overall_final_rationale": "This is a straightforward loan transaction with all necessary information stated \u2014 principal amount, interest rate, and term \u2014 allowing the initial borrowing entry to be recorded at face value with no ambiguities or capability gaps.",
+        "decision": "PROCEED"
+      }
+    ],
+    "output_entry_drafter": [
+      {
+        "reason": "Cash borrowed from bank creating a 3-year loan liability at face value",
+        "lines": [
+          {
+            "type": "debit",
+            "account_name": "Cash and cash equivalents",
+            "amount": 200000.0
+          },
+          {
+            "type": "credit",
+            "account_name": "Long-term borrowings",
+            "amount": 200000.0
+          }
+        ]
+      }
+    ],
+    "output_disambiguator": [
+      {
+        "ambiguities": [
+          {
+            "aspect": "Loan classification (current vs non-current)",
+            "input_contextualized_conventional_default": "3-year term loan is non-current liability; the portion due within 12 months (principal payments, if any) would be current, but no principal repayment schedule is stated so full amount is non-current.",
+            "input_contextualized_ifrs_default": "Under IAS 1, liabilities are classified as non-current when the entity has an unconditional right to defer settlement for at least 12 months \u2014 a 3-year term loan qualifies as non-current.",
+            "clarification_question": null,
+            "cases": null,
+            "ambiguous": false
+          },
+          {
+            "aspect": "Initial measurement of loan",
+            "input_contextualized_conventional_default": "'borrowed $200,000 in cash' = cash received equals loan principal at face value.",
+            "input_contextualized_ifrs_default": "IFRS 9 requires initial recognition at fair value; for a market-rate bank loan, fair value equals cash received ($200,000).",
+            "clarification_question": null,
+            "cases": null,
+            "ambiguous": false
+          },
+          {
+            "aspect": "Interest accrual timing",
+            "input_contextualized_conventional_default": "This entry records the initial borrowing only; interest accrual entries will be separate periodic entries.",
+            "input_contextualized_ifrs_default": null,
+            "clarification_question": null,
+            "cases": null,
+            "ambiguous": false
+          }
+        ]
+      }
+    ],
+    "output_debit_classifier": [
+      {
+        "asset_increase": [
+          {
+            "reason": "Cash borrowed from bank",
+            "category": "Cash and cash equivalents",
+            "count": 1
+          }
+        ],
+        "expense_increase": [],
+        "liability_decrease": [],
+        "equity_decrease": [],
+        "revenue_decrease": [],
+        "tuple": [
+          1,
+          0,
+          0,
+          0,
+          0
+        ]
+      }
+    ],
+    "output_credit_classifier": [
+      {
+        "liability_increase": [
+          {
+            "reason": "Loan borrowed from bank for 3-year term",
+            "category": "Long-term borrowings",
+            "count": 1
+          }
+        ],
+        "equity_increase": [],
+        "revenue_increase": [],
+        "asset_decrease": [],
+        "expense_decrease": [],
+        "tuple": [
+          1,
+          0,
+          0,
+          0,
+          0
+        ]
+      }
+    ],
+    "output_debit_corrector": [],
+    "output_credit_corrector": [],
+    "output_entry_builder": [],
+    "output_approver": [],
+    "output_diagnostician": [],
+    "status_ambiguity_detector": 1,
+    "status_complexity_detector": 1,
+    "status_tax_specialist": 1,
+    "status_decision_maker": 1,
+    "status_entry_drafter": 1,
+    "status_disambiguator": 1,
+    "status_debit_classifier": 1,
+    "status_credit_classifier": 1,
+    "status_debit_corrector": 0,
+    "status_credit_corrector": 0,
+    "status_entry_builder": 0,
+    "status_approver": 0,
+    "status_diagnostician": 0,
+    "fix_context_disambiguator": [],
+    "fix_context_debit_classifier": [],
+    "fix_context_credit_classifier": [],
+    "fix_context_debit_corrector": [],
+    "fix_context_credit_corrector": [],
+    "fix_context_entry_builder": [],
+    "fix_context_approver": [],
+    "fix_context_diagnostician": [],
+    "decision": "APPROVED",
+    "validation_error": null,
+    "llm_calls": [
+      {
+        "node": "credit_classifier",
+        "stop_reason": "tool_use",
+        "input_tokens": 502,
+        "output_tokens": 156,
+        "input_token_details": {
+          "cache_read": 4203,
+          "cache_creation": 0
+        }
+      },
+      {
+        "node": "tax_specialist",
+        "stop_reason": "tool_use",
+        "input_tokens": 527,
+        "output_tokens": 137,
+        "input_token_details": {
+          "cache_read": 3277,
+          "cache_creation": 0
+        }
+      },
+      {
+        "node": "debit_classifier",
+        "stop_reason": "tool_use",
+        "input_tokens": 505,
+        "output_tokens": 149,
+        "input_token_details": {
+          "cache_read": 4282,
+          "cache_creation": 0
+        }
+      },
+      {
+        "node": "unknown",
+        "stop_reason": "tool_use",
+        "input_tokens": 561,
+        "output_tokens": 578,
+        "input_token_details": {
+          "cache_read": 4550,
+          "cache_creation": 0
+        }
+      },
+      {
+        "node": "entry_drafter",
+        "stop_reason": "end_turn",
+        "input_tokens": 934,
+        "output_tokens": 337,
+        "input_token_details": {
+          "cache_read": 3405,
+          "cache_creation": 0
+        }
+      },
+      {
+        "node": "entry_drafter",
+        "stop_reason": "tool_use",
+        "input_tokens": 1034,
+        "output_tokens": 143,
+        "input_token_details": {
+          "cache_read": 3345,
+          "cache_creation": 0
+        }
+      }
+    ],
+    "stop_reasons": {
+      "credit_classifier": "tool_use",
+      "tax_specialist": "tool_use",
+      "debit_classifier": "tool_use",
+      "unknown": "tool_use",
+      "entry_drafter": "tool_use"
+    }
+  }
+}

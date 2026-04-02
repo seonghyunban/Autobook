@@ -1,0 +1,517 @@
+{
+  "test_case_id": "hard_27_meal_purpose",
+  "variant_name": "baseline_v4_dualtrack",
+  "model": "sonnet",
+  "debit_tuple_exact_match": false,
+  "credit_tuple_exact_match": false,
+  "debit_tuple_slot_accuracy": 0.0,
+  "credit_tuple_slot_accuracy": 0.0,
+  "entry_valid": true,
+  "debit_tuple": [
+    0,
+    1,
+    0,
+    0,
+    0
+  ],
+  "credit_tuple": [
+    1,
+    0,
+    0,
+    0,
+    0
+  ],
+  "journal_entry": null,
+  "actual_cost_usd": 0.0240039,
+  "raw_cost_usd": 0.072504,
+  "total_latency_ms": 22017,
+  "total_input_tokens": 19983,
+  "total_output_tokens": 837,
+  "total_llm_calls": 4,
+  "iteration_count": 1,
+  "final_decision": "INCOMPLETE_INFORMATION",
+  "fix_attempted": null,
+  "fix_succeeded": null,
+  "agent_metrics": {
+    "tax_specialist": {
+      "input_tokens": 521,
+      "output_tokens": 140,
+      "cache_read_tokens": 3726,
+      "cache_write_tokens": 0,
+      "total_input_tokens": 4247,
+      "llm_calls": 1,
+      "actual_cost_usd": 0.0047808,
+      "raw_cost_usd": 0.014841,
+      "output": {
+        "reasoning": "Meals are taxable supplies, but the transaction text does not mention tax; the $125 is stated as the total amount paid with no tax breakdown",
+        "tax_mentioned": false,
+        "taxable": true,
+        "tax_context": null,
+        "tax_rate": null,
+        "add_tax_lines": false,
+        "treatment": "not_applicable"
+      },
+      "reason": null
+    },
+    "debit_classifier": {
+      "input_tokens": 482,
+      "output_tokens": 62,
+      "cache_read_tokens": 4764,
+      "cache_write_tokens": 0,
+      "total_input_tokens": 5246,
+      "llm_calls": 1,
+      "actual_cost_usd": 0.0038052,
+      "raw_cost_usd": 0.016668,
+      "output": {
+        "asset_increase": [],
+        "expense_increase": [
+          {
+            "reason": "Meal expense incurred for business entertainment",
+            "category": "Entertainment expense",
+            "count": 1
+          }
+        ],
+        "liability_decrease": [],
+        "equity_decrease": [],
+        "revenue_decrease": [],
+        "tuple": [
+          0,
+          1,
+          0,
+          0,
+          0
+        ]
+      },
+      "reason": null
+    },
+    "credit_classifier": {
+      "input_tokens": 479,
+      "output_tokens": 146,
+      "cache_read_tokens": 4652,
+      "cache_write_tokens": 0,
+      "total_input_tokens": 5131,
+      "llm_calls": 1,
+      "actual_cost_usd": 0.0050226,
+      "raw_cost_usd": 0.017583,
+      "output": {
+        "liability_increase": [
+          {
+            "reason": "Corporate credit card used to pay for meal creates obligation to card issuer",
+            "category": "Credit card payable",
+            "count": 1
+          }
+        ],
+        "equity_increase": [],
+        "revenue_increase": [],
+        "asset_decrease": [],
+        "expense_decrease": [],
+        "tuple": [
+          1,
+          0,
+          0,
+          0,
+          0
+        ]
+      },
+      "reason": null
+    },
+    "unknown": {
+      "input_tokens": 538,
+      "output_tokens": 489,
+      "cache_read_tokens": 4821,
+      "cache_write_tokens": 0,
+      "total_input_tokens": 5359,
+      "llm_calls": 1,
+      "actual_cost_usd": 0.0103953,
+      "raw_cost_usd": 0.023412,
+      "output": null,
+      "reason": null
+    }
+  },
+  "pre_fix_debit_tuple": null,
+  "post_fix_debit_tuple": null,
+  "pre_fix_credit_tuple": null,
+  "post_fix_credit_tuple": null,
+  "fix_root_cause_agent": null,
+  "rejection_reason": null,
+  "diagnostician_decision": null,
+  "validation_error": null,
+  "decision_correct": true,
+  "entry_match": false,
+  "clarification_correct": null,
+  "clarification_questions": [
+    "What was the business purpose of this meal?"
+  ],
+  "ambiguous": true,
+  "tier": "hard",
+  "error": null,
+  "pipeline_state": {
+    "iteration": 0,
+    "output_ambiguity_detector": [
+      {
+        "ambiguities": [
+          {
+            "aspect": "Business purpose of the meal",
+            "input_contextualized_conventional_default": null,
+            "input_contextualized_ifrs_default": null,
+            "clarification_question": "What was the business purpose of this meal?",
+            "cases": [
+              {
+                "case": "Client entertainment or business development meal",
+                "possible_entry": {
+                  "reason": "Meal for client entertainment is classified as entertainment expense",
+                  "lines": [
+                    {
+                      "type": "debit",
+                      "account_name": "Entertainment Expense",
+                      "amount": 125.0
+                    },
+                    {
+                      "type": "credit",
+                      "account_name": "Credit Card Payable",
+                      "amount": 125.0
+                    }
+                  ]
+                }
+              },
+              {
+                "case": "Employee meal during business travel",
+                "possible_entry": {
+                  "reason": "Meal during travel is classified as travel expense",
+                  "lines": [
+                    {
+                      "type": "debit",
+                      "account_name": "Travel Expense",
+                      "amount": 125.0
+                    },
+                    {
+                      "type": "credit",
+                      "account_name": "Credit Card Payable",
+                      "amount": 125.0
+                    }
+                  ]
+                }
+              },
+              {
+                "case": "Team meeting or working lunch",
+                "possible_entry": {
+                  "reason": "Meal for internal team purposes is classified as meals expense",
+                  "lines": [
+                    {
+                      "type": "debit",
+                      "account_name": "Meals Expense",
+                      "amount": 125.0
+                    },
+                    {
+                      "type": "credit",
+                      "account_name": "Credit Card Payable",
+                      "amount": 125.0
+                    }
+                  ]
+                }
+              }
+            ],
+            "ambiguous": true
+          }
+        ]
+      }
+    ],
+    "output_complexity_detector": [
+      {
+        "flags": [
+          {
+            "aspect": "Standard expense transaction",
+            "best_attempt": null,
+            "gap": null,
+            "beyond_llm_capability": false
+          }
+        ]
+      }
+    ],
+    "output_tax_specialist": [
+      {
+        "reasoning": "Meals are taxable supplies, but the transaction text does not mention tax; the $125 is stated as the total amount paid with no tax breakdown",
+        "tax_mentioned": false,
+        "taxable": true,
+        "tax_context": null,
+        "tax_rate": null,
+        "add_tax_lines": false,
+        "treatment": "not_applicable"
+      }
+    ],
+    "output_decision_maker": [
+      {
+        "ambiguities": [
+          {
+            "aspect": "Business purpose of the meal",
+            "input_contextualized_conventional_default": null,
+            "input_contextualized_ifrs_default": null,
+            "clarification_question": "What was the business purpose of this meal?",
+            "cases": [
+              {
+                "case": "Client entertainment or business development meal",
+                "possible_entry": {
+                  "reason": "Meal for client entertainment is classified as entertainment expense",
+                  "lines": [
+                    {
+                      "type": "debit",
+                      "account_name": "Entertainment Expense",
+                      "amount": 125.0
+                    },
+                    {
+                      "type": "credit",
+                      "account_name": "Credit Card Payable",
+                      "amount": 125.0
+                    }
+                  ]
+                }
+              },
+              {
+                "case": "Employee meal during business travel",
+                "possible_entry": {
+                  "reason": "Meal during travel is classified as travel expense",
+                  "lines": [
+                    {
+                      "type": "debit",
+                      "account_name": "Travel Expense",
+                      "amount": 125.0
+                    },
+                    {
+                      "type": "credit",
+                      "account_name": "Credit Card Payable",
+                      "amount": 125.0
+                    }
+                  ]
+                }
+              },
+              {
+                "case": "Team meeting or working lunch",
+                "possible_entry": {
+                  "reason": "Meal for internal team purposes is classified as meals expense",
+                  "lines": [
+                    {
+                      "type": "debit",
+                      "account_name": "Meals Expense",
+                      "amount": 125.0
+                    },
+                    {
+                      "type": "credit",
+                      "account_name": "Credit Card Payable",
+                      "amount": 125.0
+                    }
+                  ]
+                }
+              }
+            ],
+            "ambiguous": true
+          }
+        ],
+        "complexity_flags": [
+          {
+            "aspect": "Standard expense transaction",
+            "best_attempt": null,
+            "gap": null,
+            "beyond_llm_capability": false
+          }
+        ],
+        "proceed_reason": null,
+        "clarification_questions": [
+          "What was the business purpose of this meal?"
+        ],
+        "stuck_reason": null,
+        "overall_final_rationale": "The business purpose of the meal is not stated, which affects the expense account classification.",
+        "decision": "MISSING_INFO"
+      }
+    ],
+    "output_entry_drafter": [],
+    "output_disambiguator": [
+      {
+        "ambiguities": [
+          {
+            "aspect": "Business purpose of the meal",
+            "input_contextualized_conventional_default": null,
+            "input_contextualized_ifrs_default": null,
+            "clarification_question": "What was the business purpose of this meal?",
+            "cases": [
+              {
+                "case": "Client entertainment or business development meal",
+                "possible_entry": {
+                  "reason": "Meal for client entertainment is classified as entertainment expense",
+                  "lines": [
+                    {
+                      "type": "debit",
+                      "account_name": "Entertainment Expense",
+                      "amount": 125.0
+                    },
+                    {
+                      "type": "credit",
+                      "account_name": "Credit Card Payable",
+                      "amount": 125.0
+                    }
+                  ]
+                }
+              },
+              {
+                "case": "Employee meal during business travel",
+                "possible_entry": {
+                  "reason": "Meal during travel is classified as travel expense",
+                  "lines": [
+                    {
+                      "type": "debit",
+                      "account_name": "Travel Expense",
+                      "amount": 125.0
+                    },
+                    {
+                      "type": "credit",
+                      "account_name": "Credit Card Payable",
+                      "amount": 125.0
+                    }
+                  ]
+                }
+              },
+              {
+                "case": "Team meeting or working lunch",
+                "possible_entry": {
+                  "reason": "Meal for internal team purposes is classified as meals expense",
+                  "lines": [
+                    {
+                      "type": "debit",
+                      "account_name": "Meals Expense",
+                      "amount": 125.0
+                    },
+                    {
+                      "type": "credit",
+                      "account_name": "Credit Card Payable",
+                      "amount": 125.0
+                    }
+                  ]
+                }
+              }
+            ],
+            "ambiguous": true
+          }
+        ]
+      }
+    ],
+    "output_debit_classifier": [
+      {
+        "asset_increase": [],
+        "expense_increase": [
+          {
+            "reason": "Meal expense incurred for business entertainment",
+            "category": "Entertainment expense",
+            "count": 1
+          }
+        ],
+        "liability_decrease": [],
+        "equity_decrease": [],
+        "revenue_decrease": [],
+        "tuple": [
+          0,
+          1,
+          0,
+          0,
+          0
+        ]
+      }
+    ],
+    "output_credit_classifier": [
+      {
+        "liability_increase": [
+          {
+            "reason": "Corporate credit card used to pay for meal creates obligation to card issuer",
+            "category": "Credit card payable",
+            "count": 1
+          }
+        ],
+        "equity_increase": [],
+        "revenue_increase": [],
+        "asset_decrease": [],
+        "expense_decrease": [],
+        "tuple": [
+          1,
+          0,
+          0,
+          0,
+          0
+        ]
+      }
+    ],
+    "output_debit_corrector": [],
+    "output_credit_corrector": [],
+    "output_entry_builder": [],
+    "output_approver": [],
+    "output_diagnostician": [],
+    "status_ambiguity_detector": 1,
+    "status_complexity_detector": 1,
+    "status_tax_specialist": 1,
+    "status_decision_maker": 1,
+    "status_entry_drafter": 0,
+    "status_disambiguator": 1,
+    "status_debit_classifier": 1,
+    "status_credit_classifier": 1,
+    "status_debit_corrector": 0,
+    "status_credit_corrector": 0,
+    "status_entry_builder": 0,
+    "status_approver": 0,
+    "status_diagnostician": 0,
+    "fix_context_disambiguator": [],
+    "fix_context_debit_classifier": [],
+    "fix_context_credit_classifier": [],
+    "fix_context_debit_corrector": [],
+    "fix_context_credit_corrector": [],
+    "fix_context_entry_builder": [],
+    "fix_context_approver": [],
+    "fix_context_diagnostician": [],
+    "decision": "INCOMPLETE_INFORMATION",
+    "validation_error": null,
+    "llm_calls": [
+      {
+        "node": "tax_specialist",
+        "stop_reason": "tool_use",
+        "input_tokens": 521,
+        "output_tokens": 140,
+        "input_token_details": {
+          "cache_read": 3726,
+          "cache_creation": 0
+        }
+      },
+      {
+        "node": "debit_classifier",
+        "stop_reason": "tool_use",
+        "input_tokens": 482,
+        "output_tokens": 62,
+        "input_token_details": {
+          "cache_read": 4764,
+          "cache_creation": 0
+        }
+      },
+      {
+        "node": "credit_classifier",
+        "stop_reason": "tool_use",
+        "input_tokens": 479,
+        "output_tokens": 146,
+        "input_token_details": {
+          "cache_read": 4652,
+          "cache_creation": 0
+        }
+      },
+      {
+        "node": "unknown",
+        "stop_reason": "tool_use",
+        "input_tokens": 538,
+        "output_tokens": 489,
+        "input_token_details": {
+          "cache_read": 4821,
+          "cache_creation": 0
+        }
+      }
+    ],
+    "stop_reasons": {
+      "tax_specialist": "tool_use",
+      "debit_classifier": "tool_use",
+      "credit_classifier": "tool_use",
+      "unknown": "tool_use"
+    }
+  }
+}

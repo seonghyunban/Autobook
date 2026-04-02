@@ -1,0 +1,475 @@
+{
+  "test_case_id": "int_28_promotional_literature",
+  "variant_name": "baseline_v4_dualtrack",
+  "model": "sonnet",
+  "debit_tuple_exact_match": false,
+  "credit_tuple_exact_match": true,
+  "debit_tuple_slot_accuracy": 0.6666666666666666,
+  "credit_tuple_slot_accuracy": 0.8333333333333334,
+  "entry_valid": true,
+  "debit_tuple": [
+    1,
+    1,
+    0,
+    0,
+    0
+  ],
+  "credit_tuple": [
+    0,
+    0,
+    0,
+    1,
+    0
+  ],
+  "journal_entry": {
+    "reason": "Promotional literature expensed when incurred per IAS 38.69, paid in cash",
+    "lines": [
+      {
+        "type": "debit",
+        "account_name": "Advertising expense",
+        "amount": 7000.0
+      },
+      {
+        "type": "credit",
+        "account_name": "Cash",
+        "amount": 7000.0
+      }
+    ]
+  },
+  "actual_cost_usd": 0.0308847,
+  "raw_cost_usd": 0.084936,
+  "total_latency_ms": 42992,
+  "total_input_tokens": 23202,
+  "total_output_tokens": 1022,
+  "total_llm_calls": 5,
+  "iteration_count": 1,
+  "final_decision": "APPROVED",
+  "fix_attempted": null,
+  "fix_succeeded": null,
+  "agent_metrics": {
+    "debit_classifier": {
+      "input_tokens": 501,
+      "output_tokens": 176,
+      "cache_read_tokens": 4291,
+      "cache_write_tokens": 0,
+      "total_input_tokens": 4792,
+      "llm_calls": 1,
+      "actual_cost_usd": 0.0054303,
+      "raw_cost_usd": 0.017016,
+      "output": {
+        "asset_increase": [
+          {
+            "reason": "Cash paid for promotional literature",
+            "category": "Cash and cash equivalents",
+            "count": 1
+          }
+        ],
+        "expense_increase": [
+          {
+            "reason": "Promotional literature acquired and expensed when incurred per IAS 38.69",
+            "category": "Advertising expense",
+            "count": 1
+          }
+        ],
+        "liability_decrease": [],
+        "equity_decrease": [],
+        "revenue_decrease": [],
+        "tuple": [
+          1,
+          1,
+          0,
+          0,
+          0
+        ]
+      },
+      "reason": null
+    },
+    "credit_classifier": {
+      "input_tokens": 498,
+      "output_tokens": 138,
+      "cache_read_tokens": 4212,
+      "cache_write_tokens": 0,
+      "total_input_tokens": 4710,
+      "llm_calls": 1,
+      "actual_cost_usd": 0.0048276000000000005,
+      "raw_cost_usd": 0.0162,
+      "output": {
+        "liability_increase": [],
+        "equity_increase": [],
+        "revenue_increase": [],
+        "asset_decrease": [
+          {
+            "reason": "Cash paid for promotional literature",
+            "category": "Cash and cash equivalents",
+            "count": 1
+          }
+        ],
+        "expense_decrease": [],
+        "tuple": [
+          0,
+          0,
+          0,
+          1,
+          0
+        ]
+      },
+      "reason": null
+    },
+    "tax_specialist": {
+      "input_tokens": 540,
+      "output_tokens": 129,
+      "cache_read_tokens": 3455,
+      "cache_write_tokens": 0,
+      "total_input_tokens": 3995,
+      "llm_calls": 1,
+      "actual_cost_usd": 0.0045915,
+      "raw_cost_usd": 0.01392,
+      "output": {
+        "reasoning": "Promotional literature is a taxable supply in Ontario, but the transaction text does not mention any tax",
+        "tax_mentioned": false,
+        "taxable": true,
+        "tax_context": null,
+        "tax_rate": null,
+        "add_tax_lines": false,
+        "treatment": "not_applicable"
+      },
+      "reason": null
+    },
+    "unknown": {
+      "input_tokens": 557,
+      "output_tokens": 437,
+      "cache_read_tokens": 4550,
+      "cache_write_tokens": 0,
+      "total_input_tokens": 5107,
+      "llm_calls": 1,
+      "actual_cost_usd": 0.009591,
+      "raw_cost_usd": 0.021876,
+      "output": null,
+      "reason": null
+    },
+    "entry_drafter": {
+      "input_tokens": 1087,
+      "output_tokens": 142,
+      "cache_read_tokens": 3511,
+      "cache_write_tokens": 0,
+      "total_input_tokens": 4598,
+      "llm_calls": 1,
+      "actual_cost_usd": 0.0064443,
+      "raw_cost_usd": 0.015924,
+      "output": {
+        "reason": "Promotional literature expensed when incurred per IAS 38.69, paid in cash",
+        "lines": [
+          {
+            "type": "debit",
+            "account_name": "Advertising expense",
+            "amount": 7000.0
+          },
+          {
+            "type": "credit",
+            "account_name": "Cash",
+            "amount": 7000.0
+          }
+        ]
+      },
+      "reason": "Promotional literature expensed when incurred per IAS 38.69, paid in cash"
+    }
+  },
+  "pre_fix_debit_tuple": null,
+  "post_fix_debit_tuple": null,
+  "pre_fix_credit_tuple": null,
+  "post_fix_credit_tuple": null,
+  "fix_root_cause_agent": null,
+  "rejection_reason": null,
+  "diagnostician_decision": null,
+  "validation_error": null,
+  "decision_correct": true,
+  "entry_match": null,
+  "clarification_correct": null,
+  "clarification_questions": null,
+  "ambiguous": false,
+  "tier": "intermediate",
+  "error": null,
+  "pipeline_state": {
+    "iteration": 0,
+    "output_ambiguity_detector": [
+      {
+        "ambiguities": [
+          {
+            "aspect": "Classification of promotional literature purchase",
+            "input_contextualized_conventional_default": null,
+            "input_contextualized_ifrs_default": "Advertising and promotional costs are expensed when incurred (IAS 38.69) \u2014 promotional literature for customer reference is a promotional cost.",
+            "clarification_question": null,
+            "cases": null,
+            "ambiguous": false
+          },
+          {
+            "aspect": "Payment method",
+            "input_contextualized_conventional_default": "'paid in cash' = cash payment at the stated amount.",
+            "input_contextualized_ifrs_default": null,
+            "clarification_question": null,
+            "cases": null,
+            "ambiguous": false
+          },
+          {
+            "aspect": "Tax treatment",
+            "input_contextualized_conventional_default": null,
+            "input_contextualized_ifrs_default": "Tax rate not stated but province known (ON) \u2014 resolve using 13% HST; however, the transaction states $7,000 paid in cash with no tax mentioned, so the stated amount is the full amount transacted.",
+            "clarification_question": null,
+            "cases": null,
+            "ambiguous": false
+          }
+        ]
+      }
+    ],
+    "output_complexity_detector": [
+      {
+        "flags": [
+          {
+            "aspect": "Straightforward expense transaction",
+            "best_attempt": null,
+            "gap": null,
+            "beyond_llm_capability": false
+          }
+        ]
+      }
+    ],
+    "output_tax_specialist": [
+      {
+        "reasoning": "Promotional literature is a taxable supply in Ontario, but the transaction text does not mention any tax",
+        "tax_mentioned": false,
+        "taxable": true,
+        "tax_context": null,
+        "tax_rate": null,
+        "add_tax_lines": false,
+        "treatment": "not_applicable"
+      }
+    ],
+    "output_decision_maker": [
+      {
+        "ambiguities": [
+          {
+            "aspect": "Classification of promotional literature purchase",
+            "input_contextualized_conventional_default": null,
+            "input_contextualized_ifrs_default": "Advertising and promotional costs are expensed when incurred (IAS 38.69) \u2014 promotional literature for customer reference is a promotional cost.",
+            "clarification_question": null,
+            "cases": null,
+            "ambiguous": false
+          },
+          {
+            "aspect": "Payment method",
+            "input_contextualized_conventional_default": "'paid in cash' = cash payment at the stated amount.",
+            "input_contextualized_ifrs_default": null,
+            "clarification_question": null,
+            "cases": null,
+            "ambiguous": false
+          },
+          {
+            "aspect": "Tax treatment",
+            "input_contextualized_conventional_default": null,
+            "input_contextualized_ifrs_default": "Tax rate not stated but province known (ON) \u2014 resolve using 13% HST; however, the transaction states $7,000 paid in cash with no tax mentioned, so the stated amount is the full amount transacted.",
+            "clarification_question": null,
+            "cases": null,
+            "ambiguous": false
+          }
+        ],
+        "complexity_flags": [
+          {
+            "aspect": "Straightforward expense transaction",
+            "best_attempt": null,
+            "gap": null,
+            "beyond_llm_capability": false
+          }
+        ],
+        "proceed_reason": "IFRS rule IAS 38.69 resolves promotional literature as expense when incurred, and 'paid in cash' confirms the payment method at the stated $7,000 amount.",
+        "clarification_questions": null,
+        "stuck_reason": null,
+        "overall_final_rationale": "Promotional literature purchased for customer reference is clearly an advertising/promotional cost expensed under IAS 38.69, paid in cash at the stated amount with no unresolved ambiguities.",
+        "decision": "PROCEED"
+      }
+    ],
+    "output_entry_drafter": [
+      {
+        "reason": "Promotional literature expensed when incurred per IAS 38.69, paid in cash",
+        "lines": [
+          {
+            "type": "debit",
+            "account_name": "Advertising expense",
+            "amount": 7000.0
+          },
+          {
+            "type": "credit",
+            "account_name": "Cash",
+            "amount": 7000.0
+          }
+        ]
+      }
+    ],
+    "output_disambiguator": [
+      {
+        "ambiguities": [
+          {
+            "aspect": "Classification of promotional literature purchase",
+            "input_contextualized_conventional_default": null,
+            "input_contextualized_ifrs_default": "Advertising and promotional costs are expensed when incurred (IAS 38.69) \u2014 promotional literature for customer reference is a promotional cost.",
+            "clarification_question": null,
+            "cases": null,
+            "ambiguous": false
+          },
+          {
+            "aspect": "Payment method",
+            "input_contextualized_conventional_default": "'paid in cash' = cash payment at the stated amount.",
+            "input_contextualized_ifrs_default": null,
+            "clarification_question": null,
+            "cases": null,
+            "ambiguous": false
+          },
+          {
+            "aspect": "Tax treatment",
+            "input_contextualized_conventional_default": null,
+            "input_contextualized_ifrs_default": "Tax rate not stated but province known (ON) \u2014 resolve using 13% HST; however, the transaction states $7,000 paid in cash with no tax mentioned, so the stated amount is the full amount transacted.",
+            "clarification_question": null,
+            "cases": null,
+            "ambiguous": false
+          }
+        ]
+      }
+    ],
+    "output_debit_classifier": [
+      {
+        "asset_increase": [
+          {
+            "reason": "Cash paid for promotional literature",
+            "category": "Cash and cash equivalents",
+            "count": 1
+          }
+        ],
+        "expense_increase": [
+          {
+            "reason": "Promotional literature acquired and expensed when incurred per IAS 38.69",
+            "category": "Advertising expense",
+            "count": 1
+          }
+        ],
+        "liability_decrease": [],
+        "equity_decrease": [],
+        "revenue_decrease": [],
+        "tuple": [
+          1,
+          1,
+          0,
+          0,
+          0
+        ]
+      }
+    ],
+    "output_credit_classifier": [
+      {
+        "liability_increase": [],
+        "equity_increase": [],
+        "revenue_increase": [],
+        "asset_decrease": [
+          {
+            "reason": "Cash paid for promotional literature",
+            "category": "Cash and cash equivalents",
+            "count": 1
+          }
+        ],
+        "expense_decrease": [],
+        "tuple": [
+          0,
+          0,
+          0,
+          1,
+          0
+        ]
+      }
+    ],
+    "output_debit_corrector": [],
+    "output_credit_corrector": [],
+    "output_entry_builder": [],
+    "output_approver": [],
+    "output_diagnostician": [],
+    "status_ambiguity_detector": 1,
+    "status_complexity_detector": 1,
+    "status_tax_specialist": 1,
+    "status_decision_maker": 1,
+    "status_entry_drafter": 1,
+    "status_disambiguator": 1,
+    "status_debit_classifier": 1,
+    "status_credit_classifier": 1,
+    "status_debit_corrector": 0,
+    "status_credit_corrector": 0,
+    "status_entry_builder": 0,
+    "status_approver": 0,
+    "status_diagnostician": 0,
+    "fix_context_disambiguator": [],
+    "fix_context_debit_classifier": [],
+    "fix_context_credit_classifier": [],
+    "fix_context_debit_corrector": [],
+    "fix_context_credit_corrector": [],
+    "fix_context_entry_builder": [],
+    "fix_context_approver": [],
+    "fix_context_diagnostician": [],
+    "decision": "APPROVED",
+    "validation_error": null,
+    "llm_calls": [
+      {
+        "node": "debit_classifier",
+        "stop_reason": "tool_use",
+        "input_tokens": 501,
+        "output_tokens": 176,
+        "input_token_details": {
+          "cache_read": 4291,
+          "cache_creation": 0
+        }
+      },
+      {
+        "node": "credit_classifier",
+        "stop_reason": "tool_use",
+        "input_tokens": 498,
+        "output_tokens": 138,
+        "input_token_details": {
+          "cache_read": 4212,
+          "cache_creation": 0
+        }
+      },
+      {
+        "node": "tax_specialist",
+        "stop_reason": "tool_use",
+        "input_tokens": 540,
+        "output_tokens": 129,
+        "input_token_details": {
+          "cache_read": 3455,
+          "cache_creation": 0
+        }
+      },
+      {
+        "node": "unknown",
+        "stop_reason": "tool_use",
+        "input_tokens": 557,
+        "output_tokens": 437,
+        "input_token_details": {
+          "cache_read": 4550,
+          "cache_creation": 0
+        }
+      },
+      {
+        "node": "entry_drafter",
+        "stop_reason": "tool_use",
+        "input_tokens": 1087,
+        "output_tokens": 142,
+        "input_token_details": {
+          "cache_read": 3511,
+          "cache_creation": 0
+        }
+      }
+    ],
+    "stop_reasons": {
+      "debit_classifier": "tool_use",
+      "credit_classifier": "tool_use",
+      "tax_specialist": "tool_use",
+      "unknown": "tool_use",
+      "entry_drafter": "tool_use"
+    }
+  }
+}

@@ -1,0 +1,57 @@
+{
+  "evaluator": "claude",
+  "evaluated_at": "2026-03-31T12:00:00Z",
+  "prompt_version": "v4",
+  "results": {
+    "int_24_advertising": {
+      "match": false,
+      "tax_relaxed_match": false,
+      "reason": "No journal entry produced; pipeline returned INCOMPLETE_INFORMATION because tax rate was unknown, so no entry could be compared."
+    },
+    "int_25_building_purchase_allocation": {
+      "match": true,
+      "tax_relaxed_match": true,
+      "reason": "All 5 lines present with exact amounts; account names semantically equivalent (Tax assets ~ VAT receivable, Trade payables ~ Other payables, Cash and cash equivalents ~ Cash-chequing)."
+    },
+    "int_26a_payroll_recognition": {
+      "match": false,
+      "tax_relaxed_match": false,
+      "reason": "Actual has 5 lines vs expected 4; withholdings split into Employee benefits payable $6,300 and Tax liabilities $1,450 instead of single Statutory withholdings payable $7,750, violating same-number-of-lines rule."
+    },
+    "int_26b_payroll_remittance": {
+      "match": false,
+      "tax_relaxed_match": false,
+      "reason": "Amounts differ: actual Dr Employee benefits payable $7,850 and Cr Cash $14,150 vs expected $7,750 and $14,050 respectively, a $100 overstatement on both sides."
+    },
+    "int_28_promotional_literature": {
+      "match": true,
+      "tax_relaxed_match": true,
+      "reason": "Exact match on 2 lines; Advertising expense $7,000 and Cash and cash equivalents $7,000 are semantically equivalent to expected accounts and amounts."
+    },
+    "int_29_security_deposit_received": {
+      "match": false,
+      "tax_relaxed_match": false,
+      "reason": "No journal entry produced; pipeline returned INCOMPLETE_INFORMATION asking whether first month's rent was also collected at signing."
+    },
+    "int_30_short_term_loan_advance": {
+      "match": true,
+      "tax_relaxed_match": true,
+      "reason": "Exact match on 2 lines; Short-term loans receivable $2,000,000 and Cash and cash equivalents $2,000,000 are semantically equivalent to expected accounts and amounts."
+    },
+    "int_31_vehicle_nonrecoverable_tax": {
+      "match": true,
+      "tax_relaxed_match": true,
+      "reason": "Exact match on 2 lines with correct amounts; Motor vehicles ~ PP&E Vehicles and Trade payables ~ Other payables are semantically equivalent."
+    },
+    "int_hard_01a_note_derecognition": {
+      "match": false,
+      "tax_relaxed_match": false,
+      "reason": "Amounts within rounding tolerance but account names differ: Interest expense used instead of Loss on derecognition, and Short-term loans receivable used instead of Trade receivables."
+    },
+    "int_hard_01b_note_collateralized": {
+      "match": true,
+      "tax_relaxed_match": true,
+      "reason": "All 3 lines match with amounts within minor rounding tolerance ($98,356.16 vs $98,356 and $1,643.84 vs $1,644); Cash and cash equivalents ~ Cash, Interest expense and Short-term borrowings match exactly."
+    }
+  }
+}

@@ -1,0 +1,678 @@
+{
+  "test_case_id": "int_09_merchandise_with_costs",
+  "variant_name": "baseline_v4_dualtrack",
+  "model": "sonnet",
+  "debit_tuple_exact_match": true,
+  "credit_tuple_exact_match": true,
+  "debit_tuple_slot_accuracy": 0.8333333333333334,
+  "credit_tuple_slot_accuracy": 0.8333333333333334,
+  "entry_valid": true,
+  "debit_tuple": [
+    1,
+    2,
+    0,
+    0,
+    0
+  ],
+  "credit_tuple": [
+    1,
+    0,
+    0,
+    1,
+    0
+  ],
+  "journal_entry": {
+    "reason": "Merchandise purchase on account with inbound freight and insurance capitalized to inventory; post-acquisition storage and outbound delivery expensed as period costs",
+    "lines": [
+      {
+        "type": "debit",
+        "account_name": "Inventories \u2014 merchandise",
+        "amount": 1150000.0
+      },
+      {
+        "type": "debit",
+        "account_name": "Warehousing expense",
+        "amount": 20000.0
+      },
+      {
+        "type": "debit",
+        "account_name": "Transportation expense",
+        "amount": 50000.0
+      },
+      {
+        "type": "credit",
+        "account_name": "Trade payables",
+        "amount": 1000000.0
+      },
+      {
+        "type": "credit",
+        "account_name": "Cash and cash equivalents",
+        "amount": 220000.0
+      }
+    ]
+  },
+  "actual_cost_usd": 0.0477936,
+  "raw_cost_usd": 0.11006099999999999,
+  "total_latency_ms": 29898,
+  "total_input_tokens": 27782,
+  "total_output_tokens": 1781,
+  "total_llm_calls": 6,
+  "iteration_count": 1,
+  "final_decision": "APPROVED",
+  "fix_attempted": null,
+  "fix_succeeded": null,
+  "agent_metrics": {
+    "tax_specialist": {
+      "input_tokens": 552,
+      "output_tokens": 154,
+      "cache_read_tokens": 3277,
+      "cache_write_tokens": 0,
+      "total_input_tokens": 3829,
+      "llm_calls": 1,
+      "actual_cost_usd": 0.0049491000000000005,
+      "raw_cost_usd": 0.013797,
+      "output": {
+        "reasoning": "Transaction describes merchandise purchase and various freight/storage costs. No tax is mentioned anywhere in the text. Although these are taxable supplies (merchandise, freight, insurance, storage), the transaction does not state any tax amount or rate.",
+        "tax_mentioned": false,
+        "taxable": true,
+        "add_tax_lines": false,
+        "tax_rate": null,
+        "tax_amount": null,
+        "treatment": "not_applicable"
+      },
+      "reason": null
+    },
+    "credit_classifier": {
+      "input_tokens": 527,
+      "output_tokens": 205,
+      "cache_read_tokens": 4203,
+      "cache_write_tokens": 0,
+      "total_input_tokens": 4730,
+      "llm_calls": 1,
+      "actual_cost_usd": 0.005916899999999999,
+      "raw_cost_usd": 0.017265,
+      "output": {
+        "liability_increase": [
+          {
+            "reason": "Merchandise purchased from supplier on credit",
+            "category": "Trade payables",
+            "count": 1
+          }
+        ],
+        "equity_increase": [],
+        "revenue_increase": [],
+        "asset_decrease": [
+          {
+            "reason": "Cash paid for freight to warehouse, shipping insurance, post-acquisition warehouse storage, and outbound delivery freight",
+            "category": "Cash and cash equivalents",
+            "count": 1
+          }
+        ],
+        "expense_decrease": [],
+        "tuple": [
+          1,
+          0,
+          0,
+          1,
+          0
+        ]
+      },
+      "reason": null
+    },
+    "debit_classifier": {
+      "input_tokens": 530,
+      "output_tokens": 242,
+      "cache_read_tokens": 4282,
+      "cache_write_tokens": 0,
+      "total_input_tokens": 4812,
+      "llm_calls": 1,
+      "actual_cost_usd": 0.0065046,
+      "raw_cost_usd": 0.018066,
+      "output": {
+        "asset_increase": [
+          {
+            "reason": "Merchandise purchased plus inbound freight and insurance capitalized as inventory cost",
+            "category": "Inventories \u2014 merchandise",
+            "count": 1
+          }
+        ],
+        "expense_increase": [
+          {
+            "reason": "Post-acquisition warehouse storage incurred as period cost",
+            "category": "Warehousing expense",
+            "count": 1
+          },
+          {
+            "reason": "Outbound delivery freight incurred as period cost",
+            "category": "Transportation expense",
+            "count": 1
+          }
+        ],
+        "liability_decrease": [],
+        "equity_decrease": [],
+        "revenue_decrease": [],
+        "tuple": [
+          1,
+          2,
+          0,
+          0,
+          0
+        ]
+      },
+      "reason": null
+    },
+    "unknown": {
+      "input_tokens": 586,
+      "output_tokens": 766,
+      "cache_read_tokens": 4550,
+      "cache_write_tokens": 0,
+      "total_input_tokens": 5136,
+      "llm_calls": 1,
+      "actual_cost_usd": 0.014613,
+      "raw_cost_usd": 0.026898,
+      "output": null,
+      "reason": null
+    },
+    "entry_drafter": {
+      "input_tokens": 2525,
+      "output_tokens": 414,
+      "cache_read_tokens": 6750,
+      "cache_write_tokens": 0,
+      "total_input_tokens": 9275,
+      "llm_calls": 2,
+      "actual_cost_usd": 0.01581,
+      "raw_cost_usd": 0.034034999999999996,
+      "output": {
+        "reason": "Merchandise purchase on account with inbound freight and insurance capitalized to inventory; post-acquisition storage and outbound delivery expensed as period costs",
+        "lines": [
+          {
+            "type": "debit",
+            "account_name": "Inventories \u2014 merchandise",
+            "amount": 1150000.0
+          },
+          {
+            "type": "debit",
+            "account_name": "Warehousing expense",
+            "amount": 20000.0
+          },
+          {
+            "type": "debit",
+            "account_name": "Transportation expense",
+            "amount": 50000.0
+          },
+          {
+            "type": "credit",
+            "account_name": "Trade payables",
+            "amount": 1000000.0
+          },
+          {
+            "type": "credit",
+            "account_name": "Cash and cash equivalents",
+            "amount": 220000.0
+          }
+        ]
+      },
+      "reason": "Merchandise purchase on account with inbound freight and insurance capitalized to inventory; post-acquisition storage and outbound delivery expensed as period costs"
+    }
+  },
+  "pre_fix_debit_tuple": null,
+  "post_fix_debit_tuple": null,
+  "pre_fix_credit_tuple": null,
+  "post_fix_credit_tuple": null,
+  "fix_root_cause_agent": null,
+  "rejection_reason": null,
+  "diagnostician_decision": null,
+  "validation_error": null,
+  "decision_correct": true,
+  "entry_match": null,
+  "clarification_correct": null,
+  "clarification_questions": null,
+  "ambiguous": false,
+  "tier": "intermediate",
+  "error": null,
+  "pipeline_state": {
+    "iteration": 0,
+    "output_ambiguity_detector": [
+      {
+        "ambiguities": [
+          {
+            "aspect": "Payment method for merchandise",
+            "input_contextualized_conventional_default": "'on account' = accounts payable for the $1,000,000 merchandise purchase",
+            "input_contextualized_ifrs_default": null,
+            "clarification_question": null,
+            "cases": null,
+            "ambiguous": false
+          },
+          {
+            "aspect": "Classification of freight to warehouse",
+            "input_contextualized_conventional_default": null,
+            "input_contextualized_ifrs_default": "IAS 2.11: costs of purchase include transport and handling costs to bring inventory to present location \u2014 freight to warehouse is inventoriable cost",
+            "clarification_question": null,
+            "cases": null,
+            "ambiguous": false
+          },
+          {
+            "aspect": "Classification of shipping insurance",
+            "input_contextualized_conventional_default": null,
+            "input_contextualized_ifrs_default": "IAS 2.11: costs of purchase include insurance during transit \u2014 shipping insurance is inventoriable cost",
+            "clarification_question": null,
+            "cases": null,
+            "ambiguous": false
+          },
+          {
+            "aspect": "Classification of post-acquisition warehouse storage",
+            "input_contextualized_conventional_default": null,
+            "input_contextualized_ifrs_default": "IAS 2.16: storage costs after inventory reaches its present location are excluded from inventory cost and expensed \u2014 post-acquisition warehouse storage is period expense",
+            "clarification_question": null,
+            "cases": null,
+            "ambiguous": false
+          },
+          {
+            "aspect": "Classification of outbound delivery freight",
+            "input_contextualized_conventional_default": null,
+            "input_contextualized_ifrs_default": "IAS 2: outbound delivery to customers is a selling cost, not a cost of purchase \u2014 expensed as delivery/freight-out expense",
+            "clarification_question": null,
+            "cases": null,
+            "ambiguous": false
+          }
+        ]
+      }
+    ],
+    "output_complexity_detector": [
+      {
+        "flags": [
+          {
+            "aspect": "Multiple cost components with different treatments",
+            "best_attempt": {
+              "reason": "Merchandise plus inbound freight and insurance are inventoriable; post-acquisition storage and outbound freight are period expenses per IAS 2",
+              "lines": [
+                {
+                  "type": "debit",
+                  "account_name": "Inventory",
+                  "amount": 1150000.0
+                },
+                {
+                  "type": "credit",
+                  "account_name": "Accounts Payable",
+                  "amount": 1000000.0
+                },
+                {
+                  "type": "credit",
+                  "account_name": "Cash",
+                  "amount": 150000.0
+                },
+                {
+                  "type": "debit",
+                  "account_name": "Storage Expense",
+                  "amount": 20000.0
+                },
+                {
+                  "type": "credit",
+                  "account_name": "Cash",
+                  "amount": 20000.0
+                },
+                {
+                  "type": "debit",
+                  "account_name": "Delivery Expense",
+                  "amount": 50000.0
+                },
+                {
+                  "type": "credit",
+                  "account_name": "Cash",
+                  "amount": 50000.0
+                }
+              ]
+            },
+            "gap": null,
+            "beyond_llm_capability": false
+          }
+        ]
+      }
+    ],
+    "output_tax_specialist": [
+      {
+        "reasoning": "Transaction describes merchandise purchase and various freight/storage costs. No tax is mentioned anywhere in the text. Although these are taxable supplies (merchandise, freight, insurance, storage), the transaction does not state any tax amount or rate.",
+        "tax_mentioned": false,
+        "taxable": true,
+        "add_tax_lines": false,
+        "tax_rate": null,
+        "tax_amount": null,
+        "treatment": "not_applicable"
+      }
+    ],
+    "output_decision_maker": [
+      {
+        "ambiguities": [
+          {
+            "aspect": "Payment method for merchandise",
+            "input_contextualized_conventional_default": "'on account' = accounts payable for the $1,000,000 merchandise purchase",
+            "input_contextualized_ifrs_default": null,
+            "clarification_question": null,
+            "cases": null,
+            "ambiguous": false
+          },
+          {
+            "aspect": "Classification of freight to warehouse",
+            "input_contextualized_conventional_default": null,
+            "input_contextualized_ifrs_default": "IAS 2.11: costs of purchase include transport and handling costs to bring inventory to present location \u2014 freight to warehouse is inventoriable cost",
+            "clarification_question": null,
+            "cases": null,
+            "ambiguous": false
+          },
+          {
+            "aspect": "Classification of shipping insurance",
+            "input_contextualized_conventional_default": null,
+            "input_contextualized_ifrs_default": "IAS 2.11: costs of purchase include insurance during transit \u2014 shipping insurance is inventoriable cost",
+            "clarification_question": null,
+            "cases": null,
+            "ambiguous": false
+          },
+          {
+            "aspect": "Classification of post-acquisition warehouse storage",
+            "input_contextualized_conventional_default": null,
+            "input_contextualized_ifrs_default": "IAS 2.16: storage costs after inventory reaches its present location are excluded from inventory cost and expensed \u2014 post-acquisition warehouse storage is period expense",
+            "clarification_question": null,
+            "cases": null,
+            "ambiguous": false
+          },
+          {
+            "aspect": "Classification of outbound delivery freight",
+            "input_contextualized_conventional_default": null,
+            "input_contextualized_ifrs_default": "IAS 2: outbound delivery to customers is a selling cost, not a cost of purchase \u2014 expensed as delivery/freight-out expense",
+            "clarification_question": null,
+            "cases": null,
+            "ambiguous": false
+          }
+        ],
+        "complexity_flags": [
+          {
+            "aspect": "Multiple cost components with different treatments",
+            "best_attempt": {
+              "reason": "Merchandise plus inbound freight and insurance are inventoriable; post-acquisition storage and outbound freight are period expenses per IAS 2",
+              "lines": [
+                {
+                  "type": "debit",
+                  "account_name": "Inventory",
+                  "amount": 1150000.0
+                },
+                {
+                  "type": "credit",
+                  "account_name": "Accounts Payable",
+                  "amount": 1000000.0
+                },
+                {
+                  "type": "credit",
+                  "account_name": "Cash",
+                  "amount": 150000.0
+                },
+                {
+                  "type": "debit",
+                  "account_name": "Storage Expense",
+                  "amount": 20000.0
+                },
+                {
+                  "type": "credit",
+                  "account_name": "Cash",
+                  "amount": 20000.0
+                },
+                {
+                  "type": "debit",
+                  "account_name": "Delivery Expense",
+                  "amount": 50000.0
+                },
+                {
+                  "type": "credit",
+                  "account_name": "Cash",
+                  "amount": 50000.0
+                }
+              ]
+            },
+            "gap": null,
+            "beyond_llm_capability": false
+          }
+        ],
+        "proceed_reason": "IFRS (IAS 2) provides clear guidance on which costs are inventoriable versus expensed, and all amounts are stated in the transaction.",
+        "clarification_questions": null,
+        "stuck_reason": null,
+        "overall_final_rationale": "All cost components are clearly classified under IAS 2: merchandise, inbound freight, and shipping insurance are inventoriable costs; post-acquisition storage and outbound delivery are period expenses.",
+        "decision": "PROCEED"
+      }
+    ],
+    "output_entry_drafter": [
+      {
+        "reason": "Merchandise purchase on account with inbound freight and insurance capitalized to inventory; post-acquisition storage and outbound delivery expensed as period costs",
+        "lines": [
+          {
+            "type": "debit",
+            "account_name": "Inventories \u2014 merchandise",
+            "amount": 1150000.0
+          },
+          {
+            "type": "debit",
+            "account_name": "Warehousing expense",
+            "amount": 20000.0
+          },
+          {
+            "type": "debit",
+            "account_name": "Transportation expense",
+            "amount": 50000.0
+          },
+          {
+            "type": "credit",
+            "account_name": "Trade payables",
+            "amount": 1000000.0
+          },
+          {
+            "type": "credit",
+            "account_name": "Cash and cash equivalents",
+            "amount": 220000.0
+          }
+        ]
+      }
+    ],
+    "output_disambiguator": [
+      {
+        "ambiguities": [
+          {
+            "aspect": "Payment method for merchandise",
+            "input_contextualized_conventional_default": "'on account' = accounts payable for the $1,000,000 merchandise purchase",
+            "input_contextualized_ifrs_default": null,
+            "clarification_question": null,
+            "cases": null,
+            "ambiguous": false
+          },
+          {
+            "aspect": "Classification of freight to warehouse",
+            "input_contextualized_conventional_default": null,
+            "input_contextualized_ifrs_default": "IAS 2.11: costs of purchase include transport and handling costs to bring inventory to present location \u2014 freight to warehouse is inventoriable cost",
+            "clarification_question": null,
+            "cases": null,
+            "ambiguous": false
+          },
+          {
+            "aspect": "Classification of shipping insurance",
+            "input_contextualized_conventional_default": null,
+            "input_contextualized_ifrs_default": "IAS 2.11: costs of purchase include insurance during transit \u2014 shipping insurance is inventoriable cost",
+            "clarification_question": null,
+            "cases": null,
+            "ambiguous": false
+          },
+          {
+            "aspect": "Classification of post-acquisition warehouse storage",
+            "input_contextualized_conventional_default": null,
+            "input_contextualized_ifrs_default": "IAS 2.16: storage costs after inventory reaches its present location are excluded from inventory cost and expensed \u2014 post-acquisition warehouse storage is period expense",
+            "clarification_question": null,
+            "cases": null,
+            "ambiguous": false
+          },
+          {
+            "aspect": "Classification of outbound delivery freight",
+            "input_contextualized_conventional_default": null,
+            "input_contextualized_ifrs_default": "IAS 2: outbound delivery to customers is a selling cost, not a cost of purchase \u2014 expensed as delivery/freight-out expense",
+            "clarification_question": null,
+            "cases": null,
+            "ambiguous": false
+          }
+        ]
+      }
+    ],
+    "output_debit_classifier": [
+      {
+        "asset_increase": [
+          {
+            "reason": "Merchandise purchased plus inbound freight and insurance capitalized as inventory cost",
+            "category": "Inventories \u2014 merchandise",
+            "count": 1
+          }
+        ],
+        "expense_increase": [
+          {
+            "reason": "Post-acquisition warehouse storage incurred as period cost",
+            "category": "Warehousing expense",
+            "count": 1
+          },
+          {
+            "reason": "Outbound delivery freight incurred as period cost",
+            "category": "Transportation expense",
+            "count": 1
+          }
+        ],
+        "liability_decrease": [],
+        "equity_decrease": [],
+        "revenue_decrease": [],
+        "tuple": [
+          1,
+          2,
+          0,
+          0,
+          0
+        ]
+      }
+    ],
+    "output_credit_classifier": [
+      {
+        "liability_increase": [
+          {
+            "reason": "Merchandise purchased from supplier on credit",
+            "category": "Trade payables",
+            "count": 1
+          }
+        ],
+        "equity_increase": [],
+        "revenue_increase": [],
+        "asset_decrease": [
+          {
+            "reason": "Cash paid for freight to warehouse, shipping insurance, post-acquisition warehouse storage, and outbound delivery freight",
+            "category": "Cash and cash equivalents",
+            "count": 1
+          }
+        ],
+        "expense_decrease": [],
+        "tuple": [
+          1,
+          0,
+          0,
+          1,
+          0
+        ]
+      }
+    ],
+    "output_debit_corrector": [],
+    "output_credit_corrector": [],
+    "output_entry_builder": [],
+    "output_approver": [],
+    "output_diagnostician": [],
+    "status_ambiguity_detector": 1,
+    "status_complexity_detector": 1,
+    "status_tax_specialist": 1,
+    "status_decision_maker": 1,
+    "status_entry_drafter": 1,
+    "status_disambiguator": 1,
+    "status_debit_classifier": 1,
+    "status_credit_classifier": 1,
+    "status_debit_corrector": 0,
+    "status_credit_corrector": 0,
+    "status_entry_builder": 0,
+    "status_approver": 0,
+    "status_diagnostician": 0,
+    "fix_context_disambiguator": [],
+    "fix_context_debit_classifier": [],
+    "fix_context_credit_classifier": [],
+    "fix_context_debit_corrector": [],
+    "fix_context_credit_corrector": [],
+    "fix_context_entry_builder": [],
+    "fix_context_approver": [],
+    "fix_context_diagnostician": [],
+    "decision": "APPROVED",
+    "validation_error": null,
+    "llm_calls": [
+      {
+        "node": "tax_specialist",
+        "stop_reason": "tool_use",
+        "input_tokens": 552,
+        "output_tokens": 154,
+        "input_token_details": {
+          "cache_read": 3277,
+          "cache_creation": 0
+        }
+      },
+      {
+        "node": "credit_classifier",
+        "stop_reason": "tool_use",
+        "input_tokens": 527,
+        "output_tokens": 205,
+        "input_token_details": {
+          "cache_read": 4203,
+          "cache_creation": 0
+        }
+      },
+      {
+        "node": "debit_classifier",
+        "stop_reason": "tool_use",
+        "input_tokens": 530,
+        "output_tokens": 242,
+        "input_token_details": {
+          "cache_read": 4282,
+          "cache_creation": 0
+        }
+      },
+      {
+        "node": "unknown",
+        "stop_reason": "tool_use",
+        "input_tokens": 586,
+        "output_tokens": 766,
+        "input_token_details": {
+          "cache_read": 4550,
+          "cache_creation": 0
+        }
+      },
+      {
+        "node": "entry_drafter",
+        "stop_reason": "tool_use",
+        "input_tokens": 1191,
+        "output_tokens": 143,
+        "input_token_details": {
+          "cache_read": 3405,
+          "cache_creation": 0
+        }
+      },
+      {
+        "node": "entry_drafter",
+        "stop_reason": "tool_use",
+        "input_tokens": 1334,
+        "output_tokens": 271,
+        "input_token_details": {
+          "cache_read": 3345,
+          "cache_creation": 0
+        }
+      }
+    ],
+    "stop_reasons": {
+      "tax_specialist": "tool_use",
+      "credit_classifier": "tool_use",
+      "debit_classifier": "tool_use",
+      "unknown": "tool_use",
+      "entry_drafter": "tool_use"
+    }
+  }
+}

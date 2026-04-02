@@ -1,0 +1,57 @@
+{
+  "evaluator": "claude",
+  "evaluated_at": "2026-04-01T00:00:00Z",
+  "prompt_version": "v4",
+  "results": {
+    "int_26b": {
+      "match": false,
+      "tax_relaxed_match": false,
+      "reason": "Liability debit amount $7,775 and credit $14,075 differ from expected $7,750 and $14,050 by $25 each. Account name 'Employee Benefits Payable' vs expected 'Statutory withholdings payable' is close but amounts are wrong."
+    },
+    "int_28": {
+      "match": true,
+      "tax_relaxed_match": true,
+      "reason": "Dr Advertising expense $7,000 / Cr Cash $7,000 matches expected exactly."
+    },
+    "int_29": {
+      "match": true,
+      "tax_relaxed_match": true,
+      "reason": "Dr Cash $25,000 / Cr Security deposits payable $25,000 semantically matches expected Rental deposits received. Both are deposit liability accounts with correct amounts."
+    },
+    "int_30": {
+      "match": true,
+      "tax_relaxed_match": true,
+      "reason": "Dr Short-term loans receivable $2,000,000 / Cr Cash $2,000,000 matches expected exactly."
+    },
+    "int_31": {
+      "match": true,
+      "tax_relaxed_match": true,
+      "reason": "Dr Motor vehicles $52,800 / Cr Short-term borrowings $52,800 semantically matches expected PP&E Vehicles / Other payables. Non-recoverable tax correctly capitalized into asset cost. Amounts exact."
+    },
+    "int_hard_01a": {
+      "match": false,
+      "tax_relaxed_match": false,
+      "reason": "Used borrowing treatment (Interest expense / Notes receivable) instead of required derecognition treatment (Loss on derecognition / Trade receivables). Amounts $98,356.16 and $1,643.84 are within rounding tolerance but wrong accounts for derecognition."
+    },
+    "int_hard_01b": {
+      "match": true,
+      "tax_relaxed_match": true,
+      "reason": "Dr Cash $98,356.16 / Dr Interest expense $1,643.84 / Cr Short-term borrowings $100,000 matches expected borrowing treatment. Amounts within allowed +/-$1 day-count rounding tolerance."
+    },
+    "int_hard_02a": {
+      "match": true,
+      "tax_relaxed_match": true,
+      "reason": "Dr Investments FVTPL $3,000,000 / Dr Professional fees expense $100,000 / Cr Cash $3,100,000. Transaction costs correctly expensed per FVTPL treatment. Amounts exact."
+    },
+    "int_hard_02b": {
+      "match": true,
+      "tax_relaxed_match": true,
+      "reason": "Dr Investments FVOCI $3,100,000 / Cr Cash $3,100,000. Transaction costs correctly capitalized into investment per FVOCI treatment. Amounts exact."
+    },
+    "int_hard_02c": {
+      "match": true,
+      "tax_relaxed_match": true,
+      "reason": "Dr Investments equity method $3,100,000 / Cr Cash $3,100,000. Transaction costs correctly capitalized into investment per equity method treatment. Amounts exact."
+    }
+  }
+}

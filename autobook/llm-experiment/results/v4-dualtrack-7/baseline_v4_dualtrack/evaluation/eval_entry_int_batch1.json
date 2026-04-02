@@ -1,0 +1,72 @@
+{
+  "evaluator": "claude",
+  "evaluated_at": "2026-04-01T00:00:00Z",
+  "prompt_version": "v4",
+  "results": {
+    "int_03": {
+      "match": true,
+      "tax_relaxed_match": true,
+      "reason": "Dr Machinery $800,000 / Cr Trade payables $700,000 / Cr Cash $100,000 -- exact amounts and semantically equivalent accounts (Machinery = PP&E Machinery)."
+    },
+    "int_04": {
+      "match": true,
+      "tax_relaxed_match": true,
+      "reason": "Dr Machinery $200,000 / Cr Cash $200,000 -- exact amounts and semantically equivalent accounts."
+    },
+    "int_05": {
+      "match": true,
+      "tax_relaxed_match": true,
+      "reason": "Dr Cash $2,657,510.70 / Dr Discount on Bonds Payable $342,489.30 / Cr Bonds Payable $3,000,000 -- within $0.70 PV rounding tolerance ($250 allowed); accounts semantically equivalent."
+    },
+    "int_06": {
+      "match": true,
+      "tax_relaxed_match": true,
+      "reason": "Dr Warranty Expense $900,000 / Cr Warranty Provisions $900,000 -- exact amounts; Warranty Provisions ~ Provision for warranties."
+    },
+    "int_07": {
+      "match": true,
+      "tax_relaxed_match": true,
+      "reason": "Dr Offshore Marine Structure $5,950,000 / Cr Trade Payables $4,000,000 / Cr Decommissioning Provisions $1,950,000 -- exact amounts; Offshore Marine Structure ~ PP&E Marine structures."
+    },
+    "int_08": {
+      "match": true,
+      "tax_relaxed_match": true,
+      "reason": "Dr Issued capital $50,000 / Dr Retained earnings $10,000 / Cr Cash $60,000 -- exact amounts; Issued capital ~ Share capital."
+    },
+    "int_09": {
+      "match": true,
+      "tax_relaxed_match": true,
+      "reason": "Dr Inventories $1,150,000 / Dr Warehousing expense $20,000 / Dr Transportation expense $50,000 / Cr Trade payables $1,000,000 / Cr Cash $220,000 -- exact amounts; Transportation expense ~ Distribution costs for outbound delivery."
+    },
+    "int_10": {
+      "match": true,
+      "tax_relaxed_match": true,
+      "reason": "Dr Advances to Suppliers $1,000,000 / Cr Cash $1,000,000 -- exact amounts; Advances to Suppliers ~ Prepayments in supplier prepayment context."
+    },
+    "int_11": {
+      "match": true,
+      "tax_relaxed_match": true,
+      "reason": "Dr Land $49,173,243 / Dr Discount on Notes Payable $10,826,757 / Cr Notes Payable $60,000,000 -- within ~$243 PV rounding tolerance ($250 allowed); Notes Payable ~ Long-term payables."
+    },
+    "int_12": {
+      "match": true,
+      "tax_relaxed_match": true,
+      "reason": "Dr Site improvements $1,750,000 / Dr Land $2,360,000 / Cr Cash $1,750,000 / Cr Cash--chequing $2,360,000 -- exact amounts, 2 separate credit lines as required, accounts match."
+    },
+    "int_13": {
+      "match": true,
+      "tax_relaxed_match": true,
+      "reason": "Dr Donations Expense $1,000,000 / Cr Notes Payable $1,000,000 -- exact match on accounts and amounts."
+    },
+    "int_14": {
+      "match": true,
+      "tax_relaxed_match": true,
+      "reason": "Dr Motor vehicles $40,000 / Cr Cash $20,000 / Cr Notes payable $20,000 -- exact amounts; Motor vehicles ~ PP&E Vehicles."
+    },
+    "int_15": {
+      "match": true,
+      "tax_relaxed_match": true,
+      "reason": "Dr Cash and cash equivalents $200,000 / Cr Long-term borrowings $200,000 -- exact match on amounts and semantically equivalent accounts."
+    }
+  }
+}

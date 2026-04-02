@@ -1,0 +1,8 @@
+test_case_id,tier,transaction_text,actual_cost_usd,total_latency_ms,exp_relationship,exp_account,exp_debit,exp_credit,act_account,act_debit,act_credit,act_relationship,act_category,act_count
+int_22_compound_sale_with_tax,intermediate,"Mondelez sold 300 cases of snack products to a customer at $230 per case (cost: $185 per case). The total selling price of $69,000 plus 10% sales tax resulted in a gross amount of $75,900. Mondelez received $45,900 via bank transfer to its chequing account, with the remainder on credit.",0.0422,26120,expense_increase,Cost of goods sold,"55,500.00",,Cost of sales,"55,500.00",,expense_increase,Cost of sales,1
+,,,,,asset_increase,Cash — chequing,"45,900.00",,Cash and cash equivalents,"45,900.00",,asset_increase,Cash and cash equivalents,1
+,,,,,asset_increase,Trade receivables,"30,000.00",,Trade receivables,"30,000.00",,asset_increase,Trade receivables,1
+,,,,,revenue_increase,Revenue — Product sales,,"69,000.00",Revenue from sale of goods,,"69,000.00",revenue_increase,Revenue from sale of goods,1
+,,,,,asset_decrease,Inventories — Finished goods,,"55,500.00",Inventories — finished goods,,"55,500.00",asset_decrease,Inventories — finished goods,1
+,,,,,liability_increase,Sales tax payable,,"6,900.00",Tax liabilities,,"6,900.00",liability_increase,Tax liabilities,1
+,,,,,,TOTAL,"131,400.00","131,400.00",TOTAL,"131,400.00","131,400.00",,,

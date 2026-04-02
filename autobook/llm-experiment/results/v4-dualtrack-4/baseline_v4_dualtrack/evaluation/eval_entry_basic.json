@@ -1,0 +1,82 @@
+{
+  "evaluator": "claude",
+  "evaluated_at": "2026-04-01T00:00:00Z",
+  "prompt_version": "v4",
+  "results": {
+    "basic_01_inventory_cash": {
+      "match": true,
+      "tax_relaxed_match": true,
+      "reason": "Dr Inventories--merchandise $100 / Cr Cash and cash equivalents $100 matches expected Dr Inventories $100 / Cr Cash $100; IFRS naming variants OK"
+    },
+    "basic_02_inventory_on_account": {
+      "match": true,
+      "tax_relaxed_match": true,
+      "reason": "Dr Inventories--merchandise $300 / Cr Trade payables $300 matches expected; naming variants OK"
+    },
+    "basic_03_issue_stock_with_apic": {
+      "match": true,
+      "tax_relaxed_match": true,
+      "reason": "Dr Cash $180 / Cr Issued capital $100 / Cr Share premium $80 matches expected; Issued capital = Share capital--Common, Share premium = APIC (IFRS naming)"
+    },
+    "basic_04_sell_inventory": {
+      "match": true,
+      "tax_relaxed_match": true,
+      "reason": "Dr Cash $500 / Dr Cost of sales $300 / Cr Revenue from sale of goods $500 / Cr Inventories $300 matches expected; Cost of sales = COGS, naming variants OK"
+    },
+    "basic_05_pay_accounts_payable": {
+      "match": true,
+      "tax_relaxed_match": true,
+      "reason": "Dr Trade payables $50 / Cr Cash and cash equivalents $50 matches expected exactly"
+    },
+    "basic_06_refinance_loan": {
+      "match": true,
+      "tax_relaxed_match": true,
+      "reason": "Dr Long-term borrowings $100 / Cr Long-term borrowings $100 matches expected Dr/Cr Notes payable $100; IFRS naming variant OK"
+    },
+    "basic_07_loan_to_equity": {
+      "match": true,
+      "tax_relaxed_match": true,
+      "reason": "Dr Short-term borrowings $200 / Cr Issued capital $200 matches expected Dr Notes payable $200 / Cr Share capital--Common $200; IFRS naming variants OK"
+    },
+    "basic_08_deliver_service_against_deposit": {
+      "match": true,
+      "tax_relaxed_match": true,
+      "reason": "Dr Deferred income $100 / Cr Revenue from rendering of services $100 matches expected Dr Contract liabilities / Cr Revenue; Deferred income = Contract liabilities (IFRS variant)"
+    },
+    "basic_09_repurchase_stock": {
+      "match": true,
+      "tax_relaxed_match": true,
+      "reason": "Dr Treasury shares $200 / Cr Cash and cash equivalents $200 matches expected exactly"
+    },
+    "basic_10_declare_dividend": {
+      "match": true,
+      "tax_relaxed_match": true,
+      "reason": "Dr Retained earnings $500,000 / Cr Dividends payable $500,000 matches expected exactly; correctly uses Retained earnings (not Dividends declared)"
+    },
+    "basic_11_convert_preferred_to_common": {
+      "match": true,
+      "tax_relaxed_match": true,
+      "reason": "Dr Issued capital--preferred shares $100 / Cr Issued capital--common shares $100 matches expected; IFRS naming for Share capital--Preferred/Common"
+    },
+    "basic_12_pay_salaries": {
+      "match": true,
+      "tax_relaxed_match": true,
+      "reason": "Dr Employee benefits expense $100 / Cr Cash $100 matches expected Dr Salaries expense / Cr Cash; Employee benefits expense is the IFRS equivalent of Salaries expense"
+    },
+    "basic_13_accrue_utility": {
+      "match": true,
+      "tax_relaxed_match": true,
+      "reason": "Dr Utilities expense $50 / Cr Accrued liabilities $50 matches expected exactly"
+    },
+    "basic_14_casualty_loss": {
+      "match": true,
+      "tax_relaxed_match": true,
+      "reason": "Dr Casualty loss $2,000 / Cr Inventories--merchandise $2,000 matches expected exactly"
+    },
+    "basic_15_no_entry": {
+      "match": true,
+      "tax_relaxed_match": true,
+      "reason": "Empty lines [] is equivalent to null (no journal entry) per scoring rules; correctly identified no entry needed"
+    }
+  }
+}

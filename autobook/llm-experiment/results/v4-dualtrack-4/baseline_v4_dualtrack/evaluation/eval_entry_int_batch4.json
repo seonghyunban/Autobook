@@ -1,0 +1,47 @@
+{
+  "evaluator": "claude",
+  "evaluated_at": "2026-04-01T00:00:00Z",
+  "prompt_version": "v4",
+  "results": {
+    "int_hard_27a": {
+      "match": true,
+      "tax_relaxed_match": true,
+      "reason": "Exact match. Dr Employee benefits expense $125 / Cr Credit card payable $125."
+    },
+    "int_hard_27b": {
+      "match": true,
+      "tax_relaxed_match": true,
+      "reason": "Exact match. Dr Meeting expense $125 / Cr Credit card payable $125."
+    },
+    "int_hard_27c": {
+      "match": false,
+      "tax_relaxed_match": true,
+      "reason": "Account name correct (Entertainment expense / Credit card payable) but model split $125 into $110.62 expense + $14.38 tax assets instead of gross $125."
+    },
+    "int_hard_27d": {
+      "match": false,
+      "tax_relaxed_match": false,
+      "reason": "Debit account mismatch: got 'Inventories — work in progress' instead of expected 'WIP Manufacturing overhead'. Manufacturing overhead is a cost pool distinct from WIP inventory."
+    },
+    "int_hard_32a": {
+      "match": false,
+      "tax_relaxed_match": true,
+      "reason": "Account name correct (Entertainment expense / Credit card payable) but model split $1,320 into $1,200 expense + $120 tax assets instead of gross $1,320."
+    },
+    "int_hard_32b": {
+      "match": false,
+      "tax_relaxed_match": true,
+      "reason": "Account name correct (Employee benefits expense / Credit card payable) but model split $1,320 into $1,200 expense + $120 tax assets instead of gross $1,320."
+    },
+    "int_hard_16a": {
+      "match": true,
+      "tax_relaxed_match": true,
+      "reason": "Dr Prepaid expenses $24,000 / Cr Cash and cash equivalents $24,000. Prepaid expenses is the standard account encompassing prepaid rent; Cash and cash equivalents encompasses chequing."
+    },
+    "int_hard_16b": {
+      "match": false,
+      "tax_relaxed_match": false,
+      "reason": "Debit account mismatch: got 'Occupancy expense' instead of expected 'Rent expense'. Strict classification: occupancy expense is a broader category, not equivalent to rent expense."
+    }
+  }
+}

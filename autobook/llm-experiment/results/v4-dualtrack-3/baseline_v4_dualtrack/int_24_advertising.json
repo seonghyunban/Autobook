@@ -1,0 +1,502 @@
+{
+  "test_case_id": "int_24_advertising",
+  "variant_name": "baseline_v4_dualtrack",
+  "model": "sonnet",
+  "debit_tuple_exact_match": true,
+  "credit_tuple_exact_match": true,
+  "debit_tuple_slot_accuracy": 0.8333333333333334,
+  "credit_tuple_slot_accuracy": 0.8333333333333334,
+  "entry_valid": true,
+  "debit_tuple": [
+    0,
+    1,
+    0,
+    0,
+    0
+  ],
+  "credit_tuple": [
+    0,
+    0,
+    0,
+    1,
+    0
+  ],
+  "journal_entry": {
+    "reason": "Digital marketing campaign expensed with recoverable HST extracted from tax-inclusive payment",
+    "lines": [
+      {
+        "type": "debit",
+        "account_name": "Advertising Expense",
+        "amount": 19469.03
+      },
+      {
+        "type": "debit",
+        "account_name": "Input Tax Credit",
+        "amount": 2530.97
+      },
+      {
+        "type": "credit",
+        "account_name": "Cash",
+        "amount": 22000.0
+      }
+    ]
+  },
+  "actual_cost_usd": 0.0342507,
+  "raw_cost_usd": 0.08830199999999999,
+  "total_latency_ms": 13849,
+  "total_input_tokens": 23264,
+  "total_output_tokens": 1234,
+  "total_llm_calls": 5,
+  "iteration_count": 1,
+  "final_decision": "APPROVED",
+  "fix_attempted": null,
+  "fix_succeeded": null,
+  "agent_metrics": {
+    "credit_classifier": {
+      "input_tokens": 492,
+      "output_tokens": 142,
+      "cache_read_tokens": 4212,
+      "cache_write_tokens": 0,
+      "total_input_tokens": 4704,
+      "llm_calls": 1,
+      "actual_cost_usd": 0.0048696,
+      "raw_cost_usd": 0.016242,
+      "output": {
+        "liability_increase": [],
+        "equity_increase": [],
+        "revenue_increase": [],
+        "asset_decrease": [
+          {
+            "reason": "Cash paid for digital marketing campaign including sales tax",
+            "category": "Cash and cash equivalents",
+            "count": 1
+          }
+        ],
+        "expense_decrease": [],
+        "tuple": [
+          0,
+          0,
+          0,
+          1,
+          0
+        ]
+      },
+      "reason": null
+    },
+    "debit_classifier": {
+      "input_tokens": 495,
+      "output_tokens": 142,
+      "cache_read_tokens": 4291,
+      "cache_write_tokens": 0,
+      "total_input_tokens": 4786,
+      "llm_calls": 1,
+      "actual_cost_usd": 0.0049023,
+      "raw_cost_usd": 0.016488,
+      "output": {
+        "asset_increase": [],
+        "expense_increase": [
+          {
+            "reason": "Digital marketing campaign costs incurred for advertising snack products",
+            "category": "Advertising expense",
+            "count": 1
+          }
+        ],
+        "liability_decrease": [],
+        "equity_decrease": [],
+        "revenue_decrease": [],
+        "tuple": [
+          0,
+          1,
+          0,
+          0,
+          0
+        ]
+      },
+      "reason": null
+    },
+    "tax_specialist": {
+      "input_tokens": 534,
+      "output_tokens": 253,
+      "cache_read_tokens": 3455,
+      "cache_write_tokens": 0,
+      "total_input_tokens": 3989,
+      "llm_calls": 1,
+      "actual_cost_usd": 0.0064335,
+      "raw_cost_usd": 0.015762,
+      "output": {
+        "reasoning": "Text states $22,000 is \"inclusive of sales tax\" for a digital marketing campaign (taxable service). Tax is explicitly mentioned but rate not stated; ON province = 13% HST applies.",
+        "tax_mentioned": true,
+        "taxable": true,
+        "tax_context": "13% HST (Ontario) is included in the $22,000 total payment. The entry drafter should back out the tax from the inclusive amount: base = 22,000 / 1.13, tax = 22,000 - base. Tax is recoverable as Input Tax Credit.",
+        "tax_rate": 0.13,
+        "add_tax_lines": true,
+        "treatment": "recoverable"
+      },
+      "reason": null
+    },
+    "unknown": {
+      "input_tokens": 551,
+      "output_tokens": 520,
+      "cache_read_tokens": 4550,
+      "cache_write_tokens": 0,
+      "total_input_tokens": 5101,
+      "llm_calls": 1,
+      "actual_cost_usd": 0.010818,
+      "raw_cost_usd": 0.023103,
+      "output": null,
+      "reason": null
+    },
+    "entry_drafter": {
+      "input_tokens": 1173,
+      "output_tokens": 177,
+      "cache_read_tokens": 3511,
+      "cache_write_tokens": 0,
+      "total_input_tokens": 4684,
+      "llm_calls": 1,
+      "actual_cost_usd": 0.0072273,
+      "raw_cost_usd": 0.016707,
+      "output": {
+        "reason": "Digital marketing campaign expensed with recoverable HST extracted from tax-inclusive payment",
+        "lines": [
+          {
+            "type": "debit",
+            "account_name": "Advertising Expense",
+            "amount": 19469.03
+          },
+          {
+            "type": "debit",
+            "account_name": "Input Tax Credit",
+            "amount": 2530.97
+          },
+          {
+            "type": "credit",
+            "account_name": "Cash",
+            "amount": 22000.0
+          }
+        ]
+      },
+      "reason": "Digital marketing campaign expensed with recoverable HST extracted from tax-inclusive payment"
+    }
+  },
+  "pre_fix_debit_tuple": null,
+  "post_fix_debit_tuple": null,
+  "pre_fix_credit_tuple": null,
+  "post_fix_credit_tuple": null,
+  "fix_root_cause_agent": null,
+  "rejection_reason": null,
+  "diagnostician_decision": null,
+  "validation_error": null,
+  "decision_correct": true,
+  "entry_match": null,
+  "clarification_correct": null,
+  "clarification_questions": null,
+  "ambiguous": false,
+  "tier": "intermediate",
+  "error": null,
+  "pipeline_state": {
+    "iteration": 0,
+    "output_ambiguity_detector": [
+      {
+        "ambiguities": [
+          {
+            "aspect": "Classification of digital marketing campaign expense",
+            "input_contextualized_conventional_default": null,
+            "input_contextualized_ifrs_default": "Advertising and promotional costs are expensed when incurred per IAS 38.69.",
+            "clarification_question": null,
+            "cases": null,
+            "ambiguous": false
+          },
+          {
+            "aspect": "Payment method",
+            "input_contextualized_conventional_default": "'paid' + 'cash' = cash payment at the stated amount.",
+            "input_contextualized_ifrs_default": null,
+            "clarification_question": null,
+            "cases": null,
+            "ambiguous": false
+          },
+          {
+            "aspect": "Sales tax treatment on purchase",
+            "input_contextualized_conventional_default": null,
+            "input_contextualized_ifrs_default": "Buyer-side tax on purchases is recoverable as Input Tax Credit (Tax asset) for corporations in Ontario.",
+            "clarification_question": null,
+            "cases": null,
+            "ambiguous": false
+          },
+          {
+            "aspect": "Tax rate extraction from tax-inclusive amount",
+            "input_contextualized_conventional_default": null,
+            "input_contextualized_ifrs_default": "Province is ON, so HST rate is 13%. Tax-inclusive amount of $22,000 yields pre-tax amount of $22,000 / 1.13 = $19,469.03 and HST of $2,530.97.",
+            "clarification_question": null,
+            "cases": null,
+            "ambiguous": false
+          }
+        ]
+      }
+    ],
+    "output_complexity_detector": [
+      {
+        "flags": [
+          {
+            "aspect": "Extracting tax from tax-inclusive amount",
+            "best_attempt": null,
+            "gap": null,
+            "beyond_llm_capability": false
+          }
+        ]
+      }
+    ],
+    "output_tax_specialist": [
+      {
+        "reasoning": "Text states $22,000 is \"inclusive of sales tax\" for a digital marketing campaign (taxable service). Tax is explicitly mentioned but rate not stated; ON province = 13% HST applies.",
+        "tax_mentioned": true,
+        "taxable": true,
+        "tax_context": "13% HST (Ontario) is included in the $22,000 total payment. The entry drafter should back out the tax from the inclusive amount: base = 22,000 / 1.13, tax = 22,000 - base. Tax is recoverable as Input Tax Credit.",
+        "tax_rate": 0.13,
+        "add_tax_lines": true,
+        "treatment": "recoverable"
+      }
+    ],
+    "output_decision_maker": [
+      {
+        "ambiguities": [
+          {
+            "aspect": "Classification of digital marketing campaign expense",
+            "input_contextualized_conventional_default": null,
+            "input_contextualized_ifrs_default": "Advertising and promotional costs are expensed when incurred per IAS 38.69.",
+            "clarification_question": null,
+            "cases": null,
+            "ambiguous": false
+          },
+          {
+            "aspect": "Payment method",
+            "input_contextualized_conventional_default": "'paid' + 'cash' = cash payment at the stated amount.",
+            "input_contextualized_ifrs_default": null,
+            "clarification_question": null,
+            "cases": null,
+            "ambiguous": false
+          },
+          {
+            "aspect": "Sales tax treatment on purchase",
+            "input_contextualized_conventional_default": null,
+            "input_contextualized_ifrs_default": "Buyer-side tax on purchases is recoverable as Input Tax Credit (Tax asset) for corporations in Ontario.",
+            "clarification_question": null,
+            "cases": null,
+            "ambiguous": false
+          },
+          {
+            "aspect": "Tax rate extraction from tax-inclusive amount",
+            "input_contextualized_conventional_default": null,
+            "input_contextualized_ifrs_default": "Province is ON, so HST rate is 13%. Tax-inclusive amount of $22,000 yields pre-tax amount of $22,000 / 1.13 = $19,469.03 and HST of $2,530.97.",
+            "clarification_question": null,
+            "cases": null,
+            "ambiguous": false
+          }
+        ],
+        "complexity_flags": [
+          {
+            "aspect": "Extracting tax from tax-inclusive amount",
+            "best_attempt": null,
+            "gap": null,
+            "beyond_llm_capability": false
+          }
+        ],
+        "proceed_reason": "IFRS rules resolve advertising as expense, province resolves tax rate at 13% HST, and buyer-side tax is recoverable as Input Tax Credit.",
+        "clarification_questions": null,
+        "stuck_reason": null,
+        "overall_final_rationale": "The transaction is fully resolved: digital marketing is expensed per IAS 38.69, payment is cash, and Ontario HST at 13% is recoverable as an Input Tax Credit, with all amounts computable from the stated tax-inclusive total.",
+        "decision": "PROCEED"
+      }
+    ],
+    "output_entry_drafter": [
+      {
+        "reason": "Digital marketing campaign expensed with recoverable HST extracted from tax-inclusive payment",
+        "lines": [
+          {
+            "type": "debit",
+            "account_name": "Advertising Expense",
+            "amount": 19469.03
+          },
+          {
+            "type": "debit",
+            "account_name": "Input Tax Credit",
+            "amount": 2530.97
+          },
+          {
+            "type": "credit",
+            "account_name": "Cash",
+            "amount": 22000.0
+          }
+        ]
+      }
+    ],
+    "output_disambiguator": [
+      {
+        "ambiguities": [
+          {
+            "aspect": "Classification of digital marketing campaign expense",
+            "input_contextualized_conventional_default": null,
+            "input_contextualized_ifrs_default": "Advertising and promotional costs are expensed when incurred per IAS 38.69.",
+            "clarification_question": null,
+            "cases": null,
+            "ambiguous": false
+          },
+          {
+            "aspect": "Payment method",
+            "input_contextualized_conventional_default": "'paid' + 'cash' = cash payment at the stated amount.",
+            "input_contextualized_ifrs_default": null,
+            "clarification_question": null,
+            "cases": null,
+            "ambiguous": false
+          },
+          {
+            "aspect": "Sales tax treatment on purchase",
+            "input_contextualized_conventional_default": null,
+            "input_contextualized_ifrs_default": "Buyer-side tax on purchases is recoverable as Input Tax Credit (Tax asset) for corporations in Ontario.",
+            "clarification_question": null,
+            "cases": null,
+            "ambiguous": false
+          },
+          {
+            "aspect": "Tax rate extraction from tax-inclusive amount",
+            "input_contextualized_conventional_default": null,
+            "input_contextualized_ifrs_default": "Province is ON, so HST rate is 13%. Tax-inclusive amount of $22,000 yields pre-tax amount of $22,000 / 1.13 = $19,469.03 and HST of $2,530.97.",
+            "clarification_question": null,
+            "cases": null,
+            "ambiguous": false
+          }
+        ]
+      }
+    ],
+    "output_debit_classifier": [
+      {
+        "asset_increase": [],
+        "expense_increase": [
+          {
+            "reason": "Digital marketing campaign costs incurred for advertising snack products",
+            "category": "Advertising expense",
+            "count": 1
+          }
+        ],
+        "liability_decrease": [],
+        "equity_decrease": [],
+        "revenue_decrease": [],
+        "tuple": [
+          0,
+          1,
+          0,
+          0,
+          0
+        ]
+      }
+    ],
+    "output_credit_classifier": [
+      {
+        "liability_increase": [],
+        "equity_increase": [],
+        "revenue_increase": [],
+        "asset_decrease": [
+          {
+            "reason": "Cash paid for digital marketing campaign including sales tax",
+            "category": "Cash and cash equivalents",
+            "count": 1
+          }
+        ],
+        "expense_decrease": [],
+        "tuple": [
+          0,
+          0,
+          0,
+          1,
+          0
+        ]
+      }
+    ],
+    "output_debit_corrector": [],
+    "output_credit_corrector": [],
+    "output_entry_builder": [],
+    "output_approver": [],
+    "output_diagnostician": [],
+    "status_ambiguity_detector": 1,
+    "status_complexity_detector": 1,
+    "status_tax_specialist": 1,
+    "status_decision_maker": 1,
+    "status_entry_drafter": 1,
+    "status_disambiguator": 1,
+    "status_debit_classifier": 1,
+    "status_credit_classifier": 1,
+    "status_debit_corrector": 0,
+    "status_credit_corrector": 0,
+    "status_entry_builder": 0,
+    "status_approver": 0,
+    "status_diagnostician": 0,
+    "fix_context_disambiguator": [],
+    "fix_context_debit_classifier": [],
+    "fix_context_credit_classifier": [],
+    "fix_context_debit_corrector": [],
+    "fix_context_credit_corrector": [],
+    "fix_context_entry_builder": [],
+    "fix_context_approver": [],
+    "fix_context_diagnostician": [],
+    "decision": "APPROVED",
+    "validation_error": null,
+    "llm_calls": [
+      {
+        "node": "credit_classifier",
+        "stop_reason": "tool_use",
+        "input_tokens": 492,
+        "output_tokens": 142,
+        "input_token_details": {
+          "cache_read": 4212,
+          "cache_creation": 0
+        }
+      },
+      {
+        "node": "debit_classifier",
+        "stop_reason": "tool_use",
+        "input_tokens": 495,
+        "output_tokens": 142,
+        "input_token_details": {
+          "cache_read": 4291,
+          "cache_creation": 0
+        }
+      },
+      {
+        "node": "tax_specialist",
+        "stop_reason": "tool_use",
+        "input_tokens": 534,
+        "output_tokens": 253,
+        "input_token_details": {
+          "cache_read": 3455,
+          "cache_creation": 0
+        }
+      },
+      {
+        "node": "unknown",
+        "stop_reason": "tool_use",
+        "input_tokens": 551,
+        "output_tokens": 520,
+        "input_token_details": {
+          "cache_read": 4550,
+          "cache_creation": 0
+        }
+      },
+      {
+        "node": "entry_drafter",
+        "stop_reason": "tool_use",
+        "input_tokens": 1173,
+        "output_tokens": 177,
+        "input_token_details": {
+          "cache_read": 3511,
+          "cache_creation": 0
+        }
+      }
+    ],
+    "stop_reasons": {
+      "credit_classifier": "tool_use",
+      "debit_classifier": "tool_use",
+      "tax_specialist": "tool_use",
+      "unknown": "tool_use",
+      "entry_drafter": "tool_use"
+    }
+  }
+}

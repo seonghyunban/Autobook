@@ -1,0 +1,603 @@
+{
+  "test_case_id": "int_22_compound_sale_with_tax",
+  "variant_name": "baseline_v4_dualtrack",
+  "model": "sonnet",
+  "debit_tuple_exact_match": true,
+  "credit_tuple_exact_match": true,
+  "debit_tuple_slot_accuracy": 0.8333333333333334,
+  "credit_tuple_slot_accuracy": 0.8333333333333334,
+  "entry_valid": true,
+  "debit_tuple": [
+    2,
+    1,
+    0,
+    0,
+    0
+  ],
+  "credit_tuple": [
+    1,
+    0,
+    1,
+    1,
+    0
+  ],
+  "journal_entry": {
+    "reason": "Sale of snack products with cash and credit payment, sales tax collected, and cost of goods sold recognized",
+    "lines": [
+      {
+        "type": "debit",
+        "account_name": "Cash and cash equivalents",
+        "amount": 45900.0
+      },
+      {
+        "type": "debit",
+        "account_name": "Trade receivables",
+        "amount": 30000.0
+      },
+      {
+        "type": "debit",
+        "account_name": "Cost of sales",
+        "amount": 55500.0
+      },
+      {
+        "type": "credit",
+        "account_name": "Revenue from sale of goods",
+        "amount": 69000.0
+      },
+      {
+        "type": "credit",
+        "account_name": "Tax liabilities",
+        "amount": 6900.0
+      },
+      {
+        "type": "credit",
+        "account_name": "Inventories \u2014 finished goods",
+        "amount": 55500.0
+      }
+    ]
+  },
+  "actual_cost_usd": 0.0473706,
+  "raw_cost_usd": 0.109638,
+  "total_latency_ms": 21414,
+  "total_input_tokens": 27956,
+  "total_output_tokens": 1718,
+  "total_llm_calls": 6,
+  "iteration_count": 1,
+  "final_decision": "APPROVED",
+  "fix_attempted": null,
+  "fix_succeeded": null,
+  "agent_metrics": {
+    "credit_classifier": {
+      "input_tokens": 546,
+      "output_tokens": 234,
+      "cache_read_tokens": 4203,
+      "cache_write_tokens": 0,
+      "total_input_tokens": 4749,
+      "llm_calls": 1,
+      "actual_cost_usd": 0.0064088999999999995,
+      "raw_cost_usd": 0.017757,
+      "output": {
+        "liability_increase": [
+          {
+            "reason": "Sales tax collected from customer on the sale",
+            "category": "Tax liabilities",
+            "count": 1
+          }
+        ],
+        "equity_increase": [],
+        "revenue_increase": [
+          {
+            "reason": "Snack products sold to customer",
+            "category": "Revenue from sale of goods",
+            "count": 1
+          }
+        ],
+        "asset_decrease": [
+          {
+            "reason": "Inventory released to fulfill the sale",
+            "category": "Inventories \u2014 finished goods",
+            "count": 1
+          }
+        ],
+        "expense_decrease": [],
+        "tuple": [
+          1,
+          0,
+          1,
+          1,
+          0
+        ]
+      },
+      "reason": null
+    },
+    "tax_specialist": {
+      "input_tokens": 571,
+      "output_tokens": 204,
+      "cache_read_tokens": 3277,
+      "cache_write_tokens": 0,
+      "total_input_tokens": 3848,
+      "llm_calls": 1,
+      "actual_cost_usd": 0.0057561,
+      "raw_cost_usd": 0.014604,
+      "output": {
+        "reasoning": "Text explicitly states \"10% sales tax\" on selling price of $69,000, resulting in tax of $6,900 ($69,000 \u00d7 10%). This is a sale transaction where tax is collected from customer and payable to tax authority.",
+        "tax_mentioned": true,
+        "taxable": true,
+        "add_tax_lines": true,
+        "tax_rate": 0.1,
+        "tax_amount": 6900.0,
+        "treatment": "recoverable"
+      },
+      "reason": null
+    },
+    "debit_classifier": {
+      "input_tokens": 549,
+      "output_tokens": 232,
+      "cache_read_tokens": 4282,
+      "cache_write_tokens": 0,
+      "total_input_tokens": 4831,
+      "llm_calls": 1,
+      "actual_cost_usd": 0.0064116,
+      "raw_cost_usd": 0.017973,
+      "output": {
+        "asset_increase": [
+          {
+            "reason": "Cash received via bank transfer to chequing account",
+            "category": "Cash and cash equivalents",
+            "count": 1
+          },
+          {
+            "reason": "Remaining amount owed by customer on credit",
+            "category": "Trade receivables",
+            "count": 1
+          }
+        ],
+        "expense_increase": [
+          {
+            "reason": "Cost of inventory sold to customer",
+            "category": "Cost of sales",
+            "count": 1
+          }
+        ],
+        "liability_decrease": [],
+        "equity_decrease": [],
+        "revenue_decrease": [],
+        "tuple": [
+          2,
+          1,
+          0,
+          0,
+          0
+        ]
+      },
+      "reason": null
+    },
+    "unknown": {
+      "input_tokens": 605,
+      "output_tokens": 513,
+      "cache_read_tokens": 4550,
+      "cache_write_tokens": 0,
+      "total_input_tokens": 5155,
+      "llm_calls": 1,
+      "actual_cost_usd": 0.010875,
+      "raw_cost_usd": 0.02316,
+      "output": null,
+      "reason": null
+    },
+    "entry_drafter": {
+      "input_tokens": 2623,
+      "output_tokens": 535,
+      "cache_read_tokens": 6750,
+      "cache_write_tokens": 0,
+      "total_input_tokens": 9373,
+      "llm_calls": 2,
+      "actual_cost_usd": 0.017918999999999997,
+      "raw_cost_usd": 0.036143999999999996,
+      "output": {
+        "reason": "Sale of snack products with cash and credit payment, sales tax collected, and cost of goods sold recognized",
+        "lines": [
+          {
+            "type": "debit",
+            "account_name": "Cash and cash equivalents",
+            "amount": 45900.0
+          },
+          {
+            "type": "debit",
+            "account_name": "Trade receivables",
+            "amount": 30000.0
+          },
+          {
+            "type": "debit",
+            "account_name": "Cost of sales",
+            "amount": 55500.0
+          },
+          {
+            "type": "credit",
+            "account_name": "Revenue from sale of goods",
+            "amount": 69000.0
+          },
+          {
+            "type": "credit",
+            "account_name": "Tax liabilities",
+            "amount": 6900.0
+          },
+          {
+            "type": "credit",
+            "account_name": "Inventories \u2014 finished goods",
+            "amount": 55500.0
+          }
+        ]
+      },
+      "reason": "Sale of snack products with cash and credit payment, sales tax collected, and cost of goods sold recognized"
+    }
+  },
+  "pre_fix_debit_tuple": null,
+  "post_fix_debit_tuple": null,
+  "pre_fix_credit_tuple": null,
+  "post_fix_credit_tuple": null,
+  "fix_root_cause_agent": null,
+  "rejection_reason": null,
+  "diagnostician_decision": null,
+  "validation_error": null,
+  "decision_correct": true,
+  "entry_match": null,
+  "clarification_correct": null,
+  "clarification_questions": null,
+  "ambiguous": false,
+  "tier": "intermediate",
+  "error": null,
+  "pipeline_state": {
+    "iteration": 0,
+    "output_ambiguity_detector": [
+      {
+        "ambiguities": [
+          {
+            "aspect": "Tax rate stated vs provincial default",
+            "input_contextualized_conventional_default": "The transaction explicitly states 10% sales tax, which takes precedence over the Ontario HST default of 13%.",
+            "input_contextualized_ifrs_default": null,
+            "clarification_question": null,
+            "cases": null,
+            "ambiguous": false
+          },
+          {
+            "aspect": "Payment method for cash portion",
+            "input_contextualized_conventional_default": "'received via bank transfer to chequing account' = cash received in bank account.",
+            "input_contextualized_ifrs_default": null,
+            "clarification_question": null,
+            "cases": null,
+            "ambiguous": false
+          },
+          {
+            "aspect": "Credit portion treatment",
+            "input_contextualized_conventional_default": "'remainder on credit' = accounts receivable for the unpaid balance of $30,000.",
+            "input_contextualized_ifrs_default": null,
+            "clarification_question": null,
+            "cases": null,
+            "ambiguous": false
+          },
+          {
+            "aspect": "Revenue recognition timing",
+            "input_contextualized_conventional_default": "'sold' implies delivery and transfer of control \u2014 revenue recognized at stated amount.",
+            "input_contextualized_ifrs_default": "IFRS 15: 'sold' indicates performance obligation satisfied \u2014 recognize revenue.",
+            "clarification_question": null,
+            "cases": null,
+            "ambiguous": false
+          }
+        ]
+      }
+    ],
+    "output_complexity_detector": [
+      {
+        "flags": [
+          {
+            "aspect": "Multi-component sale with tax and split payment",
+            "best_attempt": null,
+            "gap": null,
+            "beyond_llm_capability": false
+          }
+        ]
+      }
+    ],
+    "output_tax_specialist": [
+      {
+        "reasoning": "Text explicitly states \"10% sales tax\" on selling price of $69,000, resulting in tax of $6,900 ($69,000 \u00d7 10%). This is a sale transaction where tax is collected from customer and payable to tax authority.",
+        "tax_mentioned": true,
+        "taxable": true,
+        "add_tax_lines": true,
+        "tax_rate": 0.1,
+        "tax_amount": 6900.0,
+        "treatment": "recoverable"
+      }
+    ],
+    "output_decision_maker": [
+      {
+        "ambiguities": [
+          {
+            "aspect": "Tax rate stated vs provincial default",
+            "input_contextualized_conventional_default": "The transaction explicitly states 10% sales tax, which takes precedence over the Ontario HST default of 13%.",
+            "input_contextualized_ifrs_default": null,
+            "clarification_question": null,
+            "cases": null,
+            "ambiguous": false
+          },
+          {
+            "aspect": "Payment method for cash portion",
+            "input_contextualized_conventional_default": "'received via bank transfer to chequing account' = cash received in bank account.",
+            "input_contextualized_ifrs_default": null,
+            "clarification_question": null,
+            "cases": null,
+            "ambiguous": false
+          },
+          {
+            "aspect": "Credit portion treatment",
+            "input_contextualized_conventional_default": "'remainder on credit' = accounts receivable for the unpaid balance of $30,000.",
+            "input_contextualized_ifrs_default": null,
+            "clarification_question": null,
+            "cases": null,
+            "ambiguous": false
+          },
+          {
+            "aspect": "Revenue recognition timing",
+            "input_contextualized_conventional_default": "'sold' implies delivery and transfer of control \u2014 revenue recognized at stated amount.",
+            "input_contextualized_ifrs_default": "IFRS 15: 'sold' indicates performance obligation satisfied \u2014 recognize revenue.",
+            "clarification_question": null,
+            "cases": null,
+            "ambiguous": false
+          }
+        ],
+        "complexity_flags": [
+          {
+            "aspect": "Multi-component sale with tax and split payment",
+            "best_attempt": null,
+            "gap": null,
+            "beyond_llm_capability": false
+          }
+        ],
+        "proceed_reason": "All transaction components are explicitly stated with clear conventional term resolutions \u2014 stated 10% tax rate governs, 'sold' = revenue recognized, 'on credit' = accounts receivable.",
+        "clarification_questions": null,
+        "stuck_reason": null,
+        "overall_final_rationale": "All amounts are explicitly stated (revenue $69,000, COGS $55,500, tax $6,900, cash $45,900, receivable $30,000), tax rate is explicitly 10%, and conventional terms resolve 'sold' as revenue recognized and 'on credit' as accounts receivable.",
+        "decision": "PROCEED"
+      }
+    ],
+    "output_entry_drafter": [
+      {
+        "reason": "Sale of snack products with cash and credit payment, sales tax collected, and cost of goods sold recognized",
+        "lines": [
+          {
+            "type": "debit",
+            "account_name": "Cash and cash equivalents",
+            "amount": 45900.0
+          },
+          {
+            "type": "debit",
+            "account_name": "Trade receivables",
+            "amount": 30000.0
+          },
+          {
+            "type": "debit",
+            "account_name": "Cost of sales",
+            "amount": 55500.0
+          },
+          {
+            "type": "credit",
+            "account_name": "Revenue from sale of goods",
+            "amount": 69000.0
+          },
+          {
+            "type": "credit",
+            "account_name": "Tax liabilities",
+            "amount": 6900.0
+          },
+          {
+            "type": "credit",
+            "account_name": "Inventories \u2014 finished goods",
+            "amount": 55500.0
+          }
+        ]
+      }
+    ],
+    "output_disambiguator": [
+      {
+        "ambiguities": [
+          {
+            "aspect": "Tax rate stated vs provincial default",
+            "input_contextualized_conventional_default": "The transaction explicitly states 10% sales tax, which takes precedence over the Ontario HST default of 13%.",
+            "input_contextualized_ifrs_default": null,
+            "clarification_question": null,
+            "cases": null,
+            "ambiguous": false
+          },
+          {
+            "aspect": "Payment method for cash portion",
+            "input_contextualized_conventional_default": "'received via bank transfer to chequing account' = cash received in bank account.",
+            "input_contextualized_ifrs_default": null,
+            "clarification_question": null,
+            "cases": null,
+            "ambiguous": false
+          },
+          {
+            "aspect": "Credit portion treatment",
+            "input_contextualized_conventional_default": "'remainder on credit' = accounts receivable for the unpaid balance of $30,000.",
+            "input_contextualized_ifrs_default": null,
+            "clarification_question": null,
+            "cases": null,
+            "ambiguous": false
+          },
+          {
+            "aspect": "Revenue recognition timing",
+            "input_contextualized_conventional_default": "'sold' implies delivery and transfer of control \u2014 revenue recognized at stated amount.",
+            "input_contextualized_ifrs_default": "IFRS 15: 'sold' indicates performance obligation satisfied \u2014 recognize revenue.",
+            "clarification_question": null,
+            "cases": null,
+            "ambiguous": false
+          }
+        ]
+      }
+    ],
+    "output_debit_classifier": [
+      {
+        "asset_increase": [
+          {
+            "reason": "Cash received via bank transfer to chequing account",
+            "category": "Cash and cash equivalents",
+            "count": 1
+          },
+          {
+            "reason": "Remaining amount owed by customer on credit",
+            "category": "Trade receivables",
+            "count": 1
+          }
+        ],
+        "expense_increase": [
+          {
+            "reason": "Cost of inventory sold to customer",
+            "category": "Cost of sales",
+            "count": 1
+          }
+        ],
+        "liability_decrease": [],
+        "equity_decrease": [],
+        "revenue_decrease": [],
+        "tuple": [
+          2,
+          1,
+          0,
+          0,
+          0
+        ]
+      }
+    ],
+    "output_credit_classifier": [
+      {
+        "liability_increase": [
+          {
+            "reason": "Sales tax collected from customer on the sale",
+            "category": "Tax liabilities",
+            "count": 1
+          }
+        ],
+        "equity_increase": [],
+        "revenue_increase": [
+          {
+            "reason": "Snack products sold to customer",
+            "category": "Revenue from sale of goods",
+            "count": 1
+          }
+        ],
+        "asset_decrease": [
+          {
+            "reason": "Inventory released to fulfill the sale",
+            "category": "Inventories \u2014 finished goods",
+            "count": 1
+          }
+        ],
+        "expense_decrease": [],
+        "tuple": [
+          1,
+          0,
+          1,
+          1,
+          0
+        ]
+      }
+    ],
+    "output_debit_corrector": [],
+    "output_credit_corrector": [],
+    "output_entry_builder": [],
+    "output_approver": [],
+    "output_diagnostician": [],
+    "status_ambiguity_detector": 1,
+    "status_complexity_detector": 1,
+    "status_tax_specialist": 1,
+    "status_decision_maker": 1,
+    "status_entry_drafter": 1,
+    "status_disambiguator": 1,
+    "status_debit_classifier": 1,
+    "status_credit_classifier": 1,
+    "status_debit_corrector": 0,
+    "status_credit_corrector": 0,
+    "status_entry_builder": 0,
+    "status_approver": 0,
+    "status_diagnostician": 0,
+    "fix_context_disambiguator": [],
+    "fix_context_debit_classifier": [],
+    "fix_context_credit_classifier": [],
+    "fix_context_debit_corrector": [],
+    "fix_context_credit_corrector": [],
+    "fix_context_entry_builder": [],
+    "fix_context_approver": [],
+    "fix_context_diagnostician": [],
+    "decision": "APPROVED",
+    "validation_error": null,
+    "llm_calls": [
+      {
+        "node": "credit_classifier",
+        "stop_reason": "tool_use",
+        "input_tokens": 546,
+        "output_tokens": 234,
+        "input_token_details": {
+          "cache_read": 4203,
+          "cache_creation": 0
+        }
+      },
+      {
+        "node": "tax_specialist",
+        "stop_reason": "tool_use",
+        "input_tokens": 571,
+        "output_tokens": 204,
+        "input_token_details": {
+          "cache_read": 3277,
+          "cache_creation": 0
+        }
+      },
+      {
+        "node": "debit_classifier",
+        "stop_reason": "tool_use",
+        "input_tokens": 549,
+        "output_tokens": 232,
+        "input_token_details": {
+          "cache_read": 4282,
+          "cache_creation": 0
+        }
+      },
+      {
+        "node": "unknown",
+        "stop_reason": "tool_use",
+        "input_tokens": 605,
+        "output_tokens": 513,
+        "input_token_details": {
+          "cache_read": 4550,
+          "cache_creation": 0
+        }
+      },
+      {
+        "node": "entry_drafter",
+        "stop_reason": "tool_use",
+        "input_tokens": 1215,
+        "output_tokens": 237,
+        "input_token_details": {
+          "cache_read": 3405,
+          "cache_creation": 0
+        }
+      },
+      {
+        "node": "entry_drafter",
+        "stop_reason": "tool_use",
+        "input_tokens": 1408,
+        "output_tokens": 298,
+        "input_token_details": {
+          "cache_read": 3345,
+          "cache_creation": 0
+        }
+      }
+    ],
+    "stop_reasons": {
+      "credit_classifier": "tool_use",
+      "tax_specialist": "tool_use",
+      "debit_classifier": "tool_use",
+      "unknown": "tool_use",
+      "entry_drafter": "tool_use"
+    }
+  }
+}

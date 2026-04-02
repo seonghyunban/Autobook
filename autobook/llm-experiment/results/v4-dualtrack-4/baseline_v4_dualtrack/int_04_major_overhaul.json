@@ -1,0 +1,479 @@
+{
+  "test_case_id": "int_04_major_overhaul",
+  "variant_name": "baseline_v4_dualtrack",
+  "model": "sonnet",
+  "debit_tuple_exact_match": true,
+  "credit_tuple_exact_match": true,
+  "debit_tuple_slot_accuracy": 0.8333333333333334,
+  "credit_tuple_slot_accuracy": 0.8333333333333334,
+  "entry_valid": true,
+  "debit_tuple": [
+    1,
+    0,
+    0,
+    0,
+    0
+  ],
+  "credit_tuple": [
+    0,
+    0,
+    0,
+    1,
+    0
+  ],
+  "journal_entry": {
+    "reason": "Major overhaul cost of $200,000 capitalized to machinery, paid in cash",
+    "lines": [
+      {
+        "type": "debit",
+        "account_name": "Machinery",
+        "amount": 200000.0
+      },
+      {
+        "type": "credit",
+        "account_name": "Cash and cash equivalents",
+        "amount": 200000.0
+      }
+    ]
+  },
+  "actual_cost_usd": 0.0320829,
+  "raw_cost_usd": 0.090573,
+  "total_latency_ms": 13651,
+  "total_input_tokens": 24881,
+  "total_output_tokens": 1062,
+  "total_llm_calls": 5,
+  "iteration_count": 1,
+  "final_decision": "APPROVED",
+  "fix_attempted": null,
+  "fix_succeeded": null,
+  "agent_metrics": {
+    "tax_specialist": {
+      "input_tokens": 566,
+      "output_tokens": 175,
+      "cache_read_tokens": 3676,
+      "cache_write_tokens": 0,
+      "total_input_tokens": 4242,
+      "llm_calls": 1,
+      "actual_cost_usd": 0.005425800000000001,
+      "raw_cost_usd": 0.015351,
+      "output": {
+        "reasoning": "Major overhaul is a capital expenditure on existing PP&E, not a taxable supply. No tax mentioned in the transaction text.",
+        "tax_mentioned": false,
+        "taxable": false,
+        "tax_context": null,
+        "tax_rate": null,
+        "add_tax_lines": false,
+        "treatment": "not_applicable"
+      },
+      "reason": null
+    },
+    "debit_classifier": {
+      "input_tokens": 527,
+      "output_tokens": 143,
+      "cache_read_tokens": 4714,
+      "cache_write_tokens": 0,
+      "total_input_tokens": 5241,
+      "llm_calls": 1,
+      "actual_cost_usd": 0.0051402,
+      "raw_cost_usd": 0.017868,
+      "output": {
+        "asset_increase": [
+          {
+            "reason": "Major overhaul cost capitalized to extend machinery's useful life",
+            "category": "Machinery",
+            "count": 1
+          }
+        ],
+        "expense_increase": [],
+        "liability_decrease": [],
+        "equity_decrease": [],
+        "revenue_decrease": [],
+        "tuple": [
+          1,
+          0,
+          0,
+          0,
+          0
+        ]
+      },
+      "reason": null
+    },
+    "credit_classifier": {
+      "input_tokens": 524,
+      "output_tokens": 142,
+      "cache_read_tokens": 4602,
+      "cache_write_tokens": 0,
+      "total_input_tokens": 5126,
+      "llm_calls": 1,
+      "actual_cost_usd": 0.0050826000000000005,
+      "raw_cost_usd": 0.017508,
+      "output": {
+        "liability_increase": [],
+        "equity_increase": [],
+        "revenue_increase": [],
+        "asset_decrease": [
+          {
+            "reason": "Cash paid for major overhaul of machinery",
+            "category": "Cash and cash equivalents",
+            "count": 1
+          }
+        ],
+        "expense_decrease": [],
+        "tuple": [
+          0,
+          0,
+          0,
+          1,
+          0
+        ]
+      },
+      "reason": null
+    },
+    "unknown": {
+      "input_tokens": 583,
+      "output_tokens": 458,
+      "cache_read_tokens": 4771,
+      "cache_write_tokens": 0,
+      "total_input_tokens": 5354,
+      "llm_calls": 1,
+      "actual_cost_usd": 0.0100503,
+      "raw_cost_usd": 0.022932,
+      "output": null,
+      "reason": null
+    },
+    "entry_drafter": {
+      "input_tokens": 1018,
+      "output_tokens": 144,
+      "cache_read_tokens": 3900,
+      "cache_write_tokens": 0,
+      "total_input_tokens": 4918,
+      "llm_calls": 1,
+      "actual_cost_usd": 0.006384,
+      "raw_cost_usd": 0.016914,
+      "output": {
+        "reason": "Major overhaul cost of $200,000 capitalized to machinery, paid in cash",
+        "lines": [
+          {
+            "type": "debit",
+            "account_name": "Machinery",
+            "amount": 200000.0
+          },
+          {
+            "type": "credit",
+            "account_name": "Cash and cash equivalents",
+            "amount": 200000.0
+          }
+        ]
+      },
+      "reason": "Major overhaul cost of $200,000 capitalized to machinery, paid in cash"
+    }
+  },
+  "pre_fix_debit_tuple": null,
+  "post_fix_debit_tuple": null,
+  "pre_fix_credit_tuple": null,
+  "post_fix_credit_tuple": null,
+  "fix_root_cause_agent": null,
+  "rejection_reason": null,
+  "diagnostician_decision": null,
+  "validation_error": null,
+  "decision_correct": true,
+  "entry_match": null,
+  "clarification_correct": null,
+  "clarification_questions": null,
+  "ambiguous": false,
+  "tier": "intermediate",
+  "error": null,
+  "pipeline_state": {
+    "iteration": 0,
+    "output_ambiguity_detector": [
+      {
+        "ambiguities": [
+          {
+            "aspect": "Treatment of major overhaul cost",
+            "input_contextualized_conventional_default": null,
+            "input_contextualized_ifrs_default": "IFRS rule: Major overhaul on PP&E resolves by capitalizing the overhaul cost; future depreciation changes are a separate entry.",
+            "clarification_question": null,
+            "cases": null,
+            "ambiguous": false
+          },
+          {
+            "aspect": "Payment method",
+            "input_contextualized_conventional_default": "'paid' and 'in cash' = cash payment at the stated amount of $200,000.",
+            "input_contextualized_ifrs_default": null,
+            "clarification_question": null,
+            "cases": null,
+            "ambiguous": false
+          }
+        ]
+      }
+    ],
+    "output_complexity_detector": [
+      {
+        "flags": [
+          {
+            "aspect": "Capitalization of major overhaul",
+            "best_attempt": {
+              "reason": "Major overhaul cost is capitalized to the machinery asset per IFRS; cash is credited for the payment.",
+              "lines": [
+                {
+                  "type": "debit",
+                  "account_name": "Machinery",
+                  "amount": 200000.0
+                },
+                {
+                  "type": "credit",
+                  "account_name": "Cash",
+                  "amount": 200000.0
+                }
+              ]
+            },
+            "gap": null,
+            "beyond_llm_capability": false
+          },
+          {
+            "aspect": "Depreciation adjustment for extended useful life",
+            "best_attempt": null,
+            "gap": null,
+            "beyond_llm_capability": false
+          }
+        ]
+      }
+    ],
+    "output_tax_specialist": [
+      {
+        "reasoning": "Major overhaul is a capital expenditure on existing PP&E, not a taxable supply. No tax mentioned in the transaction text.",
+        "tax_mentioned": false,
+        "taxable": false,
+        "tax_context": null,
+        "tax_rate": null,
+        "add_tax_lines": false,
+        "treatment": "not_applicable"
+      }
+    ],
+    "output_decision_maker": [
+      {
+        "ambiguities": [
+          {
+            "aspect": "Treatment of major overhaul cost",
+            "input_contextualized_conventional_default": null,
+            "input_contextualized_ifrs_default": "IFRS rule: Major overhaul on PP&E resolves by capitalizing the overhaul cost; future depreciation changes are a separate entry.",
+            "clarification_question": null,
+            "cases": null,
+            "ambiguous": false
+          },
+          {
+            "aspect": "Payment method",
+            "input_contextualized_conventional_default": "'paid' and 'in cash' = cash payment at the stated amount of $200,000.",
+            "input_contextualized_ifrs_default": null,
+            "clarification_question": null,
+            "cases": null,
+            "ambiguous": false
+          }
+        ],
+        "complexity_flags": [
+          {
+            "aspect": "Capitalization of major overhaul",
+            "best_attempt": {
+              "reason": "Major overhaul cost is capitalized to the machinery asset per IFRS; cash is credited for the payment.",
+              "lines": [
+                {
+                  "type": "debit",
+                  "account_name": "Machinery",
+                  "amount": 200000.0
+                },
+                {
+                  "type": "credit",
+                  "account_name": "Cash",
+                  "amount": 200000.0
+                }
+              ]
+            },
+            "gap": null,
+            "beyond_llm_capability": false
+          },
+          {
+            "aspect": "Depreciation adjustment for extended useful life",
+            "best_attempt": null,
+            "gap": null,
+            "beyond_llm_capability": false
+          }
+        ],
+        "proceed_reason": "IFRS rule resolves major overhaul as capitalized cost, and 'paid in cash' resolves the payment method definitively.",
+        "clarification_questions": null,
+        "stuck_reason": null,
+        "overall_final_rationale": "The major overhaul is capitalized per IFRS rules, and the cash payment is clearly stated; future depreciation adjustments are prospective and handled separately.",
+        "decision": "PROCEED"
+      }
+    ],
+    "output_entry_drafter": [
+      {
+        "reason": "Major overhaul cost of $200,000 capitalized to machinery, paid in cash",
+        "lines": [
+          {
+            "type": "debit",
+            "account_name": "Machinery",
+            "amount": 200000.0
+          },
+          {
+            "type": "credit",
+            "account_name": "Cash and cash equivalents",
+            "amount": 200000.0
+          }
+        ]
+      }
+    ],
+    "output_disambiguator": [
+      {
+        "ambiguities": [
+          {
+            "aspect": "Treatment of major overhaul cost",
+            "input_contextualized_conventional_default": null,
+            "input_contextualized_ifrs_default": "IFRS rule: Major overhaul on PP&E resolves by capitalizing the overhaul cost; future depreciation changes are a separate entry.",
+            "clarification_question": null,
+            "cases": null,
+            "ambiguous": false
+          },
+          {
+            "aspect": "Payment method",
+            "input_contextualized_conventional_default": "'paid' and 'in cash' = cash payment at the stated amount of $200,000.",
+            "input_contextualized_ifrs_default": null,
+            "clarification_question": null,
+            "cases": null,
+            "ambiguous": false
+          }
+        ]
+      }
+    ],
+    "output_debit_classifier": [
+      {
+        "asset_increase": [
+          {
+            "reason": "Major overhaul cost capitalized to extend machinery's useful life",
+            "category": "Machinery",
+            "count": 1
+          }
+        ],
+        "expense_increase": [],
+        "liability_decrease": [],
+        "equity_decrease": [],
+        "revenue_decrease": [],
+        "tuple": [
+          1,
+          0,
+          0,
+          0,
+          0
+        ]
+      }
+    ],
+    "output_credit_classifier": [
+      {
+        "liability_increase": [],
+        "equity_increase": [],
+        "revenue_increase": [],
+        "asset_decrease": [
+          {
+            "reason": "Cash paid for major overhaul of machinery",
+            "category": "Cash and cash equivalents",
+            "count": 1
+          }
+        ],
+        "expense_decrease": [],
+        "tuple": [
+          0,
+          0,
+          0,
+          1,
+          0
+        ]
+      }
+    ],
+    "output_debit_corrector": [],
+    "output_credit_corrector": [],
+    "output_entry_builder": [],
+    "output_approver": [],
+    "output_diagnostician": [],
+    "status_ambiguity_detector": 1,
+    "status_complexity_detector": 1,
+    "status_tax_specialist": 1,
+    "status_decision_maker": 1,
+    "status_entry_drafter": 1,
+    "status_disambiguator": 1,
+    "status_debit_classifier": 1,
+    "status_credit_classifier": 1,
+    "status_debit_corrector": 0,
+    "status_credit_corrector": 0,
+    "status_entry_builder": 0,
+    "status_approver": 0,
+    "status_diagnostician": 0,
+    "fix_context_disambiguator": [],
+    "fix_context_debit_classifier": [],
+    "fix_context_credit_classifier": [],
+    "fix_context_debit_corrector": [],
+    "fix_context_credit_corrector": [],
+    "fix_context_entry_builder": [],
+    "fix_context_approver": [],
+    "fix_context_diagnostician": [],
+    "decision": "APPROVED",
+    "validation_error": null,
+    "llm_calls": [
+      {
+        "node": "tax_specialist",
+        "stop_reason": "tool_use",
+        "input_tokens": 566,
+        "output_tokens": 175,
+        "input_token_details": {
+          "cache_read": 3676,
+          "cache_creation": 0
+        }
+      },
+      {
+        "node": "debit_classifier",
+        "stop_reason": "tool_use",
+        "input_tokens": 527,
+        "output_tokens": 143,
+        "input_token_details": {
+          "cache_read": 4714,
+          "cache_creation": 0
+        }
+      },
+      {
+        "node": "credit_classifier",
+        "stop_reason": "tool_use",
+        "input_tokens": 524,
+        "output_tokens": 142,
+        "input_token_details": {
+          "cache_read": 4602,
+          "cache_creation": 0
+        }
+      },
+      {
+        "node": "unknown",
+        "stop_reason": "tool_use",
+        "input_tokens": 583,
+        "output_tokens": 458,
+        "input_token_details": {
+          "cache_read": 4771,
+          "cache_creation": 0
+        }
+      },
+      {
+        "node": "entry_drafter",
+        "stop_reason": "tool_use",
+        "input_tokens": 1018,
+        "output_tokens": 144,
+        "input_token_details": {
+          "cache_read": 3900,
+          "cache_creation": 0
+        }
+      }
+    ],
+    "stop_reasons": {
+      "tax_specialist": "tool_use",
+      "debit_classifier": "tool_use",
+      "credit_classifier": "tool_use",
+      "unknown": "tool_use",
+      "entry_drafter": "tool_use"
+    }
+  }
+}

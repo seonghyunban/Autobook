@@ -1,0 +1,57 @@
+{
+  "evaluator": "claude",
+  "evaluated_at": "2026-04-01T00:00:00Z",
+  "prompt_version": "v4",
+  "results": {
+    "int_26b": {
+      "match": false,
+      "tax_relaxed_match": false,
+      "reason": "Expected Dr Statutory withholdings payable $7,750 / Dr Employee benefits expense $6,300 / Cr Cash $14,050. Actual splits liabilities into Employee benefits payable $6,300 + Statutory withholdings payable $1,450 instead of a single Statutory withholdings payable $7,750. Total balanced at $14,050, but account structure differs materially."
+    },
+    "int_28": {
+      "match": true,
+      "tax_relaxed_match": true,
+      "reason": "Exact match: Dr Advertising expense $7,000 / Cr Cash $7,000."
+    },
+    "int_29": {
+      "match": true,
+      "tax_relaxed_match": true,
+      "reason": "Semantically equivalent. Cash and cash equivalents matches Cash; Security deposits payable matches Rental deposits received. Amounts exact at $25,000."
+    },
+    "int_30": {
+      "match": true,
+      "tax_relaxed_match": true,
+      "reason": "Semantically equivalent. Short-term loans receivable exact match; Cash and cash equivalents matches Cash-chequing. Amounts exact at $2,000,000."
+    },
+    "int_31": {
+      "match": true,
+      "tax_relaxed_match": true,
+      "reason": "Semantically equivalent. Motor vehicles matches PP&E Vehicles; Trade payables matches Other payables (both short-term dealer financing liabilities). Amounts exact at $52,800."
+    },
+    "int_hard_01a": {
+      "match": false,
+      "tax_relaxed_match": false,
+      "reason": "Derecognition treatment partially applied (credits Notes receivable, not a borrowing), but uses Interest expense instead of required Loss on derecognition, and Notes receivable instead of Trade receivables. Amounts within tolerance ($98,356.16 vs $98,356; $1,643.84 vs $1,644), but wrong account names for the loss and credit lines."
+    },
+    "int_hard_01b": {
+      "match": true,
+      "tax_relaxed_match": true,
+      "reason": "Semantically equivalent. Dr Cash $98,356.16 / Dr Interest expense $1,643.84 / Cr Short-term borrowings $100,000. Amounts within allowed rounding tolerance; account names match expected borrowing treatment."
+    },
+    "int_hard_02a": {
+      "match": true,
+      "tax_relaxed_match": true,
+      "reason": "Semantically equivalent. Investments-FVTPL matches Financial assets at FVTPL; Professional fees expense matches Investment transaction costs (both expense the FVTPL transaction costs per IFRS 9). Amounts exact."
+    },
+    "int_hard_02b": {
+      "match": true,
+      "tax_relaxed_match": true,
+      "reason": "Semantically equivalent. Investments-FVOCI matches Financial assets at FVOCI; transaction costs correctly capitalized into $3,100,000. Amounts exact."
+    },
+    "int_hard_02c": {
+      "match": true,
+      "tax_relaxed_match": true,
+      "reason": "Semantically equivalent. Investments-equity method matches Investment in associate; transaction costs correctly capitalized per IAS 28. Amounts exact at $3,100,000."
+    }
+  }
+}

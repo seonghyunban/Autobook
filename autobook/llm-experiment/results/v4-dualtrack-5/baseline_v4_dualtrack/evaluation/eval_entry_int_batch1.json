@@ -1,0 +1,20 @@
+{
+  "evaluator": "claude",
+  "evaluated_at": "2026-04-01T18:00:00Z",
+  "prompt_version": "v4",
+  "results": {
+    "int_03_machinery_purchase": {"match": true, "tax_relaxed_match": true, "reason": "Machinery = PP&E Machinery; amounts exact"},
+    "int_04_major_overhaul": {"match": true, "tax_relaxed_match": true, "reason": "Machinery / Cash — exact"},
+    "int_05_bond_issuance_discount": {"match": true, "tax_relaxed_match": true, "reason": "Cash $2,657,510 / Discount $342,490 / Bonds $3,000,000 — PV amounts exact"},
+    "int_06_warranty_provision": {"match": true, "tax_relaxed_match": true, "reason": "Warranty Provisions = Provision for warranties; exact"},
+    "int_07_decommissioning_provision": {"match": true, "tax_relaxed_match": true, "reason": "Offshore Marine Structure = PP&E Marine structures; amounts exact"},
+    "int_08_share_repurchase_cancel": {"match": true, "tax_relaxed_match": true, "reason": "Issued capital = Share capital; Retained earnings $10K correct; exact"},
+    "int_09_merchandise_with_costs": {"match": true, "tax_relaxed_match": true, "reason": "Transportation expense = Distribution costs; all 5 lines exact"},
+    "int_10_prepayment": {"match": true, "tax_relaxed_match": true, "reason": "Prepaid expenses = Prepayments; exact"},
+    "int_11_land_instalment_discount": {"match": true, "tax_relaxed_match": true, "reason": "Land $49,173,243 within $250 PV tolerance; gross method correct"},
+    "int_12_site_improvements": {"match": false, "tax_relaxed_match": false, "reason": "Debits correct but credits merged into single Cr Cash $4,110,000 instead of Cash $1,750,000 + Cash—chequing $2,360,000"},
+    "int_13_donation_note": {"match": true, "tax_relaxed_match": true, "reason": "Donations expense / Notes payable — exact"},
+    "int_14_vehicle_mixed_payment": {"match": true, "tax_relaxed_match": true, "reason": "Motor vehicles = PP&E Vehicles; Short-term borrowings = Notes payable; exact"},
+    "int_15_bank_loan": {"match": true, "tax_relaxed_match": true, "reason": "Cash / Long-term borrowings — exact"}
+  }
+}

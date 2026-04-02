@@ -1,0 +1,491 @@
+{
+  "test_case_id": "int_30_short_term_loan_advance",
+  "variant_name": "baseline_v4_dualtrack",
+  "model": "sonnet",
+  "debit_tuple_exact_match": true,
+  "credit_tuple_exact_match": true,
+  "debit_tuple_slot_accuracy": 0.8333333333333334,
+  "credit_tuple_slot_accuracy": 0.8333333333333334,
+  "entry_valid": true,
+  "debit_tuple": [
+    1,
+    0,
+    0,
+    0,
+    0
+  ],
+  "credit_tuple": [
+    0,
+    0,
+    0,
+    1,
+    0
+  ],
+  "journal_entry": {
+    "reason": "Short-term loan of $2,000,000 advanced to business partner, funded by cash transfer from chequing account",
+    "lines": [
+      {
+        "type": "debit",
+        "account_name": "Short-term Loans Receivable",
+        "amount": 2000000.0
+      },
+      {
+        "type": "credit",
+        "account_name": "Cash and Cash Equivalents",
+        "amount": 2000000.0
+      }
+    ]
+  },
+  "actual_cost_usd": 0.0343377,
+  "raw_cost_usd": 0.088389,
+  "total_latency_ms": 15064,
+  "total_input_tokens": 23298,
+  "total_output_tokens": 1233,
+  "total_llm_calls": 5,
+  "iteration_count": 1,
+  "final_decision": "APPROVED",
+  "fix_attempted": null,
+  "fix_succeeded": null,
+  "agent_metrics": {
+    "credit_classifier": {
+      "input_tokens": 530,
+      "output_tokens": 159,
+      "cache_read_tokens": 4212,
+      "cache_write_tokens": 0,
+      "total_input_tokens": 4742,
+      "llm_calls": 1,
+      "actual_cost_usd": 0.0052386,
+      "raw_cost_usd": 0.016611,
+      "output": {
+        "liability_increase": [],
+        "equity_increase": [],
+        "revenue_increase": [],
+        "asset_decrease": [
+          {
+            "reason": "Cash transferred from chequing account to fund the loan to business partner",
+            "category": "Cash and cash equivalents",
+            "count": 1
+          }
+        ],
+        "expense_decrease": [],
+        "tuple": [
+          0,
+          0,
+          0,
+          1,
+          0
+        ]
+      },
+      "reason": null
+    },
+    "tax_specialist": {
+      "input_tokens": 572,
+      "output_tokens": 174,
+      "cache_read_tokens": 3455,
+      "cache_write_tokens": 0,
+      "total_input_tokens": 4027,
+      "llm_calls": 1,
+      "actual_cost_usd": 0.0053625,
+      "raw_cost_usd": 0.014691,
+      "output": {
+        "reasoning": "Loan principal advanced is not a taxable supply; interest income is a financial service exempt from tax under GST/HST rules",
+        "tax_mentioned": false,
+        "taxable": false,
+        "tax_context": null,
+        "tax_rate": null,
+        "add_tax_lines": false,
+        "treatment": "not_applicable"
+      },
+      "reason": null
+    },
+    "debit_classifier": {
+      "input_tokens": 533,
+      "output_tokens": 157,
+      "cache_read_tokens": 4291,
+      "cache_write_tokens": 0,
+      "total_input_tokens": 4824,
+      "llm_calls": 1,
+      "actual_cost_usd": 0.0052413,
+      "raw_cost_usd": 0.016827,
+      "output": {
+        "asset_increase": [
+          {
+            "reason": "Short-term loan advanced to business partner for one year",
+            "category": "Short-term loans receivable",
+            "count": 1
+          }
+        ],
+        "expense_increase": [],
+        "liability_decrease": [],
+        "equity_decrease": [],
+        "revenue_decrease": [],
+        "tuple": [
+          1,
+          0,
+          0,
+          0,
+          0
+        ]
+      },
+      "reason": null
+    },
+    "unknown": {
+      "input_tokens": 589,
+      "output_tokens": 583,
+      "cache_read_tokens": 4550,
+      "cache_write_tokens": 0,
+      "total_input_tokens": 5139,
+      "llm_calls": 1,
+      "actual_cost_usd": 0.011877,
+      "raw_cost_usd": 0.024162,
+      "output": null,
+      "reason": null
+    },
+    "entry_drafter": {
+      "input_tokens": 1055,
+      "output_tokens": 160,
+      "cache_read_tokens": 3511,
+      "cache_write_tokens": 0,
+      "total_input_tokens": 4566,
+      "llm_calls": 1,
+      "actual_cost_usd": 0.006618300000000001,
+      "raw_cost_usd": 0.016098,
+      "output": {
+        "reason": "Short-term loan of $2,000,000 advanced to business partner, funded by cash transfer from chequing account",
+        "lines": [
+          {
+            "type": "debit",
+            "account_name": "Short-term Loans Receivable",
+            "amount": 2000000.0
+          },
+          {
+            "type": "credit",
+            "account_name": "Cash and Cash Equivalents",
+            "amount": 2000000.0
+          }
+        ]
+      },
+      "reason": "Short-term loan of $2,000,000 advanced to business partner, funded by cash transfer from chequing account"
+    }
+  },
+  "pre_fix_debit_tuple": null,
+  "post_fix_debit_tuple": null,
+  "pre_fix_credit_tuple": null,
+  "post_fix_credit_tuple": null,
+  "fix_root_cause_agent": null,
+  "rejection_reason": null,
+  "diagnostician_decision": null,
+  "validation_error": null,
+  "decision_correct": true,
+  "entry_match": null,
+  "clarification_correct": null,
+  "clarification_questions": null,
+  "ambiguous": false,
+  "tier": "intermediate",
+  "error": null,
+  "pipeline_state": {
+    "iteration": 0,
+    "output_ambiguity_detector": [
+      {
+        "ambiguities": [
+          {
+            "aspect": "Classification of loan as short-term vs long-term",
+            "input_contextualized_conventional_default": "'short-term loan' with 'term of one year' = current asset (Short-term Loans Receivable)",
+            "input_contextualized_ifrs_default": "IFRS classifies loans due within 12 months as current assets",
+            "clarification_question": null,
+            "cases": null,
+            "ambiguous": false
+          },
+          {
+            "aspect": "Interest recognition method",
+            "input_contextualized_conventional_default": "'receivable at the end of each month' = accrual basis with monthly interest income recognition",
+            "input_contextualized_ifrs_default": "IFRS 9 requires effective interest method; for simple interest at stated rate with monthly payments, this aligns with stated terms",
+            "clarification_question": null,
+            "cases": null,
+            "ambiguous": false
+          },
+          {
+            "aspect": "Measurement of loan at initial recognition",
+            "input_contextualized_conventional_default": "Short-term payment plans (one year or less) resolve at face value within normal credit terms",
+            "input_contextualized_ifrs_default": "IFRS 9 permits amortized cost for loans held to collect; short-term loan at market rate measured at face value",
+            "clarification_question": null,
+            "cases": null,
+            "ambiguous": false
+          }
+        ]
+      }
+    ],
+    "output_complexity_detector": [
+      {
+        "flags": [
+          {
+            "aspect": "Monthly interest calculation",
+            "best_attempt": {
+              "reason": "Initial loan disbursement recorded at face value; monthly interest of $7,500 ($2,000,000 \u00d7 4.5% \u00f7 12) will be recognized each month as a separate entry",
+              "lines": [
+                {
+                  "type": "debit",
+                  "account_name": "Short-term Loans Receivable",
+                  "amount": 2000000.0
+                },
+                {
+                  "type": "credit",
+                  "account_name": "Cash - Chequing Account",
+                  "amount": 2000000.0
+                }
+              ]
+            },
+            "gap": null,
+            "beyond_llm_capability": false
+          }
+        ]
+      }
+    ],
+    "output_tax_specialist": [
+      {
+        "reasoning": "Loan principal advanced is not a taxable supply; interest income is a financial service exempt from tax under GST/HST rules",
+        "tax_mentioned": false,
+        "taxable": false,
+        "tax_context": null,
+        "tax_rate": null,
+        "add_tax_lines": false,
+        "treatment": "not_applicable"
+      }
+    ],
+    "output_decision_maker": [
+      {
+        "ambiguities": [
+          {
+            "aspect": "Classification of loan as short-term vs long-term",
+            "input_contextualized_conventional_default": "'short-term loan' with 'term of one year' = current asset (Short-term Loans Receivable)",
+            "input_contextualized_ifrs_default": "IFRS classifies loans due within 12 months as current assets",
+            "clarification_question": null,
+            "cases": null,
+            "ambiguous": false
+          },
+          {
+            "aspect": "Interest recognition method",
+            "input_contextualized_conventional_default": "'receivable at the end of each month' = accrual basis with monthly interest income recognition",
+            "input_contextualized_ifrs_default": "IFRS 9 requires effective interest method; for simple interest at stated rate with monthly payments, this aligns with stated terms",
+            "clarification_question": null,
+            "cases": null,
+            "ambiguous": false
+          },
+          {
+            "aspect": "Measurement of loan at initial recognition",
+            "input_contextualized_conventional_default": "Short-term payment plans (one year or less) resolve at face value within normal credit terms",
+            "input_contextualized_ifrs_default": "IFRS 9 permits amortized cost for loans held to collect; short-term loan at market rate measured at face value",
+            "clarification_question": null,
+            "cases": null,
+            "ambiguous": false
+          }
+        ],
+        "complexity_flags": [
+          {
+            "aspect": "Monthly interest calculation",
+            "best_attempt": {
+              "reason": "Initial loan disbursement recorded at face value; monthly interest of $7,500 ($2,000,000 \u00d7 4.5% \u00f7 12) will be recognized each month as a separate entry",
+              "lines": [
+                {
+                  "type": "debit",
+                  "account_name": "Short-term Loans Receivable",
+                  "amount": 2000000.0
+                },
+                {
+                  "type": "credit",
+                  "account_name": "Cash - Chequing Account",
+                  "amount": 2000000.0
+                }
+              ]
+            },
+            "gap": null,
+            "beyond_llm_capability": false
+          }
+        ],
+        "proceed_reason": "All aspects resolved: short-term loan at face value with monthly interest receivable at stated 4.5% annual rate.",
+        "clarification_questions": null,
+        "stuck_reason": null,
+        "overall_final_rationale": "The transaction clearly describes a short-term loan at stated terms with no ambiguities requiring clarification; all elements are resolvable under conventions and IFRS.",
+        "decision": "PROCEED"
+      }
+    ],
+    "output_entry_drafter": [
+      {
+        "reason": "Short-term loan of $2,000,000 advanced to business partner, funded by cash transfer from chequing account",
+        "lines": [
+          {
+            "type": "debit",
+            "account_name": "Short-term Loans Receivable",
+            "amount": 2000000.0
+          },
+          {
+            "type": "credit",
+            "account_name": "Cash and Cash Equivalents",
+            "amount": 2000000.0
+          }
+        ]
+      }
+    ],
+    "output_disambiguator": [
+      {
+        "ambiguities": [
+          {
+            "aspect": "Classification of loan as short-term vs long-term",
+            "input_contextualized_conventional_default": "'short-term loan' with 'term of one year' = current asset (Short-term Loans Receivable)",
+            "input_contextualized_ifrs_default": "IFRS classifies loans due within 12 months as current assets",
+            "clarification_question": null,
+            "cases": null,
+            "ambiguous": false
+          },
+          {
+            "aspect": "Interest recognition method",
+            "input_contextualized_conventional_default": "'receivable at the end of each month' = accrual basis with monthly interest income recognition",
+            "input_contextualized_ifrs_default": "IFRS 9 requires effective interest method; for simple interest at stated rate with monthly payments, this aligns with stated terms",
+            "clarification_question": null,
+            "cases": null,
+            "ambiguous": false
+          },
+          {
+            "aspect": "Measurement of loan at initial recognition",
+            "input_contextualized_conventional_default": "Short-term payment plans (one year or less) resolve at face value within normal credit terms",
+            "input_contextualized_ifrs_default": "IFRS 9 permits amortized cost for loans held to collect; short-term loan at market rate measured at face value",
+            "clarification_question": null,
+            "cases": null,
+            "ambiguous": false
+          }
+        ]
+      }
+    ],
+    "output_debit_classifier": [
+      {
+        "asset_increase": [
+          {
+            "reason": "Short-term loan advanced to business partner for one year",
+            "category": "Short-term loans receivable",
+            "count": 1
+          }
+        ],
+        "expense_increase": [],
+        "liability_decrease": [],
+        "equity_decrease": [],
+        "revenue_decrease": [],
+        "tuple": [
+          1,
+          0,
+          0,
+          0,
+          0
+        ]
+      }
+    ],
+    "output_credit_classifier": [
+      {
+        "liability_increase": [],
+        "equity_increase": [],
+        "revenue_increase": [],
+        "asset_decrease": [
+          {
+            "reason": "Cash transferred from chequing account to fund the loan to business partner",
+            "category": "Cash and cash equivalents",
+            "count": 1
+          }
+        ],
+        "expense_decrease": [],
+        "tuple": [
+          0,
+          0,
+          0,
+          1,
+          0
+        ]
+      }
+    ],
+    "output_debit_corrector": [],
+    "output_credit_corrector": [],
+    "output_entry_builder": [],
+    "output_approver": [],
+    "output_diagnostician": [],
+    "status_ambiguity_detector": 1,
+    "status_complexity_detector": 1,
+    "status_tax_specialist": 1,
+    "status_decision_maker": 1,
+    "status_entry_drafter": 1,
+    "status_disambiguator": 1,
+    "status_debit_classifier": 1,
+    "status_credit_classifier": 1,
+    "status_debit_corrector": 0,
+    "status_credit_corrector": 0,
+    "status_entry_builder": 0,
+    "status_approver": 0,
+    "status_diagnostician": 0,
+    "fix_context_disambiguator": [],
+    "fix_context_debit_classifier": [],
+    "fix_context_credit_classifier": [],
+    "fix_context_debit_corrector": [],
+    "fix_context_credit_corrector": [],
+    "fix_context_entry_builder": [],
+    "fix_context_approver": [],
+    "fix_context_diagnostician": [],
+    "decision": "APPROVED",
+    "validation_error": null,
+    "llm_calls": [
+      {
+        "node": "credit_classifier",
+        "stop_reason": "tool_use",
+        "input_tokens": 530,
+        "output_tokens": 159,
+        "input_token_details": {
+          "cache_read": 4212,
+          "cache_creation": 0
+        }
+      },
+      {
+        "node": "tax_specialist",
+        "stop_reason": "tool_use",
+        "input_tokens": 572,
+        "output_tokens": 174,
+        "input_token_details": {
+          "cache_read": 3455,
+          "cache_creation": 0
+        }
+      },
+      {
+        "node": "debit_classifier",
+        "stop_reason": "tool_use",
+        "input_tokens": 533,
+        "output_tokens": 157,
+        "input_token_details": {
+          "cache_read": 4291,
+          "cache_creation": 0
+        }
+      },
+      {
+        "node": "unknown",
+        "stop_reason": "tool_use",
+        "input_tokens": 589,
+        "output_tokens": 583,
+        "input_token_details": {
+          "cache_read": 4550,
+          "cache_creation": 0
+        }
+      },
+      {
+        "node": "entry_drafter",
+        "stop_reason": "tool_use",
+        "input_tokens": 1055,
+        "output_tokens": 160,
+        "input_token_details": {
+          "cache_read": 3511,
+          "cache_creation": 0
+        }
+      }
+    ],
+    "stop_reasons": {
+      "credit_classifier": "tool_use",
+      "tax_specialist": "tool_use",
+      "debit_classifier": "tool_use",
+      "unknown": "tool_use",
+      "entry_drafter": "tool_use"
+    }
+  }
+}

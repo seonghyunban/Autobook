@@ -1,0 +1,13 @@
+test_case_id,tier,transaction_text,actual_cost_usd,total_latency_ms,exp_relationship,exp_account,exp_debit,exp_credit,act_account,act_debit,act_credit,act_relationship,act_category,act_count
+int_26a_payroll_recognition,intermediate,"Mondelez recognized January payroll: production worker wages of $25,000 (5 employees) and administrative salaries of $20,000 (5 employees). The following employee-borne statutory deductions were withheld: pension contributions $2,000, health insurance premiums $3,250, employment insurance premiums $1,050, and income tax withholdings $1,450. The net amount was transferred from the chequing account to employees' personal accounts.",0.0462,37961,asset_increase,Work in process — Direct labour,"25,000.00",,Inventories — work in progress,"25,000.00",,asset_increase,Inventories — work in progress,1
+,,,,,expense_increase,Salaries expense,"20,000.00",,Employee benefits expense,"20,000.00",,expense_increase,Employee benefits expense,1
+,,,,,,,,,,,,liability_decrease,Employee benefits payable,1
+,,,,,,,,,,,,liability_decrease,Employee benefits payable,1
+,,,,,,,,,,,,liability_decrease,Statutory withholdings payable,1
+,,,,,,,,,,,,liability_decrease,Statutory withholdings payable,1
+,,,,,asset_decrease,Cash — chequing,,"37,250.00",Cash — chequing,,"37,250.00",asset_decrease,Cash and cash equivalents,1
+,,,,,liability_increase,Statutory withholdings payable,,"7,750.00",Health insurance premiums payable,,"3,250.00",liability_increase,Statutory withholdings payable,1
+,,,,,,,,,Pension contributions payable,,"2,000.00",liability_increase,Statutory withholdings payable,1
+,,,,,,,,,Income tax withholdings payable,,"1,450.00",liability_increase,Statutory withholdings payable,1
+,,,,,,,,,Employment insurance payable,,"1,050.00",liability_increase,Statutory withholdings payable,1
+,,,,,,TOTAL,"45,000.00","45,000.00",TOTAL,"45,000.00","45,000.00",,,

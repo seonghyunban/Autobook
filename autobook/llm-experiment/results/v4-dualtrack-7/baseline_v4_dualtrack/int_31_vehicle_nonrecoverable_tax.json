@@ -1,0 +1,491 @@
+{
+  "test_case_id": "int_31_vehicle_nonrecoverable_tax",
+  "variant_name": "baseline_v4_dualtrack",
+  "model": "sonnet",
+  "debit_tuple_exact_match": true,
+  "credit_tuple_exact_match": true,
+  "debit_tuple_slot_accuracy": 0.8333333333333334,
+  "credit_tuple_slot_accuracy": 0.8333333333333334,
+  "entry_valid": true,
+  "debit_tuple": [
+    1,
+    0,
+    0,
+    0,
+    0
+  ],
+  "credit_tuple": [
+    1,
+    0,
+    0,
+    0,
+    0
+  ],
+  "journal_entry": {
+    "reason": "Sedan acquired for executive use with non-recoverable sales tax capitalized into asset cost, financed through short-term dealer payment plan recorded at face value.",
+    "lines": [
+      {
+        "type": "debit",
+        "account_name": "Motor vehicles",
+        "amount": 52800.0
+      },
+      {
+        "type": "credit",
+        "account_name": "Trade payables",
+        "amount": 52800.0
+      }
+    ]
+  },
+  "actual_cost_usd": 0.03585,
+  "raw_cost_usd": 0.096411,
+  "total_latency_ms": 27865,
+  "total_input_tokens": 25777,
+  "total_output_tokens": 1272,
+  "total_llm_calls": 5,
+  "iteration_count": 1,
+  "final_decision": "APPROVED",
+  "fix_attempted": null,
+  "fix_succeeded": null,
+  "agent_metrics": {
+    "tax_specialist": {
+      "input_tokens": 566,
+      "output_tokens": 239,
+      "cache_read_tokens": 3726,
+      "cache_write_tokens": 0,
+      "total_input_tokens": 4292,
+      "llm_calls": 1,
+      "actual_cost_usd": 0.0064008,
+      "raw_cost_usd": 0.016461,
+      "output": {
+        "reasoning": "Text explicitly states \"10% non-recoverable sales tax\" on the $48,000 sedan purchase. Tax is mentioned and treatment is specified as non-recoverable, meaning it becomes part of the asset cost rather than a separate recoverable tax receivable.",
+        "tax_mentioned": true,
+        "taxable": true,
+        "tax_context": "10% non-recoverable sales tax on the $48,000 sedan purchase. Tax is capitalized into the motor vehicle asset cost, not recorded as a separate tax receivable.",
+        "tax_rate": 0.1,
+        "add_tax_lines": false,
+        "treatment": "non_recoverable"
+      },
+      "reason": null
+    },
+    "credit_classifier": {
+      "input_tokens": 524,
+      "output_tokens": 147,
+      "cache_read_tokens": 4657,
+      "cache_write_tokens": 0,
+      "total_input_tokens": 5181,
+      "llm_calls": 1,
+      "actual_cost_usd": 0.0051741,
+      "raw_cost_usd": 0.017748,
+      "output": {
+        "liability_increase": [
+          {
+            "reason": "3-month dealer payment plan financing the vehicle purchase including non-recoverable tax",
+            "category": "Trade payables",
+            "count": 1
+          }
+        ],
+        "equity_increase": [],
+        "revenue_increase": [],
+        "asset_decrease": [],
+        "expense_decrease": [],
+        "tuple": [
+          1,
+          0,
+          0,
+          0,
+          0
+        ]
+      },
+      "reason": null
+    },
+    "debit_classifier": {
+      "input_tokens": 527,
+      "output_tokens": 152,
+      "cache_read_tokens": 4769,
+      "cache_write_tokens": 0,
+      "total_input_tokens": 5296,
+      "llm_calls": 1,
+      "actual_cost_usd": 0.0052917,
+      "raw_cost_usd": 0.018168,
+      "output": {
+        "asset_increase": [
+          {
+            "reason": "Sedan acquired for executive use as motor vehicle asset, including non-recoverable sales tax capitalized into cost",
+            "category": "Motor vehicles",
+            "count": 1
+          }
+        ],
+        "expense_increase": [],
+        "liability_decrease": [],
+        "equity_decrease": [],
+        "revenue_decrease": [],
+        "tuple": [
+          1,
+          0,
+          0,
+          0,
+          0
+        ]
+      },
+      "reason": null
+    },
+    "unknown": {
+      "input_tokens": 583,
+      "output_tokens": 602,
+      "cache_read_tokens": 4821,
+      "cache_write_tokens": 0,
+      "total_input_tokens": 5404,
+      "llm_calls": 1,
+      "actual_cost_usd": 0.0122253,
+      "raw_cost_usd": 0.025242,
+      "output": null,
+      "reason": null
+    },
+    "entry_drafter": {
+      "input_tokens": 1147,
+      "output_tokens": 132,
+      "cache_read_tokens": 4457,
+      "cache_write_tokens": 0,
+      "total_input_tokens": 5604,
+      "llm_calls": 1,
+      "actual_cost_usd": 0.0067581,
+      "raw_cost_usd": 0.018792,
+      "output": {
+        "reason": "Sedan acquired for executive use with non-recoverable sales tax capitalized into asset cost, financed through short-term dealer payment plan recorded at face value.",
+        "lines": [
+          {
+            "type": "debit",
+            "account_name": "Motor vehicles",
+            "amount": 52800.0
+          },
+          {
+            "type": "credit",
+            "account_name": "Trade payables",
+            "amount": 52800.0
+          }
+        ]
+      },
+      "reason": "Sedan acquired for executive use with non-recoverable sales tax capitalized into asset cost, financed through short-term dealer payment plan recorded at face value."
+    }
+  },
+  "pre_fix_debit_tuple": null,
+  "post_fix_debit_tuple": null,
+  "pre_fix_credit_tuple": null,
+  "post_fix_credit_tuple": null,
+  "fix_root_cause_agent": null,
+  "rejection_reason": null,
+  "diagnostician_decision": null,
+  "validation_error": null,
+  "decision_correct": true,
+  "entry_match": null,
+  "clarification_correct": null,
+  "clarification_questions": null,
+  "ambiguous": false,
+  "tier": "intermediate",
+  "error": null,
+  "pipeline_state": {
+    "iteration": 0,
+    "output_ambiguity_detector": [
+      {
+        "ambiguities": [
+          {
+            "aspect": "Payment method - 3-month dealer payment plan",
+            "input_contextualized_conventional_default": "Short-term payment plans (3 months or less) resolve at face value within normal credit terms \u2014 record as accounts payable/notes payable.",
+            "input_contextualized_ifrs_default": "IFRS rules: Short-term payment plans (3 months or less) resolve at face value within normal credit terms.",
+            "clarification_question": null,
+            "cases": null,
+            "ambiguous": false
+          },
+          {
+            "aspect": "Tax treatment - non-recoverable sales tax",
+            "input_contextualized_conventional_default": "Non-recoverable tax is capitalized into the asset cost \u2014 stated explicitly as 10% non-recoverable.",
+            "input_contextualized_ifrs_default": "IAS 16.16(a): Cost includes non-refundable purchase taxes \u2014 capitalize into asset.",
+            "clarification_question": null,
+            "cases": null,
+            "ambiguous": false
+          },
+          {
+            "aspect": "Asset classification - vehicle for executive use",
+            "input_contextualized_conventional_default": "Vehicle purchased for business use is classified as PP&E (Motor Vehicles).",
+            "input_contextualized_ifrs_default": "IAS 16: Tangible asset held for use in operations is PP&E.",
+            "clarification_question": null,
+            "cases": null,
+            "ambiguous": false
+          }
+        ]
+      }
+    ],
+    "output_complexity_detector": [
+      {
+        "flags": [
+          {
+            "aspect": "Straightforward PP&E acquisition with financing",
+            "best_attempt": {
+              "reason": "Vehicle cost $48,000 plus non-recoverable sales tax $4,800 = $52,800 total capitalized to Motor Vehicles, financed through short-term dealer payment plan recorded as liability.",
+              "lines": [
+                {
+                  "type": "debit",
+                  "account_name": "Motor Vehicles",
+                  "amount": 52800.0
+                },
+                {
+                  "type": "credit",
+                  "account_name": "Notes Payable - Dealer",
+                  "amount": 52800.0
+                }
+              ]
+            },
+            "gap": null,
+            "beyond_llm_capability": false
+          }
+        ]
+      }
+    ],
+    "output_tax_specialist": [
+      {
+        "reasoning": "Text explicitly states \"10% non-recoverable sales tax\" on the $48,000 sedan purchase. Tax is mentioned and treatment is specified as non-recoverable, meaning it becomes part of the asset cost rather than a separate recoverable tax receivable.",
+        "tax_mentioned": true,
+        "taxable": true,
+        "tax_context": "10% non-recoverable sales tax on the $48,000 sedan purchase. Tax is capitalized into the motor vehicle asset cost, not recorded as a separate tax receivable.",
+        "tax_rate": 0.1,
+        "add_tax_lines": false,
+        "treatment": "non_recoverable"
+      }
+    ],
+    "output_decision_maker": [
+      {
+        "ambiguities": [
+          {
+            "aspect": "Payment method - 3-month dealer payment plan",
+            "input_contextualized_conventional_default": "Short-term payment plans (3 months or less) resolve at face value within normal credit terms \u2014 record as accounts payable/notes payable.",
+            "input_contextualized_ifrs_default": "IFRS rules: Short-term payment plans (3 months or less) resolve at face value within normal credit terms.",
+            "clarification_question": null,
+            "cases": null,
+            "ambiguous": false
+          },
+          {
+            "aspect": "Tax treatment - non-recoverable sales tax",
+            "input_contextualized_conventional_default": "Non-recoverable tax is capitalized into the asset cost \u2014 stated explicitly as 10% non-recoverable.",
+            "input_contextualized_ifrs_default": "IAS 16.16(a): Cost includes non-refundable purchase taxes \u2014 capitalize into asset.",
+            "clarification_question": null,
+            "cases": null,
+            "ambiguous": false
+          },
+          {
+            "aspect": "Asset classification - vehicle for executive use",
+            "input_contextualized_conventional_default": "Vehicle purchased for business use is classified as PP&E (Motor Vehicles).",
+            "input_contextualized_ifrs_default": "IAS 16: Tangible asset held for use in operations is PP&E.",
+            "clarification_question": null,
+            "cases": null,
+            "ambiguous": false
+          }
+        ],
+        "complexity_flags": [
+          {
+            "aspect": "Straightforward PP&E acquisition with financing",
+            "best_attempt": {
+              "reason": "Vehicle cost $48,000 plus non-recoverable sales tax $4,800 = $52,800 total capitalized to Motor Vehicles, financed through short-term dealer payment plan recorded as liability.",
+              "lines": [
+                {
+                  "type": "debit",
+                  "account_name": "Motor Vehicles",
+                  "amount": 52800.0
+                },
+                {
+                  "type": "credit",
+                  "account_name": "Notes Payable - Dealer",
+                  "amount": 52800.0
+                }
+              ]
+            },
+            "gap": null,
+            "beyond_llm_capability": false
+          }
+        ],
+        "proceed_reason": "Transaction explicitly states all amounts, tax is non-recoverable (capitalize per IAS 16), and 3-month payment plan resolves at face value per short-term payment plan convention.",
+        "clarification_questions": null,
+        "stuck_reason": null,
+        "overall_final_rationale": "All aspects are resolved by stated amounts, conventional terms for short-term payment plans, and IFRS rules for capitalizing non-recoverable taxes into PP&E cost.",
+        "decision": "PROCEED"
+      }
+    ],
+    "output_entry_drafter": [
+      {
+        "reason": "Sedan acquired for executive use with non-recoverable sales tax capitalized into asset cost, financed through short-term dealer payment plan recorded at face value.",
+        "lines": [
+          {
+            "type": "debit",
+            "account_name": "Motor vehicles",
+            "amount": 52800.0
+          },
+          {
+            "type": "credit",
+            "account_name": "Trade payables",
+            "amount": 52800.0
+          }
+        ]
+      }
+    ],
+    "output_disambiguator": [
+      {
+        "ambiguities": [
+          {
+            "aspect": "Payment method - 3-month dealer payment plan",
+            "input_contextualized_conventional_default": "Short-term payment plans (3 months or less) resolve at face value within normal credit terms \u2014 record as accounts payable/notes payable.",
+            "input_contextualized_ifrs_default": "IFRS rules: Short-term payment plans (3 months or less) resolve at face value within normal credit terms.",
+            "clarification_question": null,
+            "cases": null,
+            "ambiguous": false
+          },
+          {
+            "aspect": "Tax treatment - non-recoverable sales tax",
+            "input_contextualized_conventional_default": "Non-recoverable tax is capitalized into the asset cost \u2014 stated explicitly as 10% non-recoverable.",
+            "input_contextualized_ifrs_default": "IAS 16.16(a): Cost includes non-refundable purchase taxes \u2014 capitalize into asset.",
+            "clarification_question": null,
+            "cases": null,
+            "ambiguous": false
+          },
+          {
+            "aspect": "Asset classification - vehicle for executive use",
+            "input_contextualized_conventional_default": "Vehicle purchased for business use is classified as PP&E (Motor Vehicles).",
+            "input_contextualized_ifrs_default": "IAS 16: Tangible asset held for use in operations is PP&E.",
+            "clarification_question": null,
+            "cases": null,
+            "ambiguous": false
+          }
+        ]
+      }
+    ],
+    "output_debit_classifier": [
+      {
+        "asset_increase": [
+          {
+            "reason": "Sedan acquired for executive use as motor vehicle asset, including non-recoverable sales tax capitalized into cost",
+            "category": "Motor vehicles",
+            "count": 1
+          }
+        ],
+        "expense_increase": [],
+        "liability_decrease": [],
+        "equity_decrease": [],
+        "revenue_decrease": [],
+        "tuple": [
+          1,
+          0,
+          0,
+          0,
+          0
+        ]
+      }
+    ],
+    "output_credit_classifier": [
+      {
+        "liability_increase": [
+          {
+            "reason": "3-month dealer payment plan financing the vehicle purchase including non-recoverable tax",
+            "category": "Trade payables",
+            "count": 1
+          }
+        ],
+        "equity_increase": [],
+        "revenue_increase": [],
+        "asset_decrease": [],
+        "expense_decrease": [],
+        "tuple": [
+          1,
+          0,
+          0,
+          0,
+          0
+        ]
+      }
+    ],
+    "output_debit_corrector": [],
+    "output_credit_corrector": [],
+    "output_entry_builder": [],
+    "output_approver": [],
+    "output_diagnostician": [],
+    "status_ambiguity_detector": 1,
+    "status_complexity_detector": 1,
+    "status_tax_specialist": 1,
+    "status_decision_maker": 1,
+    "status_entry_drafter": 1,
+    "status_disambiguator": 1,
+    "status_debit_classifier": 1,
+    "status_credit_classifier": 1,
+    "status_debit_corrector": 0,
+    "status_credit_corrector": 0,
+    "status_entry_builder": 0,
+    "status_approver": 0,
+    "status_diagnostician": 0,
+    "fix_context_disambiguator": [],
+    "fix_context_debit_classifier": [],
+    "fix_context_credit_classifier": [],
+    "fix_context_debit_corrector": [],
+    "fix_context_credit_corrector": [],
+    "fix_context_entry_builder": [],
+    "fix_context_approver": [],
+    "fix_context_diagnostician": [],
+    "decision": "APPROVED",
+    "validation_error": null,
+    "llm_calls": [
+      {
+        "node": "tax_specialist",
+        "stop_reason": "tool_use",
+        "input_tokens": 566,
+        "output_tokens": 239,
+        "input_token_details": {
+          "cache_read": 3726,
+          "cache_creation": 0
+        }
+      },
+      {
+        "node": "credit_classifier",
+        "stop_reason": "tool_use",
+        "input_tokens": 524,
+        "output_tokens": 147,
+        "input_token_details": {
+          "cache_read": 4657,
+          "cache_creation": 0
+        }
+      },
+      {
+        "node": "debit_classifier",
+        "stop_reason": "tool_use",
+        "input_tokens": 527,
+        "output_tokens": 152,
+        "input_token_details": {
+          "cache_read": 4769,
+          "cache_creation": 0
+        }
+      },
+      {
+        "node": "unknown",
+        "stop_reason": "tool_use",
+        "input_tokens": 583,
+        "output_tokens": 602,
+        "input_token_details": {
+          "cache_read": 4821,
+          "cache_creation": 0
+        }
+      },
+      {
+        "node": "entry_drafter",
+        "stop_reason": "tool_use",
+        "input_tokens": 1147,
+        "output_tokens": 132,
+        "input_token_details": {
+          "cache_read": 4457,
+          "cache_creation": 0
+        }
+      }
+    ],
+    "stop_reasons": {
+      "tax_specialist": "tool_use",
+      "credit_classifier": "tool_use",
+      "debit_classifier": "tool_use",
+      "unknown": "tool_use",
+      "entry_drafter": "tool_use"
+    }
+  }
+}

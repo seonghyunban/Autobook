@@ -1,0 +1,526 @@
+{
+  "test_case_id": "int_20_service_revenue_credit",
+  "variant_name": "baseline_v4_dualtrack",
+  "model": "sonnet",
+  "debit_tuple_exact_match": true,
+  "credit_tuple_exact_match": true,
+  "debit_tuple_slot_accuracy": 0.8333333333333334,
+  "credit_tuple_slot_accuracy": 0.8333333333333334,
+  "entry_valid": true,
+  "debit_tuple": [
+    1,
+    0,
+    0,
+    0,
+    0
+  ],
+  "credit_tuple": [
+    0,
+    0,
+    1,
+    0,
+    0
+  ],
+  "journal_entry": {
+    "reason": "Office relocation services rendered with HST collected, customer payment due in 10 days",
+    "lines": [
+      {
+        "type": "debit",
+        "account_name": "Trade receivables",
+        "amount": 35595.0
+      },
+      {
+        "type": "credit",
+        "account_name": "Revenue from rendering of services",
+        "amount": 31500.0
+      },
+      {
+        "type": "credit",
+        "account_name": "Tax liabilities",
+        "amount": 4095.0
+      }
+    ]
+  },
+  "actual_cost_usd": 0.0407616,
+  "raw_cost_usd": 0.103029,
+  "total_latency_ms": 20141,
+  "total_input_tokens": 27053,
+  "total_output_tokens": 1458,
+  "total_llm_calls": 6,
+  "iteration_count": 1,
+  "final_decision": "APPROVED",
+  "fix_attempted": null,
+  "fix_succeeded": null,
+  "agent_metrics": {
+    "credit_classifier": {
+      "input_tokens": 488,
+      "output_tokens": 140,
+      "cache_read_tokens": 4203,
+      "cache_write_tokens": 0,
+      "total_input_tokens": 4691,
+      "llm_calls": 1,
+      "actual_cost_usd": 0.0048249,
+      "raw_cost_usd": 0.016173,
+      "output": {
+        "liability_increase": [],
+        "equity_increase": [],
+        "revenue_increase": [
+          {
+            "reason": "Office relocation services provided to customer",
+            "category": "Revenue from rendering of services",
+            "count": 1
+          }
+        ],
+        "asset_decrease": [],
+        "expense_decrease": [],
+        "tuple": [
+          0,
+          0,
+          1,
+          0,
+          0
+        ]
+      },
+      "reason": null
+    },
+    "tax_specialist": {
+      "input_tokens": 513,
+      "output_tokens": 131,
+      "cache_read_tokens": 3277,
+      "cache_write_tokens": 0,
+      "total_input_tokens": 3790,
+      "llm_calls": 1,
+      "actual_cost_usd": 0.0044871,
+      "raw_cost_usd": 0.013335,
+      "output": {
+        "reasoning": "Relocation services are taxable in Ontario, but the transaction text does not mention any tax amount or rate",
+        "tax_mentioned": false,
+        "taxable": true,
+        "add_tax_lines": false,
+        "tax_rate": null,
+        "tax_amount": null,
+        "treatment": "not_applicable"
+      },
+      "reason": null
+    },
+    "debit_classifier": {
+      "input_tokens": 491,
+      "output_tokens": 159,
+      "cache_read_tokens": 4282,
+      "cache_write_tokens": 0,
+      "total_input_tokens": 4773,
+      "llm_calls": 1,
+      "actual_cost_usd": 0.005142600000000001,
+      "raw_cost_usd": 0.016704,
+      "output": {
+        "asset_increase": [
+          {
+            "reason": "Customer owes for relocation services rendered, payment due in 10 days",
+            "category": "Trade receivables",
+            "count": 1
+          }
+        ],
+        "expense_increase": [],
+        "liability_decrease": [],
+        "equity_decrease": [],
+        "revenue_decrease": [],
+        "tuple": [
+          1,
+          0,
+          0,
+          0,
+          0
+        ]
+      },
+      "reason": null
+    },
+    "unknown": {
+      "input_tokens": 547,
+      "output_tokens": 572,
+      "cache_read_tokens": 4550,
+      "cache_write_tokens": 0,
+      "total_input_tokens": 5097,
+      "llm_calls": 1,
+      "actual_cost_usd": 0.011586,
+      "raw_cost_usd": 0.023871,
+      "output": null,
+      "reason": null
+    },
+    "entry_drafter": {
+      "input_tokens": 1952,
+      "output_tokens": 456,
+      "cache_read_tokens": 6750,
+      "cache_write_tokens": 0,
+      "total_input_tokens": 8702,
+      "llm_calls": 2,
+      "actual_cost_usd": 0.014721,
+      "raw_cost_usd": 0.032946,
+      "output": {
+        "reason": "Office relocation services rendered with HST collected, customer payment due in 10 days",
+        "lines": [
+          {
+            "type": "debit",
+            "account_name": "Trade receivables",
+            "amount": 35595.0
+          },
+          {
+            "type": "credit",
+            "account_name": "Revenue from rendering of services",
+            "amount": 31500.0
+          },
+          {
+            "type": "credit",
+            "account_name": "Tax liabilities",
+            "amount": 4095.0
+          }
+        ]
+      },
+      "reason": "Office relocation services rendered with HST collected, customer payment due in 10 days"
+    }
+  },
+  "pre_fix_debit_tuple": null,
+  "post_fix_debit_tuple": null,
+  "pre_fix_credit_tuple": null,
+  "post_fix_credit_tuple": null,
+  "fix_root_cause_agent": null,
+  "rejection_reason": null,
+  "diagnostician_decision": null,
+  "validation_error": null,
+  "decision_correct": true,
+  "entry_match": null,
+  "clarification_correct": null,
+  "clarification_questions": null,
+  "ambiguous": false,
+  "tier": "intermediate",
+  "error": null,
+  "pipeline_state": {
+    "iteration": 0,
+    "output_ambiguity_detector": [
+      {
+        "ambiguities": [
+          {
+            "aspect": "Revenue recognition timing",
+            "input_contextualized_conventional_default": "'provided services' implies performance obligation satisfied \u2014 revenue recognized at stated amount of $31,500",
+            "input_contextualized_ifrs_default": "IFRS 15: service delivered = performance obligation satisfied \u2014 recognize revenue when service is provided",
+            "clarification_question": null,
+            "cases": null,
+            "ambiguous": false
+          },
+          {
+            "aspect": "Payment method",
+            "input_contextualized_conventional_default": "'Payment is due in 10 days' = accounts receivable (short-term credit terms)",
+            "input_contextualized_ifrs_default": "Short-term payment plans (10 days) resolved at face value within normal credit terms",
+            "clarification_question": null,
+            "cases": null,
+            "ambiguous": false
+          },
+          {
+            "aspect": "HST treatment",
+            "input_contextualized_conventional_default": null,
+            "input_contextualized_ifrs_default": "Province ON = 13% HST; seller records tax payable on revenue",
+            "clarification_question": null,
+            "cases": null,
+            "ambiguous": false
+          }
+        ]
+      }
+    ],
+    "output_complexity_detector": [
+      {
+        "flags": [
+          {
+            "aspect": "HST calculation on service revenue",
+            "best_attempt": {
+              "reason": "Service provided for $31,500 plus 13% HST ($4,095) creates receivable of $35,595, with revenue of $31,500 and HST payable of $4,095",
+              "lines": [
+                {
+                  "type": "debit",
+                  "account_name": "Accounts Receivable",
+                  "amount": 35595.0
+                },
+                {
+                  "type": "credit",
+                  "account_name": "Service Revenue",
+                  "amount": 31500.0
+                },
+                {
+                  "type": "credit",
+                  "account_name": "HST Payable",
+                  "amount": 4095.0
+                }
+              ]
+            },
+            "gap": null,
+            "beyond_llm_capability": false
+          }
+        ]
+      }
+    ],
+    "output_tax_specialist": [
+      {
+        "reasoning": "Relocation services are taxable in Ontario, but the transaction text does not mention any tax amount or rate",
+        "tax_mentioned": false,
+        "taxable": true,
+        "add_tax_lines": false,
+        "tax_rate": null,
+        "tax_amount": null,
+        "treatment": "not_applicable"
+      }
+    ],
+    "output_decision_maker": [
+      {
+        "ambiguities": [
+          {
+            "aspect": "Revenue recognition timing",
+            "input_contextualized_conventional_default": "'provided services' implies performance obligation satisfied \u2014 revenue recognized at stated amount of $31,500",
+            "input_contextualized_ifrs_default": "IFRS 15: service delivered = performance obligation satisfied \u2014 recognize revenue when service is provided",
+            "clarification_question": null,
+            "cases": null,
+            "ambiguous": false
+          },
+          {
+            "aspect": "Payment method",
+            "input_contextualized_conventional_default": "'Payment is due in 10 days' = accounts receivable (short-term credit terms)",
+            "input_contextualized_ifrs_default": "Short-term payment plans (10 days) resolved at face value within normal credit terms",
+            "clarification_question": null,
+            "cases": null,
+            "ambiguous": false
+          },
+          {
+            "aspect": "HST treatment",
+            "input_contextualized_conventional_default": null,
+            "input_contextualized_ifrs_default": "Province ON = 13% HST; seller records tax payable on revenue",
+            "clarification_question": null,
+            "cases": null,
+            "ambiguous": false
+          }
+        ],
+        "complexity_flags": [
+          {
+            "aspect": "HST calculation on service revenue",
+            "best_attempt": {
+              "reason": "Service provided for $31,500 plus 13% HST ($4,095) creates receivable of $35,595, with revenue of $31,500 and HST payable of $4,095",
+              "lines": [
+                {
+                  "type": "debit",
+                  "account_name": "Accounts Receivable",
+                  "amount": 35595.0
+                },
+                {
+                  "type": "credit",
+                  "account_name": "Service Revenue",
+                  "amount": 31500.0
+                },
+                {
+                  "type": "credit",
+                  "account_name": "HST Payable",
+                  "amount": 4095.0
+                }
+              ]
+            },
+            "gap": null,
+            "beyond_llm_capability": false
+          }
+        ],
+        "proceed_reason": "All aspects resolved: 'provided services' = revenue recognized, 'due in 10 days' = accounts receivable at face value, and ON province = 13% HST on seller side.",
+        "clarification_questions": null,
+        "stuck_reason": null,
+        "overall_final_rationale": "Service provided resolves as revenue recognized, payment due in 10 days resolves as accounts receivable, and ON province determines 13% HST \u2014 all aspects are resolved with no ambiguities or capability gaps.",
+        "decision": "PROCEED"
+      }
+    ],
+    "output_entry_drafter": [
+      {
+        "reason": "Office relocation services rendered with HST collected, customer payment due in 10 days",
+        "lines": [
+          {
+            "type": "debit",
+            "account_name": "Trade receivables",
+            "amount": 35595.0
+          },
+          {
+            "type": "credit",
+            "account_name": "Revenue from rendering of services",
+            "amount": 31500.0
+          },
+          {
+            "type": "credit",
+            "account_name": "Tax liabilities",
+            "amount": 4095.0
+          }
+        ]
+      }
+    ],
+    "output_disambiguator": [
+      {
+        "ambiguities": [
+          {
+            "aspect": "Revenue recognition timing",
+            "input_contextualized_conventional_default": "'provided services' implies performance obligation satisfied \u2014 revenue recognized at stated amount of $31,500",
+            "input_contextualized_ifrs_default": "IFRS 15: service delivered = performance obligation satisfied \u2014 recognize revenue when service is provided",
+            "clarification_question": null,
+            "cases": null,
+            "ambiguous": false
+          },
+          {
+            "aspect": "Payment method",
+            "input_contextualized_conventional_default": "'Payment is due in 10 days' = accounts receivable (short-term credit terms)",
+            "input_contextualized_ifrs_default": "Short-term payment plans (10 days) resolved at face value within normal credit terms",
+            "clarification_question": null,
+            "cases": null,
+            "ambiguous": false
+          },
+          {
+            "aspect": "HST treatment",
+            "input_contextualized_conventional_default": null,
+            "input_contextualized_ifrs_default": "Province ON = 13% HST; seller records tax payable on revenue",
+            "clarification_question": null,
+            "cases": null,
+            "ambiguous": false
+          }
+        ]
+      }
+    ],
+    "output_debit_classifier": [
+      {
+        "asset_increase": [
+          {
+            "reason": "Customer owes for relocation services rendered, payment due in 10 days",
+            "category": "Trade receivables",
+            "count": 1
+          }
+        ],
+        "expense_increase": [],
+        "liability_decrease": [],
+        "equity_decrease": [],
+        "revenue_decrease": [],
+        "tuple": [
+          1,
+          0,
+          0,
+          0,
+          0
+        ]
+      }
+    ],
+    "output_credit_classifier": [
+      {
+        "liability_increase": [],
+        "equity_increase": [],
+        "revenue_increase": [
+          {
+            "reason": "Office relocation services provided to customer",
+            "category": "Revenue from rendering of services",
+            "count": 1
+          }
+        ],
+        "asset_decrease": [],
+        "expense_decrease": [],
+        "tuple": [
+          0,
+          0,
+          1,
+          0,
+          0
+        ]
+      }
+    ],
+    "output_debit_corrector": [],
+    "output_credit_corrector": [],
+    "output_entry_builder": [],
+    "output_approver": [],
+    "output_diagnostician": [],
+    "status_ambiguity_detector": 1,
+    "status_complexity_detector": 1,
+    "status_tax_specialist": 1,
+    "status_decision_maker": 1,
+    "status_entry_drafter": 1,
+    "status_disambiguator": 1,
+    "status_debit_classifier": 1,
+    "status_credit_classifier": 1,
+    "status_debit_corrector": 0,
+    "status_credit_corrector": 0,
+    "status_entry_builder": 0,
+    "status_approver": 0,
+    "status_diagnostician": 0,
+    "fix_context_disambiguator": [],
+    "fix_context_debit_classifier": [],
+    "fix_context_credit_classifier": [],
+    "fix_context_debit_corrector": [],
+    "fix_context_credit_corrector": [],
+    "fix_context_entry_builder": [],
+    "fix_context_approver": [],
+    "fix_context_diagnostician": [],
+    "decision": "APPROVED",
+    "validation_error": null,
+    "llm_calls": [
+      {
+        "node": "credit_classifier",
+        "stop_reason": "tool_use",
+        "input_tokens": 488,
+        "output_tokens": 140,
+        "input_token_details": {
+          "cache_read": 4203,
+          "cache_creation": 0
+        }
+      },
+      {
+        "node": "tax_specialist",
+        "stop_reason": "tool_use",
+        "input_tokens": 513,
+        "output_tokens": 131,
+        "input_token_details": {
+          "cache_read": 3277,
+          "cache_creation": 0
+        }
+      },
+      {
+        "node": "debit_classifier",
+        "stop_reason": "tool_use",
+        "input_tokens": 491,
+        "output_tokens": 159,
+        "input_token_details": {
+          "cache_read": 4282,
+          "cache_creation": 0
+        }
+      },
+      {
+        "node": "unknown",
+        "stop_reason": "tool_use",
+        "input_tokens": 547,
+        "output_tokens": 572,
+        "input_token_details": {
+          "cache_read": 4550,
+          "cache_creation": 0
+        }
+      },
+      {
+        "node": "entry_drafter",
+        "stop_reason": "tool_use",
+        "input_tokens": 897,
+        "output_tokens": 276,
+        "input_token_details": {
+          "cache_read": 3405,
+          "cache_creation": 0
+        }
+      },
+      {
+        "node": "entry_drafter",
+        "stop_reason": "tool_use",
+        "input_tokens": 1055,
+        "output_tokens": 180,
+        "input_token_details": {
+          "cache_read": 3345,
+          "cache_creation": 0
+        }
+      }
+    ],
+    "stop_reasons": {
+      "credit_classifier": "tool_use",
+      "tax_specialist": "tool_use",
+      "debit_classifier": "tool_use",
+      "unknown": "tool_use",
+      "entry_drafter": "tool_use"
+    }
+  }
+}

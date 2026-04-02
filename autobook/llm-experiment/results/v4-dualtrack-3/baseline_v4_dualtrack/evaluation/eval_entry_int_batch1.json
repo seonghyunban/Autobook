@@ -1,0 +1,72 @@
+{
+  "evaluator": "claude",
+  "evaluated_at": "2026-04-01T00:00:00Z",
+  "prompt_version": "v4",
+  "results": {
+    "int_03_machinery_purchase": {
+      "match": true,
+      "tax_relaxed_match": true,
+      "reason": "Correct structure and amounts. 'Machinery' equivalent to 'PP&E Machinery'; 'Accounts Payable' equivalent to 'Trade payables'. All amounts exact."
+    },
+    "int_04_major_overhaul": {
+      "match": true,
+      "tax_relaxed_match": true,
+      "reason": "Correct structure and amounts. 'Machinery' equivalent to 'PP&E Machinery'. Dr $200K / Cr Cash $200K exact."
+    },
+    "int_05_bond_issuance_discount": {
+      "match": true,
+      "tax_relaxed_match": true,
+      "reason": "Correct structure, accounts, and amounts. Dr Cash $2,657,510 / Dr Discount on Bonds Payable $342,490 / Cr Bonds Payable $3,000,000 matches expected exactly."
+    },
+    "int_06_warranty_provision": {
+      "match": true,
+      "tax_relaxed_match": true,
+      "reason": "Correct structure and amounts. 'Warranty Provision' equivalent to 'Provision for warranties'. Dr/Cr $900,000 exact."
+    },
+    "int_07_decommissioning_provision": {
+      "match": true,
+      "tax_relaxed_match": true,
+      "reason": "Correct structure and amounts. 'Offshore Marine Structure' equivalent to 'PP&E Marine structures'; 'Trade Payables' and 'Decommissioning Provision' match. All amounts exact."
+    },
+    "int_08_share_repurchase_cancel": {
+      "match": true,
+      "tax_relaxed_match": true,
+      "reason": "Correct structure and amounts. Dr Share Capital $50K / Dr Retained Earnings $10K / Cr Cash $60K matches expected exactly."
+    },
+    "int_09_merchandise_with_costs": {
+      "match": true,
+      "tax_relaxed_match": true,
+      "reason": "Correct structure and amounts. 'Merchandise Inventory' equivalent to 'Inventories'; 'Transportation Expense' equivalent to 'Distribution costs'; 'Accounts Payable' equivalent to 'Trade payables'. All amounts exact."
+    },
+    "int_10_prepayment": {
+      "match": true,
+      "tax_relaxed_match": true,
+      "reason": "Correct structure and amounts. 'Advances to Suppliers' equivalent to 'Prepayments' for supplier prepayment context. Dr/Cr $1,000,000 exact."
+    },
+    "int_11_land_instalment_discount": {
+      "match": true,
+      "tax_relaxed_match": true,
+      "reason": "Correct structure and accounts. Land $49,173,243 vs expected $49,173,000 is $243 difference on ~$49M (within acceptable PV rounding tolerance). 'Note Payable' equivalent to 'Long-term payables'."
+    },
+    "int_12_site_improvements": {
+      "match": false,
+      "tax_relaxed_match": false,
+      "reason": "Debit side correct (Site improvements $1,750K + Land $2,360K). Credit side merged into single 'Cash and cash equivalents' $4,110K instead of required 2 separate lines: Cr Cash $1,750K and Cr Cash—chequing $2,360K."
+    },
+    "int_13_donation_note": {
+      "match": true,
+      "tax_relaxed_match": true,
+      "reason": "Correct structure and amounts. 'Donations Expense' and 'Notes Payable' match expected. Dr/Cr $1,000,000 exact."
+    },
+    "int_14_vehicle_mixed_payment": {
+      "match": true,
+      "tax_relaxed_match": true,
+      "reason": "Correct structure and amounts. 'Motor Vehicles' equivalent to 'PP&E Vehicles'. Dr $40K / Cr Cash $20K / Cr Notes Payable $20K matches expected."
+    },
+    "int_15_bank_loan": {
+      "match": true,
+      "tax_relaxed_match": true,
+      "reason": "Correct structure and amounts. 'Bank Loan Payable' equivalent to 'Long-term borrowings'. Dr Cash $200K / Cr $200K exact."
+    }
+  }
+}

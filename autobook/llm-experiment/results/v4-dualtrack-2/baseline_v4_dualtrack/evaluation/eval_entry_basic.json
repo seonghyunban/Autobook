@@ -1,0 +1,82 @@
+{
+  "evaluator": "claude",
+  "evaluated_at": "2026-04-01T12:00:00",
+  "prompt_version": "v4",
+  "results": {
+    "basic_01_inventory_cash": {
+      "match": true,
+      "tax_relaxed_match": true,
+      "reason": "Inventories — merchandise = Inventories; Cash and cash equivalents = Cash; amounts exact"
+    },
+    "basic_02_inventory_on_account": {
+      "match": false,
+      "tax_relaxed_match": true,
+      "reason": "Extra HST ITC debit line (Tax assets $39) added; Trade payables inflated to $339 vs expected $300. Core entry correct; differences are tax-only"
+    },
+    "basic_03_issue_stock_with_apic": {
+      "match": true,
+      "tax_relaxed_match": true,
+      "reason": "Issued capital = Share capital—Common; Share premium = APIC; amounts exact"
+    },
+    "basic_04_sell_inventory": {
+      "match": true,
+      "tax_relaxed_match": true,
+      "reason": "Cost of sales = COGS; Revenue from sale of goods = Revenue; 4-line entry exact"
+    },
+    "basic_05_pay_accounts_payable": {
+      "match": true,
+      "tax_relaxed_match": true,
+      "reason": "Trade payables / Cash — exact match"
+    },
+    "basic_06_refinance_loan": {
+      "match": true,
+      "tax_relaxed_match": true,
+      "reason": "Long-term borrowings = Notes payable; same-account debit/credit exact"
+    },
+    "basic_07_loan_to_equity": {
+      "match": true,
+      "tax_relaxed_match": true,
+      "reason": "Short-term borrowings = Notes payable; Issued capital = Share capital—Common; amounts exact"
+    },
+    "basic_08_deliver_service_against_deposit": {
+      "match": true,
+      "tax_relaxed_match": true,
+      "reason": "Contract liabilities exact; Revenue from rendering of services = Revenue; amounts exact"
+    },
+    "basic_09_repurchase_stock": {
+      "match": true,
+      "tax_relaxed_match": true,
+      "reason": "Treasury shares / Cash — exact match"
+    },
+    "basic_10_declare_dividend": {
+      "match": true,
+      "tax_relaxed_match": true,
+      "reason": "Retained earnings / Dividends payable — exact; correctly uses Retained earnings not Dividends declared"
+    },
+    "basic_11_convert_preferred_to_common": {
+      "match": true,
+      "tax_relaxed_match": true,
+      "reason": "Issued capital — preferred/common shares = Share capital—Preferred/Common; amounts exact"
+    },
+    "basic_12_pay_salaries": {
+      "match": true,
+      "tax_relaxed_match": true,
+      "reason": "Employee benefits expense (IAS 19) = Salaries expense; Cash exact"
+    },
+    "basic_13_accrue_utility": {
+      "match": true,
+      "tax_relaxed_match": true,
+      "reason": "Utilities expense / Accrued liabilities — exact match"
+    },
+    "basic_14_casualty_loss": {
+      "match": true,
+      "tax_relaxed_match": true,
+      "reason": "Casualty loss / Inventories — exact match"
+    },
+    "basic_15_no_entry": {
+      "match": false,
+      "tax_relaxed_match": false,
+      "reason": "journal_entry is non-null object with empty lines instead of expected null; not a tax-only difference"
+    }
+  }
+}

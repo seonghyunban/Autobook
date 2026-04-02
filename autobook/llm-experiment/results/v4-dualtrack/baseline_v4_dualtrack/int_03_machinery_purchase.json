@@ -1,0 +1,538 @@
+{
+  "test_case_id": "int_03_machinery_purchase",
+  "variant_name": "baseline_v4_dualtrack",
+  "model": "sonnet",
+  "debit_tuple_exact_match": true,
+  "credit_tuple_exact_match": true,
+  "debit_tuple_slot_accuracy": 0.8333333333333334,
+  "credit_tuple_slot_accuracy": 0.8333333333333334,
+  "entry_valid": true,
+  "debit_tuple": [
+    1,
+    0,
+    0,
+    0,
+    0
+  ],
+  "credit_tuple": [
+    1,
+    0,
+    0,
+    1,
+    0
+  ],
+  "journal_entry": {
+    "reason": "Machinery acquired on account with freight, installation, and testing costs capitalized and paid by cash",
+    "lines": [
+      {
+        "type": "debit",
+        "account_name": "Machinery",
+        "amount": 800000.0
+      },
+      {
+        "type": "credit",
+        "account_name": "Trade payables",
+        "amount": 700000.0
+      },
+      {
+        "type": "credit",
+        "account_name": "Cash and cash equivalents",
+        "amount": 100000.0
+      }
+    ]
+  },
+  "actual_cost_usd": 0.0409686,
+  "raw_cost_usd": 0.10323600000000001,
+  "total_latency_ms": 26733,
+  "total_input_tokens": 27437,
+  "total_output_tokens": 1395,
+  "total_llm_calls": 6,
+  "iteration_count": 1,
+  "final_decision": "APPROVED",
+  "fix_attempted": null,
+  "fix_succeeded": null,
+  "agent_metrics": {
+    "debit_classifier": {
+      "input_tokens": 523,
+      "output_tokens": 162,
+      "cache_read_tokens": 4282,
+      "cache_write_tokens": 0,
+      "total_input_tokens": 4805,
+      "llm_calls": 1,
+      "actual_cost_usd": 0.0052836,
+      "raw_cost_usd": 0.016845,
+      "output": {
+        "asset_increase": [
+          {
+            "reason": "Machinery purchased with freight, installation, testing and commissioning costs capitalized as part of asset cost",
+            "category": "Machinery",
+            "count": 1
+          }
+        ],
+        "expense_increase": [],
+        "liability_decrease": [],
+        "equity_decrease": [],
+        "revenue_decrease": [],
+        "tuple": [
+          1,
+          0,
+          0,
+          0,
+          0
+        ]
+      },
+      "reason": null
+    },
+    "tax_specialist": {
+      "input_tokens": 545,
+      "output_tokens": 148,
+      "cache_read_tokens": 3277,
+      "cache_write_tokens": 0,
+      "total_input_tokens": 3822,
+      "llm_calls": 1,
+      "actual_cost_usd": 0.0048381000000000006,
+      "raw_cost_usd": 0.013686,
+      "output": {
+        "reasoning": "Transaction describes machinery purchase and related costs (freight, installation, testing) with no mention of tax anywhere in the text. Although machinery purchases and related services are taxable supplies, tax is not stated.",
+        "tax_mentioned": false,
+        "taxable": true,
+        "add_tax_lines": false,
+        "tax_rate": null,
+        "tax_amount": null,
+        "treatment": "not_applicable"
+      },
+      "reason": null
+    },
+    "credit_classifier": {
+      "input_tokens": 520,
+      "output_tokens": 198,
+      "cache_read_tokens": 4203,
+      "cache_write_tokens": 0,
+      "total_input_tokens": 4723,
+      "llm_calls": 1,
+      "actual_cost_usd": 0.0057909,
+      "raw_cost_usd": 0.017139,
+      "output": {
+        "liability_increase": [
+          {
+            "reason": "Machinery purchased on credit from Ford",
+            "category": "Trade payables",
+            "count": 1
+          }
+        ],
+        "equity_increase": [],
+        "revenue_increase": [],
+        "asset_decrease": [
+          {
+            "reason": "Cash paid for freight, installation, and testing costs related to machinery acquisition",
+            "category": "Cash and cash equivalents",
+            "count": 1
+          }
+        ],
+        "expense_decrease": [],
+        "tuple": [
+          1,
+          0,
+          0,
+          1,
+          0
+        ]
+      },
+      "reason": null
+    },
+    "unknown": {
+      "input_tokens": 579,
+      "output_tokens": 577,
+      "cache_read_tokens": 4550,
+      "cache_write_tokens": 0,
+      "total_input_tokens": 5129,
+      "llm_calls": 1,
+      "actual_cost_usd": 0.011757,
+      "raw_cost_usd": 0.024042,
+      "output": null,
+      "reason": null
+    },
+    "entry_drafter": {
+      "input_tokens": 2208,
+      "output_tokens": 310,
+      "cache_read_tokens": 6750,
+      "cache_write_tokens": 0,
+      "total_input_tokens": 8958,
+      "llm_calls": 2,
+      "actual_cost_usd": 0.013299,
+      "raw_cost_usd": 0.031524,
+      "output": {
+        "reason": "Machinery acquired on account with freight, installation, and testing costs capitalized and paid by cash",
+        "lines": [
+          {
+            "type": "debit",
+            "account_name": "Machinery",
+            "amount": 800000.0
+          },
+          {
+            "type": "credit",
+            "account_name": "Trade payables",
+            "amount": 700000.0
+          },
+          {
+            "type": "credit",
+            "account_name": "Cash and cash equivalents",
+            "amount": 100000.0
+          }
+        ]
+      },
+      "reason": "Machinery acquired on account with freight, installation, and testing costs capitalized and paid by cash"
+    }
+  },
+  "pre_fix_debit_tuple": null,
+  "post_fix_debit_tuple": null,
+  "pre_fix_credit_tuple": null,
+  "post_fix_credit_tuple": null,
+  "fix_root_cause_agent": null,
+  "rejection_reason": null,
+  "diagnostician_decision": null,
+  "validation_error": null,
+  "decision_correct": true,
+  "entry_match": null,
+  "clarification_correct": null,
+  "clarification_questions": null,
+  "ambiguous": false,
+  "tier": "intermediate",
+  "error": null,
+  "pipeline_state": {
+    "iteration": 0,
+    "output_ambiguity_detector": [
+      {
+        "ambiguities": [
+          {
+            "aspect": "Payment method for machinery",
+            "input_contextualized_conventional_default": "'on account' = accounts payable for the $700,000 machinery purchase",
+            "input_contextualized_ifrs_default": null,
+            "clarification_question": null,
+            "cases": null,
+            "ambiguous": false
+          },
+          {
+            "aspect": "Capitalization of ancillary costs",
+            "input_contextualized_conventional_default": null,
+            "input_contextualized_ifrs_default": "IAS 16.16-17: costs directly attributable to bringing the asset to working condition (freight, installation, testing/commissioning) are capitalized as part of the asset cost",
+            "clarification_question": null,
+            "cases": null,
+            "ambiguous": false
+          },
+          {
+            "aspect": "Payment method for ancillary costs",
+            "input_contextualized_conventional_default": "'paid by cheque' = cash payment for the $100,000 in freight, installation, and testing costs",
+            "input_contextualized_ifrs_default": null,
+            "clarification_question": null,
+            "cases": null,
+            "ambiguous": false
+          }
+        ]
+      }
+    ],
+    "output_complexity_detector": [
+      {
+        "flags": [
+          {
+            "aspect": "PP&E capitalization with multiple cost components",
+            "best_attempt": {
+              "reason": "IAS 16 requires capitalizing all costs directly attributable to bringing the asset to working condition; machinery cost ($700,000) plus freight ($30,000), installation ($20,000), and testing/commissioning ($50,000) totaling $800,000 capitalized to Machinery",
+              "lines": [
+                {
+                  "type": "debit",
+                  "account_name": "Machinery",
+                  "amount": 800000.0
+                },
+                {
+                  "type": "credit",
+                  "account_name": "Accounts Payable",
+                  "amount": 700000.0
+                },
+                {
+                  "type": "credit",
+                  "account_name": "Cash",
+                  "amount": 100000.0
+                }
+              ]
+            },
+            "gap": null,
+            "beyond_llm_capability": false
+          }
+        ]
+      }
+    ],
+    "output_tax_specialist": [
+      {
+        "reasoning": "Transaction describes machinery purchase and related costs (freight, installation, testing) with no mention of tax anywhere in the text. Although machinery purchases and related services are taxable supplies, tax is not stated.",
+        "tax_mentioned": false,
+        "taxable": true,
+        "add_tax_lines": false,
+        "tax_rate": null,
+        "tax_amount": null,
+        "treatment": "not_applicable"
+      }
+    ],
+    "output_decision_maker": [
+      {
+        "ambiguities": [
+          {
+            "aspect": "Payment method for machinery",
+            "input_contextualized_conventional_default": "'on account' = accounts payable for the $700,000 machinery purchase",
+            "input_contextualized_ifrs_default": null,
+            "clarification_question": null,
+            "cases": null,
+            "ambiguous": false
+          },
+          {
+            "aspect": "Capitalization of ancillary costs",
+            "input_contextualized_conventional_default": null,
+            "input_contextualized_ifrs_default": "IAS 16.16-17: costs directly attributable to bringing the asset to working condition (freight, installation, testing/commissioning) are capitalized as part of the asset cost",
+            "clarification_question": null,
+            "cases": null,
+            "ambiguous": false
+          },
+          {
+            "aspect": "Payment method for ancillary costs",
+            "input_contextualized_conventional_default": "'paid by cheque' = cash payment for the $100,000 in freight, installation, and testing costs",
+            "input_contextualized_ifrs_default": null,
+            "clarification_question": null,
+            "cases": null,
+            "ambiguous": false
+          }
+        ],
+        "complexity_flags": [
+          {
+            "aspect": "PP&E capitalization with multiple cost components",
+            "best_attempt": {
+              "reason": "IAS 16 requires capitalizing all costs directly attributable to bringing the asset to working condition; machinery cost ($700,000) plus freight ($30,000), installation ($20,000), and testing/commissioning ($50,000) totaling $800,000 capitalized to Machinery",
+              "lines": [
+                {
+                  "type": "debit",
+                  "account_name": "Machinery",
+                  "amount": 800000.0
+                },
+                {
+                  "type": "credit",
+                  "account_name": "Accounts Payable",
+                  "amount": 700000.0
+                },
+                {
+                  "type": "credit",
+                  "account_name": "Cash",
+                  "amount": 100000.0
+                }
+              ]
+            },
+            "gap": null,
+            "beyond_llm_capability": false
+          }
+        ],
+        "proceed_reason": "Conventional terms resolve payment methods and IFRS IAS 16 clearly requires capitalizing freight, installation, and testing costs as part of the machinery asset.",
+        "clarification_questions": null,
+        "stuck_reason": null,
+        "overall_final_rationale": "All amounts are stated, payment methods are clear ('on account' and 'paid by cheque'), and IFRS requires capitalizing directly attributable costs to PP&E, making this transaction fully resolvable.",
+        "decision": "PROCEED"
+      }
+    ],
+    "output_entry_drafter": [
+      {
+        "reason": "Machinery acquired on account with freight, installation, and testing costs capitalized and paid by cash",
+        "lines": [
+          {
+            "type": "debit",
+            "account_name": "Machinery",
+            "amount": 800000.0
+          },
+          {
+            "type": "credit",
+            "account_name": "Trade payables",
+            "amount": 700000.0
+          },
+          {
+            "type": "credit",
+            "account_name": "Cash and cash equivalents",
+            "amount": 100000.0
+          }
+        ]
+      }
+    ],
+    "output_disambiguator": [
+      {
+        "ambiguities": [
+          {
+            "aspect": "Payment method for machinery",
+            "input_contextualized_conventional_default": "'on account' = accounts payable for the $700,000 machinery purchase",
+            "input_contextualized_ifrs_default": null,
+            "clarification_question": null,
+            "cases": null,
+            "ambiguous": false
+          },
+          {
+            "aspect": "Capitalization of ancillary costs",
+            "input_contextualized_conventional_default": null,
+            "input_contextualized_ifrs_default": "IAS 16.16-17: costs directly attributable to bringing the asset to working condition (freight, installation, testing/commissioning) are capitalized as part of the asset cost",
+            "clarification_question": null,
+            "cases": null,
+            "ambiguous": false
+          },
+          {
+            "aspect": "Payment method for ancillary costs",
+            "input_contextualized_conventional_default": "'paid by cheque' = cash payment for the $100,000 in freight, installation, and testing costs",
+            "input_contextualized_ifrs_default": null,
+            "clarification_question": null,
+            "cases": null,
+            "ambiguous": false
+          }
+        ]
+      }
+    ],
+    "output_debit_classifier": [
+      {
+        "asset_increase": [
+          {
+            "reason": "Machinery purchased with freight, installation, testing and commissioning costs capitalized as part of asset cost",
+            "category": "Machinery",
+            "count": 1
+          }
+        ],
+        "expense_increase": [],
+        "liability_decrease": [],
+        "equity_decrease": [],
+        "revenue_decrease": [],
+        "tuple": [
+          1,
+          0,
+          0,
+          0,
+          0
+        ]
+      }
+    ],
+    "output_credit_classifier": [
+      {
+        "liability_increase": [
+          {
+            "reason": "Machinery purchased on credit from Ford",
+            "category": "Trade payables",
+            "count": 1
+          }
+        ],
+        "equity_increase": [],
+        "revenue_increase": [],
+        "asset_decrease": [
+          {
+            "reason": "Cash paid for freight, installation, and testing costs related to machinery acquisition",
+            "category": "Cash and cash equivalents",
+            "count": 1
+          }
+        ],
+        "expense_decrease": [],
+        "tuple": [
+          1,
+          0,
+          0,
+          1,
+          0
+        ]
+      }
+    ],
+    "output_debit_corrector": [],
+    "output_credit_corrector": [],
+    "output_entry_builder": [],
+    "output_approver": [],
+    "output_diagnostician": [],
+    "status_ambiguity_detector": 1,
+    "status_complexity_detector": 1,
+    "status_tax_specialist": 1,
+    "status_decision_maker": 1,
+    "status_entry_drafter": 1,
+    "status_disambiguator": 1,
+    "status_debit_classifier": 1,
+    "status_credit_classifier": 1,
+    "status_debit_corrector": 0,
+    "status_credit_corrector": 0,
+    "status_entry_builder": 0,
+    "status_approver": 0,
+    "status_diagnostician": 0,
+    "fix_context_disambiguator": [],
+    "fix_context_debit_classifier": [],
+    "fix_context_credit_classifier": [],
+    "fix_context_debit_corrector": [],
+    "fix_context_credit_corrector": [],
+    "fix_context_entry_builder": [],
+    "fix_context_approver": [],
+    "fix_context_diagnostician": [],
+    "decision": "APPROVED",
+    "validation_error": null,
+    "llm_calls": [
+      {
+        "node": "debit_classifier",
+        "stop_reason": "tool_use",
+        "input_tokens": 523,
+        "output_tokens": 162,
+        "input_token_details": {
+          "cache_read": 4282,
+          "cache_creation": 0
+        }
+      },
+      {
+        "node": "tax_specialist",
+        "stop_reason": "tool_use",
+        "input_tokens": 545,
+        "output_tokens": 148,
+        "input_token_details": {
+          "cache_read": 3277,
+          "cache_creation": 0
+        }
+      },
+      {
+        "node": "credit_classifier",
+        "stop_reason": "tool_use",
+        "input_tokens": 520,
+        "output_tokens": 198,
+        "input_token_details": {
+          "cache_read": 4203,
+          "cache_creation": 0
+        }
+      },
+      {
+        "node": "unknown",
+        "stop_reason": "tool_use",
+        "input_tokens": 579,
+        "output_tokens": 577,
+        "input_token_details": {
+          "cache_read": 4550,
+          "cache_creation": 0
+        }
+      },
+      {
+        "node": "entry_drafter",
+        "stop_reason": "tool_use",
+        "input_tokens": 1021,
+        "output_tokens": 130,
+        "input_token_details": {
+          "cache_read": 3405,
+          "cache_creation": 0
+        }
+      },
+      {
+        "node": "entry_drafter",
+        "stop_reason": "tool_use",
+        "input_tokens": 1187,
+        "output_tokens": 180,
+        "input_token_details": {
+          "cache_read": 3345,
+          "cache_creation": 0
+        }
+      }
+    ],
+    "stop_reasons": {
+      "debit_classifier": "tool_use",
+      "tax_specialist": "tool_use",
+      "credit_classifier": "tool_use",
+      "unknown": "tool_use",
+      "entry_drafter": "tool_use"
+    }
+  }
+}

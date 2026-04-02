@@ -1,0 +1,70 @@
+{
+  "evaluator": "claude",
+  "evaluated_at": "2026-04-01T00:00:00Z",
+  "prompt_version": "v4",
+  "results": {
+    "hard_01": {
+      "actual_decision": "INCOMPLETE_INFORMATION",
+      "actual_questions": [
+        "Was this a sale of the note receivable (derecognition) or a secured borrowing with the note as collateral?"
+      ],
+      "expected_cases": [
+        "Derecognition",
+        "Collateralized borrowing"
+      ],
+      "relevant": true,
+      "reason": "Decision is INCOMPLETE_INFORMATION. Question directly distinguishes derecognition vs collateralized borrowing. It asks about the nature of the transaction (a business fact: did the entity sell the note or pledge it as collateral?) rather than prescribing accounting treatment."
+    },
+    "hard_02": {
+      "actual_decision": "INCOMPLETE_INFORMATION",
+      "actual_questions": [
+        "How does BlackRock intend to classify this investment: at fair value through profit or loss (FVTPL), fair value through other comprehensive income (FVOCI), or using the equity method (significant influence)?"
+      ],
+      "expected_cases": [
+        "FVTPL",
+        "FVOCI",
+        "Equity method"
+      ],
+      "relevant": false,
+      "reason": "Decision is INCOMPLETE_INFORMATION and all three expected interpretations are distinguished. However, the question asks how the entity intends to classify the investment (an accounting treatment choice) rather than asking the underlying business facts that would drive classification, such as whether BlackRock exercises significant influence or whether the shares are held for trading vs strategic purposes."
+    },
+    "hard_16": {
+      "actual_decision": "INCOMPLETE_INFORMATION",
+      "actual_questions": [
+        "Does the company elect the IFRS 16 short-term lease exemption to expense this rent immediately, or should it be recorded as a prepaid asset?"
+      ],
+      "expected_cases": [
+        "Prepaid asset",
+        "Immediate expense (IFRS 16)"
+      ],
+      "relevant": false,
+      "reason": "Decision is INCOMPLETE_INFORMATION and both interpretations (prepaid asset vs immediate expense) are distinguished. However, the question directly asks about the IFRS 16 accounting policy election rather than eliciting business facts such as the total lease term or the company's existing accounting policy for advance payments."
+    },
+    "hard_27": {
+      "actual_decision": "INCOMPLETE_INFORMATION",
+      "actual_questions": [
+        "What was the business purpose of this meal?"
+      ],
+      "expected_cases": [
+        "Overtime meal",
+        "Working meeting",
+        "Client entertainment",
+        "Factory staff meal"
+      ],
+      "relevant": true,
+      "reason": "Decision is INCOMPLETE_INFORMATION. Question asks a direct business-fact question about the purpose of the meal. The pipeline's cases (client entertainment, travel, team meeting) cover the key interpretations. The question would elicit the factual context needed to distinguish all four expected scenarios."
+    },
+    "hard_32": {
+      "actual_decision": "INCOMPLETE_INFORMATION",
+      "actual_questions": [
+        "What was the business purpose of this purchase (e.g., office supplies for employee use, client entertainment, meeting refreshments)?"
+      ],
+      "expected_cases": [
+        "Client entertainment",
+        "Employee break room supplies"
+      ],
+      "relevant": true,
+      "reason": "Decision is INCOMPLETE_INFORMATION. Question asks about the business purpose (a factual matter) and explicitly distinguishes employee use, client entertainment, and meeting refreshments. This cleanly covers the expected client entertainment vs employee break room supplies ambiguity."
+    }
+  }
+}

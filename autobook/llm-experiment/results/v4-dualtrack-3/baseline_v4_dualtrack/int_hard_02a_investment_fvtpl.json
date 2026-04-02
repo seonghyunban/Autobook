@@ -1,0 +1,528 @@
+{
+  "test_case_id": "int_hard_02a_investment_fvtpl",
+  "variant_name": "baseline_v4_dualtrack",
+  "model": "sonnet",
+  "debit_tuple_exact_match": true,
+  "credit_tuple_exact_match": true,
+  "debit_tuple_slot_accuracy": 0.8333333333333334,
+  "credit_tuple_slot_accuracy": 0.8333333333333334,
+  "entry_valid": true,
+  "debit_tuple": [
+    1,
+    1,
+    0,
+    0,
+    0
+  ],
+  "credit_tuple": [
+    0,
+    0,
+    0,
+    1,
+    0
+  ],
+  "journal_entry": {
+    "reason": "Acquired Ford shares classified as FVTPL at cost, expensed transaction fee per IFRS 9, and paid total cash consideration",
+    "lines": [
+      {
+        "type": "debit",
+        "account_name": "Investments \u2014 FVTPL",
+        "amount": 3000000.0
+      },
+      {
+        "type": "debit",
+        "account_name": "Professional Fees Expense",
+        "amount": 100000.0
+      },
+      {
+        "type": "credit",
+        "account_name": "Cash and Cash Equivalents",
+        "amount": 3100000.0
+      }
+    ]
+  },
+  "actual_cost_usd": 0.0353847,
+  "raw_cost_usd": 0.089436,
+  "total_latency_ms": 13354,
+  "total_input_tokens": 23322,
+  "total_output_tokens": 1298,
+  "total_llm_calls": 5,
+  "iteration_count": 1,
+  "final_decision": "APPROVED",
+  "fix_attempted": null,
+  "fix_succeeded": null,
+  "agent_metrics": {
+    "credit_classifier": {
+      "input_tokens": 521,
+      "output_tokens": 153,
+      "cache_read_tokens": 4212,
+      "cache_write_tokens": 0,
+      "total_input_tokens": 4733,
+      "llm_calls": 1,
+      "actual_cost_usd": 0.0051216000000000005,
+      "raw_cost_usd": 0.016494,
+      "output": {
+        "liability_increase": [],
+        "equity_increase": [],
+        "revenue_increase": [],
+        "asset_decrease": [
+          {
+            "reason": "Cash paid for investment acquisition and transaction fee",
+            "category": "Cash and cash equivalents",
+            "count": 1
+          }
+        ],
+        "expense_decrease": [],
+        "tuple": [
+          0,
+          0,
+          0,
+          1,
+          0
+        ]
+      },
+      "reason": null
+    },
+    "debit_classifier": {
+      "input_tokens": 524,
+      "output_tokens": 210,
+      "cache_read_tokens": 4291,
+      "cache_write_tokens": 0,
+      "total_input_tokens": 4815,
+      "llm_calls": 1,
+      "actual_cost_usd": 0.0060093,
+      "raw_cost_usd": 0.017595,
+      "output": {
+        "asset_increase": [
+          {
+            "reason": "Acquired Ford shares classified as FVTPL investment",
+            "category": "Investments \u2014 FVTPL",
+            "count": 1
+          }
+        ],
+        "expense_increase": [
+          {
+            "reason": "Transaction fee on FVTPL investment expensed per IFRS 9",
+            "category": "Professional fees expense",
+            "count": 1
+          }
+        ],
+        "liability_decrease": [],
+        "equity_decrease": [],
+        "revenue_decrease": [],
+        "tuple": [
+          1,
+          1,
+          0,
+          0,
+          0
+        ]
+      },
+      "reason": null
+    },
+    "tax_specialist": {
+      "input_tokens": 563,
+      "output_tokens": 197,
+      "cache_read_tokens": 3455,
+      "cache_write_tokens": 0,
+      "total_input_tokens": 4018,
+      "llm_calls": 1,
+      "actual_cost_usd": 0.0056805,
+      "raw_cost_usd": 0.015009,
+      "output": {
+        "reasoning": "Transaction involves acquisition of equity investment (shares) and transaction fee. Equity investments are not taxable supplies. Transaction fees for FVTPL investments are expensed (per IFRS rules), but no tax is mentioned in the text.",
+        "tax_mentioned": false,
+        "taxable": false,
+        "tax_context": null,
+        "tax_rate": null,
+        "add_tax_lines": false,
+        "treatment": "not_applicable"
+      },
+      "reason": null
+    },
+    "unknown": {
+      "input_tokens": 580,
+      "output_tokens": 534,
+      "cache_read_tokens": 4550,
+      "cache_write_tokens": 0,
+      "total_input_tokens": 5130,
+      "llm_calls": 1,
+      "actual_cost_usd": 0.011115,
+      "raw_cost_usd": 0.0234,
+      "output": null,
+      "reason": null
+    },
+    "entry_drafter": {
+      "input_tokens": 1115,
+      "output_tokens": 204,
+      "cache_read_tokens": 3511,
+      "cache_write_tokens": 0,
+      "total_input_tokens": 4626,
+      "llm_calls": 1,
+      "actual_cost_usd": 0.0074583,
+      "raw_cost_usd": 0.016938,
+      "output": {
+        "reason": "Acquired Ford shares classified as FVTPL at cost, expensed transaction fee per IFRS 9, and paid total cash consideration",
+        "lines": [
+          {
+            "type": "debit",
+            "account_name": "Investments \u2014 FVTPL",
+            "amount": 3000000.0
+          },
+          {
+            "type": "debit",
+            "account_name": "Professional Fees Expense",
+            "amount": 100000.0
+          },
+          {
+            "type": "credit",
+            "account_name": "Cash and Cash Equivalents",
+            "amount": 3100000.0
+          }
+        ]
+      },
+      "reason": "Acquired Ford shares classified as FVTPL at cost, expensed transaction fee per IFRS 9, and paid total cash consideration"
+    }
+  },
+  "pre_fix_debit_tuple": null,
+  "post_fix_debit_tuple": null,
+  "pre_fix_credit_tuple": null,
+  "post_fix_credit_tuple": null,
+  "fix_root_cause_agent": null,
+  "rejection_reason": null,
+  "diagnostician_decision": null,
+  "validation_error": null,
+  "decision_correct": true,
+  "entry_match": null,
+  "clarification_correct": null,
+  "clarification_questions": null,
+  "ambiguous": false,
+  "tier": "intermediate",
+  "error": null,
+  "pipeline_state": {
+    "iteration": 0,
+    "output_ambiguity_detector": [
+      {
+        "ambiguities": [
+          {
+            "aspect": "Classification of investment",
+            "input_contextualized_conventional_default": null,
+            "input_contextualized_ifrs_default": "Management explicitly states FVTPL classification under IFRS 9 \u2014 this is definitive per source of truth rules.",
+            "clarification_question": null,
+            "cases": null,
+            "ambiguous": false
+          },
+          {
+            "aspect": "Treatment of transaction costs",
+            "input_contextualized_conventional_default": null,
+            "input_contextualized_ifrs_default": "FVTPL investments: transaction costs are expensed when incurred (IAS 39/IFRS 9).",
+            "clarification_question": null,
+            "cases": null,
+            "ambiguous": false
+          },
+          {
+            "aspect": "Payment method",
+            "input_contextualized_conventional_default": "'by cheque' = cash payment at the stated amount.",
+            "input_contextualized_ifrs_default": null,
+            "clarification_question": null,
+            "cases": null,
+            "ambiguous": false
+          }
+        ]
+      }
+    ],
+    "output_complexity_detector": [
+      {
+        "flags": [
+          {
+            "aspect": "Investment acquisition with transaction costs under FVTPL",
+            "best_attempt": {
+              "reason": "FVTPL investment recorded at acquisition cost of $3,000,000; transaction fee of $100,000 expensed per IFRS 9 rules for FVTPL investments.",
+              "lines": [
+                {
+                  "type": "debit",
+                  "account_name": "Investment in Ford (FVTPL)",
+                  "amount": 3000000.0
+                },
+                {
+                  "type": "debit",
+                  "account_name": "Transaction Costs Expense",
+                  "amount": 100000.0
+                },
+                {
+                  "type": "credit",
+                  "account_name": "Cash",
+                  "amount": 3100000.0
+                }
+              ]
+            },
+            "gap": null,
+            "beyond_llm_capability": false
+          }
+        ]
+      }
+    ],
+    "output_tax_specialist": [
+      {
+        "reasoning": "Transaction involves acquisition of equity investment (shares) and transaction fee. Equity investments are not taxable supplies. Transaction fees for FVTPL investments are expensed (per IFRS rules), but no tax is mentioned in the text.",
+        "tax_mentioned": false,
+        "taxable": false,
+        "tax_context": null,
+        "tax_rate": null,
+        "add_tax_lines": false,
+        "treatment": "not_applicable"
+      }
+    ],
+    "output_decision_maker": [
+      {
+        "ambiguities": [
+          {
+            "aspect": "Classification of investment",
+            "input_contextualized_conventional_default": null,
+            "input_contextualized_ifrs_default": "Management explicitly states FVTPL classification under IFRS 9 \u2014 this is definitive per source of truth rules.",
+            "clarification_question": null,
+            "cases": null,
+            "ambiguous": false
+          },
+          {
+            "aspect": "Treatment of transaction costs",
+            "input_contextualized_conventional_default": null,
+            "input_contextualized_ifrs_default": "FVTPL investments: transaction costs are expensed when incurred (IAS 39/IFRS 9).",
+            "clarification_question": null,
+            "cases": null,
+            "ambiguous": false
+          },
+          {
+            "aspect": "Payment method",
+            "input_contextualized_conventional_default": "'by cheque' = cash payment at the stated amount.",
+            "input_contextualized_ifrs_default": null,
+            "clarification_question": null,
+            "cases": null,
+            "ambiguous": false
+          }
+        ],
+        "complexity_flags": [
+          {
+            "aspect": "Investment acquisition with transaction costs under FVTPL",
+            "best_attempt": {
+              "reason": "FVTPL investment recorded at acquisition cost of $3,000,000; transaction fee of $100,000 expensed per IFRS 9 rules for FVTPL investments.",
+              "lines": [
+                {
+                  "type": "debit",
+                  "account_name": "Investment in Ford (FVTPL)",
+                  "amount": 3000000.0
+                },
+                {
+                  "type": "debit",
+                  "account_name": "Transaction Costs Expense",
+                  "amount": 100000.0
+                },
+                {
+                  "type": "credit",
+                  "account_name": "Cash",
+                  "amount": 3100000.0
+                }
+              ]
+            },
+            "gap": null,
+            "beyond_llm_capability": false
+          }
+        ],
+        "proceed_reason": "Management's stated FVTPL classification and IFRS rules for transaction cost treatment provide complete resolution.",
+        "clarification_questions": null,
+        "stuck_reason": null,
+        "overall_final_rationale": "All aspects are resolved: FVTPL classification is explicitly stated by management, IFRS rules require transaction costs to be expensed for FVTPL investments, and payment method is clear.",
+        "decision": "PROCEED"
+      }
+    ],
+    "output_entry_drafter": [
+      {
+        "reason": "Acquired Ford shares classified as FVTPL at cost, expensed transaction fee per IFRS 9, and paid total cash consideration",
+        "lines": [
+          {
+            "type": "debit",
+            "account_name": "Investments \u2014 FVTPL",
+            "amount": 3000000.0
+          },
+          {
+            "type": "debit",
+            "account_name": "Professional Fees Expense",
+            "amount": 100000.0
+          },
+          {
+            "type": "credit",
+            "account_name": "Cash and Cash Equivalents",
+            "amount": 3100000.0
+          }
+        ]
+      }
+    ],
+    "output_disambiguator": [
+      {
+        "ambiguities": [
+          {
+            "aspect": "Classification of investment",
+            "input_contextualized_conventional_default": null,
+            "input_contextualized_ifrs_default": "Management explicitly states FVTPL classification under IFRS 9 \u2014 this is definitive per source of truth rules.",
+            "clarification_question": null,
+            "cases": null,
+            "ambiguous": false
+          },
+          {
+            "aspect": "Treatment of transaction costs",
+            "input_contextualized_conventional_default": null,
+            "input_contextualized_ifrs_default": "FVTPL investments: transaction costs are expensed when incurred (IAS 39/IFRS 9).",
+            "clarification_question": null,
+            "cases": null,
+            "ambiguous": false
+          },
+          {
+            "aspect": "Payment method",
+            "input_contextualized_conventional_default": "'by cheque' = cash payment at the stated amount.",
+            "input_contextualized_ifrs_default": null,
+            "clarification_question": null,
+            "cases": null,
+            "ambiguous": false
+          }
+        ]
+      }
+    ],
+    "output_debit_classifier": [
+      {
+        "asset_increase": [
+          {
+            "reason": "Acquired Ford shares classified as FVTPL investment",
+            "category": "Investments \u2014 FVTPL",
+            "count": 1
+          }
+        ],
+        "expense_increase": [
+          {
+            "reason": "Transaction fee on FVTPL investment expensed per IFRS 9",
+            "category": "Professional fees expense",
+            "count": 1
+          }
+        ],
+        "liability_decrease": [],
+        "equity_decrease": [],
+        "revenue_decrease": [],
+        "tuple": [
+          1,
+          1,
+          0,
+          0,
+          0
+        ]
+      }
+    ],
+    "output_credit_classifier": [
+      {
+        "liability_increase": [],
+        "equity_increase": [],
+        "revenue_increase": [],
+        "asset_decrease": [
+          {
+            "reason": "Cash paid for investment acquisition and transaction fee",
+            "category": "Cash and cash equivalents",
+            "count": 1
+          }
+        ],
+        "expense_decrease": [],
+        "tuple": [
+          0,
+          0,
+          0,
+          1,
+          0
+        ]
+      }
+    ],
+    "output_debit_corrector": [],
+    "output_credit_corrector": [],
+    "output_entry_builder": [],
+    "output_approver": [],
+    "output_diagnostician": [],
+    "status_ambiguity_detector": 1,
+    "status_complexity_detector": 1,
+    "status_tax_specialist": 1,
+    "status_decision_maker": 1,
+    "status_entry_drafter": 1,
+    "status_disambiguator": 1,
+    "status_debit_classifier": 1,
+    "status_credit_classifier": 1,
+    "status_debit_corrector": 0,
+    "status_credit_corrector": 0,
+    "status_entry_builder": 0,
+    "status_approver": 0,
+    "status_diagnostician": 0,
+    "fix_context_disambiguator": [],
+    "fix_context_debit_classifier": [],
+    "fix_context_credit_classifier": [],
+    "fix_context_debit_corrector": [],
+    "fix_context_credit_corrector": [],
+    "fix_context_entry_builder": [],
+    "fix_context_approver": [],
+    "fix_context_diagnostician": [],
+    "decision": "APPROVED",
+    "validation_error": null,
+    "llm_calls": [
+      {
+        "node": "credit_classifier",
+        "stop_reason": "tool_use",
+        "input_tokens": 521,
+        "output_tokens": 153,
+        "input_token_details": {
+          "cache_read": 4212,
+          "cache_creation": 0
+        }
+      },
+      {
+        "node": "debit_classifier",
+        "stop_reason": "tool_use",
+        "input_tokens": 524,
+        "output_tokens": 210,
+        "input_token_details": {
+          "cache_read": 4291,
+          "cache_creation": 0
+        }
+      },
+      {
+        "node": "tax_specialist",
+        "stop_reason": "tool_use",
+        "input_tokens": 563,
+        "output_tokens": 197,
+        "input_token_details": {
+          "cache_read": 3455,
+          "cache_creation": 0
+        }
+      },
+      {
+        "node": "unknown",
+        "stop_reason": "tool_use",
+        "input_tokens": 580,
+        "output_tokens": 534,
+        "input_token_details": {
+          "cache_read": 4550,
+          "cache_creation": 0
+        }
+      },
+      {
+        "node": "entry_drafter",
+        "stop_reason": "tool_use",
+        "input_tokens": 1115,
+        "output_tokens": 204,
+        "input_token_details": {
+          "cache_read": 3511,
+          "cache_creation": 0
+        }
+      }
+    ],
+    "stop_reasons": {
+      "credit_classifier": "tool_use",
+      "debit_classifier": "tool_use",
+      "tax_specialist": "tool_use",
+      "unknown": "tool_use",
+      "entry_drafter": "tool_use"
+    }
+  }
+}

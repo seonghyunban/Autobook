@@ -1,0 +1,537 @@
+{
+  "test_case_id": "int_12_site_improvements",
+  "variant_name": "baseline_v4_dualtrack",
+  "model": "sonnet",
+  "debit_tuple_exact_match": true,
+  "credit_tuple_exact_match": true,
+  "debit_tuple_slot_accuracy": 0.8333333333333334,
+  "credit_tuple_slot_accuracy": 0.8333333333333334,
+  "entry_valid": true,
+  "debit_tuple": [
+    2,
+    0,
+    0,
+    0,
+    0
+  ],
+  "credit_tuple": [
+    0,
+    0,
+    0,
+    2,
+    0
+  ],
+  "journal_entry": {
+    "reason": "Site improvements (fencing, streetlights, walkways) capitalized as depreciable PP&E and permanent landscaping capitalized as Land, paid by cash and cheque respectively.",
+    "lines": [
+      {
+        "type": "debit",
+        "account_name": "Site improvements",
+        "amount": 1750000.0
+      },
+      {
+        "type": "debit",
+        "account_name": "Land",
+        "amount": 2360000.0
+      },
+      {
+        "type": "credit",
+        "account_name": "Cash",
+        "amount": 1750000.0
+      },
+      {
+        "type": "credit",
+        "account_name": "Cash \u2014 chequing",
+        "amount": 2360000.0
+      }
+    ]
+  },
+  "actual_cost_usd": 0.034359,
+  "raw_cost_usd": 0.09492,
+  "total_latency_ms": 26481,
+  "total_input_tokens": 25805,
+  "total_output_tokens": 1167,
+  "total_llm_calls": 5,
+  "iteration_count": 1,
+  "final_decision": "APPROVED",
+  "fix_attempted": null,
+  "fix_succeeded": null,
+  "agent_metrics": {
+    "tax_specialist": {
+      "input_tokens": 556,
+      "output_tokens": 190,
+      "cache_read_tokens": 3726,
+      "cache_write_tokens": 0,
+      "total_input_tokens": 4282,
+      "llm_calls": 1,
+      "actual_cost_usd": 0.0056358,
+      "raw_cost_usd": 0.015696,
+      "output": {
+        "reasoning": "Transaction describes construction and landscaping costs for factory site improvements. No tax is mentioned in the text. Although these are taxable supplies (construction services and goods), tax lines should not be added when tax is not stated.",
+        "tax_mentioned": false,
+        "taxable": true,
+        "tax_context": null,
+        "tax_rate": null,
+        "add_tax_lines": false,
+        "treatment": "not_applicable"
+      },
+      "reason": null
+    },
+    "unknown": {
+      "input_tokens": 573,
+      "output_tokens": 499,
+      "cache_read_tokens": 4821,
+      "cache_write_tokens": 0,
+      "total_input_tokens": 5394,
+      "llm_calls": 1,
+      "actual_cost_usd": 0.0106503,
+      "raw_cost_usd": 0.023667,
+      "output": null,
+      "reason": null
+    },
+    "credit_classifier": {
+      "input_tokens": 514,
+      "output_tokens": 183,
+      "cache_read_tokens": 4657,
+      "cache_write_tokens": 0,
+      "total_input_tokens": 5171,
+      "llm_calls": 1,
+      "actual_cost_usd": 0.0056841,
+      "raw_cost_usd": 0.018258,
+      "output": {
+        "liability_increase": [],
+        "equity_increase": [],
+        "revenue_increase": [],
+        "asset_decrease": [
+          {
+            "reason": "Cash paid for construction of fencing, streetlights, and walkways (site improvements)",
+            "category": "Cash and cash equivalents",
+            "count": 1
+          },
+          {
+            "reason": "Cheque paid for permanent landscaping installations (land)",
+            "category": "Cash and cash equivalents",
+            "count": 1
+          }
+        ],
+        "expense_decrease": [],
+        "tuple": [
+          0,
+          0,
+          0,
+          2,
+          0
+        ]
+      },
+      "reason": null
+    },
+    "debit_classifier": {
+      "input_tokens": 517,
+      "output_tokens": 104,
+      "cache_read_tokens": 4769,
+      "cache_write_tokens": 0,
+      "total_input_tokens": 5286,
+      "llm_calls": 1,
+      "actual_cost_usd": 0.0045417,
+      "raw_cost_usd": 0.017418,
+      "output": {
+        "asset_increase": [
+          {
+            "reason": "Fencing, streetlights, and walkways are depreciable site improvements surrounding the factory",
+            "category": "Site improvements",
+            "count": 1
+          },
+          {
+            "reason": "Permanent landscaping installations are non-depreciable land improvements",
+            "category": "Land",
+            "count": 1
+          }
+        ],
+        "expense_increase": [],
+        "liability_decrease": [],
+        "equity_decrease": [],
+        "revenue_decrease": [],
+        "tuple": [
+          2,
+          0,
+          0,
+          0,
+          0
+        ]
+      },
+      "reason": null
+    },
+    "entry_drafter": {
+      "input_tokens": 1215,
+      "output_tokens": 191,
+      "cache_read_tokens": 4457,
+      "cache_write_tokens": 0,
+      "total_input_tokens": 5672,
+      "llm_calls": 1,
+      "actual_cost_usd": 0.007847100000000001,
+      "raw_cost_usd": 0.019881,
+      "output": {
+        "reason": "Site improvements (fencing, streetlights, walkways) capitalized as depreciable PP&E and permanent landscaping capitalized as Land, paid by cash and cheque respectively.",
+        "lines": [
+          {
+            "type": "debit",
+            "account_name": "Site improvements",
+            "amount": 1750000.0
+          },
+          {
+            "type": "debit",
+            "account_name": "Land",
+            "amount": 2360000.0
+          },
+          {
+            "type": "credit",
+            "account_name": "Cash",
+            "amount": 1750000.0
+          },
+          {
+            "type": "credit",
+            "account_name": "Cash \u2014 chequing",
+            "amount": 2360000.0
+          }
+        ]
+      },
+      "reason": "Site improvements (fencing, streetlights, walkways) capitalized as depreciable PP&E and permanent landscaping capitalized as Land, paid by cash and cheque respectively."
+    }
+  },
+  "pre_fix_debit_tuple": null,
+  "post_fix_debit_tuple": null,
+  "pre_fix_credit_tuple": null,
+  "post_fix_credit_tuple": null,
+  "fix_root_cause_agent": null,
+  "rejection_reason": null,
+  "diagnostician_decision": null,
+  "validation_error": null,
+  "decision_correct": true,
+  "entry_match": null,
+  "clarification_correct": null,
+  "clarification_questions": null,
+  "ambiguous": false,
+  "tier": "intermediate",
+  "error": null,
+  "pipeline_state": {
+    "iteration": 0,
+    "output_ambiguity_detector": [
+      {
+        "ambiguities": [
+          {
+            "aspect": "Classification of fencing, streetlights, and walkways",
+            "input_contextualized_conventional_default": null,
+            "input_contextualized_ifrs_default": "IFRS rule: fencing, walkways, streetlights are site improvements (depreciable PP&E), distinct from land.",
+            "clarification_question": null,
+            "cases": null,
+            "ambiguous": false
+          },
+          {
+            "aspect": "Classification of permanent landscaping installations",
+            "input_contextualized_conventional_default": null,
+            "input_contextualized_ifrs_default": "IFRS rule: permanent landscaping (grading, drainage, established plantings) is classified as Land (non-depreciable).",
+            "clarification_question": null,
+            "cases": null,
+            "ambiguous": false
+          },
+          {
+            "aspect": "Payment method for fencing, streetlights, and walkways",
+            "input_contextualized_conventional_default": "'paid in cash' = cash payment at the stated amount.",
+            "input_contextualized_ifrs_default": null,
+            "clarification_question": null,
+            "cases": null,
+            "ambiguous": false
+          },
+          {
+            "aspect": "Payment method for permanent landscaping",
+            "input_contextualized_conventional_default": "'paid by cheque' = cash payment at the stated amount.",
+            "input_contextualized_ifrs_default": null,
+            "clarification_question": null,
+            "cases": null,
+            "ambiguous": false
+          }
+        ]
+      }
+    ],
+    "output_complexity_detector": [
+      {
+        "flags": [
+          {
+            "aspect": "Multi-component asset classification",
+            "best_attempt": null,
+            "gap": null,
+            "beyond_llm_capability": false
+          }
+        ]
+      }
+    ],
+    "output_tax_specialist": [
+      {
+        "reasoning": "Transaction describes construction and landscaping costs for factory site improvements. No tax is mentioned in the text. Although these are taxable supplies (construction services and goods), tax lines should not be added when tax is not stated.",
+        "tax_mentioned": false,
+        "taxable": true,
+        "tax_context": null,
+        "tax_rate": null,
+        "add_tax_lines": false,
+        "treatment": "not_applicable"
+      }
+    ],
+    "output_decision_maker": [
+      {
+        "ambiguities": [
+          {
+            "aspect": "Classification of fencing, streetlights, and walkways",
+            "input_contextualized_conventional_default": null,
+            "input_contextualized_ifrs_default": "IFRS rule: fencing, walkways, streetlights are site improvements (depreciable PP&E), distinct from land.",
+            "clarification_question": null,
+            "cases": null,
+            "ambiguous": false
+          },
+          {
+            "aspect": "Classification of permanent landscaping installations",
+            "input_contextualized_conventional_default": null,
+            "input_contextualized_ifrs_default": "IFRS rule: permanent landscaping (grading, drainage, established plantings) is classified as Land (non-depreciable).",
+            "clarification_question": null,
+            "cases": null,
+            "ambiguous": false
+          },
+          {
+            "aspect": "Payment method for fencing, streetlights, and walkways",
+            "input_contextualized_conventional_default": "'paid in cash' = cash payment at the stated amount.",
+            "input_contextualized_ifrs_default": null,
+            "clarification_question": null,
+            "cases": null,
+            "ambiguous": false
+          },
+          {
+            "aspect": "Payment method for permanent landscaping",
+            "input_contextualized_conventional_default": "'paid by cheque' = cash payment at the stated amount.",
+            "input_contextualized_ifrs_default": null,
+            "clarification_question": null,
+            "cases": null,
+            "ambiguous": false
+          }
+        ],
+        "complexity_flags": [
+          {
+            "aspect": "Multi-component asset classification",
+            "best_attempt": null,
+            "gap": null,
+            "beyond_llm_capability": false
+          }
+        ],
+        "proceed_reason": "IFRS rules resolve classification: site improvements ($1,750,000) to depreciable PP&E and permanent landscaping ($2,360,000) to Land, with payment methods clearly stated.",
+        "clarification_questions": null,
+        "stuck_reason": null,
+        "overall_final_rationale": "IFRS rules clearly distinguish site improvements (fencing, streetlights, walkways) as depreciable PP&E and permanent landscaping as Land, with stated amounts and payment methods providing all necessary information.",
+        "decision": "PROCEED"
+      }
+    ],
+    "output_entry_drafter": [
+      {
+        "reason": "Site improvements (fencing, streetlights, walkways) capitalized as depreciable PP&E and permanent landscaping capitalized as Land, paid by cash and cheque respectively.",
+        "lines": [
+          {
+            "type": "debit",
+            "account_name": "Site improvements",
+            "amount": 1750000.0
+          },
+          {
+            "type": "debit",
+            "account_name": "Land",
+            "amount": 2360000.0
+          },
+          {
+            "type": "credit",
+            "account_name": "Cash",
+            "amount": 1750000.0
+          },
+          {
+            "type": "credit",
+            "account_name": "Cash \u2014 chequing",
+            "amount": 2360000.0
+          }
+        ]
+      }
+    ],
+    "output_disambiguator": [
+      {
+        "ambiguities": [
+          {
+            "aspect": "Classification of fencing, streetlights, and walkways",
+            "input_contextualized_conventional_default": null,
+            "input_contextualized_ifrs_default": "IFRS rule: fencing, walkways, streetlights are site improvements (depreciable PP&E), distinct from land.",
+            "clarification_question": null,
+            "cases": null,
+            "ambiguous": false
+          },
+          {
+            "aspect": "Classification of permanent landscaping installations",
+            "input_contextualized_conventional_default": null,
+            "input_contextualized_ifrs_default": "IFRS rule: permanent landscaping (grading, drainage, established plantings) is classified as Land (non-depreciable).",
+            "clarification_question": null,
+            "cases": null,
+            "ambiguous": false
+          },
+          {
+            "aspect": "Payment method for fencing, streetlights, and walkways",
+            "input_contextualized_conventional_default": "'paid in cash' = cash payment at the stated amount.",
+            "input_contextualized_ifrs_default": null,
+            "clarification_question": null,
+            "cases": null,
+            "ambiguous": false
+          },
+          {
+            "aspect": "Payment method for permanent landscaping",
+            "input_contextualized_conventional_default": "'paid by cheque' = cash payment at the stated amount.",
+            "input_contextualized_ifrs_default": null,
+            "clarification_question": null,
+            "cases": null,
+            "ambiguous": false
+          }
+        ]
+      }
+    ],
+    "output_debit_classifier": [
+      {
+        "asset_increase": [
+          {
+            "reason": "Fencing, streetlights, and walkways are depreciable site improvements surrounding the factory",
+            "category": "Site improvements",
+            "count": 1
+          },
+          {
+            "reason": "Permanent landscaping installations are non-depreciable land improvements",
+            "category": "Land",
+            "count": 1
+          }
+        ],
+        "expense_increase": [],
+        "liability_decrease": [],
+        "equity_decrease": [],
+        "revenue_decrease": [],
+        "tuple": [
+          2,
+          0,
+          0,
+          0,
+          0
+        ]
+      }
+    ],
+    "output_credit_classifier": [
+      {
+        "liability_increase": [],
+        "equity_increase": [],
+        "revenue_increase": [],
+        "asset_decrease": [
+          {
+            "reason": "Cash paid for construction of fencing, streetlights, and walkways (site improvements)",
+            "category": "Cash and cash equivalents",
+            "count": 1
+          },
+          {
+            "reason": "Cheque paid for permanent landscaping installations (land)",
+            "category": "Cash and cash equivalents",
+            "count": 1
+          }
+        ],
+        "expense_decrease": [],
+        "tuple": [
+          0,
+          0,
+          0,
+          2,
+          0
+        ]
+      }
+    ],
+    "output_debit_corrector": [],
+    "output_credit_corrector": [],
+    "output_entry_builder": [],
+    "output_approver": [],
+    "output_diagnostician": [],
+    "status_ambiguity_detector": 1,
+    "status_complexity_detector": 1,
+    "status_tax_specialist": 1,
+    "status_decision_maker": 1,
+    "status_entry_drafter": 1,
+    "status_disambiguator": 1,
+    "status_debit_classifier": 1,
+    "status_credit_classifier": 1,
+    "status_debit_corrector": 0,
+    "status_credit_corrector": 0,
+    "status_entry_builder": 0,
+    "status_approver": 0,
+    "status_diagnostician": 0,
+    "fix_context_disambiguator": [],
+    "fix_context_debit_classifier": [],
+    "fix_context_credit_classifier": [],
+    "fix_context_debit_corrector": [],
+    "fix_context_credit_corrector": [],
+    "fix_context_entry_builder": [],
+    "fix_context_approver": [],
+    "fix_context_diagnostician": [],
+    "decision": "APPROVED",
+    "validation_error": null,
+    "llm_calls": [
+      {
+        "node": "tax_specialist",
+        "stop_reason": "tool_use",
+        "input_tokens": 556,
+        "output_tokens": 190,
+        "input_token_details": {
+          "cache_read": 3726,
+          "cache_creation": 0
+        }
+      },
+      {
+        "node": "unknown",
+        "stop_reason": "tool_use",
+        "input_tokens": 573,
+        "output_tokens": 499,
+        "input_token_details": {
+          "cache_read": 4821,
+          "cache_creation": 0
+        }
+      },
+      {
+        "node": "credit_classifier",
+        "stop_reason": "tool_use",
+        "input_tokens": 514,
+        "output_tokens": 183,
+        "input_token_details": {
+          "cache_read": 4657,
+          "cache_creation": 0
+        }
+      },
+      {
+        "node": "debit_classifier",
+        "stop_reason": "tool_use",
+        "input_tokens": 517,
+        "output_tokens": 104,
+        "input_token_details": {
+          "cache_read": 4769,
+          "cache_creation": 0
+        }
+      },
+      {
+        "node": "entry_drafter",
+        "stop_reason": "tool_use",
+        "input_tokens": 1215,
+        "output_tokens": 191,
+        "input_token_details": {
+          "cache_read": 4457,
+          "cache_creation": 0
+        }
+      }
+    ],
+    "stop_reasons": {
+      "tax_specialist": "tool_use",
+      "unknown": "tool_use",
+      "credit_classifier": "tool_use",
+      "debit_classifier": "tool_use",
+      "entry_drafter": "tool_use"
+    }
+  }
+}

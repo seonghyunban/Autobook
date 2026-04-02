@@ -1,0 +1,72 @@
+{
+  "evaluator": "claude",
+  "evaluated_at": "2026-04-01T00:00:00Z",
+  "prompt_version": "v4",
+  "results": {
+    "int_03": {
+      "match": true,
+      "tax_relaxed_match": true,
+      "reason": "Dr Machinery $800,000 / Cr Trade payables $700,000 / Cr Cash and cash equivalents $100,000 -- semantically equivalent to expected PP&E Machinery / Trade payables / Cash with exact amounts"
+    },
+    "int_04": {
+      "match": true,
+      "tax_relaxed_match": true,
+      "reason": "Dr Machinery $200,000 / Cr Cash and cash equivalents $200,000 -- semantically equivalent to expected PP&E Machinery / Cash with exact amounts"
+    },
+    "int_05": {
+      "match": true,
+      "tax_relaxed_match": true,
+      "reason": "Dr Cash $2,657,510 / Dr Discount on Bonds Payable $342,490 / Cr Bonds Payable $3,000,000 -- exact amounts match expected; account names semantically equivalent"
+    },
+    "int_06": {
+      "match": true,
+      "tax_relaxed_match": true,
+      "reason": "Dr Warranty expense $900,000 / Cr Warranty provisions $900,000 -- semantically equivalent to expected Warranty expense / Provision for warranties with exact amounts"
+    },
+    "int_07": {
+      "match": false,
+      "tax_relaxed_match": false,
+      "reason": "Debit account is 'Machinery' ($5,950,000) instead of expected 'PP&E Marine structures'; amounts and credits correct but debit account sub-category is wrong -- marine structure is not machinery"
+    },
+    "int_08": {
+      "match": true,
+      "tax_relaxed_match": true,
+      "reason": "Dr Issued capital $50,000 / Dr Retained earnings $10,000 / Cr Cash $60,000 -- 'Issued capital' semantically equivalent to 'Share capital'; exact amounts"
+    },
+    "int_09": {
+      "match": true,
+      "tax_relaxed_match": true,
+      "reason": "Dr Inventories $1,150,000 / Dr Warehousing expense $20,000 / Dr Transportation expense $50,000 / Cr Trade payables $1,000,000 / Cr Cash $220,000 -- 'Transportation expense' semantically equivalent to 'Distribution costs'; all amounts exact"
+    },
+    "int_10": {
+      "match": true,
+      "tax_relaxed_match": true,
+      "reason": "Dr Prepaid expenses $1,000,000 / Cr Cash $1,000,000 -- 'Prepaid expenses' semantically equivalent to 'Prepayments'; exact amounts"
+    },
+    "int_11": {
+      "match": true,
+      "tax_relaxed_match": true,
+      "reason": "Dr Land $49,173,243 / Dr Discount on Notes Payable $10,826,757 / Cr Notes Payable $60,000,000 -- PV differs by $243 from expected $49,173,000 (within ~$250 rounding tolerance); account names semantically equivalent"
+    },
+    "int_12": {
+      "match": false,
+      "tax_relaxed_match": false,
+      "reason": "Debits correct (Site improvements $1,750,000 + Land $2,360,000) but credits merged into single Cr Cash $4,110,000 instead of required two separate lines: Cr Cash $1,750,000 + Cr Cash--chequing $2,360,000"
+    },
+    "int_13": {
+      "match": true,
+      "tax_relaxed_match": true,
+      "reason": "Dr Donations expense $1,000,000 / Cr Notes payable $1,000,000 -- exact match on accounts and amounts"
+    },
+    "int_14": {
+      "match": true,
+      "tax_relaxed_match": true,
+      "reason": "Dr Motor vehicles $40,000 / Cr Cash $20,000 / Cr Notes payable $20,000 -- 'Motor vehicles' semantically equivalent to 'PP&E Vehicles'; exact amounts"
+    },
+    "int_15": {
+      "match": true,
+      "tax_relaxed_match": true,
+      "reason": "Dr Cash $200,000 / Cr Long-term borrowings $200,000 -- exact match on accounts and amounts"
+    }
+  }
+}

@@ -1,0 +1,57 @@
+{
+  "evaluator": "claude",
+  "evaluated_at": "2026-03-31T12:00:00Z",
+  "prompt_version": "v4",
+  "results": {
+    "int_03_machinery_purchase": {
+      "match": true,
+      "tax_relaxed_match": true,
+      "reason": "All 3 lines match: Machinery/PP&E Machinery semantically equivalent, amounts exact ($800k/$700k/$100k), Cash and cash equivalents = Cash."
+    },
+    "int_04_major_overhaul": {
+      "match": true,
+      "tax_relaxed_match": true,
+      "reason": "All 2 lines match: Machinery = PP&E Machinery semantically, amounts exact ($200k/$200k), Cash and cash equivalents = Cash."
+    },
+    "int_05_bond_issuance_discount": {
+      "match": true,
+      "tax_relaxed_match": true,
+      "reason": "All 3 lines match: Cash $2,657,516.24 vs expected $2,657,510 and Discount $342,483.76 vs expected $342,490 are within minor PV rounding tolerance ($6.24); Long-term borrowings = Bonds payable semantically."
+    },
+    "int_06_warranty_provision": {
+      "match": true,
+      "tax_relaxed_match": true,
+      "reason": "All 2 lines match: Warranty expense $900,000 exact, Warranty provisions = Provision for warranties semantically."
+    },
+    "int_07_decommissioning_provision": {
+      "match": true,
+      "tax_relaxed_match": true,
+      "reason": "All 3 lines match: Machinery is a reasonable PP&E sub-account for marine structures, amounts exact ($5,950k/$4,000k/$1,950k), Decommissioning provisions = Decommissioning provision."
+    },
+    "int_08_share_repurchase_cancel": {
+      "match": true,
+      "tax_relaxed_match": true,
+      "reason": "All 3 lines match: Issued capital = Share capital semantically, Retained earnings exact, amounts exact ($50k/$10k/$60k), Cash and cash equivalents = Cash."
+    },
+    "int_09_merchandise_with_costs": {
+      "match": true,
+      "tax_relaxed_match": true,
+      "reason": "All 5 lines match: Inventories - merchandise = Inventories, Transportation expense = Distribution costs (both outbound delivery), Warehousing expense exact, amounts exact ($1,150k/$20k/$50k/$1,000k/$220k)."
+    },
+    "int_10_prepayment": {
+      "match": true,
+      "tax_relaxed_match": true,
+      "reason": "All 2 lines match: Prepaid expenses = Prepayments semantically, amounts exact ($1,000k/$1,000k), Cash and cash equivalents = Cash."
+    },
+    "int_11_land_instalment_discount": {
+      "match": true,
+      "tax_relaxed_match": true,
+      "reason": "All 3 lines match: Land $49,173,243 vs expected $49,173,000 and Discount $10,826,757 vs expected $10,827,000 are within minor PV rounding tolerance ($243); Discount on long-term borrowings = Discount on long-term payables, Long-term borrowings = Long-term payables semantically."
+    },
+    "int_12_site_improvements": {
+      "match": false,
+      "tax_relaxed_match": false,
+      "reason": "Debit side correct (Site improvements $1,750k and Land $2,360k), but credit side has 1 combined Cash line of $4,110k instead of expected 2 separate lines (Cr Cash $1,750k / Cr Cash-chequing $2,360k); line count mismatch (3 vs 4)."
+    }
+  }
+}

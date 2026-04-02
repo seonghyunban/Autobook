@@ -1,0 +1,526 @@
+{
+  "test_case_id": "int_hard_27a_meal_overtime",
+  "variant_name": "baseline_v4_dualtrack",
+  "model": "sonnet",
+  "debit_tuple_exact_match": true,
+  "credit_tuple_exact_match": true,
+  "debit_tuple_slot_accuracy": 0.8333333333333334,
+  "credit_tuple_slot_accuracy": 0.8333333333333334,
+  "entry_valid": true,
+  "debit_tuple": [
+    0,
+    1,
+    0,
+    0,
+    0
+  ],
+  "credit_tuple": [
+    1,
+    0,
+    0,
+    0,
+    0
+  ],
+  "journal_entry": {
+    "reason": "Employee meal benefit for overtime workers paid by corporate credit card, with HST recovery extracted from total payment",
+    "lines": [
+      {
+        "type": "debit",
+        "account_name": "Employee benefits expense",
+        "amount": 110.62
+      },
+      {
+        "type": "debit",
+        "account_name": "Tax assets",
+        "amount": 14.38
+      },
+      {
+        "type": "credit",
+        "account_name": "Accrued liabilities",
+        "amount": 125.0
+      }
+    ]
+  },
+  "actual_cost_usd": 0.0381786,
+  "raw_cost_usd": 0.10044600000000001,
+  "total_latency_ms": 21641,
+  "total_input_tokens": 27062,
+  "total_output_tokens": 1284,
+  "total_llm_calls": 6,
+  "iteration_count": 1,
+  "final_decision": "APPROVED",
+  "fix_attempted": null,
+  "fix_succeeded": null,
+  "agent_metrics": {
+    "debit_classifier": {
+      "input_tokens": 495,
+      "output_tokens": 140,
+      "cache_read_tokens": 4282,
+      "cache_write_tokens": 0,
+      "total_input_tokens": 4777,
+      "llm_calls": 1,
+      "actual_cost_usd": 0.0048696,
+      "raw_cost_usd": 0.016431,
+      "output": {
+        "asset_increase": [],
+        "expense_increase": [
+          {
+            "reason": "Meal provided to overtime employees as employee benefit",
+            "category": "Employee benefits expense",
+            "count": 1
+          }
+        ],
+        "liability_decrease": [],
+        "equity_decrease": [],
+        "revenue_decrease": [],
+        "tuple": [
+          0,
+          1,
+          0,
+          0,
+          0
+        ]
+      },
+      "reason": null
+    },
+    "credit_classifier": {
+      "input_tokens": 492,
+      "output_tokens": 155,
+      "cache_read_tokens": 4203,
+      "cache_write_tokens": 0,
+      "total_input_tokens": 4695,
+      "llm_calls": 1,
+      "actual_cost_usd": 0.005061899999999999,
+      "raw_cost_usd": 0.01641,
+      "output": {
+        "liability_increase": [
+          {
+            "reason": "Corporate credit card used to pay for employee meal",
+            "category": "Accrued liabilities",
+            "count": 1
+          }
+        ],
+        "equity_increase": [],
+        "revenue_increase": [],
+        "asset_decrease": [],
+        "expense_decrease": [],
+        "tuple": [
+          1,
+          0,
+          0,
+          0,
+          0
+        ]
+      },
+      "reason": null
+    },
+    "tax_specialist": {
+      "input_tokens": 517,
+      "output_tokens": 130,
+      "cache_read_tokens": 3277,
+      "cache_write_tokens": 0,
+      "total_input_tokens": 3794,
+      "llm_calls": 1,
+      "actual_cost_usd": 0.0044841,
+      "raw_cost_usd": 0.013332,
+      "output": {
+        "reasoning": "Meal purchase is a taxable supply, but the transaction text does not mention any tax amount or rate",
+        "tax_mentioned": false,
+        "taxable": true,
+        "add_tax_lines": false,
+        "tax_rate": null,
+        "tax_amount": null,
+        "treatment": "not_applicable"
+      },
+      "reason": null
+    },
+    "unknown": {
+      "input_tokens": 551,
+      "output_tokens": 538,
+      "cache_read_tokens": 4550,
+      "cache_write_tokens": 0,
+      "total_input_tokens": 5101,
+      "llm_calls": 1,
+      "actual_cost_usd": 0.011088,
+      "raw_cost_usd": 0.023373,
+      "output": null,
+      "reason": null
+    },
+    "entry_drafter": {
+      "input_tokens": 1945,
+      "output_tokens": 321,
+      "cache_read_tokens": 6750,
+      "cache_write_tokens": 0,
+      "total_input_tokens": 8695,
+      "llm_calls": 2,
+      "actual_cost_usd": 0.012674999999999999,
+      "raw_cost_usd": 0.0309,
+      "output": {
+        "reason": "Employee meal benefit for overtime workers paid by corporate credit card, with HST recovery extracted from total payment",
+        "lines": [
+          {
+            "type": "debit",
+            "account_name": "Employee benefits expense",
+            "amount": 110.62
+          },
+          {
+            "type": "debit",
+            "account_name": "Tax assets",
+            "amount": 14.38
+          },
+          {
+            "type": "credit",
+            "account_name": "Accrued liabilities",
+            "amount": 125.0
+          }
+        ]
+      },
+      "reason": "Employee meal benefit for overtime workers paid by corporate credit card, with HST recovery extracted from total payment"
+    }
+  },
+  "pre_fix_debit_tuple": null,
+  "post_fix_debit_tuple": null,
+  "pre_fix_credit_tuple": null,
+  "post_fix_credit_tuple": null,
+  "fix_root_cause_agent": null,
+  "rejection_reason": null,
+  "diagnostician_decision": null,
+  "validation_error": null,
+  "decision_correct": true,
+  "entry_match": null,
+  "clarification_correct": null,
+  "clarification_questions": null,
+  "ambiguous": false,
+  "tier": "intermediate",
+  "error": null,
+  "pipeline_state": {
+    "iteration": 0,
+    "output_ambiguity_detector": [
+      {
+        "ambiguities": [
+          {
+            "aspect": "Purpose of meal expense",
+            "input_contextualized_conventional_default": "Text explicitly states 'provided to employees working overtime as an employee benefit' \u2014 resolves as Employee Benefits Expense.",
+            "input_contextualized_ifrs_default": null,
+            "clarification_question": null,
+            "cases": null,
+            "ambiguous": false
+          },
+          {
+            "aspect": "Payment method",
+            "input_contextualized_conventional_default": "'using the corporate credit card' = Credit Card Payable liability.",
+            "input_contextualized_ifrs_default": null,
+            "clarification_question": null,
+            "cases": null,
+            "ambiguous": false
+          },
+          {
+            "aspect": "Tax treatment",
+            "input_contextualized_conventional_default": null,
+            "input_contextualized_ifrs_default": "Province ON = 13% HST; buyer-side tax on purchases is recoverable as Input Tax Credit (Tax Asset). $125 stated amount is the total paid, which includes HST.",
+            "clarification_question": null,
+            "cases": null,
+            "ambiguous": false
+          }
+        ]
+      }
+    ],
+    "output_complexity_detector": [
+      {
+        "flags": [
+          {
+            "aspect": "HST extraction from total amount",
+            "best_attempt": {
+              "reason": "Total $125 includes 13% HST; pre-tax amount = $125/1.13 = $110.62, HST = $14.38 recoverable as Input Tax Credit.",
+              "lines": [
+                {
+                  "type": "debit",
+                  "account_name": "Employee Benefits Expense",
+                  "amount": 110.62
+                },
+                {
+                  "type": "debit",
+                  "account_name": "HST Receivable",
+                  "amount": 14.38
+                },
+                {
+                  "type": "credit",
+                  "account_name": "Credit Card Payable",
+                  "amount": 125.0
+                }
+              ]
+            },
+            "gap": null,
+            "beyond_llm_capability": false
+          }
+        ]
+      }
+    ],
+    "output_tax_specialist": [
+      {
+        "reasoning": "Meal purchase is a taxable supply, but the transaction text does not mention any tax amount or rate",
+        "tax_mentioned": false,
+        "taxable": true,
+        "add_tax_lines": false,
+        "tax_rate": null,
+        "tax_amount": null,
+        "treatment": "not_applicable"
+      }
+    ],
+    "output_decision_maker": [
+      {
+        "ambiguities": [
+          {
+            "aspect": "Purpose of meal expense",
+            "input_contextualized_conventional_default": "Text explicitly states 'provided to employees working overtime as an employee benefit' \u2014 resolves as Employee Benefits Expense.",
+            "input_contextualized_ifrs_default": null,
+            "clarification_question": null,
+            "cases": null,
+            "ambiguous": false
+          },
+          {
+            "aspect": "Payment method",
+            "input_contextualized_conventional_default": "'using the corporate credit card' = Credit Card Payable liability.",
+            "input_contextualized_ifrs_default": null,
+            "clarification_question": null,
+            "cases": null,
+            "ambiguous": false
+          },
+          {
+            "aspect": "Tax treatment",
+            "input_contextualized_conventional_default": null,
+            "input_contextualized_ifrs_default": "Province ON = 13% HST; buyer-side tax on purchases is recoverable as Input Tax Credit (Tax Asset). $125 stated amount is the total paid, which includes HST.",
+            "clarification_question": null,
+            "cases": null,
+            "ambiguous": false
+          }
+        ],
+        "complexity_flags": [
+          {
+            "aspect": "HST extraction from total amount",
+            "best_attempt": {
+              "reason": "Total $125 includes 13% HST; pre-tax amount = $125/1.13 = $110.62, HST = $14.38 recoverable as Input Tax Credit.",
+              "lines": [
+                {
+                  "type": "debit",
+                  "account_name": "Employee Benefits Expense",
+                  "amount": 110.62
+                },
+                {
+                  "type": "debit",
+                  "account_name": "HST Receivable",
+                  "amount": 14.38
+                },
+                {
+                  "type": "credit",
+                  "account_name": "Credit Card Payable",
+                  "amount": 125.0
+                }
+              ]
+            },
+            "gap": null,
+            "beyond_llm_capability": false
+          }
+        ],
+        "proceed_reason": "Text explicitly states the meal was an employee benefit for overtime workers, resolving the expense classification, and ON province allows HST recovery computation.",
+        "clarification_questions": null,
+        "stuck_reason": null,
+        "overall_final_rationale": "The transaction explicitly states the business purpose (employee benefit for overtime workers), payment method (corporate credit card), and province (ON) allows HST recovery calculation \u2014 all aspects are resolved.",
+        "decision": "PROCEED"
+      }
+    ],
+    "output_entry_drafter": [
+      {
+        "reason": "Employee meal benefit for overtime workers paid by corporate credit card, with HST recovery extracted from total payment",
+        "lines": [
+          {
+            "type": "debit",
+            "account_name": "Employee benefits expense",
+            "amount": 110.62
+          },
+          {
+            "type": "debit",
+            "account_name": "Tax assets",
+            "amount": 14.38
+          },
+          {
+            "type": "credit",
+            "account_name": "Accrued liabilities",
+            "amount": 125.0
+          }
+        ]
+      }
+    ],
+    "output_disambiguator": [
+      {
+        "ambiguities": [
+          {
+            "aspect": "Purpose of meal expense",
+            "input_contextualized_conventional_default": "Text explicitly states 'provided to employees working overtime as an employee benefit' \u2014 resolves as Employee Benefits Expense.",
+            "input_contextualized_ifrs_default": null,
+            "clarification_question": null,
+            "cases": null,
+            "ambiguous": false
+          },
+          {
+            "aspect": "Payment method",
+            "input_contextualized_conventional_default": "'using the corporate credit card' = Credit Card Payable liability.",
+            "input_contextualized_ifrs_default": null,
+            "clarification_question": null,
+            "cases": null,
+            "ambiguous": false
+          },
+          {
+            "aspect": "Tax treatment",
+            "input_contextualized_conventional_default": null,
+            "input_contextualized_ifrs_default": "Province ON = 13% HST; buyer-side tax on purchases is recoverable as Input Tax Credit (Tax Asset). $125 stated amount is the total paid, which includes HST.",
+            "clarification_question": null,
+            "cases": null,
+            "ambiguous": false
+          }
+        ]
+      }
+    ],
+    "output_debit_classifier": [
+      {
+        "asset_increase": [],
+        "expense_increase": [
+          {
+            "reason": "Meal provided to overtime employees as employee benefit",
+            "category": "Employee benefits expense",
+            "count": 1
+          }
+        ],
+        "liability_decrease": [],
+        "equity_decrease": [],
+        "revenue_decrease": [],
+        "tuple": [
+          0,
+          1,
+          0,
+          0,
+          0
+        ]
+      }
+    ],
+    "output_credit_classifier": [
+      {
+        "liability_increase": [
+          {
+            "reason": "Corporate credit card used to pay for employee meal",
+            "category": "Accrued liabilities",
+            "count": 1
+          }
+        ],
+        "equity_increase": [],
+        "revenue_increase": [],
+        "asset_decrease": [],
+        "expense_decrease": [],
+        "tuple": [
+          1,
+          0,
+          0,
+          0,
+          0
+        ]
+      }
+    ],
+    "output_debit_corrector": [],
+    "output_credit_corrector": [],
+    "output_entry_builder": [],
+    "output_approver": [],
+    "output_diagnostician": [],
+    "status_ambiguity_detector": 1,
+    "status_complexity_detector": 1,
+    "status_tax_specialist": 1,
+    "status_decision_maker": 1,
+    "status_entry_drafter": 1,
+    "status_disambiguator": 1,
+    "status_debit_classifier": 1,
+    "status_credit_classifier": 1,
+    "status_debit_corrector": 0,
+    "status_credit_corrector": 0,
+    "status_entry_builder": 0,
+    "status_approver": 0,
+    "status_diagnostician": 0,
+    "fix_context_disambiguator": [],
+    "fix_context_debit_classifier": [],
+    "fix_context_credit_classifier": [],
+    "fix_context_debit_corrector": [],
+    "fix_context_credit_corrector": [],
+    "fix_context_entry_builder": [],
+    "fix_context_approver": [],
+    "fix_context_diagnostician": [],
+    "decision": "APPROVED",
+    "validation_error": null,
+    "llm_calls": [
+      {
+        "node": "debit_classifier",
+        "stop_reason": "tool_use",
+        "input_tokens": 495,
+        "output_tokens": 140,
+        "input_token_details": {
+          "cache_read": 4282,
+          "cache_creation": 0
+        }
+      },
+      {
+        "node": "credit_classifier",
+        "stop_reason": "tool_use",
+        "input_tokens": 492,
+        "output_tokens": 155,
+        "input_token_details": {
+          "cache_read": 4203,
+          "cache_creation": 0
+        }
+      },
+      {
+        "node": "tax_specialist",
+        "stop_reason": "tool_use",
+        "input_tokens": 517,
+        "output_tokens": 130,
+        "input_token_details": {
+          "cache_read": 3277,
+          "cache_creation": 0
+        }
+      },
+      {
+        "node": "unknown",
+        "stop_reason": "tool_use",
+        "input_tokens": 551,
+        "output_tokens": 538,
+        "input_token_details": {
+          "cache_read": 4550,
+          "cache_creation": 0
+        }
+      },
+      {
+        "node": "entry_drafter",
+        "stop_reason": "tool_use",
+        "input_tokens": 896,
+        "output_tokens": 141,
+        "input_token_details": {
+          "cache_read": 3405,
+          "cache_creation": 0
+        }
+      },
+      {
+        "node": "entry_drafter",
+        "stop_reason": "tool_use",
+        "input_tokens": 1049,
+        "output_tokens": 180,
+        "input_token_details": {
+          "cache_read": 3345,
+          "cache_creation": 0
+        }
+      }
+    ],
+    "stop_reasons": {
+      "debit_classifier": "tool_use",
+      "credit_classifier": "tool_use",
+      "tax_specialist": "tool_use",
+      "unknown": "tool_use",
+      "entry_drafter": "tool_use"
+    }
+  }
+}

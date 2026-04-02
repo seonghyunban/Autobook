@@ -1,0 +1,598 @@
+{
+  "test_case_id": "hard_32_grocery_purpose",
+  "variant_name": "baseline_v4_dualtrack",
+  "model": "sonnet",
+  "debit_tuple_exact_match": false,
+  "credit_tuple_exact_match": false,
+  "debit_tuple_slot_accuracy": 0.0,
+  "credit_tuple_slot_accuracy": 0.0,
+  "entry_valid": true,
+  "debit_tuple": [
+    1,
+    1,
+    0,
+    0,
+    0
+  ],
+  "credit_tuple": [
+    1,
+    0,
+    0,
+    0,
+    0
+  ],
+  "journal_entry": null,
+  "actual_cost_usd": 0.0302949,
+  "raw_cost_usd": 0.078795,
+  "total_latency_ms": 30024,
+  "total_input_tokens": 20075,
+  "total_output_tokens": 1238,
+  "total_llm_calls": 4,
+  "iteration_count": 1,
+  "final_decision": "INCOMPLETE_INFORMATION",
+  "fix_attempted": null,
+  "fix_succeeded": null,
+  "agent_metrics": {
+    "tax_specialist": {
+      "input_tokens": 544,
+      "output_tokens": 209,
+      "cache_read_tokens": 3726,
+      "cache_write_tokens": 0,
+      "total_input_tokens": 4270,
+      "llm_calls": 1,
+      "actual_cost_usd": 0.0058848,
+      "raw_cost_usd": 0.015945,
+      "output": {
+        "reasoning": "Text explicitly states \"plus 10% sales tax\" on $1,200 purchase of groceries/refreshments. This is a taxable supply with tax stated.",
+        "tax_mentioned": true,
+        "taxable": true,
+        "tax_context": "10% sales tax applies to the $1,200 purchase amount. Buyer-side purchase tax is recoverable as Input Tax Credit.",
+        "tax_rate": 0.1,
+        "add_tax_lines": true,
+        "treatment": "recoverable"
+      },
+      "reason": null
+    },
+    "credit_classifier": {
+      "input_tokens": 502,
+      "output_tokens": 140,
+      "cache_read_tokens": 4652,
+      "cache_write_tokens": 0,
+      "total_input_tokens": 5154,
+      "llm_calls": 1,
+      "actual_cost_usd": 0.0050016,
+      "raw_cost_usd": 0.017562,
+      "output": {
+        "liability_increase": [
+          {
+            "reason": "Corporate credit card used to pay for purchase",
+            "category": "Credit card payable",
+            "count": 1
+          }
+        ],
+        "equity_increase": [],
+        "revenue_increase": [],
+        "asset_decrease": [],
+        "expense_decrease": [],
+        "tuple": [
+          1,
+          0,
+          0,
+          0,
+          0
+        ]
+      },
+      "reason": null
+    },
+    "unknown": {
+      "input_tokens": 561,
+      "output_tokens": 714,
+      "cache_read_tokens": 4821,
+      "cache_write_tokens": 0,
+      "total_input_tokens": 5382,
+      "llm_calls": 1,
+      "actual_cost_usd": 0.013839299999999999,
+      "raw_cost_usd": 0.026856,
+      "output": null,
+      "reason": null
+    },
+    "debit_classifier": {
+      "input_tokens": 505,
+      "output_tokens": 175,
+      "cache_read_tokens": 4764,
+      "cache_write_tokens": 0,
+      "total_input_tokens": 5269,
+      "llm_calls": 1,
+      "actual_cost_usd": 0.0055692,
+      "raw_cost_usd": 0.018432,
+      "output": {
+        "asset_increase": [
+          {
+            "reason": "Sales tax paid on purchase is recoverable as Input Tax Credit",
+            "category": "Tax assets",
+            "count": 1
+          }
+        ],
+        "expense_increase": [
+          {
+            "reason": "Tea, beverages, and refreshments purchased for meeting/entertainment purposes",
+            "category": "Meeting expense",
+            "count": 1
+          }
+        ],
+        "liability_decrease": [],
+        "equity_decrease": [],
+        "revenue_decrease": [],
+        "tuple": [
+          1,
+          1,
+          0,
+          0,
+          0
+        ]
+      },
+      "reason": null
+    }
+  },
+  "pre_fix_debit_tuple": null,
+  "post_fix_debit_tuple": null,
+  "pre_fix_credit_tuple": null,
+  "post_fix_credit_tuple": null,
+  "fix_root_cause_agent": null,
+  "rejection_reason": null,
+  "diagnostician_decision": null,
+  "validation_error": null,
+  "decision_correct": true,
+  "entry_match": false,
+  "clarification_correct": null,
+  "clarification_questions": [
+    "What was the business purpose of this purchase (e.g., office supplies for employee use, client entertainment, meeting refreshments)?"
+  ],
+  "ambiguous": true,
+  "tier": "hard",
+  "error": null,
+  "pipeline_state": {
+    "iteration": 0,
+    "output_ambiguity_detector": [
+      {
+        "ambiguities": [
+          {
+            "aspect": "Purpose of tea, beverages, and refreshments purchase",
+            "input_contextualized_conventional_default": null,
+            "input_contextualized_ifrs_default": null,
+            "clarification_question": "What was the business purpose of this purchase (e.g., office supplies for employee use, client entertainment, meeting refreshments)?",
+            "cases": [
+              {
+                "case": "Office supplies for general employee consumption in the workplace",
+                "possible_entry": {
+                  "reason": "Refreshments for employee use are classified as office supplies expense with recoverable HST as Input Tax Credit",
+                  "lines": [
+                    {
+                      "type": "debit",
+                      "account_name": "Office Supplies Expense",
+                      "amount": 1200.0
+                    },
+                    {
+                      "type": "debit",
+                      "account_name": "HST Receivable",
+                      "amount": 120.0
+                    },
+                    {
+                      "type": "credit",
+                      "account_name": "Credit Card Payable",
+                      "amount": 1320.0
+                    }
+                  ]
+                }
+              },
+              {
+                "case": "Client entertainment or business development",
+                "possible_entry": {
+                  "reason": "Refreshments for client entertainment are classified as entertainment expense with recoverable HST",
+                  "lines": [
+                    {
+                      "type": "debit",
+                      "account_name": "Entertainment Expense",
+                      "amount": 1200.0
+                    },
+                    {
+                      "type": "debit",
+                      "account_name": "HST Receivable",
+                      "amount": 120.0
+                    },
+                    {
+                      "type": "credit",
+                      "account_name": "Credit Card Payable",
+                      "amount": 1320.0
+                    }
+                  ]
+                }
+              },
+              {
+                "case": "Meeting or conference refreshments",
+                "possible_entry": {
+                  "reason": "Refreshments for meetings are classified as meeting expense with recoverable HST",
+                  "lines": [
+                    {
+                      "type": "debit",
+                      "account_name": "Meeting Expense",
+                      "amount": 1200.0
+                    },
+                    {
+                      "type": "debit",
+                      "account_name": "HST Receivable",
+                      "amount": 120.0
+                    },
+                    {
+                      "type": "credit",
+                      "account_name": "Credit Card Payable",
+                      "amount": 1320.0
+                    }
+                  ]
+                }
+              }
+            ],
+            "ambiguous": true
+          },
+          {
+            "aspect": "Tax treatment - stated rate vs provincial rate",
+            "input_contextualized_conventional_default": "Stated tax rate of 10% takes precedence over provincial default (ON HST 13%)",
+            "input_contextualized_ifrs_default": null,
+            "clarification_question": null,
+            "cases": null,
+            "ambiguous": false
+          }
+        ]
+      }
+    ],
+    "output_complexity_detector": [
+      {
+        "flags": [
+          {
+            "aspect": "Standard expense transaction with stated tax",
+            "best_attempt": null,
+            "gap": null,
+            "beyond_llm_capability": false
+          }
+        ]
+      }
+    ],
+    "output_tax_specialist": [
+      {
+        "reasoning": "Text explicitly states \"plus 10% sales tax\" on $1,200 purchase of groceries/refreshments. This is a taxable supply with tax stated.",
+        "tax_mentioned": true,
+        "taxable": true,
+        "tax_context": "10% sales tax applies to the $1,200 purchase amount. Buyer-side purchase tax is recoverable as Input Tax Credit.",
+        "tax_rate": 0.1,
+        "add_tax_lines": true,
+        "treatment": "recoverable"
+      }
+    ],
+    "output_decision_maker": [
+      {
+        "ambiguities": [
+          {
+            "aspect": "Purpose of tea, beverages, and refreshments purchase",
+            "input_contextualized_conventional_default": null,
+            "input_contextualized_ifrs_default": null,
+            "clarification_question": "What was the business purpose of this purchase (e.g., office supplies for employee use, client entertainment, meeting refreshments)?",
+            "cases": [
+              {
+                "case": "Office supplies for general employee consumption in the workplace",
+                "possible_entry": {
+                  "reason": "Refreshments for employee use are classified as office supplies expense with recoverable HST as Input Tax Credit",
+                  "lines": [
+                    {
+                      "type": "debit",
+                      "account_name": "Office Supplies Expense",
+                      "amount": 1200.0
+                    },
+                    {
+                      "type": "debit",
+                      "account_name": "HST Receivable",
+                      "amount": 120.0
+                    },
+                    {
+                      "type": "credit",
+                      "account_name": "Credit Card Payable",
+                      "amount": 1320.0
+                    }
+                  ]
+                }
+              },
+              {
+                "case": "Client entertainment or business development",
+                "possible_entry": {
+                  "reason": "Refreshments for client entertainment are classified as entertainment expense with recoverable HST",
+                  "lines": [
+                    {
+                      "type": "debit",
+                      "account_name": "Entertainment Expense",
+                      "amount": 1200.0
+                    },
+                    {
+                      "type": "debit",
+                      "account_name": "HST Receivable",
+                      "amount": 120.0
+                    },
+                    {
+                      "type": "credit",
+                      "account_name": "Credit Card Payable",
+                      "amount": 1320.0
+                    }
+                  ]
+                }
+              },
+              {
+                "case": "Meeting or conference refreshments",
+                "possible_entry": {
+                  "reason": "Refreshments for meetings are classified as meeting expense with recoverable HST",
+                  "lines": [
+                    {
+                      "type": "debit",
+                      "account_name": "Meeting Expense",
+                      "amount": 1200.0
+                    },
+                    {
+                      "type": "debit",
+                      "account_name": "HST Receivable",
+                      "amount": 120.0
+                    },
+                    {
+                      "type": "credit",
+                      "account_name": "Credit Card Payable",
+                      "amount": 1320.0
+                    }
+                  ]
+                }
+              }
+            ],
+            "ambiguous": true
+          },
+          {
+            "aspect": "Tax treatment - stated rate vs provincial rate",
+            "input_contextualized_conventional_default": "Stated tax rate of 10% takes precedence over provincial default (ON HST 13%)",
+            "input_contextualized_ifrs_default": null,
+            "clarification_question": null,
+            "cases": null,
+            "ambiguous": false
+          }
+        ],
+        "complexity_flags": [
+          {
+            "aspect": "Standard expense transaction with stated tax",
+            "best_attempt": null,
+            "gap": null,
+            "beyond_llm_capability": false
+          }
+        ],
+        "proceed_reason": null,
+        "clarification_questions": [
+          "What was the business purpose of this purchase (e.g., office supplies for employee use, client entertainment, meeting refreshments)?"
+        ],
+        "stuck_reason": null,
+        "overall_final_rationale": "The expense account classification depends on the business purpose of the refreshments, which is not determinable from the transaction text.",
+        "decision": "MISSING_INFO"
+      }
+    ],
+    "output_entry_drafter": [],
+    "output_disambiguator": [
+      {
+        "ambiguities": [
+          {
+            "aspect": "Purpose of tea, beverages, and refreshments purchase",
+            "input_contextualized_conventional_default": null,
+            "input_contextualized_ifrs_default": null,
+            "clarification_question": "What was the business purpose of this purchase (e.g., office supplies for employee use, client entertainment, meeting refreshments)?",
+            "cases": [
+              {
+                "case": "Office supplies for general employee consumption in the workplace",
+                "possible_entry": {
+                  "reason": "Refreshments for employee use are classified as office supplies expense with recoverable HST as Input Tax Credit",
+                  "lines": [
+                    {
+                      "type": "debit",
+                      "account_name": "Office Supplies Expense",
+                      "amount": 1200.0
+                    },
+                    {
+                      "type": "debit",
+                      "account_name": "HST Receivable",
+                      "amount": 120.0
+                    },
+                    {
+                      "type": "credit",
+                      "account_name": "Credit Card Payable",
+                      "amount": 1320.0
+                    }
+                  ]
+                }
+              },
+              {
+                "case": "Client entertainment or business development",
+                "possible_entry": {
+                  "reason": "Refreshments for client entertainment are classified as entertainment expense with recoverable HST",
+                  "lines": [
+                    {
+                      "type": "debit",
+                      "account_name": "Entertainment Expense",
+                      "amount": 1200.0
+                    },
+                    {
+                      "type": "debit",
+                      "account_name": "HST Receivable",
+                      "amount": 120.0
+                    },
+                    {
+                      "type": "credit",
+                      "account_name": "Credit Card Payable",
+                      "amount": 1320.0
+                    }
+                  ]
+                }
+              },
+              {
+                "case": "Meeting or conference refreshments",
+                "possible_entry": {
+                  "reason": "Refreshments for meetings are classified as meeting expense with recoverable HST",
+                  "lines": [
+                    {
+                      "type": "debit",
+                      "account_name": "Meeting Expense",
+                      "amount": 1200.0
+                    },
+                    {
+                      "type": "debit",
+                      "account_name": "HST Receivable",
+                      "amount": 120.0
+                    },
+                    {
+                      "type": "credit",
+                      "account_name": "Credit Card Payable",
+                      "amount": 1320.0
+                    }
+                  ]
+                }
+              }
+            ],
+            "ambiguous": true
+          },
+          {
+            "aspect": "Tax treatment - stated rate vs provincial rate",
+            "input_contextualized_conventional_default": "Stated tax rate of 10% takes precedence over provincial default (ON HST 13%)",
+            "input_contextualized_ifrs_default": null,
+            "clarification_question": null,
+            "cases": null,
+            "ambiguous": false
+          }
+        ]
+      }
+    ],
+    "output_debit_classifier": [
+      {
+        "asset_increase": [
+          {
+            "reason": "Sales tax paid on purchase is recoverable as Input Tax Credit",
+            "category": "Tax assets",
+            "count": 1
+          }
+        ],
+        "expense_increase": [
+          {
+            "reason": "Tea, beverages, and refreshments purchased for meeting/entertainment purposes",
+            "category": "Meeting expense",
+            "count": 1
+          }
+        ],
+        "liability_decrease": [],
+        "equity_decrease": [],
+        "revenue_decrease": [],
+        "tuple": [
+          1,
+          1,
+          0,
+          0,
+          0
+        ]
+      }
+    ],
+    "output_credit_classifier": [
+      {
+        "liability_increase": [
+          {
+            "reason": "Corporate credit card used to pay for purchase",
+            "category": "Credit card payable",
+            "count": 1
+          }
+        ],
+        "equity_increase": [],
+        "revenue_increase": [],
+        "asset_decrease": [],
+        "expense_decrease": [],
+        "tuple": [
+          1,
+          0,
+          0,
+          0,
+          0
+        ]
+      }
+    ],
+    "output_debit_corrector": [],
+    "output_credit_corrector": [],
+    "output_entry_builder": [],
+    "output_approver": [],
+    "output_diagnostician": [],
+    "status_ambiguity_detector": 1,
+    "status_complexity_detector": 1,
+    "status_tax_specialist": 1,
+    "status_decision_maker": 1,
+    "status_entry_drafter": 0,
+    "status_disambiguator": 1,
+    "status_debit_classifier": 1,
+    "status_credit_classifier": 1,
+    "status_debit_corrector": 0,
+    "status_credit_corrector": 0,
+    "status_entry_builder": 0,
+    "status_approver": 0,
+    "status_diagnostician": 0,
+    "fix_context_disambiguator": [],
+    "fix_context_debit_classifier": [],
+    "fix_context_credit_classifier": [],
+    "fix_context_debit_corrector": [],
+    "fix_context_credit_corrector": [],
+    "fix_context_entry_builder": [],
+    "fix_context_approver": [],
+    "fix_context_diagnostician": [],
+    "decision": "INCOMPLETE_INFORMATION",
+    "validation_error": null,
+    "llm_calls": [
+      {
+        "node": "tax_specialist",
+        "stop_reason": "tool_use",
+        "input_tokens": 544,
+        "output_tokens": 209,
+        "input_token_details": {
+          "cache_read": 3726,
+          "cache_creation": 0
+        }
+      },
+      {
+        "node": "credit_classifier",
+        "stop_reason": "tool_use",
+        "input_tokens": 502,
+        "output_tokens": 140,
+        "input_token_details": {
+          "cache_read": 4652,
+          "cache_creation": 0
+        }
+      },
+      {
+        "node": "unknown",
+        "stop_reason": "tool_use",
+        "input_tokens": 561,
+        "output_tokens": 714,
+        "input_token_details": {
+          "cache_read": 4821,
+          "cache_creation": 0
+        }
+      },
+      {
+        "node": "debit_classifier",
+        "stop_reason": "tool_use",
+        "input_tokens": 505,
+        "output_tokens": 175,
+        "input_token_details": {
+          "cache_read": 4764,
+          "cache_creation": 0
+        }
+      }
+    ],
+    "stop_reasons": {
+      "tax_specialist": "tool_use",
+      "credit_classifier": "tool_use",
+      "unknown": "tool_use",
+      "debit_classifier": "tool_use"
+    }
+  }
+}

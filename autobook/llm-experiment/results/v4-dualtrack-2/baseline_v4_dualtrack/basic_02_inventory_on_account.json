@@ -1,0 +1,464 @@
+{
+  "test_case_id": "basic_02_inventory_on_account",
+  "variant_name": "baseline_v4_dualtrack",
+  "model": "sonnet",
+  "debit_tuple_exact_match": true,
+  "credit_tuple_exact_match": true,
+  "debit_tuple_slot_accuracy": 0.8333333333333334,
+  "credit_tuple_slot_accuracy": 0.8333333333333334,
+  "entry_valid": true,
+  "debit_tuple": [
+    1,
+    0,
+    0,
+    0,
+    0
+  ],
+  "credit_tuple": [
+    1,
+    0,
+    0,
+    0,
+    0
+  ],
+  "journal_entry": {
+    "reason": "Inventory purchased on account with recoverable HST recorded as Input Tax Credit",
+    "lines": [
+      {
+        "type": "debit",
+        "account_name": "Inventories \u2014 merchandise",
+        "amount": 300.0
+      },
+      {
+        "type": "debit",
+        "account_name": "Tax assets",
+        "amount": 39.0
+      },
+      {
+        "type": "credit",
+        "account_name": "Trade payables",
+        "amount": 339.0
+      }
+    ]
+  },
+  "actual_cost_usd": 0.0352596,
+  "raw_cost_usd": 0.097527,
+  "total_latency_ms": 21025,
+  "total_input_tokens": 26784,
+  "total_output_tokens": 1145,
+  "total_llm_calls": 6,
+  "iteration_count": 1,
+  "final_decision": "APPROVED",
+  "fix_attempted": null,
+  "fix_succeeded": null,
+  "agent_metrics": {
+    "tax_specialist": {
+      "input_tokens": 495,
+      "output_tokens": 159,
+      "cache_read_tokens": 3277,
+      "cache_write_tokens": 0,
+      "total_input_tokens": 3772,
+      "llm_calls": 1,
+      "actual_cost_usd": 0.0048531,
+      "raw_cost_usd": 0.013701,
+      "output": {
+        "reasoning": "Inventory purchase is taxable but text does not mention tax",
+        "tax_mentioned": false,
+        "taxable": true,
+        "add_tax_lines": false,
+        "tax_rate": null,
+        "tax_amount": null,
+        "treatment": "not_applicable"
+      },
+      "reason": null
+    },
+    "debit_classifier": {
+      "input_tokens": 473,
+      "output_tokens": 150,
+      "cache_read_tokens": 4282,
+      "cache_write_tokens": 0,
+      "total_input_tokens": 4755,
+      "llm_calls": 1,
+      "actual_cost_usd": 0.004953600000000001,
+      "raw_cost_usd": 0.016515,
+      "output": {
+        "asset_increase": [
+          {
+            "reason": "Inventory purchased on credit",
+            "category": "Inventories \u2014 merchandise",
+            "count": 1
+          }
+        ],
+        "expense_increase": [],
+        "liability_decrease": [],
+        "equity_decrease": [],
+        "revenue_decrease": [],
+        "tuple": [
+          1,
+          0,
+          0,
+          0,
+          0
+        ]
+      },
+      "reason": null
+    },
+    "credit_classifier": {
+      "input_tokens": 470,
+      "output_tokens": 136,
+      "cache_read_tokens": 4203,
+      "cache_write_tokens": 0,
+      "total_input_tokens": 4673,
+      "llm_calls": 1,
+      "actual_cost_usd": 0.0047109,
+      "raw_cost_usd": 0.016059,
+      "output": {
+        "liability_increase": [
+          {
+            "reason": "Inventory purchased on credit",
+            "category": "Trade payables",
+            "count": 1
+          }
+        ],
+        "equity_increase": [],
+        "revenue_increase": [],
+        "asset_decrease": [],
+        "expense_decrease": [],
+        "tuple": [
+          1,
+          0,
+          0,
+          0,
+          0
+        ]
+      },
+      "reason": null
+    },
+    "unknown": {
+      "input_tokens": 529,
+      "output_tokens": 302,
+      "cache_read_tokens": 4550,
+      "cache_write_tokens": 0,
+      "total_input_tokens": 5079,
+      "llm_calls": 1,
+      "actual_cost_usd": 0.007482,
+      "raw_cost_usd": 0.019767,
+      "output": null,
+      "reason": null
+    },
+    "entry_drafter": {
+      "input_tokens": 1755,
+      "output_tokens": 398,
+      "cache_read_tokens": 6750,
+      "cache_write_tokens": 0,
+      "total_input_tokens": 8505,
+      "llm_calls": 2,
+      "actual_cost_usd": 0.013260000000000001,
+      "raw_cost_usd": 0.031485,
+      "output": {
+        "reason": "Inventory purchased on account with recoverable HST recorded as Input Tax Credit",
+        "lines": [
+          {
+            "type": "debit",
+            "account_name": "Inventories \u2014 merchandise",
+            "amount": 300.0
+          },
+          {
+            "type": "debit",
+            "account_name": "Tax assets",
+            "amount": 39.0
+          },
+          {
+            "type": "credit",
+            "account_name": "Trade payables",
+            "amount": 339.0
+          }
+        ]
+      },
+      "reason": "Inventory purchased on account with recoverable HST recorded as Input Tax Credit"
+    }
+  },
+  "pre_fix_debit_tuple": null,
+  "post_fix_debit_tuple": null,
+  "pre_fix_credit_tuple": null,
+  "post_fix_credit_tuple": null,
+  "fix_root_cause_agent": null,
+  "rejection_reason": null,
+  "diagnostician_decision": null,
+  "validation_error": null,
+  "decision_correct": true,
+  "entry_match": null,
+  "clarification_correct": null,
+  "clarification_questions": null,
+  "ambiguous": false,
+  "tier": "basic",
+  "error": null,
+  "pipeline_state": {
+    "iteration": 0,
+    "output_ambiguity_detector": [
+      {
+        "ambiguities": [
+          {
+            "aspect": "Payment method",
+            "input_contextualized_conventional_default": "'on account' = accounts payable",
+            "input_contextualized_ifrs_default": null,
+            "clarification_question": null,
+            "cases": null,
+            "ambiguous": false
+          },
+          {
+            "aspect": "Tax treatment",
+            "input_contextualized_conventional_default": null,
+            "input_contextualized_ifrs_default": "Province ON = 13% HST; buyer-side tax on purchases is recoverable as Input Tax Credit (asset)",
+            "clarification_question": null,
+            "cases": null,
+            "ambiguous": false
+          }
+        ]
+      }
+    ],
+    "output_complexity_detector": [
+      {
+        "flags": [
+          {
+            "aspect": "Standard inventory purchase",
+            "best_attempt": null,
+            "gap": null,
+            "beyond_llm_capability": false
+          }
+        ]
+      }
+    ],
+    "output_tax_specialist": [
+      {
+        "reasoning": "Inventory purchase is taxable but text does not mention tax",
+        "tax_mentioned": false,
+        "taxable": true,
+        "add_tax_lines": false,
+        "tax_rate": null,
+        "tax_amount": null,
+        "treatment": "not_applicable"
+      }
+    ],
+    "output_decision_maker": [
+      {
+        "ambiguities": [
+          {
+            "aspect": "Payment method",
+            "input_contextualized_conventional_default": "'on account' = accounts payable",
+            "input_contextualized_ifrs_default": null,
+            "clarification_question": null,
+            "cases": null,
+            "ambiguous": false
+          },
+          {
+            "aspect": "Tax treatment",
+            "input_contextualized_conventional_default": null,
+            "input_contextualized_ifrs_default": "Province ON = 13% HST; buyer-side tax on purchases is recoverable as Input Tax Credit (asset)",
+            "clarification_question": null,
+            "cases": null,
+            "ambiguous": false
+          }
+        ],
+        "complexity_flags": [
+          {
+            "aspect": "Standard inventory purchase",
+            "best_attempt": null,
+            "gap": null,
+            "beyond_llm_capability": false
+          }
+        ],
+        "proceed_reason": "All aspects resolved by conventional terms and IFRS rules \u2014 'on account' = accounts payable, ON province = 13% HST recoverable.",
+        "clarification_questions": null,
+        "stuck_reason": null,
+        "overall_final_rationale": "Straightforward inventory purchase with conventional 'on account' resolving to accounts payable and Ontario HST recoverable as Input Tax Credit.",
+        "decision": "PROCEED"
+      }
+    ],
+    "output_entry_drafter": [
+      {
+        "reason": "Inventory purchased on account with recoverable HST recorded as Input Tax Credit",
+        "lines": [
+          {
+            "type": "debit",
+            "account_name": "Inventories \u2014 merchandise",
+            "amount": 300.0
+          },
+          {
+            "type": "debit",
+            "account_name": "Tax assets",
+            "amount": 39.0
+          },
+          {
+            "type": "credit",
+            "account_name": "Trade payables",
+            "amount": 339.0
+          }
+        ]
+      }
+    ],
+    "output_disambiguator": [
+      {
+        "ambiguities": [
+          {
+            "aspect": "Payment method",
+            "input_contextualized_conventional_default": "'on account' = accounts payable",
+            "input_contextualized_ifrs_default": null,
+            "clarification_question": null,
+            "cases": null,
+            "ambiguous": false
+          },
+          {
+            "aspect": "Tax treatment",
+            "input_contextualized_conventional_default": null,
+            "input_contextualized_ifrs_default": "Province ON = 13% HST; buyer-side tax on purchases is recoverable as Input Tax Credit (asset)",
+            "clarification_question": null,
+            "cases": null,
+            "ambiguous": false
+          }
+        ]
+      }
+    ],
+    "output_debit_classifier": [
+      {
+        "asset_increase": [
+          {
+            "reason": "Inventory purchased on credit",
+            "category": "Inventories \u2014 merchandise",
+            "count": 1
+          }
+        ],
+        "expense_increase": [],
+        "liability_decrease": [],
+        "equity_decrease": [],
+        "revenue_decrease": [],
+        "tuple": [
+          1,
+          0,
+          0,
+          0,
+          0
+        ]
+      }
+    ],
+    "output_credit_classifier": [
+      {
+        "liability_increase": [
+          {
+            "reason": "Inventory purchased on credit",
+            "category": "Trade payables",
+            "count": 1
+          }
+        ],
+        "equity_increase": [],
+        "revenue_increase": [],
+        "asset_decrease": [],
+        "expense_decrease": [],
+        "tuple": [
+          1,
+          0,
+          0,
+          0,
+          0
+        ]
+      }
+    ],
+    "output_debit_corrector": [],
+    "output_credit_corrector": [],
+    "output_entry_builder": [],
+    "output_approver": [],
+    "output_diagnostician": [],
+    "status_ambiguity_detector": 1,
+    "status_complexity_detector": 1,
+    "status_tax_specialist": 1,
+    "status_decision_maker": 1,
+    "status_entry_drafter": 1,
+    "status_disambiguator": 1,
+    "status_debit_classifier": 1,
+    "status_credit_classifier": 1,
+    "status_debit_corrector": 0,
+    "status_credit_corrector": 0,
+    "status_entry_builder": 0,
+    "status_approver": 0,
+    "status_diagnostician": 0,
+    "fix_context_disambiguator": [],
+    "fix_context_debit_classifier": [],
+    "fix_context_credit_classifier": [],
+    "fix_context_debit_corrector": [],
+    "fix_context_credit_corrector": [],
+    "fix_context_entry_builder": [],
+    "fix_context_approver": [],
+    "fix_context_diagnostician": [],
+    "decision": "APPROVED",
+    "validation_error": null,
+    "llm_calls": [
+      {
+        "node": "tax_specialist",
+        "stop_reason": "tool_use",
+        "input_tokens": 495,
+        "output_tokens": 159,
+        "input_token_details": {
+          "cache_read": 3277,
+          "cache_creation": 0
+        }
+      },
+      {
+        "node": "debit_classifier",
+        "stop_reason": "tool_use",
+        "input_tokens": 473,
+        "output_tokens": 150,
+        "input_token_details": {
+          "cache_read": 4282,
+          "cache_creation": 0
+        }
+      },
+      {
+        "node": "credit_classifier",
+        "stop_reason": "tool_use",
+        "input_tokens": 470,
+        "output_tokens": 136,
+        "input_token_details": {
+          "cache_read": 4203,
+          "cache_creation": 0
+        }
+      },
+      {
+        "node": "unknown",
+        "stop_reason": "tool_use",
+        "input_tokens": 529,
+        "output_tokens": 302,
+        "input_token_details": {
+          "cache_read": 4550,
+          "cache_creation": 0
+        }
+      },
+      {
+        "node": "entry_drafter",
+        "stop_reason": "tool_use",
+        "input_tokens": 801,
+        "output_tokens": 224,
+        "input_token_details": {
+          "cache_read": 3405,
+          "cache_creation": 0
+        }
+      },
+      {
+        "node": "entry_drafter",
+        "stop_reason": "tool_use",
+        "input_tokens": 954,
+        "output_tokens": 174,
+        "input_token_details": {
+          "cache_read": 3345,
+          "cache_creation": 0
+        }
+      }
+    ],
+    "stop_reasons": {
+      "tax_specialist": "tool_use",
+      "debit_classifier": "tool_use",
+      "credit_classifier": "tool_use",
+      "unknown": "tool_use",
+      "entry_drafter": "tool_use"
+    }
+  }
+}

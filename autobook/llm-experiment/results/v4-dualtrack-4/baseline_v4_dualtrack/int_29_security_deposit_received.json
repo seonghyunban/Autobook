@@ -1,0 +1,475 @@
+{
+  "test_case_id": "int_29_security_deposit_received",
+  "variant_name": "baseline_v4_dualtrack",
+  "model": "sonnet",
+  "debit_tuple_exact_match": true,
+  "credit_tuple_exact_match": false,
+  "debit_tuple_slot_accuracy": 0.8333333333333334,
+  "credit_tuple_slot_accuracy": 0.6666666666666666,
+  "entry_valid": true,
+  "debit_tuple": [
+    1,
+    0,
+    0,
+    0,
+    0
+  ],
+  "credit_tuple": [
+    1,
+    0,
+    1,
+    0,
+    0
+  ],
+  "journal_entry": {
+    "reason": "Security deposit received in cash from tenant, recorded as refundable liability",
+    "lines": [
+      {
+        "type": "debit",
+        "account_name": "Cash and cash equivalents",
+        "amount": 25000.0
+      },
+      {
+        "type": "credit",
+        "account_name": "Security deposits payable",
+        "amount": 25000.0
+      }
+    ]
+  },
+  "actual_cost_usd": 0.0344739,
+  "raw_cost_usd": 0.09296399999999999,
+  "total_latency_ms": 18312,
+  "total_input_tokens": 25043,
+  "total_output_tokens": 1189,
+  "total_llm_calls": 5,
+  "iteration_count": 1,
+  "final_decision": "APPROVED",
+  "fix_attempted": null,
+  "fix_succeeded": null,
+  "agent_metrics": {
+    "debit_classifier": {
+      "input_tokens": 525,
+      "output_tokens": 140,
+      "cache_read_tokens": 4714,
+      "cache_write_tokens": 0,
+      "total_input_tokens": 5239,
+      "llm_calls": 1,
+      "actual_cost_usd": 0.0050891999999999995,
+      "raw_cost_usd": 0.017817,
+      "output": {
+        "asset_increase": [
+          {
+            "reason": "Cash received as security deposit from tenant",
+            "category": "Cash and cash equivalents",
+            "count": 1
+          }
+        ],
+        "expense_increase": [],
+        "liability_decrease": [],
+        "equity_decrease": [],
+        "revenue_decrease": [],
+        "tuple": [
+          1,
+          0,
+          0,
+          0,
+          0
+        ]
+      },
+      "reason": null
+    },
+    "tax_specialist": {
+      "input_tokens": 564,
+      "output_tokens": 257,
+      "cache_read_tokens": 3676,
+      "cache_write_tokens": 0,
+      "total_input_tokens": 4240,
+      "llm_calls": 1,
+      "actual_cost_usd": 0.0066498,
+      "raw_cost_usd": 0.016575,
+      "output": {
+        "reasoning": "Text states rent is \"exclusive of sales tax\" but does not state a rate or amount. Rent is a taxable supply in Ontario (13% HST), but since no rate or amount is given, no tax lines should be added.",
+        "tax_mentioned": true,
+        "taxable": true,
+        "tax_context": "Rent is subject to 13% Ontario HST. The $10,000 monthly rent is exclusive of tax, so tax will be charged on top. The $25,000 security deposit is not subject to tax (it's a refundable deposit, not consideration for a supply).",
+        "tax_rate": 0.13,
+        "add_tax_lines": true,
+        "treatment": "recoverable"
+      },
+      "reason": null
+    },
+    "credit_classifier": {
+      "input_tokens": 522,
+      "output_tokens": 175,
+      "cache_read_tokens": 4602,
+      "cache_write_tokens": 0,
+      "total_input_tokens": 5124,
+      "llm_calls": 1,
+      "actual_cost_usd": 0.0055716,
+      "raw_cost_usd": 0.017997,
+      "output": {
+        "liability_increase": [
+          {
+            "reason": "Security deposit received from tenant, refundable at lease end",
+            "category": "Other payables",
+            "count": 1
+          }
+        ],
+        "equity_increase": [],
+        "revenue_increase": [
+          {
+            "reason": "Rental income earned for the period from leasing building space",
+            "category": "Rental income",
+            "count": 1
+          }
+        ],
+        "asset_decrease": [],
+        "expense_decrease": [],
+        "tuple": [
+          1,
+          0,
+          1,
+          0,
+          0
+        ]
+      },
+      "reason": null
+    },
+    "unknown": {
+      "input_tokens": 581,
+      "output_tokens": 476,
+      "cache_read_tokens": 4771,
+      "cache_write_tokens": 0,
+      "total_input_tokens": 5352,
+      "llm_calls": 1,
+      "actual_cost_usd": 0.010314299999999998,
+      "raw_cost_usd": 0.023196,
+      "output": null,
+      "reason": null
+    },
+    "entry_drafter": {
+      "input_tokens": 1188,
+      "output_tokens": 141,
+      "cache_read_tokens": 3900,
+      "cache_write_tokens": 0,
+      "total_input_tokens": 5088,
+      "llm_calls": 1,
+      "actual_cost_usd": 0.006849,
+      "raw_cost_usd": 0.017379,
+      "output": {
+        "reason": "Security deposit received in cash from tenant, recorded as refundable liability",
+        "lines": [
+          {
+            "type": "debit",
+            "account_name": "Cash and cash equivalents",
+            "amount": 25000.0
+          },
+          {
+            "type": "credit",
+            "account_name": "Security deposits payable",
+            "amount": 25000.0
+          }
+        ]
+      },
+      "reason": "Security deposit received in cash from tenant, recorded as refundable liability"
+    }
+  },
+  "pre_fix_debit_tuple": null,
+  "post_fix_debit_tuple": null,
+  "pre_fix_credit_tuple": null,
+  "post_fix_credit_tuple": null,
+  "fix_root_cause_agent": null,
+  "rejection_reason": null,
+  "diagnostician_decision": null,
+  "validation_error": null,
+  "decision_correct": true,
+  "entry_match": null,
+  "clarification_correct": null,
+  "clarification_questions": null,
+  "ambiguous": false,
+  "tier": "intermediate",
+  "error": null,
+  "pipeline_state": {
+    "iteration": 0,
+    "output_ambiguity_detector": [
+      {
+        "ambiguities": [
+          {
+            "aspect": "Treatment of security deposit",
+            "input_contextualized_conventional_default": "'deposit received' = liability (unearned/refundable) \u2014 security deposit is a refundable liability until lease ends or applied to damages",
+            "input_contextualized_ifrs_default": "Security deposits are recognized as a financial liability under IFRS 9 since they represent an obligation to return cash",
+            "clarification_question": null,
+            "cases": null,
+            "ambiguous": false
+          },
+          {
+            "aspect": "Revenue recognition for monthly rent",
+            "input_contextualized_conventional_default": "Transaction describes lease signing and deposit receipt only \u2014 no rent payment received yet, so no revenue to recognize at this point",
+            "input_contextualized_ifrs_default": "IFRS 16 (lessor accounting): rental income recognized on straight-line basis over lease term as earned \u2014 no rent earned at signing",
+            "clarification_question": null,
+            "cases": null,
+            "ambiguous": false
+          },
+          {
+            "aspect": "Sales tax on security deposit",
+            "input_contextualized_conventional_default": "Security deposits are not subject to HST as they are refundable and not consideration for a supply \u2014 only rent payments attract HST",
+            "input_contextualized_ifrs_default": null,
+            "clarification_question": null,
+            "cases": null,
+            "ambiguous": false
+          }
+        ]
+      }
+    ],
+    "output_complexity_detector": [
+      {
+        "flags": [
+          {
+            "aspect": "Security deposit journal entry",
+            "best_attempt": null,
+            "gap": null,
+            "beyond_llm_capability": false
+          }
+        ]
+      }
+    ],
+    "output_tax_specialist": [
+      {
+        "reasoning": "Text states rent is \"exclusive of sales tax\" but does not state a rate or amount. Rent is a taxable supply in Ontario (13% HST), but since no rate or amount is given, no tax lines should be added.",
+        "tax_mentioned": true,
+        "taxable": true,
+        "tax_context": "Rent is subject to 13% Ontario HST. The $10,000 monthly rent is exclusive of tax, so tax will be charged on top. The $25,000 security deposit is not subject to tax (it's a refundable deposit, not consideration for a supply).",
+        "tax_rate": 0.13,
+        "add_tax_lines": true,
+        "treatment": "recoverable"
+      }
+    ],
+    "output_decision_maker": [
+      {
+        "ambiguities": [
+          {
+            "aspect": "Treatment of security deposit",
+            "input_contextualized_conventional_default": "'deposit received' = liability (unearned/refundable) \u2014 security deposit is a refundable liability until lease ends or applied to damages",
+            "input_contextualized_ifrs_default": "Security deposits are recognized as a financial liability under IFRS 9 since they represent an obligation to return cash",
+            "clarification_question": null,
+            "cases": null,
+            "ambiguous": false
+          },
+          {
+            "aspect": "Revenue recognition for monthly rent",
+            "input_contextualized_conventional_default": "Transaction describes lease signing and deposit receipt only \u2014 no rent payment received yet, so no revenue to recognize at this point",
+            "input_contextualized_ifrs_default": "IFRS 16 (lessor accounting): rental income recognized on straight-line basis over lease term as earned \u2014 no rent earned at signing",
+            "clarification_question": null,
+            "cases": null,
+            "ambiguous": false
+          },
+          {
+            "aspect": "Sales tax on security deposit",
+            "input_contextualized_conventional_default": "Security deposits are not subject to HST as they are refundable and not consideration for a supply \u2014 only rent payments attract HST",
+            "input_contextualized_ifrs_default": null,
+            "clarification_question": null,
+            "cases": null,
+            "ambiguous": false
+          }
+        ],
+        "complexity_flags": [
+          {
+            "aspect": "Security deposit journal entry",
+            "best_attempt": null,
+            "gap": null,
+            "beyond_llm_capability": false
+          }
+        ],
+        "proceed_reason": "Security deposit received is resolved as a liability by convention ('deposit received' = liability), and no rent revenue is recognized at signing since no rent payment has been received yet.",
+        "clarification_questions": null,
+        "stuck_reason": null,
+        "overall_final_rationale": "The transaction describes receipt of a security deposit upon lease signing, which is clearly a refundable liability with no revenue recognition at this point \u2014 all aspects are resolved by convention and IFRS.",
+        "decision": "PROCEED"
+      }
+    ],
+    "output_entry_drafter": [
+      {
+        "reason": "Security deposit received in cash from tenant, recorded as refundable liability",
+        "lines": [
+          {
+            "type": "debit",
+            "account_name": "Cash and cash equivalents",
+            "amount": 25000.0
+          },
+          {
+            "type": "credit",
+            "account_name": "Security deposits payable",
+            "amount": 25000.0
+          }
+        ]
+      }
+    ],
+    "output_disambiguator": [
+      {
+        "ambiguities": [
+          {
+            "aspect": "Treatment of security deposit",
+            "input_contextualized_conventional_default": "'deposit received' = liability (unearned/refundable) \u2014 security deposit is a refundable liability until lease ends or applied to damages",
+            "input_contextualized_ifrs_default": "Security deposits are recognized as a financial liability under IFRS 9 since they represent an obligation to return cash",
+            "clarification_question": null,
+            "cases": null,
+            "ambiguous": false
+          },
+          {
+            "aspect": "Revenue recognition for monthly rent",
+            "input_contextualized_conventional_default": "Transaction describes lease signing and deposit receipt only \u2014 no rent payment received yet, so no revenue to recognize at this point",
+            "input_contextualized_ifrs_default": "IFRS 16 (lessor accounting): rental income recognized on straight-line basis over lease term as earned \u2014 no rent earned at signing",
+            "clarification_question": null,
+            "cases": null,
+            "ambiguous": false
+          },
+          {
+            "aspect": "Sales tax on security deposit",
+            "input_contextualized_conventional_default": "Security deposits are not subject to HST as they are refundable and not consideration for a supply \u2014 only rent payments attract HST",
+            "input_contextualized_ifrs_default": null,
+            "clarification_question": null,
+            "cases": null,
+            "ambiguous": false
+          }
+        ]
+      }
+    ],
+    "output_debit_classifier": [
+      {
+        "asset_increase": [
+          {
+            "reason": "Cash received as security deposit from tenant",
+            "category": "Cash and cash equivalents",
+            "count": 1
+          }
+        ],
+        "expense_increase": [],
+        "liability_decrease": [],
+        "equity_decrease": [],
+        "revenue_decrease": [],
+        "tuple": [
+          1,
+          0,
+          0,
+          0,
+          0
+        ]
+      }
+    ],
+    "output_credit_classifier": [
+      {
+        "liability_increase": [
+          {
+            "reason": "Security deposit received from tenant, refundable at lease end",
+            "category": "Other payables",
+            "count": 1
+          }
+        ],
+        "equity_increase": [],
+        "revenue_increase": [
+          {
+            "reason": "Rental income earned for the period from leasing building space",
+            "category": "Rental income",
+            "count": 1
+          }
+        ],
+        "asset_decrease": [],
+        "expense_decrease": [],
+        "tuple": [
+          1,
+          0,
+          1,
+          0,
+          0
+        ]
+      }
+    ],
+    "output_debit_corrector": [],
+    "output_credit_corrector": [],
+    "output_entry_builder": [],
+    "output_approver": [],
+    "output_diagnostician": [],
+    "status_ambiguity_detector": 1,
+    "status_complexity_detector": 1,
+    "status_tax_specialist": 1,
+    "status_decision_maker": 1,
+    "status_entry_drafter": 1,
+    "status_disambiguator": 1,
+    "status_debit_classifier": 1,
+    "status_credit_classifier": 1,
+    "status_debit_corrector": 0,
+    "status_credit_corrector": 0,
+    "status_entry_builder": 0,
+    "status_approver": 0,
+    "status_diagnostician": 0,
+    "fix_context_disambiguator": [],
+    "fix_context_debit_classifier": [],
+    "fix_context_credit_classifier": [],
+    "fix_context_debit_corrector": [],
+    "fix_context_credit_corrector": [],
+    "fix_context_entry_builder": [],
+    "fix_context_approver": [],
+    "fix_context_diagnostician": [],
+    "decision": "APPROVED",
+    "validation_error": null,
+    "llm_calls": [
+      {
+        "node": "debit_classifier",
+        "stop_reason": "tool_use",
+        "input_tokens": 525,
+        "output_tokens": 140,
+        "input_token_details": {
+          "cache_read": 4714,
+          "cache_creation": 0
+        }
+      },
+      {
+        "node": "tax_specialist",
+        "stop_reason": "tool_use",
+        "input_tokens": 564,
+        "output_tokens": 257,
+        "input_token_details": {
+          "cache_read": 3676,
+          "cache_creation": 0
+        }
+      },
+      {
+        "node": "credit_classifier",
+        "stop_reason": "tool_use",
+        "input_tokens": 522,
+        "output_tokens": 175,
+        "input_token_details": {
+          "cache_read": 4602,
+          "cache_creation": 0
+        }
+      },
+      {
+        "node": "unknown",
+        "stop_reason": "tool_use",
+        "input_tokens": 581,
+        "output_tokens": 476,
+        "input_token_details": {
+          "cache_read": 4771,
+          "cache_creation": 0
+        }
+      },
+      {
+        "node": "entry_drafter",
+        "stop_reason": "tool_use",
+        "input_tokens": 1188,
+        "output_tokens": 141,
+        "input_token_details": {
+          "cache_read": 3900,
+          "cache_creation": 0
+        }
+      }
+    ],
+    "stop_reasons": {
+      "debit_classifier": "tool_use",
+      "tax_specialist": "tool_use",
+      "credit_classifier": "tool_use",
+      "unknown": "tool_use",
+      "entry_drafter": "tool_use"
+    }
+  }
+}

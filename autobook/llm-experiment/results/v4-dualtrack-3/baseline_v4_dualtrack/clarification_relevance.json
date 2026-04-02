@@ -1,0 +1,73 @@
+{
+  "evaluator": "claude",
+  "evaluated_at": "2026-04-01T13:16:01.005956",
+  "prompt_version": "v4",
+  "source_files": [
+    "eval_clarification.json"
+  ],
+  "results": {
+    "hard_01_note_discounting": {
+      "actual_decision": "INCOMPLETE_INFORMATION",
+      "actual_questions": [
+        "Was this a sale of the note receivable (derecognition) or a secured borrowing with the note as collateral?"
+      ],
+      "expected_cases": [
+        "Derecognition (sale)",
+        "Collateralized borrowing"
+      ],
+      "relevant": true,
+      "reason": "Decision is INCOMPLETE_INFORMATION, question directly distinguishes sale (derecognition) vs secured borrowing, and asks about the nature of the transaction (a business fact) rather than which accounting standard to apply."
+    },
+    "hard_02_investment_classification": {
+      "actual_decision": "INCOMPLETE_INFORMATION",
+      "actual_questions": [
+        "How does BlackRock intend to classify this 10% investment in Ford - as FVTPL, FVOCI, or does it have significant influence requiring equity method?"
+      ],
+      "expected_cases": [
+        "FVTPL",
+        "FVOCI",
+        "Equity method"
+      ],
+      "relevant": true,
+      "reason": "Decision is INCOMPLETE_INFORMATION, question covers all three expected classifications. Under IFRS 9, classification depends on the entity's business model and management intent, which are business facts. The significant-influence inquiry is also a factual question about the investee relationship."
+    },
+    "hard_16_rent_treatment": {
+      "actual_decision": "INCOMPLETE_INFORMATION",
+      "actual_questions": [
+        "Does the company elect the IFRS 16 short-term lease exemption to expense this rent immediately, or should it be recorded as a prepaid asset?"
+      ],
+      "expected_cases": [
+        "Prepaid asset",
+        "Immediate expense (IFRS 16 short-term lease exemption)"
+      ],
+      "relevant": false,
+      "reason": "Decision is INCOMPLETE_INFORMATION and the question distinguishes between the two expected interpretations, but it asks directly about an accounting policy election ('Does the company elect the IFRS 16 short-term lease exemption') rather than an underlying business fact such as the lease term, renewal options, or the company's existing accounting policy. This violates criterion 4."
+    },
+    "hard_27_meal_purpose": {
+      "actual_decision": "INCOMPLETE_INFORMATION",
+      "actual_questions": [
+        "What was the business purpose of this meal?"
+      ],
+      "expected_cases": [
+        "Overtime meal",
+        "Working meeting",
+        "Client entertainment",
+        "Factory staff meal"
+      ],
+      "relevant": true,
+      "reason": "Decision is INCOMPLETE_INFORMATION, question asks about the business purpose (a factual matter), and the answer would distinguish between client entertainment, working meeting, overtime meal, and other meal contexts. The pipeline's enumerated cases (client entertainment, travel meal, team meeting) align with the expected interpretations."
+    },
+    "hard_32_grocery_purpose": {
+      "actual_decision": "INCOMPLETE_INFORMATION",
+      "actual_questions": [
+        "What was the business purpose of this purchase (e.g., office supplies for staff, client entertainment, meeting refreshments)?"
+      ],
+      "expected_cases": [
+        "Client entertainment",
+        "Employee break room supplies"
+      ],
+      "relevant": true,
+      "reason": "Decision is INCOMPLETE_INFORMATION, question asks about business purpose (a factual matter), and the enumerated examples include both 'office supplies for staff' (maps to break room supplies) and 'client entertainment', directly covering both expected interpretations."
+    }
+  }
+}

@@ -1,0 +1,17 @@
+{
+  "evaluator": "claude",
+  "evaluated_at": "2026-04-01T18:00:00Z",
+  "prompt_version": "v4",
+  "results": {
+    "int_17_customer_deposit": {"match": true, "tax_relaxed_match": true, "reason": "Cash and cash equivalents = Cash—chequing; Contract liabilities exact"},
+    "int_18_multiple_assets": {"match": true, "tax_relaxed_match": true, "reason": "Office equipment / Motor vehicles = PP&E sub-accounts; amounts exact"},
+    "int_19_service_revenue_cash": {"match": true, "tax_relaxed_match": true, "reason": "Cash $25,500 / Revenue $25,500 — exact"},
+    "int_20_service_revenue_credit": {"match": false, "tax_relaxed_match": true, "reason": "Added HST: Trade receivables $35,595 / Revenue $31,500 / Tax liabilities $4,095. Expected $31,500/$31,500. Tax-only difference."},
+    "int_21_rd_expense": {"match": true, "tax_relaxed_match": true, "reason": "R&D expense / Cash — exact"},
+    "int_22_compound_sale_with_tax": {"match": true, "tax_relaxed_match": true, "reason": "All 6 lines correct; Cost of sales = COGS; Tax liabilities = Sales tax payable; amounts exact"},
+    "int_23_split_electricity": {"match": true, "tax_relaxed_match": true, "reason": "WIP / Utilities expense / Credit card payable — exact"},
+    "int_24_advertising": {"match": false, "tax_relaxed_match": true, "reason": "HST split: Advertising $19,469.03 + Tax assets $2,530.97 / Cash $22,000. Expected $22,000 gross. Tax-only."},
+    "int_25_building_purchase_allocation": {"match": true, "tax_relaxed_match": true, "reason": "Land $6M / Buildings $3M / Tax assets $300K / Trade payables $4.5M / Cash $4.8M — amounts exact; Trade payables acceptable for Other payables"},
+    "int_26a_payroll_recognition": {"match": false, "tax_relaxed_match": false, "reason": "Withholdings split into Employee benefits payable $5,250 + Statutory withholdings payable $2,500 instead of consolidated $7,750. Also Employee benefits expense vs Salaries expense."}
+  }
+}

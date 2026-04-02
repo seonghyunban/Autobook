@@ -1,0 +1,294 @@
+{
+  "evaluator": "claude",
+  "evaluated_at": "2026-04-01T00:43:13.028967",
+  "prompt_version": "v4",
+  "source_files": [
+    "eval_entry_basic.json",
+    "eval_entry_int_batch1.json",
+    "eval_entry_int_batch2.json",
+    "eval_entry_int_batch3.json",
+    "eval_entry_int_batch4.json"
+  ],
+  "results": {
+    "basic_01_inventory_cash": {
+      "match": true,
+      "tax_relaxed_match": true,
+      "reason": "Inventories \u2014 merchandise = Inventories; Cash and cash equivalents = Cash; amounts exact"
+    },
+    "basic_02_inventory_on_account": {
+      "match": false,
+      "tax_relaxed_match": true,
+      "reason": "Extra HST ITC debit line (Tax assets $39) added; Trade payables inflated to $339 vs expected $300. Core entry correct; differences are tax-only"
+    },
+    "basic_03_issue_stock_with_apic": {
+      "match": true,
+      "tax_relaxed_match": true,
+      "reason": "Issued capital = Share capital\u2014Common; Share premium = APIC; amounts exact"
+    },
+    "basic_04_sell_inventory": {
+      "match": true,
+      "tax_relaxed_match": true,
+      "reason": "Cost of sales = COGS; Revenue from sale of goods = Revenue; 4-line entry exact"
+    },
+    "basic_05_pay_accounts_payable": {
+      "match": true,
+      "tax_relaxed_match": true,
+      "reason": "Trade payables / Cash \u2014 exact match"
+    },
+    "basic_06_refinance_loan": {
+      "match": true,
+      "tax_relaxed_match": true,
+      "reason": "Long-term borrowings = Notes payable; same-account debit/credit exact"
+    },
+    "basic_07_loan_to_equity": {
+      "match": true,
+      "tax_relaxed_match": true,
+      "reason": "Short-term borrowings = Notes payable; Issued capital = Share capital\u2014Common; amounts exact"
+    },
+    "basic_08_deliver_service_against_deposit": {
+      "match": true,
+      "tax_relaxed_match": true,
+      "reason": "Contract liabilities exact; Revenue from rendering of services = Revenue; amounts exact"
+    },
+    "basic_09_repurchase_stock": {
+      "match": true,
+      "tax_relaxed_match": true,
+      "reason": "Treasury shares / Cash \u2014 exact match"
+    },
+    "basic_10_declare_dividend": {
+      "match": true,
+      "tax_relaxed_match": true,
+      "reason": "Retained earnings / Dividends payable \u2014 exact; correctly uses Retained earnings not Dividends declared"
+    },
+    "basic_11_convert_preferred_to_common": {
+      "match": true,
+      "tax_relaxed_match": true,
+      "reason": "Issued capital \u2014 preferred/common shares = Share capital\u2014Preferred/Common; amounts exact"
+    },
+    "basic_12_pay_salaries": {
+      "match": true,
+      "tax_relaxed_match": true,
+      "reason": "Employee benefits expense (IAS 19) = Salaries expense; Cash exact"
+    },
+    "basic_13_accrue_utility": {
+      "match": true,
+      "tax_relaxed_match": true,
+      "reason": "Utilities expense / Accrued liabilities \u2014 exact match"
+    },
+    "basic_14_casualty_loss": {
+      "match": true,
+      "tax_relaxed_match": true,
+      "reason": "Casualty loss / Inventories \u2014 exact match"
+    },
+    "basic_15_no_entry": {
+      "match": false,
+      "tax_relaxed_match": false,
+      "reason": "journal_entry is non-null object with empty lines instead of expected null; not a tax-only difference"
+    },
+    "int_03_machinery_purchase": {
+      "match": true,
+      "tax_relaxed_match": true,
+      "reason": "PP&E Machinery / Trade payables / Cash \u2014 exact match with minor account name variants"
+    },
+    "int_04_major_overhaul": {
+      "match": true,
+      "tax_relaxed_match": true,
+      "reason": "PP&E Machinery / Cash \u2014 exact match"
+    },
+    "int_05_bond_issuance_discount": {
+      "match": false,
+      "tax_relaxed_match": false,
+      "reason": "Cash $2,657,516.24 vs expected $2,657,510 \u2014 $6.24 outside +/-1 PV rounding tolerance; Discount correspondingly off"
+    },
+    "int_06_warranty_provision": {
+      "match": true,
+      "tax_relaxed_match": true,
+      "reason": "Warranty provisions = Provision for warranties; Warranty expense exact"
+    },
+    "int_07_decommissioning_provision": {
+      "match": true,
+      "tax_relaxed_match": true,
+      "reason": "PP&E / Trade payables / Decommissioning provision \u2014 amounts exact"
+    },
+    "int_08_share_repurchase_cancel": {
+      "match": true,
+      "tax_relaxed_match": true,
+      "reason": "Issued capital = Share capital; Retained earnings $10,000 correct; Cash $60,000 exact"
+    },
+    "int_09_merchandise_with_costs": {
+      "match": true,
+      "tax_relaxed_match": true,
+      "reason": "Inventories / Warehousing expense / Transportation expense (= Distribution costs) / Trade payables / Cash \u2014 amounts exact"
+    },
+    "int_10_prepayment": {
+      "match": true,
+      "tax_relaxed_match": true,
+      "reason": "Prepaid expenses = Prepayments; Cash exact"
+    },
+    "int_11_land_instalment_discount": {
+      "match": false,
+      "tax_relaxed_match": false,
+      "reason": "Land $49,173,243 vs expected $49,173,000 \u2014 $243 outside +/-1 PV rounding; Discount correspondingly off"
+    },
+    "int_12_site_improvements": {
+      "match": false,
+      "tax_relaxed_match": false,
+      "reason": "Single Cr Cash $4,110,000 instead of two separate lines: Cash $1,750,000 + Cash\u2014chequing $2,360,000; merge_lines collapsed distinct payment methods"
+    },
+    "int_13_donation_note": {
+      "match": true,
+      "tax_relaxed_match": true,
+      "reason": "Donations expense / Notes payable \u2014 exact match"
+    },
+    "int_14_vehicle_mixed_payment": {
+      "match": true,
+      "tax_relaxed_match": true,
+      "reason": "PP&E Vehicles / Cash / Short-term borrowings (= Notes payable for 2-month note) \u2014 exact"
+    },
+    "int_15_bank_loan": {
+      "match": true,
+      "tax_relaxed_match": true,
+      "reason": "Cash / Long-term borrowings \u2014 exact match"
+    },
+    "int_17_customer_deposit": {
+      "match": true,
+      "tax_relaxed_match": true,
+      "reason": "Dr Cash and cash equivalents $5,000 / Cr Contract liabilities $5,000. 'Cash and cash equivalents' is semantically equivalent to 'Cash\u2014chequing' per scoring rules. Amounts exact, structure matches."
+    },
+    "int_18_multiple_assets": {
+      "match": true,
+      "tax_relaxed_match": true,
+      "reason": "Dr Office equipment $5,500 / Dr Motor vehicles $250,000 / Cr Cash and cash equivalents $5,500 / Cr Trade payables $250,000. Two debit lines (not split further), matching expected structure. 'Office equipment' = 'PP&E Office equipment'; 'Motor vehicles' = 'PP&E Vehicles'; 'Cash and cash equivalents' = 'Cash'; 'Trade payables' = 'Trade payables'. All amounts exact."
+    },
+    "int_19_service_revenue_cash": {
+      "match": false,
+      "tax_relaxed_match": true,
+      "reason": "Actual adds 13% HST: Dr Cash $28,815 / Cr Revenue $25,500 / Cr Tax liabilities $3,315. Expected has Dr Cash $25,500 / Cr Revenue $25,500 (no tax split). Cash debit is $3,315 higher due to HST inclusion. The sole difference is the tax treatment \u2014 the revenue line amount ($25,500) and account names are correct. Tax-relaxed match is true."
+    },
+    "int_20_service_revenue_credit": {
+      "match": false,
+      "tax_relaxed_match": true,
+      "reason": "Actual adds 13% HST: Dr Trade receivables $35,595 / Cr Revenue $31,500 / Cr Tax liabilities $4,095. Expected has Dr Trade receivables $31,500 / Cr Revenue $31,500. Receivable is overstated by $4,095 due to HST inclusion. Revenue amount and account names are correct. The only difference is the tax treatment, so tax-relaxed match is true."
+    },
+    "int_21_rd_expense": {
+      "match": true,
+      "tax_relaxed_match": true,
+      "reason": "Dr Research and development expense $50,000 / Cr Cash and cash equivalents $50,000. 'Research and development expense' = 'R&D expense'; 'Cash and cash equivalents' = 'Cash\u2014chequing'. Amounts exact, correct 2-line structure."
+    },
+    "int_22_compound_sale_with_tax": {
+      "match": true,
+      "tax_relaxed_match": true,
+      "reason": "All 6 lines present with correct amounts and types: Dr Cash $45,900 / Dr Trade receivables $30,000 / Dr Cost of sales $55,500 / Cr Revenue from sale of goods $69,000 / Cr Tax liabilities $6,900 / Cr Inventories\u2014finished goods $55,500. 'Cost of sales' = 'COGS'; 'Tax liabilities' = 'Sales tax payable'; 'Revenue from sale of goods' = 'Revenue'. All amounts exact."
+    },
+    "int_23_split_electricity": {
+      "match": false,
+      "tax_relaxed_match": false,
+      "reason": "Credit account mismatch: actual uses 'Accrued liabilities $20,500' but expected is 'Credit card payable $20,500'. These are distinct liability accounts \u2014 a credit card payable is a specific identified liability, not a generic accrual. WIP debit ('Inventories \u2014 work in progress') vs expected 'WIP Manufacturing overhead' is a borderline naming difference, but the credit account name error alone fails the match. No tax-related differences involved."
+    },
+    "int_24_advertising": {
+      "match": false,
+      "tax_relaxed_match": true,
+      "reason": "Actual splits out HST: Dr Advertising expense $19,469.03 / Dr Tax assets $2,530.97 / Cr Cash $22,000. Expected: Dr Advertising expense $22,000 / Cr Cash $22,000 (no tax split). Advertising expense amount is reduced from $22,000 to $19,469.03. Per scoring rules, splitting out HST on an advertising expense when expected does not \u2192 match = false, tax_relaxed_match = true."
+    },
+    "int_25_building_purchase_allocation": {
+      "match": false,
+      "tax_relaxed_match": false,
+      "reason": "Two amount errors caused by incorrect tax base: model applied 10% tax to the building's full fair value ($4,000,000) yielding Tax assets $400,000, whereas expected uses allocated book value ($3,000,000) yielding VAT receivable $300,000. This cascades: actual Cash $4,900,000 vs expected $4,800,000 (difference = $100,000 = tax error). Tax payables account names differ ('Tax assets' vs 'VAT receivable') but are semantically equivalent; however the amounts are wrong. The error is a tax calculation mistake (wrong base), not merely the presence/absence of a tax line, so tax_relaxed_match is also false."
+    },
+    "int_26a_payroll_recognition": {
+      "match": false,
+      "tax_relaxed_match": false,
+      "reason": "Multiple errors: (1) Debit: 'Employee benefits expense $20,000' vs expected 'Salaries expense $20,000' \u2014 different account categories. (2) Credits: actual splits withholdings into 'Employee benefits payable $5,250' + 'Tax liabilities $1,450' = $6,700 total vs expected consolidated 'Statutory withholdings payable $7,750' \u2014 split into multiple lines per scoring rule \u2192 match = false, and the total withholding amount ($6,700 vs $7,750) is also wrong. (3) 'Inventories\u2014work in progress' vs 'WIP Direct labour' is a further sub-account mismatch. No tax-related differences; errors are in payroll account classification and consolidation."
+    },
+    "int_26b_payroll_remittance": {
+      "match": false,
+      "tax_relaxed_match": false,
+      "reason": "Employee benefits payable is not semantically equivalent to Statutory withholdings payable \u2014 different account classes; amounts correct but account name wrong"
+    },
+    "int_28_promotional_literature": {
+      "match": true,
+      "tax_relaxed_match": true,
+      "reason": "Dr Advertising expense $7,000 / Cr Cash $7,000 \u2014 exact match"
+    },
+    "int_29_security_deposit_received": {
+      "match": true,
+      "tax_relaxed_match": true,
+      "reason": "Security deposits payable = Rental deposits received \u2014 both refundable deposit liabilities; Cash exact"
+    },
+    "int_30_short_term_loan_advance": {
+      "match": true,
+      "tax_relaxed_match": true,
+      "reason": "Short-term loans receivable exact; Cash and cash equivalents = Cash\u2014chequing"
+    },
+    "int_31_vehicle_nonrecoverable_tax": {
+      "match": true,
+      "tax_relaxed_match": true,
+      "reason": "Motor vehicles = PP&E Vehicles; Trade payables = Other payables in dealer context; amounts exact"
+    },
+    "int_hard_01a_note_derecognition": {
+      "match": false,
+      "tax_relaxed_match": false,
+      "reason": "Two errors: loss account is Interest expense (not Loss on derecognition) and credit is Short-term loans receivable (not Trade receivables) \u2014 used secured borrowing treatment instead of derecognition"
+    },
+    "int_hard_01b_note_collateralized": {
+      "match": true,
+      "tax_relaxed_match": true,
+      "reason": "Correct secured borrowing treatment; Interest expense and Short-term borrowings; amounts within +/-1 day-count rounding"
+    },
+    "int_hard_02a_investment_fvtpl": {
+      "match": true,
+      "tax_relaxed_match": true,
+      "reason": "FVTPL asset at $3M correct; Professional fees expense = Investment transaction costs (both P&L expense); Cash $3.1M exact"
+    },
+    "int_hard_02b_investment_fvoci": {
+      "match": true,
+      "tax_relaxed_match": true,
+      "reason": "Investments \u2014 FVOCI = Financial assets at FVOCI; costs capitalized into $3.1M asset; Cash exact"
+    },
+    "int_hard_02c_investment_equity_method": {
+      "match": true,
+      "tax_relaxed_match": true,
+      "reason": "Investments \u2014 equity method = Investment in associate under IAS 28; costs capitalized into $3.1M; Cash exact"
+    },
+    "int_hard_27a_meal_overtime": {
+      "match": false,
+      "tax_relaxed_match": false,
+      "reason": "Debit Employee benefits expense correct, but credit is Accrued liabilities not Credit card payable (non-tax mismatch), plus tax split on amounts"
+    },
+    "int_hard_27b_meal_meeting": {
+      "match": false,
+      "tax_relaxed_match": false,
+      "reason": "Debit Meeting expense correct, but credit is Accrued liabilities not Credit card payable (non-tax mismatch), plus tax split"
+    },
+    "int_hard_27c_meal_entertainment": {
+      "match": false,
+      "tax_relaxed_match": false,
+      "reason": "Debit Entertainment expense correct, but credit is Accrued liabilities not Credit card payable (non-tax mismatch), plus tax split"
+    },
+    "int_hard_27d_meal_factory": {
+      "match": false,
+      "tax_relaxed_match": false,
+      "reason": "Debit WIP/Inventories semantically equivalent to WIP Manufacturing overhead; but credit is Accrued liabilities not Credit card payable \u2014 non-tax mismatch"
+    },
+    "int_hard_32a_grocery_entertainment": {
+      "match": false,
+      "tax_relaxed_match": true,
+      "reason": "Entertainment expense correct; Credit card payable correct; only difference is tax split ($1,200 + $120 ITC vs $1,320 gross) \u2014 tax-only difference"
+    },
+    "int_hard_32b_grocery_breakroom": {
+      "match": false,
+      "tax_relaxed_match": true,
+      "reason": "Employee benefits expense correct; Credit card payable correct; only difference is tax split ($1,200 + $120 ITC vs $1,320 gross) \u2014 tax-only difference"
+    },
+    "int_hard_16a_rent_prepaid": {
+      "match": true,
+      "tax_relaxed_match": true,
+      "reason": "Prepaid expenses = Prepaid rent (semantically equivalent); Cash and cash equivalents = Cash\u2014chequing; amounts exact"
+    },
+    "int_hard_16b_rent_expense": {
+      "match": false,
+      "tax_relaxed_match": false,
+      "reason": "Occupancy expense is not semantically equivalent to Rent expense \u2014 broader category; not a tax-only difference"
+    }
+  }
+}

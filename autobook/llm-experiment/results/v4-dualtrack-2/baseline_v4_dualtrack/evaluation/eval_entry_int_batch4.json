@@ -1,0 +1,47 @@
+{
+  "evaluator": "claude",
+  "evaluated_at": "2026-04-01T12:00:00",
+  "prompt_version": "v4",
+  "results": {
+    "int_hard_27a_meal_overtime": {
+      "match": false,
+      "tax_relaxed_match": false,
+      "reason": "Debit Employee benefits expense correct, but credit is Accrued liabilities not Credit card payable (non-tax mismatch), plus tax split on amounts"
+    },
+    "int_hard_27b_meal_meeting": {
+      "match": false,
+      "tax_relaxed_match": false,
+      "reason": "Debit Meeting expense correct, but credit is Accrued liabilities not Credit card payable (non-tax mismatch), plus tax split"
+    },
+    "int_hard_27c_meal_entertainment": {
+      "match": false,
+      "tax_relaxed_match": false,
+      "reason": "Debit Entertainment expense correct, but credit is Accrued liabilities not Credit card payable (non-tax mismatch), plus tax split"
+    },
+    "int_hard_27d_meal_factory": {
+      "match": false,
+      "tax_relaxed_match": false,
+      "reason": "Debit WIP/Inventories semantically equivalent to WIP Manufacturing overhead; but credit is Accrued liabilities not Credit card payable — non-tax mismatch"
+    },
+    "int_hard_32a_grocery_entertainment": {
+      "match": false,
+      "tax_relaxed_match": true,
+      "reason": "Entertainment expense correct; Credit card payable correct; only difference is tax split ($1,200 + $120 ITC vs $1,320 gross) — tax-only difference"
+    },
+    "int_hard_32b_grocery_breakroom": {
+      "match": false,
+      "tax_relaxed_match": true,
+      "reason": "Employee benefits expense correct; Credit card payable correct; only difference is tax split ($1,200 + $120 ITC vs $1,320 gross) — tax-only difference"
+    },
+    "int_hard_16a_rent_prepaid": {
+      "match": true,
+      "tax_relaxed_match": true,
+      "reason": "Prepaid expenses = Prepaid rent (semantically equivalent); Cash and cash equivalents = Cash—chequing; amounts exact"
+    },
+    "int_hard_16b_rent_expense": {
+      "match": false,
+      "tax_relaxed_match": false,
+      "reason": "Occupancy expense is not semantically equivalent to Rent expense — broader category; not a tax-only difference"
+    }
+  }
+}

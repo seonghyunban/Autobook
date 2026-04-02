@@ -1,0 +1,72 @@
+{
+  "evaluator": "claude",
+  "evaluated_at": "2026-04-01T12:00:00",
+  "prompt_version": "v4",
+  "results": {
+    "int_03_machinery_purchase": {
+      "match": true,
+      "tax_relaxed_match": true,
+      "reason": "PP&E Machinery / Trade payables / Cash — exact match with minor account name variants"
+    },
+    "int_04_major_overhaul": {
+      "match": true,
+      "tax_relaxed_match": true,
+      "reason": "PP&E Machinery / Cash — exact match"
+    },
+    "int_05_bond_issuance_discount": {
+      "match": false,
+      "tax_relaxed_match": false,
+      "reason": "Cash $2,657,516.24 vs expected $2,657,510 — $6.24 outside +/-1 PV rounding tolerance; Discount correspondingly off"
+    },
+    "int_06_warranty_provision": {
+      "match": true,
+      "tax_relaxed_match": true,
+      "reason": "Warranty provisions = Provision for warranties; Warranty expense exact"
+    },
+    "int_07_decommissioning_provision": {
+      "match": true,
+      "tax_relaxed_match": true,
+      "reason": "PP&E / Trade payables / Decommissioning provision — amounts exact"
+    },
+    "int_08_share_repurchase_cancel": {
+      "match": true,
+      "tax_relaxed_match": true,
+      "reason": "Issued capital = Share capital; Retained earnings $10,000 correct; Cash $60,000 exact"
+    },
+    "int_09_merchandise_with_costs": {
+      "match": true,
+      "tax_relaxed_match": true,
+      "reason": "Inventories / Warehousing expense / Transportation expense (= Distribution costs) / Trade payables / Cash — amounts exact"
+    },
+    "int_10_prepayment": {
+      "match": true,
+      "tax_relaxed_match": true,
+      "reason": "Prepaid expenses = Prepayments; Cash exact"
+    },
+    "int_11_land_instalment_discount": {
+      "match": false,
+      "tax_relaxed_match": false,
+      "reason": "Land $49,173,243 vs expected $49,173,000 — $243 outside +/-1 PV rounding; Discount correspondingly off"
+    },
+    "int_12_site_improvements": {
+      "match": false,
+      "tax_relaxed_match": false,
+      "reason": "Single Cr Cash $4,110,000 instead of two separate lines: Cash $1,750,000 + Cash—chequing $2,360,000; merge_lines collapsed distinct payment methods"
+    },
+    "int_13_donation_note": {
+      "match": true,
+      "tax_relaxed_match": true,
+      "reason": "Donations expense / Notes payable — exact match"
+    },
+    "int_14_vehicle_mixed_payment": {
+      "match": true,
+      "tax_relaxed_match": true,
+      "reason": "PP&E Vehicles / Cash / Short-term borrowings (= Notes payable for 2-month note) — exact"
+    },
+    "int_15_bank_loan": {
+      "match": true,
+      "tax_relaxed_match": true,
+      "reason": "Cash / Long-term borrowings — exact match"
+    }
+  }
+}

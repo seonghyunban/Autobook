@@ -1,0 +1,491 @@
+{
+  "test_case_id": "int_hard_02b_investment_fvoci",
+  "variant_name": "baseline_v4_dualtrack",
+  "model": "sonnet",
+  "debit_tuple_exact_match": true,
+  "credit_tuple_exact_match": true,
+  "debit_tuple_slot_accuracy": 0.8333333333333334,
+  "credit_tuple_slot_accuracy": 0.8333333333333334,
+  "entry_valid": true,
+  "debit_tuple": [
+    1,
+    0,
+    0,
+    0,
+    0
+  ],
+  "credit_tuple": [
+    0,
+    0,
+    0,
+    1,
+    0
+  ],
+  "journal_entry": {
+    "reason": "FVOCI equity investment acquired at cost plus capitalized transaction costs, paid by cheque",
+    "lines": [
+      {
+        "type": "debit",
+        "account_name": "Investments \u2014 FVOCI",
+        "amount": 3100000.0
+      },
+      {
+        "type": "credit",
+        "account_name": "Cash and cash equivalents",
+        "amount": 3100000.0
+      }
+    ]
+  },
+  "actual_cost_usd": 0.0339369,
+  "raw_cost_usd": 0.092427,
+  "total_latency_ms": 27171,
+  "total_input_tokens": 24944,
+  "total_output_tokens": 1173,
+  "total_llm_calls": 5,
+  "iteration_count": 1,
+  "final_decision": "APPROVED",
+  "fix_attempted": null,
+  "fix_succeeded": null,
+  "agent_metrics": {
+    "tax_specialist": {
+      "input_tokens": 563,
+      "output_tokens": 181,
+      "cache_read_tokens": 3676,
+      "cache_write_tokens": 0,
+      "total_input_tokens": 4239,
+      "llm_calls": 1,
+      "actual_cost_usd": 0.0055068,
+      "raw_cost_usd": 0.015432,
+      "output": {
+        "reasoning": "Transaction involves acquisition of equity investment and transaction fee. Equity investments and financial instrument transactions are not taxable supplies under GST/HST. No tax mentioned in text.",
+        "tax_mentioned": false,
+        "taxable": false,
+        "tax_context": null,
+        "tax_rate": null,
+        "add_tax_lines": false,
+        "treatment": "not_applicable"
+      },
+      "reason": null
+    },
+    "credit_classifier": {
+      "input_tokens": 521,
+      "output_tokens": 143,
+      "cache_read_tokens": 4602,
+      "cache_write_tokens": 0,
+      "total_input_tokens": 5123,
+      "llm_calls": 1,
+      "actual_cost_usd": 0.0050886,
+      "raw_cost_usd": 0.017514,
+      "output": {
+        "liability_increase": [],
+        "equity_increase": [],
+        "revenue_increase": [],
+        "asset_decrease": [
+          {
+            "reason": "Cheque payment for investment acquisition and transaction fee",
+            "category": "Cash and cash equivalents",
+            "count": 1
+          }
+        ],
+        "expense_decrease": [],
+        "tuple": [
+          0,
+          0,
+          0,
+          1,
+          0
+        ]
+      },
+      "reason": null
+    },
+    "unknown": {
+      "input_tokens": 580,
+      "output_tokens": 548,
+      "cache_read_tokens": 4771,
+      "cache_write_tokens": 0,
+      "total_input_tokens": 5351,
+      "llm_calls": 1,
+      "actual_cost_usd": 0.0113913,
+      "raw_cost_usd": 0.024273,
+      "output": null,
+      "reason": null
+    },
+    "debit_classifier": {
+      "input_tokens": 524,
+      "output_tokens": 150,
+      "cache_read_tokens": 4714,
+      "cache_write_tokens": 0,
+      "total_input_tokens": 5238,
+      "llm_calls": 1,
+      "actual_cost_usd": 0.0052362,
+      "raw_cost_usd": 0.017964,
+      "output": {
+        "asset_increase": [
+          {
+            "reason": "Equity investment acquired at cost plus transaction costs under FVOCI election",
+            "category": "Investments \u2014 FVOCI",
+            "count": 1
+          }
+        ],
+        "expense_increase": [],
+        "liability_decrease": [],
+        "equity_decrease": [],
+        "revenue_decrease": [],
+        "tuple": [
+          1,
+          0,
+          0,
+          0,
+          0
+        ]
+      },
+      "reason": null
+    },
+    "entry_drafter": {
+      "input_tokens": 1093,
+      "output_tokens": 151,
+      "cache_read_tokens": 3900,
+      "cache_write_tokens": 0,
+      "total_input_tokens": 4993,
+      "llm_calls": 1,
+      "actual_cost_usd": 0.006714,
+      "raw_cost_usd": 0.017244,
+      "output": {
+        "reason": "FVOCI equity investment acquired at cost plus capitalized transaction costs, paid by cheque",
+        "lines": [
+          {
+            "type": "debit",
+            "account_name": "Investments \u2014 FVOCI",
+            "amount": 3100000.0
+          },
+          {
+            "type": "credit",
+            "account_name": "Cash and cash equivalents",
+            "amount": 3100000.0
+          }
+        ]
+      },
+      "reason": "FVOCI equity investment acquired at cost plus capitalized transaction costs, paid by cheque"
+    }
+  },
+  "pre_fix_debit_tuple": null,
+  "post_fix_debit_tuple": null,
+  "pre_fix_credit_tuple": null,
+  "post_fix_credit_tuple": null,
+  "fix_root_cause_agent": null,
+  "rejection_reason": null,
+  "diagnostician_decision": null,
+  "validation_error": null,
+  "decision_correct": true,
+  "entry_match": null,
+  "clarification_correct": null,
+  "clarification_questions": null,
+  "ambiguous": false,
+  "tier": "intermediate",
+  "error": null,
+  "pipeline_state": {
+    "iteration": 0,
+    "output_ambiguity_detector": [
+      {
+        "ambiguities": [
+          {
+            "aspect": "Classification of investment (FVOCI vs FVTPL vs equity method)",
+            "input_contextualized_conventional_default": null,
+            "input_contextualized_ifrs_default": "IFRS 9 allows irrevocable FVOCI election for equity investments not held for trading; management has explicitly elected FVOCI, so classify as FVOCI equity investment.",
+            "clarification_question": null,
+            "cases": null,
+            "ambiguous": false
+          },
+          {
+            "aspect": "Treatment of transaction costs",
+            "input_contextualized_conventional_default": null,
+            "input_contextualized_ifrs_default": "For FVOCI equity investments, transaction costs are capitalized into the investment cost (IFRS 9.5.1.1), not expensed.",
+            "clarification_question": null,
+            "cases": null,
+            "ambiguous": false
+          },
+          {
+            "aspect": "Payment method",
+            "input_contextualized_conventional_default": "'by cheque' resolves as cash payment (asset decrease).",
+            "input_contextualized_ifrs_default": null,
+            "clarification_question": null,
+            "cases": null,
+            "ambiguous": false
+          }
+        ]
+      }
+    ],
+    "output_complexity_detector": [
+      {
+        "flags": [
+          {
+            "aspect": "Straightforward equity investment with capitalized transaction costs",
+            "best_attempt": {
+              "reason": "FVOCI equity investment requires capitalizing transaction costs into the investment; total cost is $3,000,000 + $100,000 = $3,100,000, paid by cheque (cash).",
+              "lines": [
+                {
+                  "type": "debit",
+                  "account_name": "Investment in Ford (FVOCI)",
+                  "amount": 3100000.0
+                },
+                {
+                  "type": "credit",
+                  "account_name": "Cash",
+                  "amount": 3100000.0
+                }
+              ]
+            },
+            "gap": null,
+            "beyond_llm_capability": false
+          }
+        ]
+      }
+    ],
+    "output_tax_specialist": [
+      {
+        "reasoning": "Transaction involves acquisition of equity investment and transaction fee. Equity investments and financial instrument transactions are not taxable supplies under GST/HST. No tax mentioned in text.",
+        "tax_mentioned": false,
+        "taxable": false,
+        "tax_context": null,
+        "tax_rate": null,
+        "add_tax_lines": false,
+        "treatment": "not_applicable"
+      }
+    ],
+    "output_decision_maker": [
+      {
+        "ambiguities": [
+          {
+            "aspect": "Classification of investment (FVOCI vs FVTPL vs equity method)",
+            "input_contextualized_conventional_default": null,
+            "input_contextualized_ifrs_default": "IFRS 9 allows irrevocable FVOCI election for equity investments not held for trading; management has explicitly elected FVOCI, so classify as FVOCI equity investment.",
+            "clarification_question": null,
+            "cases": null,
+            "ambiguous": false
+          },
+          {
+            "aspect": "Treatment of transaction costs",
+            "input_contextualized_conventional_default": null,
+            "input_contextualized_ifrs_default": "For FVOCI equity investments, transaction costs are capitalized into the investment cost (IFRS 9.5.1.1), not expensed.",
+            "clarification_question": null,
+            "cases": null,
+            "ambiguous": false
+          },
+          {
+            "aspect": "Payment method",
+            "input_contextualized_conventional_default": "'by cheque' resolves as cash payment (asset decrease).",
+            "input_contextualized_ifrs_default": null,
+            "clarification_question": null,
+            "cases": null,
+            "ambiguous": false
+          }
+        ],
+        "complexity_flags": [
+          {
+            "aspect": "Straightforward equity investment with capitalized transaction costs",
+            "best_attempt": {
+              "reason": "FVOCI equity investment requires capitalizing transaction costs into the investment; total cost is $3,000,000 + $100,000 = $3,100,000, paid by cheque (cash).",
+              "lines": [
+                {
+                  "type": "debit",
+                  "account_name": "Investment in Ford (FVOCI)",
+                  "amount": 3100000.0
+                },
+                {
+                  "type": "credit",
+                  "account_name": "Cash",
+                  "amount": 3100000.0
+                }
+              ]
+            },
+            "gap": null,
+            "beyond_llm_capability": false
+          }
+        ],
+        "proceed_reason": "Management's FVOCI election is explicitly stated, and IFRS 9 requires capitalizing transaction costs for FVOCI equity investments.",
+        "clarification_questions": null,
+        "stuck_reason": null,
+        "overall_final_rationale": "All aspects are resolved by IFRS rules: FVOCI election is stated, transaction costs are capitalized per IFRS 9, and payment method is clear.",
+        "decision": "PROCEED"
+      }
+    ],
+    "output_entry_drafter": [
+      {
+        "reason": "FVOCI equity investment acquired at cost plus capitalized transaction costs, paid by cheque",
+        "lines": [
+          {
+            "type": "debit",
+            "account_name": "Investments \u2014 FVOCI",
+            "amount": 3100000.0
+          },
+          {
+            "type": "credit",
+            "account_name": "Cash and cash equivalents",
+            "amount": 3100000.0
+          }
+        ]
+      }
+    ],
+    "output_disambiguator": [
+      {
+        "ambiguities": [
+          {
+            "aspect": "Classification of investment (FVOCI vs FVTPL vs equity method)",
+            "input_contextualized_conventional_default": null,
+            "input_contextualized_ifrs_default": "IFRS 9 allows irrevocable FVOCI election for equity investments not held for trading; management has explicitly elected FVOCI, so classify as FVOCI equity investment.",
+            "clarification_question": null,
+            "cases": null,
+            "ambiguous": false
+          },
+          {
+            "aspect": "Treatment of transaction costs",
+            "input_contextualized_conventional_default": null,
+            "input_contextualized_ifrs_default": "For FVOCI equity investments, transaction costs are capitalized into the investment cost (IFRS 9.5.1.1), not expensed.",
+            "clarification_question": null,
+            "cases": null,
+            "ambiguous": false
+          },
+          {
+            "aspect": "Payment method",
+            "input_contextualized_conventional_default": "'by cheque' resolves as cash payment (asset decrease).",
+            "input_contextualized_ifrs_default": null,
+            "clarification_question": null,
+            "cases": null,
+            "ambiguous": false
+          }
+        ]
+      }
+    ],
+    "output_debit_classifier": [
+      {
+        "asset_increase": [
+          {
+            "reason": "Equity investment acquired at cost plus transaction costs under FVOCI election",
+            "category": "Investments \u2014 FVOCI",
+            "count": 1
+          }
+        ],
+        "expense_increase": [],
+        "liability_decrease": [],
+        "equity_decrease": [],
+        "revenue_decrease": [],
+        "tuple": [
+          1,
+          0,
+          0,
+          0,
+          0
+        ]
+      }
+    ],
+    "output_credit_classifier": [
+      {
+        "liability_increase": [],
+        "equity_increase": [],
+        "revenue_increase": [],
+        "asset_decrease": [
+          {
+            "reason": "Cheque payment for investment acquisition and transaction fee",
+            "category": "Cash and cash equivalents",
+            "count": 1
+          }
+        ],
+        "expense_decrease": [],
+        "tuple": [
+          0,
+          0,
+          0,
+          1,
+          0
+        ]
+      }
+    ],
+    "output_debit_corrector": [],
+    "output_credit_corrector": [],
+    "output_entry_builder": [],
+    "output_approver": [],
+    "output_diagnostician": [],
+    "status_ambiguity_detector": 1,
+    "status_complexity_detector": 1,
+    "status_tax_specialist": 1,
+    "status_decision_maker": 1,
+    "status_entry_drafter": 1,
+    "status_disambiguator": 1,
+    "status_debit_classifier": 1,
+    "status_credit_classifier": 1,
+    "status_debit_corrector": 0,
+    "status_credit_corrector": 0,
+    "status_entry_builder": 0,
+    "status_approver": 0,
+    "status_diagnostician": 0,
+    "fix_context_disambiguator": [],
+    "fix_context_debit_classifier": [],
+    "fix_context_credit_classifier": [],
+    "fix_context_debit_corrector": [],
+    "fix_context_credit_corrector": [],
+    "fix_context_entry_builder": [],
+    "fix_context_approver": [],
+    "fix_context_diagnostician": [],
+    "decision": "APPROVED",
+    "validation_error": null,
+    "llm_calls": [
+      {
+        "node": "tax_specialist",
+        "stop_reason": "tool_use",
+        "input_tokens": 563,
+        "output_tokens": 181,
+        "input_token_details": {
+          "cache_read": 3676,
+          "cache_creation": 0
+        }
+      },
+      {
+        "node": "credit_classifier",
+        "stop_reason": "tool_use",
+        "input_tokens": 521,
+        "output_tokens": 143,
+        "input_token_details": {
+          "cache_read": 4602,
+          "cache_creation": 0
+        }
+      },
+      {
+        "node": "unknown",
+        "stop_reason": "tool_use",
+        "input_tokens": 580,
+        "output_tokens": 548,
+        "input_token_details": {
+          "cache_read": 4771,
+          "cache_creation": 0
+        }
+      },
+      {
+        "node": "debit_classifier",
+        "stop_reason": "tool_use",
+        "input_tokens": 524,
+        "output_tokens": 150,
+        "input_token_details": {
+          "cache_read": 4714,
+          "cache_creation": 0
+        }
+      },
+      {
+        "node": "entry_drafter",
+        "stop_reason": "tool_use",
+        "input_tokens": 1093,
+        "output_tokens": 151,
+        "input_token_details": {
+          "cache_read": 3900,
+          "cache_creation": 0
+        }
+      }
+    ],
+    "stop_reasons": {
+      "tax_specialist": "tool_use",
+      "credit_classifier": "tool_use",
+      "unknown": "tool_use",
+      "debit_classifier": "tool_use",
+      "entry_drafter": "tool_use"
+    }
+  }
+}

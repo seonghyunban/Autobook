@@ -1,0 +1,62 @@
+{
+  "evaluator": "claude",
+  "evaluated_at": "2026-03-31T12:00:00Z",
+  "prompt_version": "v4",
+  "results": {
+    "int_hard_02a_investment_fvtpl": {
+      "match": true,
+      "tax_relaxed_match": true,
+      "reason": "All three lines semantically match: 'Investments — FVTPL' equals 'Financial assets at FVTPL', 'Professional fees expense' is semantically equivalent to 'Investment transaction costs' (both represent the expensed transaction fee), and 'Cash and cash equivalents' equals 'Cash'; amounts $3,000,000 / $100,000 / $3,100,000 are exact."
+    },
+    "int_hard_02b_investment_fvoci": {
+      "match": true,
+      "tax_relaxed_match": true,
+      "reason": "Two lines semantically match: 'Investments — FVOCI' equals 'Financial assets at FVOCI' and 'Cash and cash equivalents' equals 'Cash'; amounts $3,100,000 / $3,100,000 are exact."
+    },
+    "int_hard_02c_investment_equity_method": {
+      "match": true,
+      "tax_relaxed_match": true,
+      "reason": "Two lines semantically match: 'Investments — equity method' equals 'Investment in associate' and 'Cash and cash equivalents' equals 'Cash'; amounts $3,100,000 / $3,100,000 are exact."
+    },
+    "int_hard_27a_meal_overtime": {
+      "match": true,
+      "tax_relaxed_match": true,
+      "reason": "Exact match on both account names ('Employee benefits expense' and 'Credit card payable') and amount ($125)."
+    },
+    "int_hard_27b_meal_meeting": {
+      "match": true,
+      "tax_relaxed_match": true,
+      "reason": "Exact match on both account names ('Meeting expense' and 'Credit card payable') and amount ($125)."
+    },
+    "int_hard_27c_meal_entertainment": {
+      "match": true,
+      "tax_relaxed_match": true,
+      "reason": "Exact match on both account names ('Entertainment expense' and 'Credit card payable') and amount ($125)."
+    },
+    "int_hard_27d_meal_factory": {
+      "match": true,
+      "tax_relaxed_match": true,
+      "reason": "Semantically equivalent: 'Inventories — work in progress' matches 'WIP Manufacturing overhead' (both capitalize the meal cost into inventory as manufacturing overhead); credit 'Credit card payable' exact match; amount $125 exact."
+    },
+    "int_hard_32a_grocery_entertainment": {
+      "match": false,
+      "tax_relaxed_match": true,
+      "reason": "Actual entry splits out $120 recoverable tax as a separate Dr Tax assets line, recording expense at $1,200 net (3 lines vs expected 2 lines at $1,320 gross); the only difference is the tax breakout which is a valid realistic treatment."
+    },
+    "int_hard_32b_grocery_breakroom": {
+      "match": false,
+      "tax_relaxed_match": true,
+      "reason": "Actual entry splits out $120 recoverable tax as a separate Dr Tax assets line and records expense at $1,200 net (3 lines vs expected 2 lines at $1,320 gross); credit 'Accrued liabilities' is semantically equivalent to 'Credit card payable'; the only material difference is the tax breakout which is a valid realistic treatment."
+    },
+    "int_hard_16a_rent_prepaid": {
+      "match": true,
+      "tax_relaxed_match": true,
+      "reason": "Semantically equivalent: 'Prepaid expenses' matches 'Prepaid rent' and 'Cash and cash equivalents' matches 'Cash—chequing'; amount $24,000 exact on both lines."
+    },
+    "int_hard_16b_rent_expense": {
+      "match": true,
+      "tax_relaxed_match": true,
+      "reason": "Semantically equivalent: 'Occupancy expense' is the standard IFRS term matching 'Rent expense' and 'Cash and cash equivalents' matches 'Cash—chequing'; amount $24,000 exact on both lines."
+    }
+  }
+}

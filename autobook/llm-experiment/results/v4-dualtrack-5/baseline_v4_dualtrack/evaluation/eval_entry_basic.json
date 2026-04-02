@@ -1,0 +1,22 @@
+{
+  "evaluator": "claude",
+  "evaluated_at": "2026-04-01T18:00:00Z",
+  "prompt_version": "v4",
+  "results": {
+    "basic_01_inventory_cash": {"match": true, "tax_relaxed_match": true, "reason": "Dr Inventories $100 / Cr Cash $100 — exact match"},
+    "basic_02_inventory_on_account": {"match": true, "tax_relaxed_match": true, "reason": "Dr Inventories $300 / Cr Trade payables $300 — exact match"},
+    "basic_03_issue_stock_with_apic": {"match": true, "tax_relaxed_match": true, "reason": "Issued capital = Share capital—Common; Share premium = APIC; amounts exact"},
+    "basic_04_sell_inventory": {"match": true, "tax_relaxed_match": true, "reason": "Cost of sales = COGS; Revenue correct; 4-line entry exact"},
+    "basic_05_pay_accounts_payable": {"match": true, "tax_relaxed_match": true, "reason": "Trade payables / Cash — exact"},
+    "basic_06_refinance_loan": {"match": true, "tax_relaxed_match": true, "reason": "Long-term borrowings = Notes payable; exact"},
+    "basic_07_loan_to_equity": {"match": true, "tax_relaxed_match": true, "reason": "Short-term borrowings = Notes payable; Issued capital = Share capital—Common; exact"},
+    "basic_08_deliver_service_against_deposit": {"match": true, "tax_relaxed_match": true, "reason": "Contract liabilities / Revenue — exact"},
+    "basic_09_repurchase_stock": {"match": true, "tax_relaxed_match": true, "reason": "Treasury shares / Cash — exact"},
+    "basic_10_declare_dividend": {"match": true, "tax_relaxed_match": true, "reason": "Retained Earnings / Dividends Payable — correct, not Dividends declared"},
+    "basic_11_convert_preferred_to_common": {"match": true, "tax_relaxed_match": true, "reason": "Issued capital preferred/common = Share capital—Preferred/Common; exact"},
+    "basic_12_pay_salaries": {"match": true, "tax_relaxed_match": true, "reason": "Employee benefits expense (IAS 19) = Salaries expense; exact"},
+    "basic_13_accrue_utility": {"match": true, "tax_relaxed_match": true, "reason": "Utilities expense / Accrued liabilities — exact"},
+    "basic_14_casualty_loss": {"match": true, "tax_relaxed_match": true, "reason": "Casualty loss / Inventories — exact"},
+    "basic_15_no_entry": {"match": true, "tax_relaxed_match": true, "reason": "Empty lines [] = null — no entry, correct"}
+  }
+}

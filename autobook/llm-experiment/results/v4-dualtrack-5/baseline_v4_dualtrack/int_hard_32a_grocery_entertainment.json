@@ -1,0 +1,490 @@
+{
+  "test_case_id": "int_hard_32a_grocery_entertainment",
+  "variant_name": "baseline_v4_dualtrack",
+  "model": "sonnet",
+  "debit_tuple_exact_match": false,
+  "credit_tuple_exact_match": true,
+  "debit_tuple_slot_accuracy": 0.6666666666666666,
+  "credit_tuple_slot_accuracy": 0.8333333333333334,
+  "entry_valid": true,
+  "debit_tuple": [
+    1,
+    1,
+    0,
+    0,
+    0
+  ],
+  "credit_tuple": [
+    1,
+    0,
+    0,
+    0,
+    0
+  ],
+  "journal_entry": {
+    "reason": "Entertainment expense for client refreshments purchased with corporate credit card, including non-recoverable sales tax",
+    "lines": [
+      {
+        "type": "debit",
+        "account_name": "Entertainment expense",
+        "amount": 1200.0
+      },
+      {
+        "type": "debit",
+        "account_name": "Tax assets",
+        "amount": 120.0
+      },
+      {
+        "type": "credit",
+        "account_name": "Credit card payable",
+        "amount": 1320.0
+      }
+    ]
+  },
+  "actual_cost_usd": 0.0322089,
+  "raw_cost_usd": 0.090699,
+  "total_latency_ms": 20389,
+  "total_input_tokens": 24888,
+  "total_output_tokens": 1069,
+  "total_llm_calls": 5,
+  "iteration_count": 1,
+  "final_decision": "APPROVED",
+  "fix_attempted": null,
+  "fix_succeeded": null,
+  "agent_metrics": {
+    "tax_specialist": {
+      "input_tokens": 551,
+      "output_tokens": 191,
+      "cache_read_tokens": 3676,
+      "cache_write_tokens": 0,
+      "total_input_tokens": 4227,
+      "llm_calls": 1,
+      "actual_cost_usd": 0.0056208000000000004,
+      "raw_cost_usd": 0.015546,
+      "output": {
+        "reasoning": "Text explicitly states \"plus 10% sales tax\" on $1,200 purchase of entertainment supplies",
+        "tax_mentioned": true,
+        "taxable": true,
+        "tax_context": "10% sales tax applies to the $1,200 purchase amount. Input tax credit recoverable on business expense.",
+        "tax_rate": 0.1,
+        "add_tax_lines": true,
+        "treatment": "recoverable"
+      },
+      "reason": null
+    },
+    "credit_classifier": {
+      "input_tokens": 509,
+      "output_tokens": 141,
+      "cache_read_tokens": 4602,
+      "cache_write_tokens": 0,
+      "total_input_tokens": 5111,
+      "llm_calls": 1,
+      "actual_cost_usd": 0.0050226,
+      "raw_cost_usd": 0.017448,
+      "output": {
+        "liability_increase": [
+          {
+            "reason": "Corporate credit card used to pay for entertainment purchase",
+            "category": "Credit card payable",
+            "count": 1
+          }
+        ],
+        "equity_increase": [],
+        "revenue_increase": [],
+        "asset_decrease": [],
+        "expense_decrease": [],
+        "tuple": [
+          1,
+          0,
+          0,
+          0,
+          0
+        ]
+      },
+      "reason": null
+    },
+    "unknown": {
+      "input_tokens": 568,
+      "output_tokens": 386,
+      "cache_read_tokens": 4771,
+      "cache_write_tokens": 0,
+      "total_input_tokens": 5339,
+      "llm_calls": 1,
+      "actual_cost_usd": 0.008925299999999999,
+      "raw_cost_usd": 0.021807,
+      "output": null,
+      "reason": null
+    },
+    "debit_classifier": {
+      "input_tokens": 512,
+      "output_tokens": 173,
+      "cache_read_tokens": 4714,
+      "cache_write_tokens": 0,
+      "total_input_tokens": 5226,
+      "llm_calls": 1,
+      "actual_cost_usd": 0.0055452,
+      "raw_cost_usd": 0.018273,
+      "output": {
+        "asset_increase": [
+          {
+            "reason": "Sales tax paid on purchase is recoverable as input tax credit",
+            "category": "Tax assets",
+            "count": 1
+          }
+        ],
+        "expense_increase": [
+          {
+            "reason": "Tea, beverages, and refreshments purchased for client entertainment",
+            "category": "Entertainment expense",
+            "count": 1
+          }
+        ],
+        "liability_decrease": [],
+        "equity_decrease": [],
+        "revenue_decrease": [],
+        "tuple": [
+          1,
+          1,
+          0,
+          0,
+          0
+        ]
+      },
+      "reason": null
+    },
+    "entry_drafter": {
+      "input_tokens": 1085,
+      "output_tokens": 178,
+      "cache_read_tokens": 3900,
+      "cache_write_tokens": 0,
+      "total_input_tokens": 4985,
+      "llm_calls": 1,
+      "actual_cost_usd": 0.007095,
+      "raw_cost_usd": 0.017625,
+      "output": {
+        "reason": "Entertainment expense for client refreshments purchased with corporate credit card, including non-recoverable sales tax",
+        "lines": [
+          {
+            "type": "debit",
+            "account_name": "Entertainment expense",
+            "amount": 1200.0
+          },
+          {
+            "type": "debit",
+            "account_name": "Tax assets",
+            "amount": 120.0
+          },
+          {
+            "type": "credit",
+            "account_name": "Credit card payable",
+            "amount": 1320.0
+          }
+        ]
+      },
+      "reason": "Entertainment expense for client refreshments purchased with corporate credit card, including non-recoverable sales tax"
+    }
+  },
+  "pre_fix_debit_tuple": null,
+  "post_fix_debit_tuple": null,
+  "pre_fix_credit_tuple": null,
+  "post_fix_credit_tuple": null,
+  "fix_root_cause_agent": null,
+  "rejection_reason": null,
+  "diagnostician_decision": null,
+  "validation_error": null,
+  "decision_correct": true,
+  "entry_match": null,
+  "clarification_correct": null,
+  "clarification_questions": null,
+  "ambiguous": false,
+  "tier": "intermediate",
+  "error": null,
+  "pipeline_state": {
+    "iteration": 0,
+    "output_ambiguity_detector": [
+      {
+        "ambiguities": [
+          {
+            "aspect": "Purpose of purchase",
+            "input_contextualized_conventional_default": "Text explicitly states 'for client entertainment' \u2014 resolve as entertainment expense.",
+            "input_contextualized_ifrs_default": null,
+            "clarification_question": null,
+            "cases": null,
+            "ambiguous": false
+          },
+          {
+            "aspect": "Payment method",
+            "input_contextualized_conventional_default": "'paid by corporate credit card' = credit card payable liability.",
+            "input_contextualized_ifrs_default": null,
+            "clarification_question": null,
+            "cases": null,
+            "ambiguous": false
+          },
+          {
+            "aspect": "Tax treatment - buyer side",
+            "input_contextualized_conventional_default": null,
+            "input_contextualized_ifrs_default": "Tax explicitly stated at 10% ($120). For entertainment expenses, input tax credits (ITCs) are typically restricted \u2014 entertainment expenses are generally not eligible for ITC recovery under Canadian tax rules.",
+            "clarification_question": null,
+            "cases": null,
+            "ambiguous": false
+          }
+        ]
+      }
+    ],
+    "output_complexity_detector": [
+      {
+        "flags": [
+          {
+            "aspect": "Straightforward expense transaction",
+            "best_attempt": null,
+            "gap": null,
+            "beyond_llm_capability": false
+          }
+        ]
+      }
+    ],
+    "output_tax_specialist": [
+      {
+        "reasoning": "Text explicitly states \"plus 10% sales tax\" on $1,200 purchase of entertainment supplies",
+        "tax_mentioned": true,
+        "taxable": true,
+        "tax_context": "10% sales tax applies to the $1,200 purchase amount. Input tax credit recoverable on business expense.",
+        "tax_rate": 0.1,
+        "add_tax_lines": true,
+        "treatment": "recoverable"
+      }
+    ],
+    "output_decision_maker": [
+      {
+        "ambiguities": [
+          {
+            "aspect": "Purpose of purchase",
+            "input_contextualized_conventional_default": "Text explicitly states 'for client entertainment' \u2014 resolve as entertainment expense.",
+            "input_contextualized_ifrs_default": null,
+            "clarification_question": null,
+            "cases": null,
+            "ambiguous": false
+          },
+          {
+            "aspect": "Payment method",
+            "input_contextualized_conventional_default": "'paid by corporate credit card' = credit card payable liability.",
+            "input_contextualized_ifrs_default": null,
+            "clarification_question": null,
+            "cases": null,
+            "ambiguous": false
+          },
+          {
+            "aspect": "Tax treatment - buyer side",
+            "input_contextualized_conventional_default": null,
+            "input_contextualized_ifrs_default": "Tax explicitly stated at 10% ($120). For entertainment expenses, input tax credits (ITCs) are typically restricted \u2014 entertainment expenses are generally not eligible for ITC recovery under Canadian tax rules.",
+            "clarification_question": null,
+            "cases": null,
+            "ambiguous": false
+          }
+        ],
+        "complexity_flags": [
+          {
+            "aspect": "Straightforward expense transaction",
+            "best_attempt": null,
+            "gap": null,
+            "beyond_llm_capability": false
+          }
+        ],
+        "proceed_reason": "Text explicitly states purpose (client entertainment), payment method (corporate credit card), and tax amount (10% = $120), leaving no ambiguity.",
+        "clarification_questions": null,
+        "stuck_reason": null,
+        "overall_final_rationale": "All aspects are resolved: purpose is explicitly stated as client entertainment, payment method is corporate credit card, and tax is explicitly stated at 10% \u2014 the entry can proceed.",
+        "decision": "PROCEED"
+      }
+    ],
+    "output_entry_drafter": [
+      {
+        "reason": "Entertainment expense for client refreshments purchased with corporate credit card, including non-recoverable sales tax",
+        "lines": [
+          {
+            "type": "debit",
+            "account_name": "Entertainment expense",
+            "amount": 1200.0
+          },
+          {
+            "type": "debit",
+            "account_name": "Tax assets",
+            "amount": 120.0
+          },
+          {
+            "type": "credit",
+            "account_name": "Credit card payable",
+            "amount": 1320.0
+          }
+        ]
+      }
+    ],
+    "output_disambiguator": [
+      {
+        "ambiguities": [
+          {
+            "aspect": "Purpose of purchase",
+            "input_contextualized_conventional_default": "Text explicitly states 'for client entertainment' \u2014 resolve as entertainment expense.",
+            "input_contextualized_ifrs_default": null,
+            "clarification_question": null,
+            "cases": null,
+            "ambiguous": false
+          },
+          {
+            "aspect": "Payment method",
+            "input_contextualized_conventional_default": "'paid by corporate credit card' = credit card payable liability.",
+            "input_contextualized_ifrs_default": null,
+            "clarification_question": null,
+            "cases": null,
+            "ambiguous": false
+          },
+          {
+            "aspect": "Tax treatment - buyer side",
+            "input_contextualized_conventional_default": null,
+            "input_contextualized_ifrs_default": "Tax explicitly stated at 10% ($120). For entertainment expenses, input tax credits (ITCs) are typically restricted \u2014 entertainment expenses are generally not eligible for ITC recovery under Canadian tax rules.",
+            "clarification_question": null,
+            "cases": null,
+            "ambiguous": false
+          }
+        ]
+      }
+    ],
+    "output_debit_classifier": [
+      {
+        "asset_increase": [
+          {
+            "reason": "Sales tax paid on purchase is recoverable as input tax credit",
+            "category": "Tax assets",
+            "count": 1
+          }
+        ],
+        "expense_increase": [
+          {
+            "reason": "Tea, beverages, and refreshments purchased for client entertainment",
+            "category": "Entertainment expense",
+            "count": 1
+          }
+        ],
+        "liability_decrease": [],
+        "equity_decrease": [],
+        "revenue_decrease": [],
+        "tuple": [
+          1,
+          1,
+          0,
+          0,
+          0
+        ]
+      }
+    ],
+    "output_credit_classifier": [
+      {
+        "liability_increase": [
+          {
+            "reason": "Corporate credit card used to pay for entertainment purchase",
+            "category": "Credit card payable",
+            "count": 1
+          }
+        ],
+        "equity_increase": [],
+        "revenue_increase": [],
+        "asset_decrease": [],
+        "expense_decrease": [],
+        "tuple": [
+          1,
+          0,
+          0,
+          0,
+          0
+        ]
+      }
+    ],
+    "output_debit_corrector": [],
+    "output_credit_corrector": [],
+    "output_entry_builder": [],
+    "output_approver": [],
+    "output_diagnostician": [],
+    "status_ambiguity_detector": 1,
+    "status_complexity_detector": 1,
+    "status_tax_specialist": 1,
+    "status_decision_maker": 1,
+    "status_entry_drafter": 1,
+    "status_disambiguator": 1,
+    "status_debit_classifier": 1,
+    "status_credit_classifier": 1,
+    "status_debit_corrector": 0,
+    "status_credit_corrector": 0,
+    "status_entry_builder": 0,
+    "status_approver": 0,
+    "status_diagnostician": 0,
+    "fix_context_disambiguator": [],
+    "fix_context_debit_classifier": [],
+    "fix_context_credit_classifier": [],
+    "fix_context_debit_corrector": [],
+    "fix_context_credit_corrector": [],
+    "fix_context_entry_builder": [],
+    "fix_context_approver": [],
+    "fix_context_diagnostician": [],
+    "decision": "APPROVED",
+    "validation_error": null,
+    "llm_calls": [
+      {
+        "node": "tax_specialist",
+        "stop_reason": "tool_use",
+        "input_tokens": 551,
+        "output_tokens": 191,
+        "input_token_details": {
+          "cache_read": 3676,
+          "cache_creation": 0
+        }
+      },
+      {
+        "node": "credit_classifier",
+        "stop_reason": "tool_use",
+        "input_tokens": 509,
+        "output_tokens": 141,
+        "input_token_details": {
+          "cache_read": 4602,
+          "cache_creation": 0
+        }
+      },
+      {
+        "node": "unknown",
+        "stop_reason": "tool_use",
+        "input_tokens": 568,
+        "output_tokens": 386,
+        "input_token_details": {
+          "cache_read": 4771,
+          "cache_creation": 0
+        }
+      },
+      {
+        "node": "debit_classifier",
+        "stop_reason": "tool_use",
+        "input_tokens": 512,
+        "output_tokens": 173,
+        "input_token_details": {
+          "cache_read": 4714,
+          "cache_creation": 0
+        }
+      },
+      {
+        "node": "entry_drafter",
+        "stop_reason": "tool_use",
+        "input_tokens": 1085,
+        "output_tokens": 178,
+        "input_token_details": {
+          "cache_read": 3900,
+          "cache_creation": 0
+        }
+      }
+    ],
+    "stop_reasons": {
+      "tax_specialist": "tool_use",
+      "credit_classifier": "tool_use",
+      "unknown": "tool_use",
+      "debit_classifier": "tool_use",
+      "entry_drafter": "tool_use"
+    }
+  }
+}

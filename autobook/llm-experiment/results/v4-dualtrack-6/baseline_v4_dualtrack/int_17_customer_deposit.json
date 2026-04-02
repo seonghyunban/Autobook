@@ -1,0 +1,439 @@
+{
+  "test_case_id": "int_17_customer_deposit",
+  "variant_name": "baseline_v4_dualtrack",
+  "model": "sonnet",
+  "debit_tuple_exact_match": true,
+  "credit_tuple_exact_match": true,
+  "debit_tuple_slot_accuracy": 0.8333333333333334,
+  "credit_tuple_slot_accuracy": 0.8333333333333334,
+  "entry_valid": true,
+  "debit_tuple": [
+    1,
+    0,
+    0,
+    0,
+    0
+  ],
+  "credit_tuple": [
+    1,
+    0,
+    0,
+    0,
+    0
+  ],
+  "journal_entry": {
+    "reason": "Customer deposit received for future moving services creates contract liability until services are performed",
+    "lines": [
+      {
+        "type": "debit",
+        "account_name": "Cash and cash equivalents",
+        "amount": 5000.0
+      },
+      {
+        "type": "credit",
+        "account_name": "Contract liabilities",
+        "amount": 5000.0
+      }
+    ]
+  },
+  "actual_cost_usd": 0.03039,
+  "raw_cost_usd": 0.090924,
+  "total_latency_ms": 42799,
+  "total_input_tokens": 25598,
+  "total_output_tokens": 942,
+  "total_llm_calls": 5,
+  "iteration_count": 1,
+  "final_decision": "APPROVED",
+  "fix_attempted": null,
+  "fix_succeeded": null,
+  "agent_metrics": {
+    "tax_specialist": {
+      "input_tokens": 555,
+      "output_tokens": 192,
+      "cache_read_tokens": 3726,
+      "cache_write_tokens": 0,
+      "total_input_tokens": 4281,
+      "llm_calls": 1,
+      "actual_cost_usd": 0.0056628,
+      "raw_cost_usd": 0.015723,
+      "output": {
+        "reasoning": "Transaction describes a deposit received for future moving services. No tax is mentioned in the text. Moving services are taxable supplies in Ontario (13% HST), but since tax is not stated, no tax lines should be added.",
+        "tax_mentioned": false,
+        "taxable": true,
+        "tax_context": null,
+        "tax_rate": null,
+        "add_tax_lines": false,
+        "treatment": "not_applicable"
+      },
+      "reason": null
+    },
+    "credit_classifier": {
+      "input_tokens": 513,
+      "output_tokens": 148,
+      "cache_read_tokens": 4652,
+      "cache_write_tokens": 0,
+      "total_input_tokens": 5165,
+      "llm_calls": 1,
+      "actual_cost_usd": 0.0051546000000000005,
+      "raw_cost_usd": 0.017715,
+      "output": {
+        "liability_increase": [
+          {
+            "reason": "Deposit received from customer for services not yet performed creates an obligation to deliver future services",
+            "category": "Contract liabilities",
+            "count": 1
+          }
+        ],
+        "equity_increase": [],
+        "revenue_increase": [],
+        "asset_decrease": [],
+        "expense_decrease": [],
+        "tuple": [
+          1,
+          0,
+          0,
+          0,
+          0
+        ]
+      },
+      "reason": null
+    },
+    "debit_classifier": {
+      "input_tokens": 516,
+      "output_tokens": 142,
+      "cache_read_tokens": 4764,
+      "cache_write_tokens": 0,
+      "total_input_tokens": 5280,
+      "llm_calls": 1,
+      "actual_cost_usd": 0.0051072,
+      "raw_cost_usd": 0.01797,
+      "output": {
+        "asset_increase": [
+          {
+            "reason": "Deposit received via bank transfer increases cash balance",
+            "category": "Cash and cash equivalents",
+            "count": 1
+          }
+        ],
+        "expense_increase": [],
+        "liability_decrease": [],
+        "equity_decrease": [],
+        "revenue_decrease": [],
+        "tuple": [
+          1,
+          0,
+          0,
+          0,
+          0
+        ]
+      },
+      "reason": null
+    },
+    "unknown": {
+      "input_tokens": 572,
+      "output_tokens": 343,
+      "cache_read_tokens": 4821,
+      "cache_write_tokens": 0,
+      "total_input_tokens": 5393,
+      "llm_calls": 1,
+      "actual_cost_usd": 0.0083073,
+      "raw_cost_usd": 0.021324,
+      "output": null,
+      "reason": null
+    },
+    "entry_drafter": {
+      "input_tokens": 1022,
+      "output_tokens": 117,
+      "cache_read_tokens": 4457,
+      "cache_write_tokens": 0,
+      "total_input_tokens": 5479,
+      "llm_calls": 1,
+      "actual_cost_usd": 0.0061581000000000006,
+      "raw_cost_usd": 0.018192,
+      "output": {
+        "reason": "Customer deposit received for future moving services creates contract liability until services are performed",
+        "lines": [
+          {
+            "type": "debit",
+            "account_name": "Cash and cash equivalents",
+            "amount": 5000.0
+          },
+          {
+            "type": "credit",
+            "account_name": "Contract liabilities",
+            "amount": 5000.0
+          }
+        ]
+      },
+      "reason": "Customer deposit received for future moving services creates contract liability until services are performed"
+    }
+  },
+  "pre_fix_debit_tuple": null,
+  "post_fix_debit_tuple": null,
+  "pre_fix_credit_tuple": null,
+  "post_fix_credit_tuple": null,
+  "fix_root_cause_agent": null,
+  "rejection_reason": null,
+  "diagnostician_decision": null,
+  "validation_error": null,
+  "decision_correct": true,
+  "entry_match": null,
+  "clarification_correct": null,
+  "clarification_questions": null,
+  "ambiguous": false,
+  "tier": "intermediate",
+  "error": null,
+  "pipeline_state": {
+    "iteration": 0,
+    "output_ambiguity_detector": [
+      {
+        "ambiguities": [
+          {
+            "aspect": "Nature of deposit received",
+            "input_contextualized_conventional_default": "'deposit received' = liability (unearned revenue) \u2014 the $5,000 is a customer advance before service delivery",
+            "input_contextualized_ifrs_default": "IFRS 15: payment received before performance obligation satisfied = contract liability (unearned revenue)",
+            "clarification_question": null,
+            "cases": null,
+            "ambiguous": false
+          },
+          {
+            "aspect": "Payment method",
+            "input_contextualized_conventional_default": "'via bank transfer to its chequing account' = cash/bank increase",
+            "input_contextualized_ifrs_default": null,
+            "clarification_question": null,
+            "cases": null,
+            "ambiguous": false
+          }
+        ]
+      }
+    ],
+    "output_complexity_detector": [
+      {
+        "flags": [
+          {
+            "aspect": "Standard deposit transaction",
+            "best_attempt": null,
+            "gap": null,
+            "beyond_llm_capability": false
+          }
+        ]
+      }
+    ],
+    "output_tax_specialist": [
+      {
+        "reasoning": "Transaction describes a deposit received for future moving services. No tax is mentioned in the text. Moving services are taxable supplies in Ontario (13% HST), but since tax is not stated, no tax lines should be added.",
+        "tax_mentioned": false,
+        "taxable": true,
+        "tax_context": null,
+        "tax_rate": null,
+        "add_tax_lines": false,
+        "treatment": "not_applicable"
+      }
+    ],
+    "output_decision_maker": [
+      {
+        "ambiguities": [
+          {
+            "aspect": "Nature of deposit received",
+            "input_contextualized_conventional_default": "'deposit received' = liability (unearned revenue) \u2014 the $5,000 is a customer advance before service delivery",
+            "input_contextualized_ifrs_default": "IFRS 15: payment received before performance obligation satisfied = contract liability (unearned revenue)",
+            "clarification_question": null,
+            "cases": null,
+            "ambiguous": false
+          },
+          {
+            "aspect": "Payment method",
+            "input_contextualized_conventional_default": "'via bank transfer to its chequing account' = cash/bank increase",
+            "input_contextualized_ifrs_default": null,
+            "clarification_question": null,
+            "cases": null,
+            "ambiguous": false
+          }
+        ],
+        "complexity_flags": [
+          {
+            "aspect": "Standard deposit transaction",
+            "best_attempt": null,
+            "gap": null,
+            "beyond_llm_capability": false
+          }
+        ],
+        "proceed_reason": "Convention 'deposit received' and IFRS 15 both resolve the $5,000 as a contract liability (unearned revenue) with a corresponding bank increase.",
+        "clarification_questions": null,
+        "stuck_reason": null,
+        "overall_final_rationale": "The transaction clearly describes a customer deposit received before service delivery, which is resolved as unearned revenue (contract liability) under both conventional terms and IFRS 15.",
+        "decision": "PROCEED"
+      }
+    ],
+    "output_entry_drafter": [
+      {
+        "reason": "Customer deposit received for future moving services creates contract liability until services are performed",
+        "lines": [
+          {
+            "type": "debit",
+            "account_name": "Cash and cash equivalents",
+            "amount": 5000.0
+          },
+          {
+            "type": "credit",
+            "account_name": "Contract liabilities",
+            "amount": 5000.0
+          }
+        ]
+      }
+    ],
+    "output_disambiguator": [
+      {
+        "ambiguities": [
+          {
+            "aspect": "Nature of deposit received",
+            "input_contextualized_conventional_default": "'deposit received' = liability (unearned revenue) \u2014 the $5,000 is a customer advance before service delivery",
+            "input_contextualized_ifrs_default": "IFRS 15: payment received before performance obligation satisfied = contract liability (unearned revenue)",
+            "clarification_question": null,
+            "cases": null,
+            "ambiguous": false
+          },
+          {
+            "aspect": "Payment method",
+            "input_contextualized_conventional_default": "'via bank transfer to its chequing account' = cash/bank increase",
+            "input_contextualized_ifrs_default": null,
+            "clarification_question": null,
+            "cases": null,
+            "ambiguous": false
+          }
+        ]
+      }
+    ],
+    "output_debit_classifier": [
+      {
+        "asset_increase": [
+          {
+            "reason": "Deposit received via bank transfer increases cash balance",
+            "category": "Cash and cash equivalents",
+            "count": 1
+          }
+        ],
+        "expense_increase": [],
+        "liability_decrease": [],
+        "equity_decrease": [],
+        "revenue_decrease": [],
+        "tuple": [
+          1,
+          0,
+          0,
+          0,
+          0
+        ]
+      }
+    ],
+    "output_credit_classifier": [
+      {
+        "liability_increase": [
+          {
+            "reason": "Deposit received from customer for services not yet performed creates an obligation to deliver future services",
+            "category": "Contract liabilities",
+            "count": 1
+          }
+        ],
+        "equity_increase": [],
+        "revenue_increase": [],
+        "asset_decrease": [],
+        "expense_decrease": [],
+        "tuple": [
+          1,
+          0,
+          0,
+          0,
+          0
+        ]
+      }
+    ],
+    "output_debit_corrector": [],
+    "output_credit_corrector": [],
+    "output_entry_builder": [],
+    "output_approver": [],
+    "output_diagnostician": [],
+    "status_ambiguity_detector": 1,
+    "status_complexity_detector": 1,
+    "status_tax_specialist": 1,
+    "status_decision_maker": 1,
+    "status_entry_drafter": 1,
+    "status_disambiguator": 1,
+    "status_debit_classifier": 1,
+    "status_credit_classifier": 1,
+    "status_debit_corrector": 0,
+    "status_credit_corrector": 0,
+    "status_entry_builder": 0,
+    "status_approver": 0,
+    "status_diagnostician": 0,
+    "fix_context_disambiguator": [],
+    "fix_context_debit_classifier": [],
+    "fix_context_credit_classifier": [],
+    "fix_context_debit_corrector": [],
+    "fix_context_credit_corrector": [],
+    "fix_context_entry_builder": [],
+    "fix_context_approver": [],
+    "fix_context_diagnostician": [],
+    "decision": "APPROVED",
+    "validation_error": null,
+    "llm_calls": [
+      {
+        "node": "tax_specialist",
+        "stop_reason": "tool_use",
+        "input_tokens": 555,
+        "output_tokens": 192,
+        "input_token_details": {
+          "cache_read": 3726,
+          "cache_creation": 0
+        }
+      },
+      {
+        "node": "credit_classifier",
+        "stop_reason": "tool_use",
+        "input_tokens": 513,
+        "output_tokens": 148,
+        "input_token_details": {
+          "cache_read": 4652,
+          "cache_creation": 0
+        }
+      },
+      {
+        "node": "debit_classifier",
+        "stop_reason": "tool_use",
+        "input_tokens": 516,
+        "output_tokens": 142,
+        "input_token_details": {
+          "cache_read": 4764,
+          "cache_creation": 0
+        }
+      },
+      {
+        "node": "unknown",
+        "stop_reason": "tool_use",
+        "input_tokens": 572,
+        "output_tokens": 343,
+        "input_token_details": {
+          "cache_read": 4821,
+          "cache_creation": 0
+        }
+      },
+      {
+        "node": "entry_drafter",
+        "stop_reason": "tool_use",
+        "input_tokens": 1022,
+        "output_tokens": 117,
+        "input_token_details": {
+          "cache_read": 4457,
+          "cache_creation": 0
+        }
+      }
+    ],
+    "stop_reasons": {
+      "tax_specialist": "tool_use",
+      "credit_classifier": "tool_use",
+      "debit_classifier": "tool_use",
+      "unknown": "tool_use",
+      "entry_drafter": "tool_use"
+    }
+  }
+}

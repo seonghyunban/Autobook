@@ -1,0 +1,82 @@
+{
+  "evaluator": "claude",
+  "evaluated_at": "2026-03-31T12:00:00Z",
+  "prompt_version": "v4",
+  "results": {
+    "basic_01_inventory_cash": {
+      "match": true,
+      "tax_relaxed_match": true,
+      "reason": "Dr Inventories -- merchandise $100 / Cr Cash and cash equivalents $100 is semantically equivalent to expected Dr Inventories $100 / Cr Cash $100 with exact amounts."
+    },
+    "basic_02_inventory_on_account": {
+      "match": true,
+      "tax_relaxed_match": true,
+      "reason": "Dr Inventories -- merchandise $300 / Cr Trade payables $300 matches expected accounts and amounts exactly."
+    },
+    "basic_03_issue_stock_with_apic": {
+      "match": true,
+      "tax_relaxed_match": true,
+      "reason": "Dr Cash $180 / Cr Issued capital $100 / Cr Share premium $80 is semantically equivalent to expected Dr Cash $180 / Cr Share capital--Common $100 / Cr APIC $80."
+    },
+    "basic_04_sell_inventory": {
+      "match": true,
+      "tax_relaxed_match": true,
+      "reason": "Dr Cash $500 / Dr Cost of sales $300 / Cr Revenue from sale of goods $500 / Cr Inventories $300 matches all four expected lines with semantically equivalent account names and exact amounts."
+    },
+    "basic_05_pay_accounts_payable": {
+      "match": true,
+      "tax_relaxed_match": true,
+      "reason": "Dr Trade payables $50 / Cr Cash and cash equivalents $50 matches expected Dr Trade payables $50 / Cr Cash $50 exactly."
+    },
+    "basic_06_refinance_loan": {
+      "match": true,
+      "tax_relaxed_match": true,
+      "reason": "Dr Long-term borrowings $100 / Cr Long-term borrowings $100 is semantically equivalent to expected Dr Notes payable $100 / Cr Notes payable $100 as both represent the same loan liability."
+    },
+    "basic_07_loan_to_equity": {
+      "match": true,
+      "tax_relaxed_match": true,
+      "reason": "Dr Short-term borrowings $200 / Cr Issued capital $200 is semantically equivalent to expected Dr Notes payable $200 / Cr Share capital--Common $200."
+    },
+    "basic_08_deliver_service_against_deposit": {
+      "match": true,
+      "tax_relaxed_match": true,
+      "reason": "Dr Contract liabilities $100 / Cr Revenue from rendering of services $100 matches expected Dr Contract liabilities $100 / Cr Revenue $100 with exact amounts."
+    },
+    "basic_09_repurchase_stock": {
+      "match": true,
+      "tax_relaxed_match": true,
+      "reason": "Dr Treasury shares $200 / Cr Cash and cash equivalents $200 matches expected Dr Treasury shares $200 / Cr Cash $200 exactly."
+    },
+    "basic_10_declare_dividend": {
+      "match": false,
+      "tax_relaxed_match": false,
+      "reason": "Debit uses Dividends declared ($500,000) instead of expected Retained earnings ($500,000); these are distinct accounts even though Dividends declared ultimately closes to Retained earnings."
+    },
+    "basic_11_convert_preferred_to_common": {
+      "match": true,
+      "tax_relaxed_match": true,
+      "reason": "Dr Issued capital -- preferred shares $100 / Cr Issued capital -- common shares $100 is semantically equivalent to expected Dr Share capital--Preferred $100 / Cr Share capital--Common $100."
+    },
+    "basic_12_pay_salaries": {
+      "match": true,
+      "tax_relaxed_match": true,
+      "reason": "Dr Employee benefits expense $100 / Cr Cash and cash equivalents $100 is semantically equivalent to expected Dr Salaries expense $100 / Cr Cash $100."
+    },
+    "basic_13_accrue_utility": {
+      "match": true,
+      "tax_relaxed_match": true,
+      "reason": "Dr Utilities expense $50 / Cr Accrued liabilities $50 matches expected accounts and amounts exactly."
+    },
+    "basic_14_casualty_loss": {
+      "match": true,
+      "tax_relaxed_match": true,
+      "reason": "Dr Casualty loss $2,000 / Cr Inventories -- merchandise $2,000 matches expected Dr Casualty loss $2,000 / Cr Inventories $2,000 exactly."
+    },
+    "basic_15_no_entry": {
+      "match": true,
+      "tax_relaxed_match": true,
+      "reason": "Output has empty lines array (no journal entry), matching expected null entry for a non-financial event."
+    }
+  }
+}

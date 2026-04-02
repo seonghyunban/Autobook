@@ -1,0 +1,439 @@
+{
+  "test_case_id": "basic_13_accrue_utility",
+  "variant_name": "baseline_v4_dualtrack",
+  "model": "sonnet",
+  "debit_tuple_exact_match": true,
+  "credit_tuple_exact_match": true,
+  "debit_tuple_slot_accuracy": 0.8333333333333334,
+  "credit_tuple_slot_accuracy": 0.8333333333333334,
+  "entry_valid": true,
+  "debit_tuple": [
+    0,
+    1,
+    0,
+    0,
+    0
+  ],
+  "credit_tuple": [
+    1,
+    0,
+    0,
+    0,
+    0
+  ],
+  "journal_entry": {
+    "reason": "Utility expense accrued with corresponding liability recorded for amount not yet paid",
+    "lines": [
+      {
+        "type": "debit",
+        "account_name": "Utilities expense",
+        "amount": 50.0
+      },
+      {
+        "type": "credit",
+        "account_name": "Accrued liabilities",
+        "amount": 50.0
+      }
+    ]
+  },
+  "actual_cost_usd": 0.026877,
+  "raw_cost_usd": 0.087411,
+  "total_latency_ms": 29799,
+  "total_input_tokens": 25337,
+  "total_output_tokens": 760,
+  "total_llm_calls": 5,
+  "iteration_count": 1,
+  "final_decision": "APPROVED",
+  "fix_attempted": null,
+  "fix_succeeded": null,
+  "agent_metrics": {
+    "tax_specialist": {
+      "input_tokens": 513,
+      "output_tokens": 124,
+      "cache_read_tokens": 3726,
+      "cache_write_tokens": 0,
+      "total_input_tokens": 4239,
+      "llm_calls": 1,
+      "actual_cost_usd": 0.0045168000000000005,
+      "raw_cost_usd": 0.014577,
+      "output": {
+        "reasoning": "Utilities are taxable supplies, but the transaction text does not mention tax",
+        "tax_mentioned": false,
+        "taxable": true,
+        "tax_context": null,
+        "tax_rate": null,
+        "add_tax_lines": false,
+        "treatment": "not_applicable"
+      },
+      "reason": null
+    },
+    "unknown": {
+      "input_tokens": 530,
+      "output_tokens": 311,
+      "cache_read_tokens": 4821,
+      "cache_write_tokens": 0,
+      "total_input_tokens": 5351,
+      "llm_calls": 1,
+      "actual_cost_usd": 0.0077013,
+      "raw_cost_usd": 0.020718,
+      "output": null,
+      "reason": null
+    },
+    "debit_classifier": {
+      "input_tokens": 474,
+      "output_tokens": 64,
+      "cache_read_tokens": 4764,
+      "cache_write_tokens": 0,
+      "total_input_tokens": 5238,
+      "llm_calls": 1,
+      "actual_cost_usd": 0.0038112,
+      "raw_cost_usd": 0.016674,
+      "output": {
+        "asset_increase": [],
+        "expense_increase": [
+          {
+            "reason": "Utility expense accrued for the period",
+            "category": "Utilities expense",
+            "count": 1
+          }
+        ],
+        "liability_decrease": [],
+        "equity_decrease": [],
+        "revenue_decrease": [],
+        "tuple": [
+          0,
+          1,
+          0,
+          0,
+          0
+        ]
+      },
+      "reason": null
+    },
+    "credit_classifier": {
+      "input_tokens": 471,
+      "output_tokens": 144,
+      "cache_read_tokens": 4652,
+      "cache_write_tokens": 0,
+      "total_input_tokens": 5123,
+      "llm_calls": 1,
+      "actual_cost_usd": 0.0049686,
+      "raw_cost_usd": 0.017529,
+      "output": {
+        "liability_increase": [
+          {
+            "reason": "Utility expense accrued but not yet paid",
+            "category": "Accrued liabilities",
+            "count": 1
+          }
+        ],
+        "equity_increase": [],
+        "revenue_increase": [],
+        "asset_decrease": [],
+        "expense_decrease": [],
+        "tuple": [
+          1,
+          0,
+          0,
+          0,
+          0
+        ]
+      },
+      "reason": null
+    },
+    "entry_drafter": {
+      "input_tokens": 929,
+      "output_tokens": 117,
+      "cache_read_tokens": 4457,
+      "cache_write_tokens": 0,
+      "total_input_tokens": 5386,
+      "llm_calls": 1,
+      "actual_cost_usd": 0.0058791,
+      "raw_cost_usd": 0.017913,
+      "output": {
+        "reason": "Utility expense accrued with corresponding liability recorded for amount not yet paid",
+        "lines": [
+          {
+            "type": "debit",
+            "account_name": "Utilities expense",
+            "amount": 50.0
+          },
+          {
+            "type": "credit",
+            "account_name": "Accrued liabilities",
+            "amount": 50.0
+          }
+        ]
+      },
+      "reason": "Utility expense accrued with corresponding liability recorded for amount not yet paid"
+    }
+  },
+  "pre_fix_debit_tuple": null,
+  "post_fix_debit_tuple": null,
+  "pre_fix_credit_tuple": null,
+  "post_fix_credit_tuple": null,
+  "fix_root_cause_agent": null,
+  "rejection_reason": null,
+  "diagnostician_decision": null,
+  "validation_error": null,
+  "decision_correct": true,
+  "entry_match": null,
+  "clarification_correct": null,
+  "clarification_questions": null,
+  "ambiguous": false,
+  "tier": "basic",
+  "error": null,
+  "pipeline_state": {
+    "iteration": 0,
+    "output_ambiguity_detector": [
+      {
+        "ambiguities": [
+          {
+            "aspect": "Payment status and liability recognition",
+            "input_contextualized_conventional_default": "'accrued' = liability recorded \u2014 resolve as expense recognized with corresponding liability",
+            "input_contextualized_ifrs_default": null,
+            "clarification_question": null,
+            "cases": null,
+            "ambiguous": false
+          },
+          {
+            "aspect": "Utility type classification",
+            "input_contextualized_conventional_default": "Utility bill is a standard operating expense \u2014 classify as Utilities Expense regardless of specific utility type (electricity, gas, water)",
+            "input_contextualized_ifrs_default": null,
+            "clarification_question": null,
+            "cases": null,
+            "ambiguous": false
+          }
+        ]
+      }
+    ],
+    "output_complexity_detector": [
+      {
+        "flags": [
+          {
+            "aspect": "Standard accrual entry",
+            "best_attempt": null,
+            "gap": null,
+            "beyond_llm_capability": false
+          }
+        ]
+      }
+    ],
+    "output_tax_specialist": [
+      {
+        "reasoning": "Utilities are taxable supplies, but the transaction text does not mention tax",
+        "tax_mentioned": false,
+        "taxable": true,
+        "tax_context": null,
+        "tax_rate": null,
+        "add_tax_lines": false,
+        "treatment": "not_applicable"
+      }
+    ],
+    "output_decision_maker": [
+      {
+        "ambiguities": [
+          {
+            "aspect": "Payment status and liability recognition",
+            "input_contextualized_conventional_default": "'accrued' = liability recorded \u2014 resolve as expense recognized with corresponding liability",
+            "input_contextualized_ifrs_default": null,
+            "clarification_question": null,
+            "cases": null,
+            "ambiguous": false
+          },
+          {
+            "aspect": "Utility type classification",
+            "input_contextualized_conventional_default": "Utility bill is a standard operating expense \u2014 classify as Utilities Expense regardless of specific utility type (electricity, gas, water)",
+            "input_contextualized_ifrs_default": null,
+            "clarification_question": null,
+            "cases": null,
+            "ambiguous": false
+          }
+        ],
+        "complexity_flags": [
+          {
+            "aspect": "Standard accrual entry",
+            "best_attempt": null,
+            "gap": null,
+            "beyond_llm_capability": false
+          }
+        ],
+        "proceed_reason": "\"Accrued\" convention resolves payment status as liability recorded, and utility expense classification is standard.",
+        "clarification_questions": null,
+        "stuck_reason": null,
+        "overall_final_rationale": "\"Accrued\" resolves as liability recorded per convention, and utility bill is a straightforward operating expense \u2014 no ambiguity or capability gap.",
+        "decision": "PROCEED"
+      }
+    ],
+    "output_entry_drafter": [
+      {
+        "reason": "Utility expense accrued with corresponding liability recorded for amount not yet paid",
+        "lines": [
+          {
+            "type": "debit",
+            "account_name": "Utilities expense",
+            "amount": 50.0
+          },
+          {
+            "type": "credit",
+            "account_name": "Accrued liabilities",
+            "amount": 50.0
+          }
+        ]
+      }
+    ],
+    "output_disambiguator": [
+      {
+        "ambiguities": [
+          {
+            "aspect": "Payment status and liability recognition",
+            "input_contextualized_conventional_default": "'accrued' = liability recorded \u2014 resolve as expense recognized with corresponding liability",
+            "input_contextualized_ifrs_default": null,
+            "clarification_question": null,
+            "cases": null,
+            "ambiguous": false
+          },
+          {
+            "aspect": "Utility type classification",
+            "input_contextualized_conventional_default": "Utility bill is a standard operating expense \u2014 classify as Utilities Expense regardless of specific utility type (electricity, gas, water)",
+            "input_contextualized_ifrs_default": null,
+            "clarification_question": null,
+            "cases": null,
+            "ambiguous": false
+          }
+        ]
+      }
+    ],
+    "output_debit_classifier": [
+      {
+        "asset_increase": [],
+        "expense_increase": [
+          {
+            "reason": "Utility expense accrued for the period",
+            "category": "Utilities expense",
+            "count": 1
+          }
+        ],
+        "liability_decrease": [],
+        "equity_decrease": [],
+        "revenue_decrease": [],
+        "tuple": [
+          0,
+          1,
+          0,
+          0,
+          0
+        ]
+      }
+    ],
+    "output_credit_classifier": [
+      {
+        "liability_increase": [
+          {
+            "reason": "Utility expense accrued but not yet paid",
+            "category": "Accrued liabilities",
+            "count": 1
+          }
+        ],
+        "equity_increase": [],
+        "revenue_increase": [],
+        "asset_decrease": [],
+        "expense_decrease": [],
+        "tuple": [
+          1,
+          0,
+          0,
+          0,
+          0
+        ]
+      }
+    ],
+    "output_debit_corrector": [],
+    "output_credit_corrector": [],
+    "output_entry_builder": [],
+    "output_approver": [],
+    "output_diagnostician": [],
+    "status_ambiguity_detector": 1,
+    "status_complexity_detector": 1,
+    "status_tax_specialist": 1,
+    "status_decision_maker": 1,
+    "status_entry_drafter": 1,
+    "status_disambiguator": 1,
+    "status_debit_classifier": 1,
+    "status_credit_classifier": 1,
+    "status_debit_corrector": 0,
+    "status_credit_corrector": 0,
+    "status_entry_builder": 0,
+    "status_approver": 0,
+    "status_diagnostician": 0,
+    "fix_context_disambiguator": [],
+    "fix_context_debit_classifier": [],
+    "fix_context_credit_classifier": [],
+    "fix_context_debit_corrector": [],
+    "fix_context_credit_corrector": [],
+    "fix_context_entry_builder": [],
+    "fix_context_approver": [],
+    "fix_context_diagnostician": [],
+    "decision": "APPROVED",
+    "validation_error": null,
+    "llm_calls": [
+      {
+        "node": "tax_specialist",
+        "stop_reason": "tool_use",
+        "input_tokens": 513,
+        "output_tokens": 124,
+        "input_token_details": {
+          "cache_read": 3726,
+          "cache_creation": 0
+        }
+      },
+      {
+        "node": "unknown",
+        "stop_reason": "tool_use",
+        "input_tokens": 530,
+        "output_tokens": 311,
+        "input_token_details": {
+          "cache_read": 4821,
+          "cache_creation": 0
+        }
+      },
+      {
+        "node": "debit_classifier",
+        "stop_reason": "tool_use",
+        "input_tokens": 474,
+        "output_tokens": 64,
+        "input_token_details": {
+          "cache_read": 4764,
+          "cache_creation": 0
+        }
+      },
+      {
+        "node": "credit_classifier",
+        "stop_reason": "tool_use",
+        "input_tokens": 471,
+        "output_tokens": 144,
+        "input_token_details": {
+          "cache_read": 4652,
+          "cache_creation": 0
+        }
+      },
+      {
+        "node": "entry_drafter",
+        "stop_reason": "tool_use",
+        "input_tokens": 929,
+        "output_tokens": 117,
+        "input_token_details": {
+          "cache_read": 4457,
+          "cache_creation": 0
+        }
+      }
+    ],
+    "stop_reasons": {
+      "tax_specialist": "tool_use",
+      "unknown": "tool_use",
+      "debit_classifier": "tool_use",
+      "credit_classifier": "tool_use",
+      "entry_drafter": "tool_use"
+    }
+  }
+}

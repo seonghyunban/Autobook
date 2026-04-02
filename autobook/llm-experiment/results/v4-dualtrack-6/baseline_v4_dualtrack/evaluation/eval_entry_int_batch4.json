@@ -1,0 +1,47 @@
+{
+  "evaluator": "claude",
+  "evaluated_at": "2026-04-01T00:00:00Z",
+  "prompt_version": "v4",
+  "results": {
+    "int_hard_27a_meal_overtime": {
+      "match": true,
+      "tax_relaxed_match": true,
+      "reason": "Dr Employee benefits expense $125 / Cr Credit card payable $125 — exact match on both account names and amounts"
+    },
+    "int_hard_27b_meal_meeting": {
+      "match": true,
+      "tax_relaxed_match": true,
+      "reason": "Dr Meeting expense $125 / Cr Credit card payable $125 — exact match on both account names and amounts"
+    },
+    "int_hard_27c_meal_entertainment": {
+      "match": true,
+      "tax_relaxed_match": true,
+      "reason": "Dr Entertainment expense $125 / Cr Credit card payable $125 — exact match on both account names and amounts"
+    },
+    "int_hard_27d_meal_factory": {
+      "match": true,
+      "tax_relaxed_match": true,
+      "reason": "Dr Inventories — work in progress $125 / Cr Credit card payable $125 — correctly capitalises manufacturing overhead to WIP inventory; account name is a valid synonym for WIP Manufacturing overhead"
+    },
+    "int_hard_32a_grocery_entertainment": {
+      "match": false,
+      "tax_relaxed_match": true,
+      "reason": "Expense account correct (Entertainment expense) but entry splits tax: Dr Entertainment expense $1,200 + Dr Tax assets $120 / Cr Credit card payable $1,320 instead of single Dr $1,320"
+    },
+    "int_hard_32b_grocery_breakroom": {
+      "match": false,
+      "tax_relaxed_match": true,
+      "reason": "Expense account correct (Employee benefits expense) but entry splits tax: Dr Employee benefits expense $1,200 + Dr HST receivable $120 / Cr Credit card payable $1,320 instead of single Dr $1,320"
+    },
+    "int_hard_16a_rent_prepaid": {
+      "match": true,
+      "tax_relaxed_match": true,
+      "reason": "Dr Prepaid Rent $24,000 / Cr Cash $24,000 — correct classification as prepaid asset; Cash is equivalent to Cash—chequing"
+    },
+    "int_hard_16b_rent_expense": {
+      "match": true,
+      "tax_relaxed_match": true,
+      "reason": "Dr Rent expense $24,000 / Cr Cash and cash equivalents $24,000 — correct immediate expense classification; Cash and cash equivalents is equivalent to Cash—chequing"
+    }
+  }
+}

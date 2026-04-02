@@ -1,0 +1,73 @@
+{
+  "evaluator": "claude",
+  "evaluated_at": "2026-04-01T16:50:26.706027",
+  "prompt_version": "v4",
+  "source_files": [
+    "eval_clarification.json"
+  ],
+  "results": {
+    "hard_01_note_discounting": {
+      "actual_decision": "INCOMPLETE_INFORMATION",
+      "actual_questions": [
+        "Was this a sale of the note receivable (derecognition) or a secured borrowing with the note as collateral?"
+      ],
+      "expected_cases": [
+        "Derecognition",
+        "Collateralized borrowing"
+      ],
+      "relevant": true,
+      "reason": "All four criteria met. Decision is INCOMPLETE_INFORMATION. Question produced. Cases clearly distinguish 'Sale of the note (derecognition)' vs 'Collateralized borrowing'. The question asks about a business fact (was this a sale or a secured borrowing) rather than accounting treatment."
+    },
+    "hard_02_investment_classification": {
+      "actual_decision": "INCOMPLETE_INFORMATION",
+      "actual_questions": [
+        "What is the intended classification for this investment: FVTPL, FVOCI, or equity method (significant influence)?"
+      ],
+      "expected_cases": [
+        "FVTPL",
+        "FVOCI",
+        "Equity method"
+      ],
+      "relevant": false,
+      "reason": "Fails criterion 4. The question asks about the accounting classification label ('FVTPL, FVOCI, or equity method') rather than the underlying business fact that would determine it (e.g., 'Does the company have significant influence over Ford?' or 'Is this investment held for trading?'). A non-accountant user would not know what FVTPL or FVOCI means."
+    },
+    "hard_16_rent_treatment": {
+      "actual_decision": "INCOMPLETE_INFORMATION",
+      "actual_questions": [
+        "Does the company elect the IFRS 16 short-term lease exemption to expense this rent immediately, or should it be recorded as a prepaid asset?"
+      ],
+      "expected_cases": [
+        "Prepaid asset",
+        "Immediate expense (IFRS 16)"
+      ],
+      "relevant": false,
+      "reason": "Fails criterion 4. The question asks about an accounting policy election ('IFRS 16 short-term lease exemption') and frames options in accounting terms ('expense immediately' vs 'recorded as a prepaid asset'). A business-fact question would ask about the lease term or company policy, not cite IFRS 16 by name."
+    },
+    "hard_27_meal_purpose": {
+      "actual_decision": "INCOMPLETE_INFORMATION",
+      "actual_questions": [
+        "What was the business purpose of this meal?"
+      ],
+      "expected_cases": [
+        "Overtime meal",
+        "Working meeting",
+        "Client entertainment",
+        "Factory staff meal"
+      ],
+      "relevant": true,
+      "reason": "All four criteria met. Decision is INCOMPLETE_INFORMATION. Question produced. Cases distinguish 'Client entertainment', 'Employee meal during business travel', and 'Team meeting or working lunch', covering the key interpretations. The question asks a plain business fact ('What was the business purpose?') that a non-accountant can answer."
+    },
+    "hard_32_grocery_purpose": {
+      "actual_decision": "INCOMPLETE_INFORMATION",
+      "actual_questions": [
+        "What was the business purpose of this purchase (e.g., office supplies for employee use, client entertainment, meeting refreshments)?"
+      ],
+      "expected_cases": [
+        "Client entertainment",
+        "Employee break room supplies"
+      ],
+      "relevant": true,
+      "reason": "All four criteria met. Decision is INCOMPLETE_INFORMATION. Question produced. Cases distinguish 'Office supplies for general employee consumption', 'Client entertainment or business meeting refreshments', and 'Employee benefits or recognition event', covering both expected categories. The question asks about a business fact using plain-language examples a non-accountant can answer."
+    }
+  }
+}

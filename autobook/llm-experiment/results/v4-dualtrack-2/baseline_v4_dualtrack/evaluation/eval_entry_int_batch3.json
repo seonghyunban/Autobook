@@ -1,0 +1,57 @@
+{
+  "evaluator": "claude",
+  "evaluated_at": "2026-04-01T12:00:00",
+  "prompt_version": "v4",
+  "results": {
+    "int_26b_payroll_remittance": {
+      "match": false,
+      "tax_relaxed_match": false,
+      "reason": "Employee benefits payable is not semantically equivalent to Statutory withholdings payable — different account classes; amounts correct but account name wrong"
+    },
+    "int_28_promotional_literature": {
+      "match": true,
+      "tax_relaxed_match": true,
+      "reason": "Dr Advertising expense $7,000 / Cr Cash $7,000 — exact match"
+    },
+    "int_29_security_deposit_received": {
+      "match": true,
+      "tax_relaxed_match": true,
+      "reason": "Security deposits payable = Rental deposits received — both refundable deposit liabilities; Cash exact"
+    },
+    "int_30_short_term_loan_advance": {
+      "match": true,
+      "tax_relaxed_match": true,
+      "reason": "Short-term loans receivable exact; Cash and cash equivalents = Cash—chequing"
+    },
+    "int_31_vehicle_nonrecoverable_tax": {
+      "match": true,
+      "tax_relaxed_match": true,
+      "reason": "Motor vehicles = PP&E Vehicles; Trade payables = Other payables in dealer context; amounts exact"
+    },
+    "int_hard_01a_note_derecognition": {
+      "match": false,
+      "tax_relaxed_match": false,
+      "reason": "Two errors: loss account is Interest expense (not Loss on derecognition) and credit is Short-term loans receivable (not Trade receivables) — used secured borrowing treatment instead of derecognition"
+    },
+    "int_hard_01b_note_collateralized": {
+      "match": true,
+      "tax_relaxed_match": true,
+      "reason": "Correct secured borrowing treatment; Interest expense and Short-term borrowings; amounts within +/-1 day-count rounding"
+    },
+    "int_hard_02a_investment_fvtpl": {
+      "match": true,
+      "tax_relaxed_match": true,
+      "reason": "FVTPL asset at $3M correct; Professional fees expense = Investment transaction costs (both P&L expense); Cash $3.1M exact"
+    },
+    "int_hard_02b_investment_fvoci": {
+      "match": true,
+      "tax_relaxed_match": true,
+      "reason": "Investments — FVOCI = Financial assets at FVOCI; costs capitalized into $3.1M asset; Cash exact"
+    },
+    "int_hard_02c_investment_equity_method": {
+      "match": true,
+      "tax_relaxed_match": true,
+      "reason": "Investments — equity method = Investment in associate under IAS 28; costs capitalized into $3.1M; Cash exact"
+    }
+  }
+}

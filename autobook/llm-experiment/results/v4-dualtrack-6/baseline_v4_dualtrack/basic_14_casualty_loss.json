@@ -1,0 +1,415 @@
+{
+  "test_case_id": "basic_14_casualty_loss",
+  "variant_name": "baseline_v4_dualtrack",
+  "model": "sonnet",
+  "debit_tuple_exact_match": true,
+  "credit_tuple_exact_match": true,
+  "debit_tuple_slot_accuracy": 0.8333333333333334,
+  "credit_tuple_slot_accuracy": 0.8333333333333334,
+  "entry_valid": true,
+  "debit_tuple": [
+    0,
+    1,
+    0,
+    0,
+    0
+  ],
+  "credit_tuple": [
+    0,
+    0,
+    0,
+    1,
+    0
+  ],
+  "journal_entry": {
+    "reason": "Inventory destroyed by typhoon recognized as uninsured casualty loss with corresponding write-off of merchandise inventory",
+    "lines": [
+      {
+        "type": "debit",
+        "account_name": "Casualty loss",
+        "amount": 2000.0
+      },
+      {
+        "type": "credit",
+        "account_name": "Inventories \u2014 merchandise",
+        "amount": 2000.0
+      }
+    ]
+  },
+  "actual_cost_usd": 0.029058,
+  "raw_cost_usd": 0.089592,
+  "total_latency_ms": 17911,
+  "total_input_tokens": 25344,
+  "total_output_tokens": 904,
+  "total_llm_calls": 5,
+  "iteration_count": 1,
+  "final_decision": "APPROVED",
+  "fix_attempted": null,
+  "fix_succeeded": null,
+  "agent_metrics": {
+    "tax_specialist": {
+      "input_tokens": 517,
+      "output_tokens": 171,
+      "cache_read_tokens": 3726,
+      "cache_write_tokens": 0,
+      "total_input_tokens": 4243,
+      "llm_calls": 1,
+      "actual_cost_usd": 0.0052338,
+      "raw_cost_usd": 0.015294,
+      "output": {
+        "reasoning": "Casualty loss (inventory destroyed by typhoon) is not a taxable supply; no tax mentioned in transaction text",
+        "tax_mentioned": false,
+        "taxable": false,
+        "tax_context": null,
+        "tax_rate": null,
+        "add_tax_lines": false,
+        "treatment": "not_applicable"
+      },
+      "reason": null
+    },
+    "credit_classifier": {
+      "input_tokens": 475,
+      "output_tokens": 141,
+      "cache_read_tokens": 4652,
+      "cache_write_tokens": 0,
+      "total_input_tokens": 5127,
+      "llm_calls": 1,
+      "actual_cost_usd": 0.0049356,
+      "raw_cost_usd": 0.017496,
+      "output": {
+        "liability_increase": [],
+        "equity_increase": [],
+        "revenue_increase": [],
+        "asset_decrease": [
+          {
+            "reason": "Inventory destroyed by typhoon written off",
+            "category": "Inventories \u2014 merchandise",
+            "count": 1
+          }
+        ],
+        "expense_decrease": [],
+        "tuple": [
+          0,
+          0,
+          0,
+          1,
+          0
+        ]
+      },
+      "reason": null
+    },
+    "unknown": {
+      "input_tokens": 534,
+      "output_tokens": 323,
+      "cache_read_tokens": 4821,
+      "cache_write_tokens": 0,
+      "total_input_tokens": 5355,
+      "llm_calls": 1,
+      "actual_cost_usd": 0.0078933,
+      "raw_cost_usd": 0.02091,
+      "output": null,
+      "reason": null
+    },
+    "debit_classifier": {
+      "input_tokens": 478,
+      "output_tokens": 143,
+      "cache_read_tokens": 4764,
+      "cache_write_tokens": 0,
+      "total_input_tokens": 5242,
+      "llm_calls": 1,
+      "actual_cost_usd": 0.0050082,
+      "raw_cost_usd": 0.017871,
+      "output": {
+        "asset_increase": [],
+        "expense_increase": [
+          {
+            "reason": "Inventory destroyed by typhoon recognized as casualty loss",
+            "category": "Casualty loss",
+            "count": 1
+          }
+        ],
+        "liability_decrease": [],
+        "equity_decrease": [],
+        "revenue_decrease": [],
+        "tuple": [
+          0,
+          1,
+          0,
+          0,
+          0
+        ]
+      },
+      "reason": null
+    },
+    "entry_drafter": {
+      "input_tokens": 920,
+      "output_tokens": 126,
+      "cache_read_tokens": 4457,
+      "cache_write_tokens": 0,
+      "total_input_tokens": 5377,
+      "llm_calls": 1,
+      "actual_cost_usd": 0.0059871,
+      "raw_cost_usd": 0.018021,
+      "output": {
+        "reason": "Inventory destroyed by typhoon recognized as uninsured casualty loss with corresponding write-off of merchandise inventory",
+        "lines": [
+          {
+            "type": "debit",
+            "account_name": "Casualty loss",
+            "amount": 2000.0
+          },
+          {
+            "type": "credit",
+            "account_name": "Inventories \u2014 merchandise",
+            "amount": 2000.0
+          }
+        ]
+      },
+      "reason": "Inventory destroyed by typhoon recognized as uninsured casualty loss with corresponding write-off of merchandise inventory"
+    }
+  },
+  "pre_fix_debit_tuple": null,
+  "post_fix_debit_tuple": null,
+  "pre_fix_credit_tuple": null,
+  "post_fix_credit_tuple": null,
+  "fix_root_cause_agent": null,
+  "rejection_reason": null,
+  "diagnostician_decision": null,
+  "validation_error": null,
+  "decision_correct": true,
+  "entry_match": null,
+  "clarification_correct": null,
+  "clarification_questions": null,
+  "ambiguous": false,
+  "tier": "basic",
+  "error": null,
+  "pipeline_state": {
+    "iteration": 0,
+    "output_ambiguity_detector": [
+      {
+        "ambiguities": [
+          {
+            "aspect": "Insurance coverage",
+            "input_contextualized_conventional_default": "'destroyed' + 'loss' = uninsured expense \u2014 text does not mention insurance, so it did not exist",
+            "input_contextualized_ifrs_default": null,
+            "clarification_question": null,
+            "cases": null,
+            "ambiguous": false
+          }
+        ]
+      }
+    ],
+    "output_complexity_detector": [
+      {
+        "flags": [
+          {
+            "aspect": "Inventory write-off due to casualty loss",
+            "best_attempt": null,
+            "gap": null,
+            "beyond_llm_capability": false
+          }
+        ]
+      }
+    ],
+    "output_tax_specialist": [
+      {
+        "reasoning": "Casualty loss (inventory destroyed by typhoon) is not a taxable supply; no tax mentioned in transaction text",
+        "tax_mentioned": false,
+        "taxable": false,
+        "tax_context": null,
+        "tax_rate": null,
+        "add_tax_lines": false,
+        "treatment": "not_applicable"
+      }
+    ],
+    "output_decision_maker": [
+      {
+        "ambiguities": [
+          {
+            "aspect": "Insurance coverage",
+            "input_contextualized_conventional_default": "'destroyed' + 'loss' = uninsured expense \u2014 text does not mention insurance, so it did not exist",
+            "input_contextualized_ifrs_default": null,
+            "clarification_question": null,
+            "cases": null,
+            "ambiguous": false
+          }
+        ],
+        "complexity_flags": [
+          {
+            "aspect": "Inventory write-off due to casualty loss",
+            "best_attempt": null,
+            "gap": null,
+            "beyond_llm_capability": false
+          }
+        ],
+        "proceed_reason": "Text says 'loss' with no insurance mentioned \u2014 uninsured by convention",
+        "clarification_questions": null,
+        "stuck_reason": null,
+        "overall_final_rationale": "The transaction clearly states inventory was destroyed with a $2,000 loss, and the conventional term 'loss' combined with no mention of insurance resolves this as an uninsured casualty expense.",
+        "decision": "PROCEED"
+      }
+    ],
+    "output_entry_drafter": [
+      {
+        "reason": "Inventory destroyed by typhoon recognized as uninsured casualty loss with corresponding write-off of merchandise inventory",
+        "lines": [
+          {
+            "type": "debit",
+            "account_name": "Casualty loss",
+            "amount": 2000.0
+          },
+          {
+            "type": "credit",
+            "account_name": "Inventories \u2014 merchandise",
+            "amount": 2000.0
+          }
+        ]
+      }
+    ],
+    "output_disambiguator": [
+      {
+        "ambiguities": [
+          {
+            "aspect": "Insurance coverage",
+            "input_contextualized_conventional_default": "'destroyed' + 'loss' = uninsured expense \u2014 text does not mention insurance, so it did not exist",
+            "input_contextualized_ifrs_default": null,
+            "clarification_question": null,
+            "cases": null,
+            "ambiguous": false
+          }
+        ]
+      }
+    ],
+    "output_debit_classifier": [
+      {
+        "asset_increase": [],
+        "expense_increase": [
+          {
+            "reason": "Inventory destroyed by typhoon recognized as casualty loss",
+            "category": "Casualty loss",
+            "count": 1
+          }
+        ],
+        "liability_decrease": [],
+        "equity_decrease": [],
+        "revenue_decrease": [],
+        "tuple": [
+          0,
+          1,
+          0,
+          0,
+          0
+        ]
+      }
+    ],
+    "output_credit_classifier": [
+      {
+        "liability_increase": [],
+        "equity_increase": [],
+        "revenue_increase": [],
+        "asset_decrease": [
+          {
+            "reason": "Inventory destroyed by typhoon written off",
+            "category": "Inventories \u2014 merchandise",
+            "count": 1
+          }
+        ],
+        "expense_decrease": [],
+        "tuple": [
+          0,
+          0,
+          0,
+          1,
+          0
+        ]
+      }
+    ],
+    "output_debit_corrector": [],
+    "output_credit_corrector": [],
+    "output_entry_builder": [],
+    "output_approver": [],
+    "output_diagnostician": [],
+    "status_ambiguity_detector": 1,
+    "status_complexity_detector": 1,
+    "status_tax_specialist": 1,
+    "status_decision_maker": 1,
+    "status_entry_drafter": 1,
+    "status_disambiguator": 1,
+    "status_debit_classifier": 1,
+    "status_credit_classifier": 1,
+    "status_debit_corrector": 0,
+    "status_credit_corrector": 0,
+    "status_entry_builder": 0,
+    "status_approver": 0,
+    "status_diagnostician": 0,
+    "fix_context_disambiguator": [],
+    "fix_context_debit_classifier": [],
+    "fix_context_credit_classifier": [],
+    "fix_context_debit_corrector": [],
+    "fix_context_credit_corrector": [],
+    "fix_context_entry_builder": [],
+    "fix_context_approver": [],
+    "fix_context_diagnostician": [],
+    "decision": "APPROVED",
+    "validation_error": null,
+    "llm_calls": [
+      {
+        "node": "tax_specialist",
+        "stop_reason": "tool_use",
+        "input_tokens": 517,
+        "output_tokens": 171,
+        "input_token_details": {
+          "cache_read": 3726,
+          "cache_creation": 0
+        }
+      },
+      {
+        "node": "credit_classifier",
+        "stop_reason": "tool_use",
+        "input_tokens": 475,
+        "output_tokens": 141,
+        "input_token_details": {
+          "cache_read": 4652,
+          "cache_creation": 0
+        }
+      },
+      {
+        "node": "unknown",
+        "stop_reason": "tool_use",
+        "input_tokens": 534,
+        "output_tokens": 323,
+        "input_token_details": {
+          "cache_read": 4821,
+          "cache_creation": 0
+        }
+      },
+      {
+        "node": "debit_classifier",
+        "stop_reason": "tool_use",
+        "input_tokens": 478,
+        "output_tokens": 143,
+        "input_token_details": {
+          "cache_read": 4764,
+          "cache_creation": 0
+        }
+      },
+      {
+        "node": "entry_drafter",
+        "stop_reason": "tool_use",
+        "input_tokens": 920,
+        "output_tokens": 126,
+        "input_token_details": {
+          "cache_read": 4457,
+          "cache_creation": 0
+        }
+      }
+    ],
+    "stop_reasons": {
+      "tax_specialist": "tool_use",
+      "credit_classifier": "tool_use",
+      "unknown": "tool_use",
+      "debit_classifier": "tool_use",
+      "entry_drafter": "tool_use"
+    }
+  }
+}

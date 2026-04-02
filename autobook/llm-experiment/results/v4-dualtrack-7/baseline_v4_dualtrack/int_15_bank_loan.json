@@ -1,0 +1,463 @@
+{
+  "test_case_id": "int_15_bank_loan",
+  "variant_name": "baseline_v4_dualtrack",
+  "model": "sonnet",
+  "debit_tuple_exact_match": true,
+  "credit_tuple_exact_match": true,
+  "debit_tuple_slot_accuracy": 0.8333333333333334,
+  "credit_tuple_slot_accuracy": 0.8333333333333334,
+  "entry_valid": true,
+  "debit_tuple": [
+    1,
+    0,
+    0,
+    0,
+    0
+  ],
+  "credit_tuple": [
+    1,
+    0,
+    0,
+    0,
+    0
+  ],
+  "journal_entry": {
+    "reason": "Cash received from 3-year bank loan recorded at face value as long-term borrowing",
+    "lines": [
+      {
+        "type": "debit",
+        "account_name": "Cash and cash equivalents",
+        "amount": 200000.0
+      },
+      {
+        "type": "credit",
+        "account_name": "Long-term borrowings",
+        "amount": 200000.0
+      }
+    ]
+  },
+  "actual_cost_usd": 0.03156,
+  "raw_cost_usd": 0.092121,
+  "total_latency_ms": 25135,
+  "total_input_tokens": 25582,
+  "total_output_tokens": 1025,
+  "total_llm_calls": 5,
+  "iteration_count": 1,
+  "final_decision": "APPROVED",
+  "fix_attempted": null,
+  "fix_succeeded": null,
+  "agent_metrics": {
+    "tax_specialist": {
+      "input_tokens": 544,
+      "output_tokens": 135,
+      "cache_read_tokens": 3726,
+      "cache_write_tokens": 0,
+      "total_input_tokens": 4270,
+      "llm_calls": 1,
+      "actual_cost_usd": 0.0047748,
+      "raw_cost_usd": 0.014835,
+      "output": {
+        "reasoning": "Transaction describes a bank loan. Borrowing principal and interest on loans are not taxable supplies. No tax mentioned in the text.",
+        "tax_mentioned": false,
+        "taxable": false,
+        "tax_context": null,
+        "tax_rate": null,
+        "add_tax_lines": false,
+        "treatment": "not_applicable"
+      },
+      "reason": null
+    },
+    "debit_classifier": {
+      "input_tokens": 505,
+      "output_tokens": 138,
+      "cache_read_tokens": 4769,
+      "cache_write_tokens": 0,
+      "total_input_tokens": 5274,
+      "llm_calls": 1,
+      "actual_cost_usd": 0.0050157,
+      "raw_cost_usd": 0.017892,
+      "output": {
+        "asset_increase": [
+          {
+            "reason": "Cash received from bank loan",
+            "category": "Cash and cash equivalents",
+            "count": 1
+          }
+        ],
+        "expense_increase": [],
+        "liability_decrease": [],
+        "equity_decrease": [],
+        "revenue_decrease": [],
+        "tuple": [
+          1,
+          0,
+          0,
+          0,
+          0
+        ]
+      },
+      "reason": null
+    },
+    "unknown": {
+      "input_tokens": 561,
+      "output_tokens": 483,
+      "cache_read_tokens": 4821,
+      "cache_write_tokens": 0,
+      "total_input_tokens": 5382,
+      "llm_calls": 1,
+      "actual_cost_usd": 0.0103743,
+      "raw_cost_usd": 0.023391,
+      "output": null,
+      "reason": null
+    },
+    "credit_classifier": {
+      "input_tokens": 502,
+      "output_tokens": 145,
+      "cache_read_tokens": 4657,
+      "cache_write_tokens": 0,
+      "total_input_tokens": 5159,
+      "llm_calls": 1,
+      "actual_cost_usd": 0.0050781,
+      "raw_cost_usd": 0.017652,
+      "output": {
+        "liability_increase": [
+          {
+            "reason": "Long-term bank loan received for 3-year term",
+            "category": "Long-term borrowings",
+            "count": 1
+          }
+        ],
+        "equity_increase": [],
+        "revenue_increase": [],
+        "asset_decrease": [],
+        "expense_decrease": [],
+        "tuple": [
+          1,
+          0,
+          0,
+          0,
+          0
+        ]
+      },
+      "reason": null
+    },
+    "entry_drafter": {
+      "input_tokens": 1040,
+      "output_tokens": 124,
+      "cache_read_tokens": 4457,
+      "cache_write_tokens": 0,
+      "total_input_tokens": 5497,
+      "llm_calls": 1,
+      "actual_cost_usd": 0.0063171,
+      "raw_cost_usd": 0.018351,
+      "output": {
+        "reason": "Cash received from 3-year bank loan recorded at face value as long-term borrowing",
+        "lines": [
+          {
+            "type": "debit",
+            "account_name": "Cash and cash equivalents",
+            "amount": 200000.0
+          },
+          {
+            "type": "credit",
+            "account_name": "Long-term borrowings",
+            "amount": 200000.0
+          }
+        ]
+      },
+      "reason": "Cash received from 3-year bank loan recorded at face value as long-term borrowing"
+    }
+  },
+  "pre_fix_debit_tuple": null,
+  "post_fix_debit_tuple": null,
+  "pre_fix_credit_tuple": null,
+  "post_fix_credit_tuple": null,
+  "fix_root_cause_agent": null,
+  "rejection_reason": null,
+  "diagnostician_decision": null,
+  "validation_error": null,
+  "decision_correct": true,
+  "entry_match": null,
+  "clarification_correct": null,
+  "clarification_questions": null,
+  "ambiguous": false,
+  "tier": "intermediate",
+  "error": null,
+  "pipeline_state": {
+    "iteration": 0,
+    "output_ambiguity_detector": [
+      {
+        "ambiguities": [
+          {
+            "aspect": "Loan classification (current vs non-current)",
+            "input_contextualized_conventional_default": "A 3-year term loan is classified as non-current liability (long-term debt) at inception.",
+            "input_contextualized_ifrs_default": "Under IAS 1, liabilities due beyond 12 months are non-current; the 3-year term indicates long-term classification.",
+            "clarification_question": null,
+            "cases": null,
+            "ambiguous": false
+          },
+          {
+            "aspect": "Interest payment timing and accrual",
+            "input_contextualized_conventional_default": "Interest payable semi-annually means interest is paid every 6 months; the initial borrowing entry records only the principal received.",
+            "input_contextualized_ifrs_default": "Under IFRS 9, the loan is initially recognized at fair value (cash received); subsequent interest accruals are separate entries.",
+            "clarification_question": null,
+            "cases": null,
+            "ambiguous": false
+          },
+          {
+            "aspect": "Secured vs unsecured borrowing",
+            "input_contextualized_conventional_default": "Text does not mention collateral or security; transaction text is complete, so loan is unsecured.",
+            "input_contextualized_ifrs_default": null,
+            "clarification_question": null,
+            "cases": null,
+            "ambiguous": false
+          }
+        ]
+      }
+    ],
+    "output_complexity_detector": [
+      {
+        "flags": [
+          {
+            "aspect": "Simple loan receipt at face value",
+            "best_attempt": null,
+            "gap": null,
+            "beyond_llm_capability": false
+          }
+        ]
+      }
+    ],
+    "output_tax_specialist": [
+      {
+        "reasoning": "Transaction describes a bank loan. Borrowing principal and interest on loans are not taxable supplies. No tax mentioned in the text.",
+        "tax_mentioned": false,
+        "taxable": false,
+        "tax_context": null,
+        "tax_rate": null,
+        "add_tax_lines": false,
+        "treatment": "not_applicable"
+      }
+    ],
+    "output_decision_maker": [
+      {
+        "ambiguities": [
+          {
+            "aspect": "Loan classification (current vs non-current)",
+            "input_contextualized_conventional_default": "A 3-year term loan is classified as non-current liability (long-term debt) at inception.",
+            "input_contextualized_ifrs_default": "Under IAS 1, liabilities due beyond 12 months are non-current; the 3-year term indicates long-term classification.",
+            "clarification_question": null,
+            "cases": null,
+            "ambiguous": false
+          },
+          {
+            "aspect": "Interest payment timing and accrual",
+            "input_contextualized_conventional_default": "Interest payable semi-annually means interest is paid every 6 months; the initial borrowing entry records only the principal received.",
+            "input_contextualized_ifrs_default": "Under IFRS 9, the loan is initially recognized at fair value (cash received); subsequent interest accruals are separate entries.",
+            "clarification_question": null,
+            "cases": null,
+            "ambiguous": false
+          },
+          {
+            "aspect": "Secured vs unsecured borrowing",
+            "input_contextualized_conventional_default": "Text does not mention collateral or security; transaction text is complete, so loan is unsecured.",
+            "input_contextualized_ifrs_default": null,
+            "clarification_question": null,
+            "cases": null,
+            "ambiguous": false
+          }
+        ],
+        "complexity_flags": [
+          {
+            "aspect": "Simple loan receipt at face value",
+            "best_attempt": null,
+            "gap": null,
+            "beyond_llm_capability": false
+          }
+        ],
+        "proceed_reason": "All terms are explicitly stated (principal $200,000, rate 6%, term 3 years, semi-annual interest), and the initial entry records cash received and the corresponding long-term liability at face value.",
+        "clarification_questions": null,
+        "stuck_reason": null,
+        "overall_final_rationale": "The transaction is a straightforward cash borrowing at stated principal with clear terms; no ambiguities or capability gaps exist for recording the initial loan receipt.",
+        "decision": "PROCEED"
+      }
+    ],
+    "output_entry_drafter": [
+      {
+        "reason": "Cash received from 3-year bank loan recorded at face value as long-term borrowing",
+        "lines": [
+          {
+            "type": "debit",
+            "account_name": "Cash and cash equivalents",
+            "amount": 200000.0
+          },
+          {
+            "type": "credit",
+            "account_name": "Long-term borrowings",
+            "amount": 200000.0
+          }
+        ]
+      }
+    ],
+    "output_disambiguator": [
+      {
+        "ambiguities": [
+          {
+            "aspect": "Loan classification (current vs non-current)",
+            "input_contextualized_conventional_default": "A 3-year term loan is classified as non-current liability (long-term debt) at inception.",
+            "input_contextualized_ifrs_default": "Under IAS 1, liabilities due beyond 12 months are non-current; the 3-year term indicates long-term classification.",
+            "clarification_question": null,
+            "cases": null,
+            "ambiguous": false
+          },
+          {
+            "aspect": "Interest payment timing and accrual",
+            "input_contextualized_conventional_default": "Interest payable semi-annually means interest is paid every 6 months; the initial borrowing entry records only the principal received.",
+            "input_contextualized_ifrs_default": "Under IFRS 9, the loan is initially recognized at fair value (cash received); subsequent interest accruals are separate entries.",
+            "clarification_question": null,
+            "cases": null,
+            "ambiguous": false
+          },
+          {
+            "aspect": "Secured vs unsecured borrowing",
+            "input_contextualized_conventional_default": "Text does not mention collateral or security; transaction text is complete, so loan is unsecured.",
+            "input_contextualized_ifrs_default": null,
+            "clarification_question": null,
+            "cases": null,
+            "ambiguous": false
+          }
+        ]
+      }
+    ],
+    "output_debit_classifier": [
+      {
+        "asset_increase": [
+          {
+            "reason": "Cash received from bank loan",
+            "category": "Cash and cash equivalents",
+            "count": 1
+          }
+        ],
+        "expense_increase": [],
+        "liability_decrease": [],
+        "equity_decrease": [],
+        "revenue_decrease": [],
+        "tuple": [
+          1,
+          0,
+          0,
+          0,
+          0
+        ]
+      }
+    ],
+    "output_credit_classifier": [
+      {
+        "liability_increase": [
+          {
+            "reason": "Long-term bank loan received for 3-year term",
+            "category": "Long-term borrowings",
+            "count": 1
+          }
+        ],
+        "equity_increase": [],
+        "revenue_increase": [],
+        "asset_decrease": [],
+        "expense_decrease": [],
+        "tuple": [
+          1,
+          0,
+          0,
+          0,
+          0
+        ]
+      }
+    ],
+    "output_debit_corrector": [],
+    "output_credit_corrector": [],
+    "output_entry_builder": [],
+    "output_approver": [],
+    "output_diagnostician": [],
+    "status_ambiguity_detector": 1,
+    "status_complexity_detector": 1,
+    "status_tax_specialist": 1,
+    "status_decision_maker": 1,
+    "status_entry_drafter": 1,
+    "status_disambiguator": 1,
+    "status_debit_classifier": 1,
+    "status_credit_classifier": 1,
+    "status_debit_corrector": 0,
+    "status_credit_corrector": 0,
+    "status_entry_builder": 0,
+    "status_approver": 0,
+    "status_diagnostician": 0,
+    "fix_context_disambiguator": [],
+    "fix_context_debit_classifier": [],
+    "fix_context_credit_classifier": [],
+    "fix_context_debit_corrector": [],
+    "fix_context_credit_corrector": [],
+    "fix_context_entry_builder": [],
+    "fix_context_approver": [],
+    "fix_context_diagnostician": [],
+    "decision": "APPROVED",
+    "validation_error": null,
+    "llm_calls": [
+      {
+        "node": "tax_specialist",
+        "stop_reason": "tool_use",
+        "input_tokens": 544,
+        "output_tokens": 135,
+        "input_token_details": {
+          "cache_read": 3726,
+          "cache_creation": 0
+        }
+      },
+      {
+        "node": "debit_classifier",
+        "stop_reason": "tool_use",
+        "input_tokens": 505,
+        "output_tokens": 138,
+        "input_token_details": {
+          "cache_read": 4769,
+          "cache_creation": 0
+        }
+      },
+      {
+        "node": "unknown",
+        "stop_reason": "tool_use",
+        "input_tokens": 561,
+        "output_tokens": 483,
+        "input_token_details": {
+          "cache_read": 4821,
+          "cache_creation": 0
+        }
+      },
+      {
+        "node": "credit_classifier",
+        "stop_reason": "tool_use",
+        "input_tokens": 502,
+        "output_tokens": 145,
+        "input_token_details": {
+          "cache_read": 4657,
+          "cache_creation": 0
+        }
+      },
+      {
+        "node": "entry_drafter",
+        "stop_reason": "tool_use",
+        "input_tokens": 1040,
+        "output_tokens": 124,
+        "input_token_details": {
+          "cache_read": 4457,
+          "cache_creation": 0
+        }
+      }
+    ],
+    "stop_reasons": {
+      "tax_specialist": "tool_use",
+      "debit_classifier": "tool_use",
+      "unknown": "tool_use",
+      "credit_classifier": "tool_use",
+      "entry_drafter": "tool_use"
+    }
+  }
+}

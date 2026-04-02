@@ -1,0 +1,57 @@
+{
+  "evaluator": "claude",
+  "evaluated_at": "2026-04-01T00:00:00Z",
+  "prompt_version": "v4",
+  "results": {
+    "int_26b_payroll_remittance": {
+      "match": true,
+      "tax_relaxed_match": true,
+      "reason": "Debits to Pension Payable $2,000 + Health Insurance Payable $3,250 + EI Payable $1,050 + Income Tax Payable $1,450 = $7,750 equivalent to aggregated Statutory withholdings payable $7,750; Employee Benefits Expense $6,300 and Cr Cash $14,050 match exactly."
+    },
+    "int_28_promotional_literature": {
+      "match": true,
+      "tax_relaxed_match": true,
+      "reason": "Dr Advertising expense $7,000 / Cr Cash $7,000 matches expected exactly."
+    },
+    "int_29_security_deposit_received": {
+      "match": true,
+      "tax_relaxed_match": true,
+      "reason": "Dr Cash $25,000 / Cr Security Deposits Payable $25,000 semantically equivalent to expected Rental deposits received; both are refundable deposit liabilities."
+    },
+    "int_30_short_term_loan_advance": {
+      "match": true,
+      "tax_relaxed_match": true,
+      "reason": "Dr Short-term Loans Receivable $2,000,000 / Cr Cash and Cash Equivalents $2,000,000 matches expected; Cash and Cash Equivalents is semantically equivalent to Cash-chequing."
+    },
+    "int_31_vehicle_nonrecoverable_tax": {
+      "match": true,
+      "tax_relaxed_match": true,
+      "reason": "Dr Motor Vehicles $52,800 / Cr Short-term Borrowings $52,800 semantically equivalent to expected PP&E Vehicles / Other payables; non-recoverable tax correctly capitalized into asset cost."
+    },
+    "int_hard_01a_note_derecognition": {
+      "match": false,
+      "tax_relaxed_match": false,
+      "reason": "Two errors: (1) Used Interest Expense instead of Loss on derecognition -- this is borrowing treatment, not the required derecognition treatment. (2) Amounts wrong: Cash $98,333.33 vs expected $98,356 (used 360-day convention instead of 365-day), difference $22.67 exceeds +/-$1 tolerance. Credit account Notes Receivable vs expected Trade receivables is acceptable, but the treatment and amounts fail."
+    },
+    "int_hard_01b_note_collateralized": {
+      "match": false,
+      "tax_relaxed_match": false,
+      "reason": "Account structure correct (Dr Cash / Dr Interest Expense / Cr Short-term Borrowings matches borrowing treatment), but amounts wrong: Cash $98,333.33 vs expected $98,356, Interest $1,666.67 vs expected $1,644. Used 360-day convention instead of 365-day; $22.67 difference exceeds +/-$1 day-count rounding tolerance."
+    },
+    "int_hard_02a_investment_fvtpl": {
+      "match": true,
+      "tax_relaxed_match": true,
+      "reason": "Dr Investments-FVTPL $3,000,000 / Dr Professional Fees Expense $100,000 / Cr Cash $3,100,000 correctly expenses transaction costs for FVTPL; accounts semantically equivalent to expected."
+    },
+    "int_hard_02b_investment_fvoci": {
+      "match": true,
+      "tax_relaxed_match": true,
+      "reason": "Dr Investments-FVOCI $3,100,000 / Cr Cash $3,100,000 correctly capitalizes transaction costs into FVOCI investment; accounts and amounts match expected."
+    },
+    "int_hard_02c_investment_equity_method": {
+      "match": true,
+      "tax_relaxed_match": true,
+      "reason": "Dr Investment in Associate-Ford $3,100,000 / Cr Cash $3,100,000 correctly capitalizes transaction costs into equity method investment; accounts and amounts match expected."
+    }
+  }
+}

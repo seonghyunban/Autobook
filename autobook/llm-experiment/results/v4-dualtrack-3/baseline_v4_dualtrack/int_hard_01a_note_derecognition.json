@@ -1,0 +1,504 @@
+{
+  "test_case_id": "int_hard_01a_note_derecognition",
+  "variant_name": "baseline_v4_dualtrack",
+  "model": "sonnet",
+  "debit_tuple_exact_match": true,
+  "credit_tuple_exact_match": true,
+  "debit_tuple_slot_accuracy": 0.8333333333333334,
+  "credit_tuple_slot_accuracy": 0.8333333333333334,
+  "entry_valid": true,
+  "debit_tuple": [
+    1,
+    1,
+    0,
+    0,
+    0
+  ],
+  "credit_tuple": [
+    0,
+    0,
+    0,
+    1,
+    0
+  ],
+  "journal_entry": {
+    "reason": "Promissory note discounted at bank with derecognition \u2014 cash received net of discount charges, note removed, and discount expense recognized",
+    "lines": [
+      {
+        "type": "debit",
+        "account_name": "Cash",
+        "amount": 98333.33
+      },
+      {
+        "type": "debit",
+        "account_name": "Interest Expense",
+        "amount": 1666.67
+      },
+      {
+        "type": "credit",
+        "account_name": "Notes Receivable",
+        "amount": 100000.0
+      }
+    ]
+  },
+  "actual_cost_usd": 0.0348207,
+  "raw_cost_usd": 0.088872,
+  "total_latency_ms": 36676,
+  "total_input_tokens": 23524,
+  "total_output_tokens": 1220,
+  "total_llm_calls": 5,
+  "iteration_count": 1,
+  "final_decision": "APPROVED",
+  "fix_attempted": null,
+  "fix_succeeded": null,
+  "agent_metrics": {
+    "credit_classifier": {
+      "input_tokens": 564,
+      "output_tokens": 160,
+      "cache_read_tokens": 4212,
+      "cache_write_tokens": 0,
+      "total_input_tokens": 4776,
+      "llm_calls": 1,
+      "actual_cost_usd": 0.0053556,
+      "raw_cost_usd": 0.016728,
+      "output": {
+        "liability_increase": [],
+        "equity_increase": [],
+        "revenue_increase": [],
+        "asset_decrease": [
+          {
+            "reason": "Promissory note derecognized upon discounting at bank",
+            "category": "Short-term loans receivable",
+            "count": 1
+          }
+        ],
+        "expense_decrease": [],
+        "tuple": [
+          0,
+          0,
+          0,
+          1,
+          0
+        ]
+      },
+      "reason": null
+    },
+    "tax_specialist": {
+      "input_tokens": 606,
+      "output_tokens": 152,
+      "cache_read_tokens": 3455,
+      "cache_write_tokens": 0,
+      "total_input_tokens": 4061,
+      "llm_calls": 1,
+      "actual_cost_usd": 0.0051345,
+      "raw_cost_usd": 0.014463,
+      "output": {
+        "reasoning": "Transaction involves discounting a promissory note at a bank (financial instrument transfer). No tax is mentioned in the text. Financial instrument transactions (loans, notes receivable, discounting) are not taxable supplies.",
+        "tax_mentioned": false,
+        "taxable": false,
+        "tax_context": null,
+        "tax_rate": null,
+        "add_tax_lines": false,
+        "treatment": "not_applicable"
+      },
+      "reason": null
+    },
+    "debit_classifier": {
+      "input_tokens": 567,
+      "output_tokens": 199,
+      "cache_read_tokens": 4291,
+      "cache_write_tokens": 0,
+      "total_input_tokens": 4858,
+      "llm_calls": 1,
+      "actual_cost_usd": 0.0059733,
+      "raw_cost_usd": 0.017559,
+      "output": {
+        "asset_increase": [
+          {
+            "reason": "Cash received from bank as net proceeds after discount charges",
+            "category": "Cash and cash equivalents",
+            "count": 1
+          }
+        ],
+        "expense_increase": [
+          {
+            "reason": "Discount charges incurred for discounting the note at the bank",
+            "category": "Interest expense",
+            "count": 1
+          }
+        ],
+        "liability_decrease": [],
+        "equity_decrease": [],
+        "revenue_decrease": [],
+        "tuple": [
+          1,
+          1,
+          0,
+          0,
+          0
+        ]
+      },
+      "reason": null
+    },
+    "unknown": {
+      "input_tokens": 623,
+      "output_tokens": 520,
+      "cache_read_tokens": 4550,
+      "cache_write_tokens": 0,
+      "total_input_tokens": 5173,
+      "llm_calls": 1,
+      "actual_cost_usd": 0.011034,
+      "raw_cost_usd": 0.023319,
+      "output": null,
+      "reason": null
+    },
+    "entry_drafter": {
+      "input_tokens": 1145,
+      "output_tokens": 189,
+      "cache_read_tokens": 3511,
+      "cache_write_tokens": 0,
+      "total_input_tokens": 4656,
+      "llm_calls": 1,
+      "actual_cost_usd": 0.0073233000000000005,
+      "raw_cost_usd": 0.016803,
+      "output": {
+        "reason": "Promissory note discounted at bank with derecognition \u2014 cash received net of discount charges, note removed, and discount expense recognized",
+        "lines": [
+          {
+            "type": "debit",
+            "account_name": "Cash",
+            "amount": 98333.33
+          },
+          {
+            "type": "debit",
+            "account_name": "Interest Expense",
+            "amount": 1666.67
+          },
+          {
+            "type": "credit",
+            "account_name": "Notes Receivable",
+            "amount": 100000.0
+          }
+        ]
+      },
+      "reason": "Promissory note discounted at bank with derecognition \u2014 cash received net of discount charges, note removed, and discount expense recognized"
+    }
+  },
+  "pre_fix_debit_tuple": null,
+  "post_fix_debit_tuple": null,
+  "pre_fix_credit_tuple": null,
+  "post_fix_credit_tuple": null,
+  "fix_root_cause_agent": null,
+  "rejection_reason": null,
+  "diagnostician_decision": null,
+  "validation_error": null,
+  "decision_correct": true,
+  "entry_match": null,
+  "clarification_correct": null,
+  "clarification_questions": null,
+  "ambiguous": false,
+  "tier": "intermediate",
+  "error": null,
+  "pipeline_state": {
+    "iteration": 0,
+    "output_ambiguity_detector": [
+      {
+        "ambiguities": [
+          {
+            "aspect": "Sale vs secured borrowing treatment",
+            "input_contextualized_conventional_default": null,
+            "input_contextualized_ifrs_default": "Management has explicitly determined this qualifies as derecognition under IFRS 9, resolving as sale treatment.",
+            "clarification_question": null,
+            "cases": null,
+            "ambiguous": false
+          },
+          {
+            "aspect": "Discount calculation method",
+            "input_contextualized_conventional_default": "Bank discount method applies \u2014 discount is calculated on face value for remaining days.",
+            "input_contextualized_ifrs_default": null,
+            "clarification_question": null,
+            "cases": null,
+            "ambiguous": false
+          }
+        ]
+      }
+    ],
+    "output_complexity_detector": [
+      {
+        "flags": [
+          {
+            "aspect": "Computation of discount and net proceeds",
+            "best_attempt": {
+              "reason": "Discount = $100,000 \u00d7 15% \u00d7 (40/365) = $1,644 (rounded); Net proceeds = $100,000 - $1,644 = $98,356; Loss on sale = $100,000 - $98,356 = $1,644",
+              "lines": [
+                {
+                  "type": "debit",
+                  "account_name": "Cash",
+                  "amount": 98356.0
+                },
+                {
+                  "type": "debit",
+                  "account_name": "Loss on Sale of Note Receivable",
+                  "amount": 1644.0
+                },
+                {
+                  "type": "credit",
+                  "account_name": "Notes Receivable",
+                  "amount": 100000.0
+                }
+              ]
+            },
+            "gap": null,
+            "beyond_llm_capability": false
+          }
+        ]
+      }
+    ],
+    "output_tax_specialist": [
+      {
+        "reasoning": "Transaction involves discounting a promissory note at a bank (financial instrument transfer). No tax is mentioned in the text. Financial instrument transactions (loans, notes receivable, discounting) are not taxable supplies.",
+        "tax_mentioned": false,
+        "taxable": false,
+        "tax_context": null,
+        "tax_rate": null,
+        "add_tax_lines": false,
+        "treatment": "not_applicable"
+      }
+    ],
+    "output_decision_maker": [
+      {
+        "ambiguities": [
+          {
+            "aspect": "Sale vs secured borrowing treatment",
+            "input_contextualized_conventional_default": null,
+            "input_contextualized_ifrs_default": "Management has explicitly determined this qualifies as derecognition under IFRS 9, resolving as sale treatment.",
+            "clarification_question": null,
+            "cases": null,
+            "ambiguous": false
+          },
+          {
+            "aspect": "Discount calculation method",
+            "input_contextualized_conventional_default": "Bank discount method applies \u2014 discount is calculated on face value for remaining days.",
+            "input_contextualized_ifrs_default": null,
+            "clarification_question": null,
+            "cases": null,
+            "ambiguous": false
+          }
+        ],
+        "complexity_flags": [
+          {
+            "aspect": "Computation of discount and net proceeds",
+            "best_attempt": {
+              "reason": "Discount = $100,000 \u00d7 15% \u00d7 (40/365) = $1,644 (rounded); Net proceeds = $100,000 - $1,644 = $98,356; Loss on sale = $100,000 - $98,356 = $1,644",
+              "lines": [
+                {
+                  "type": "debit",
+                  "account_name": "Cash",
+                  "amount": 98356.0
+                },
+                {
+                  "type": "debit",
+                  "account_name": "Loss on Sale of Note Receivable",
+                  "amount": 1644.0
+                },
+                {
+                  "type": "credit",
+                  "account_name": "Notes Receivable",
+                  "amount": 100000.0
+                }
+              ]
+            },
+            "gap": null,
+            "beyond_llm_capability": false
+          }
+        ],
+        "proceed_reason": "Management's stated determination of derecognition under IFRS 9 resolves the treatment, and all computation inputs (face value $100,000, 15% annual rate, 40 remaining days) are provided in the transaction text.",
+        "clarification_questions": null,
+        "stuck_reason": null,
+        "overall_final_rationale": "Management's explicit IFRS 9 derecognition determination resolves the sale vs borrowing ambiguity, and the discount computation uses stated inputs (face value, rate, remaining days) which the downstream calculator can handle.",
+        "decision": "PROCEED"
+      }
+    ],
+    "output_entry_drafter": [
+      {
+        "reason": "Promissory note discounted at bank with derecognition \u2014 cash received net of discount charges, note removed, and discount expense recognized",
+        "lines": [
+          {
+            "type": "debit",
+            "account_name": "Cash",
+            "amount": 98333.33
+          },
+          {
+            "type": "debit",
+            "account_name": "Interest Expense",
+            "amount": 1666.67
+          },
+          {
+            "type": "credit",
+            "account_name": "Notes Receivable",
+            "amount": 100000.0
+          }
+        ]
+      }
+    ],
+    "output_disambiguator": [
+      {
+        "ambiguities": [
+          {
+            "aspect": "Sale vs secured borrowing treatment",
+            "input_contextualized_conventional_default": null,
+            "input_contextualized_ifrs_default": "Management has explicitly determined this qualifies as derecognition under IFRS 9, resolving as sale treatment.",
+            "clarification_question": null,
+            "cases": null,
+            "ambiguous": false
+          },
+          {
+            "aspect": "Discount calculation method",
+            "input_contextualized_conventional_default": "Bank discount method applies \u2014 discount is calculated on face value for remaining days.",
+            "input_contextualized_ifrs_default": null,
+            "clarification_question": null,
+            "cases": null,
+            "ambiguous": false
+          }
+        ]
+      }
+    ],
+    "output_debit_classifier": [
+      {
+        "asset_increase": [
+          {
+            "reason": "Cash received from bank as net proceeds after discount charges",
+            "category": "Cash and cash equivalents",
+            "count": 1
+          }
+        ],
+        "expense_increase": [
+          {
+            "reason": "Discount charges incurred for discounting the note at the bank",
+            "category": "Interest expense",
+            "count": 1
+          }
+        ],
+        "liability_decrease": [],
+        "equity_decrease": [],
+        "revenue_decrease": [],
+        "tuple": [
+          1,
+          1,
+          0,
+          0,
+          0
+        ]
+      }
+    ],
+    "output_credit_classifier": [
+      {
+        "liability_increase": [],
+        "equity_increase": [],
+        "revenue_increase": [],
+        "asset_decrease": [
+          {
+            "reason": "Promissory note derecognized upon discounting at bank",
+            "category": "Short-term loans receivable",
+            "count": 1
+          }
+        ],
+        "expense_decrease": [],
+        "tuple": [
+          0,
+          0,
+          0,
+          1,
+          0
+        ]
+      }
+    ],
+    "output_debit_corrector": [],
+    "output_credit_corrector": [],
+    "output_entry_builder": [],
+    "output_approver": [],
+    "output_diagnostician": [],
+    "status_ambiguity_detector": 1,
+    "status_complexity_detector": 1,
+    "status_tax_specialist": 1,
+    "status_decision_maker": 1,
+    "status_entry_drafter": 1,
+    "status_disambiguator": 1,
+    "status_debit_classifier": 1,
+    "status_credit_classifier": 1,
+    "status_debit_corrector": 0,
+    "status_credit_corrector": 0,
+    "status_entry_builder": 0,
+    "status_approver": 0,
+    "status_diagnostician": 0,
+    "fix_context_disambiguator": [],
+    "fix_context_debit_classifier": [],
+    "fix_context_credit_classifier": [],
+    "fix_context_debit_corrector": [],
+    "fix_context_credit_corrector": [],
+    "fix_context_entry_builder": [],
+    "fix_context_approver": [],
+    "fix_context_diagnostician": [],
+    "decision": "APPROVED",
+    "validation_error": null,
+    "llm_calls": [
+      {
+        "node": "credit_classifier",
+        "stop_reason": "tool_use",
+        "input_tokens": 564,
+        "output_tokens": 160,
+        "input_token_details": {
+          "cache_read": 4212,
+          "cache_creation": 0
+        }
+      },
+      {
+        "node": "tax_specialist",
+        "stop_reason": "tool_use",
+        "input_tokens": 606,
+        "output_tokens": 152,
+        "input_token_details": {
+          "cache_read": 3455,
+          "cache_creation": 0
+        }
+      },
+      {
+        "node": "debit_classifier",
+        "stop_reason": "tool_use",
+        "input_tokens": 567,
+        "output_tokens": 199,
+        "input_token_details": {
+          "cache_read": 4291,
+          "cache_creation": 0
+        }
+      },
+      {
+        "node": "unknown",
+        "stop_reason": "tool_use",
+        "input_tokens": 623,
+        "output_tokens": 520,
+        "input_token_details": {
+          "cache_read": 4550,
+          "cache_creation": 0
+        }
+      },
+      {
+        "node": "entry_drafter",
+        "stop_reason": "tool_use",
+        "input_tokens": 1145,
+        "output_tokens": 189,
+        "input_token_details": {
+          "cache_read": 3511,
+          "cache_creation": 0
+        }
+      }
+    ],
+    "stop_reasons": {
+      "credit_classifier": "tool_use",
+      "tax_specialist": "tool_use",
+      "debit_classifier": "tool_use",
+      "unknown": "tool_use",
+      "entry_drafter": "tool_use"
+    }
+  }
+}

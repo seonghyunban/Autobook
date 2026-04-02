@@ -1,0 +1,294 @@
+{
+  "evaluator": "claude",
+  "evaluated_at": "2026-04-01T15:25:06.076707",
+  "prompt_version": "v4",
+  "source_files": [
+    "eval_entry_basic.json",
+    "eval_entry_int_batch1.json",
+    "eval_entry_int_batch2.json",
+    "eval_entry_int_batch3.json",
+    "eval_entry_int_batch4.json"
+  ],
+  "results": {
+    "basic_01_inventory_cash": {
+      "match": true,
+      "tax_relaxed_match": true,
+      "reason": "Dr Inventories $100 / Cr Cash $100 \u2014 exact match"
+    },
+    "basic_02_inventory_on_account": {
+      "match": true,
+      "tax_relaxed_match": true,
+      "reason": "Dr Inventories $300 / Cr Trade payables $300 \u2014 exact match"
+    },
+    "basic_03_issue_stock_with_apic": {
+      "match": true,
+      "tax_relaxed_match": true,
+      "reason": "Issued capital = Share capital\u2014Common; Share premium = APIC; amounts exact"
+    },
+    "basic_04_sell_inventory": {
+      "match": true,
+      "tax_relaxed_match": true,
+      "reason": "Cost of sales = COGS; Revenue correct; 4-line entry exact"
+    },
+    "basic_05_pay_accounts_payable": {
+      "match": true,
+      "tax_relaxed_match": true,
+      "reason": "Trade payables / Cash \u2014 exact"
+    },
+    "basic_06_refinance_loan": {
+      "match": true,
+      "tax_relaxed_match": true,
+      "reason": "Long-term borrowings = Notes payable; exact"
+    },
+    "basic_07_loan_to_equity": {
+      "match": true,
+      "tax_relaxed_match": true,
+      "reason": "Short-term borrowings = Notes payable; Issued capital = Share capital\u2014Common; exact"
+    },
+    "basic_08_deliver_service_against_deposit": {
+      "match": true,
+      "tax_relaxed_match": true,
+      "reason": "Contract liabilities / Revenue \u2014 exact"
+    },
+    "basic_09_repurchase_stock": {
+      "match": true,
+      "tax_relaxed_match": true,
+      "reason": "Treasury shares / Cash \u2014 exact"
+    },
+    "basic_10_declare_dividend": {
+      "match": true,
+      "tax_relaxed_match": true,
+      "reason": "Retained Earnings / Dividends Payable \u2014 correct, not Dividends declared"
+    },
+    "basic_11_convert_preferred_to_common": {
+      "match": true,
+      "tax_relaxed_match": true,
+      "reason": "Issued capital preferred/common = Share capital\u2014Preferred/Common; exact"
+    },
+    "basic_12_pay_salaries": {
+      "match": true,
+      "tax_relaxed_match": true,
+      "reason": "Employee benefits expense (IAS 19) = Salaries expense; exact"
+    },
+    "basic_13_accrue_utility": {
+      "match": true,
+      "tax_relaxed_match": true,
+      "reason": "Utilities expense / Accrued liabilities \u2014 exact"
+    },
+    "basic_14_casualty_loss": {
+      "match": true,
+      "tax_relaxed_match": true,
+      "reason": "Casualty loss / Inventories \u2014 exact"
+    },
+    "basic_15_no_entry": {
+      "match": true,
+      "tax_relaxed_match": true,
+      "reason": "Empty lines [] = null \u2014 no entry, correct"
+    },
+    "int_03_machinery_purchase": {
+      "match": true,
+      "tax_relaxed_match": true,
+      "reason": "Machinery = PP&E Machinery; amounts exact"
+    },
+    "int_04_major_overhaul": {
+      "match": true,
+      "tax_relaxed_match": true,
+      "reason": "Machinery / Cash \u2014 exact"
+    },
+    "int_05_bond_issuance_discount": {
+      "match": true,
+      "tax_relaxed_match": true,
+      "reason": "Cash $2,657,510 / Discount $342,490 / Bonds $3,000,000 \u2014 PV amounts exact"
+    },
+    "int_06_warranty_provision": {
+      "match": true,
+      "tax_relaxed_match": true,
+      "reason": "Warranty Provisions = Provision for warranties; exact"
+    },
+    "int_07_decommissioning_provision": {
+      "match": true,
+      "tax_relaxed_match": true,
+      "reason": "Offshore Marine Structure = PP&E Marine structures; amounts exact"
+    },
+    "int_08_share_repurchase_cancel": {
+      "match": true,
+      "tax_relaxed_match": true,
+      "reason": "Issued capital = Share capital; Retained earnings $10K correct; exact"
+    },
+    "int_09_merchandise_with_costs": {
+      "match": true,
+      "tax_relaxed_match": true,
+      "reason": "Transportation expense = Distribution costs; all 5 lines exact"
+    },
+    "int_10_prepayment": {
+      "match": true,
+      "tax_relaxed_match": true,
+      "reason": "Prepaid expenses = Prepayments; exact"
+    },
+    "int_11_land_instalment_discount": {
+      "match": true,
+      "tax_relaxed_match": true,
+      "reason": "Land $49,173,243 within $250 PV tolerance; gross method correct"
+    },
+    "int_12_site_improvements": {
+      "match": false,
+      "tax_relaxed_match": false,
+      "reason": "Debits correct but credits merged into single Cr Cash $4,110,000 instead of Cash $1,750,000 + Cash\u2014chequing $2,360,000"
+    },
+    "int_13_donation_note": {
+      "match": true,
+      "tax_relaxed_match": true,
+      "reason": "Donations expense / Notes payable \u2014 exact"
+    },
+    "int_14_vehicle_mixed_payment": {
+      "match": true,
+      "tax_relaxed_match": true,
+      "reason": "Motor vehicles = PP&E Vehicles; Short-term borrowings = Notes payable; exact"
+    },
+    "int_15_bank_loan": {
+      "match": true,
+      "tax_relaxed_match": true,
+      "reason": "Cash / Long-term borrowings \u2014 exact"
+    },
+    "int_17_customer_deposit": {
+      "match": true,
+      "tax_relaxed_match": true,
+      "reason": "Cash and cash equivalents = Cash\u2014chequing; Contract liabilities exact"
+    },
+    "int_18_multiple_assets": {
+      "match": true,
+      "tax_relaxed_match": true,
+      "reason": "Office equipment / Motor vehicles = PP&E sub-accounts; amounts exact"
+    },
+    "int_19_service_revenue_cash": {
+      "match": true,
+      "tax_relaxed_match": true,
+      "reason": "Cash $25,500 / Revenue $25,500 \u2014 exact"
+    },
+    "int_20_service_revenue_credit": {
+      "match": false,
+      "tax_relaxed_match": true,
+      "reason": "Added HST: Trade receivables $35,595 / Revenue $31,500 / Tax liabilities $4,095. Expected $31,500/$31,500. Tax-only difference."
+    },
+    "int_21_rd_expense": {
+      "match": true,
+      "tax_relaxed_match": true,
+      "reason": "R&D expense / Cash \u2014 exact"
+    },
+    "int_22_compound_sale_with_tax": {
+      "match": true,
+      "tax_relaxed_match": true,
+      "reason": "All 6 lines correct; Cost of sales = COGS; Tax liabilities = Sales tax payable; amounts exact"
+    },
+    "int_23_split_electricity": {
+      "match": true,
+      "tax_relaxed_match": true,
+      "reason": "WIP / Utilities expense / Credit card payable \u2014 exact"
+    },
+    "int_24_advertising": {
+      "match": false,
+      "tax_relaxed_match": true,
+      "reason": "HST split: Advertising $19,469.03 + Tax assets $2,530.97 / Cash $22,000. Expected $22,000 gross. Tax-only."
+    },
+    "int_25_building_purchase_allocation": {
+      "match": true,
+      "tax_relaxed_match": true,
+      "reason": "Land $6M / Buildings $3M / Tax assets $300K / Trade payables $4.5M / Cash $4.8M \u2014 amounts exact; Trade payables acceptable for Other payables"
+    },
+    "int_26a_payroll_recognition": {
+      "match": false,
+      "tax_relaxed_match": false,
+      "reason": "Withholdings split into Employee benefits payable $5,250 + Statutory withholdings payable $2,500 instead of consolidated $7,750. Also Employee benefits expense vs Salaries expense."
+    },
+    "int_26b_payroll_remittance": {
+      "match": false,
+      "tax_relaxed_match": false,
+      "reason": "No journal entry produced; pipeline returned INCOMPLETE_INFORMATION due to employer/employee split ambiguity."
+    },
+    "int_28_promotional_literature": {
+      "match": true,
+      "tax_relaxed_match": true,
+      "reason": "Advertising expense $7,000 / Cash $7,000 \u2014 exact"
+    },
+    "int_29_security_deposit_received": {
+      "match": true,
+      "tax_relaxed_match": true,
+      "reason": "Security deposits payable = Rental deposits received; exact"
+    },
+    "int_30_short_term_loan_advance": {
+      "match": true,
+      "tax_relaxed_match": true,
+      "reason": "Short-term loans receivable / Cash \u2014 exact"
+    },
+    "int_31_vehicle_nonrecoverable_tax": {
+      "match": true,
+      "tax_relaxed_match": true,
+      "reason": "Motor vehicles $52,800 / Trade payables $52,800 \u2014 tax capitalized; exact"
+    },
+    "int_hard_01a_note_derecognition": {
+      "match": false,
+      "tax_relaxed_match": false,
+      "reason": "Used borrowing accounts (Interest expense / Notes receivable) instead of derecognition (Loss on derecognition / Trade receivables). Also amounts off ~$4.66 exceeding +/-$1 tolerance."
+    },
+    "int_hard_01b_note_collateralized": {
+      "match": true,
+      "tax_relaxed_match": true,
+      "reason": "Correct borrowing treatment; Interest expense / Short-term borrowings; amounts within +/-$1 rounding"
+    },
+    "int_hard_02a_investment_fvtpl": {
+      "match": true,
+      "tax_relaxed_match": true,
+      "reason": "FVTPL $3M + Professional fees expense $100K / Cash $3.1M \u2014 costs correctly expensed"
+    },
+    "int_hard_02b_investment_fvoci": {
+      "match": true,
+      "tax_relaxed_match": true,
+      "reason": "FVOCI $3.1M / Cash $3.1M \u2014 costs capitalized; exact"
+    },
+    "int_hard_02c_investment_equity_method": {
+      "match": true,
+      "tax_relaxed_match": true,
+      "reason": "Equity method $3.1M / Cash $3.1M \u2014 costs capitalized; exact"
+    },
+    "int_hard_27a_meal_overtime": {
+      "match": true,
+      "tax_relaxed_match": true,
+      "reason": "Dr Employee benefits expense $125 / Cr Credit card payable $125 \u2014 exact match"
+    },
+    "int_hard_27b_meal_meeting": {
+      "match": true,
+      "tax_relaxed_match": true,
+      "reason": "Dr Meeting expense $125 / Cr Credit card payable $125 \u2014 exact match"
+    },
+    "int_hard_27c_meal_entertainment": {
+      "match": true,
+      "tax_relaxed_match": true,
+      "reason": "Dr Entertainment expense $125 / Cr Credit card payable $125 \u2014 exact match"
+    },
+    "int_hard_27d_meal_factory": {
+      "match": false,
+      "tax_relaxed_match": false,
+      "reason": "No journal entry produced; pipeline returned INCOMPLETE_INFORMATION due to HST recoverability ambiguity. Expected Dr WIP Manufacturing overhead $125 / Cr Credit card payable $125"
+    },
+    "int_hard_32a_grocery_entertainment": {
+      "match": false,
+      "tax_relaxed_match": true,
+      "reason": "Correct account (Entertainment expense) but tax split: $1,200 + $120 ITC instead of gross $1,320. Tax-only difference."
+    },
+    "int_hard_32b_grocery_breakroom": {
+      "match": false,
+      "tax_relaxed_match": true,
+      "reason": "Correct account (Employee benefits expense) but tax split: $1,200 + $120 ITC instead of gross $1,320. Tax-only difference."
+    },
+    "int_hard_16a_rent_prepaid": {
+      "match": true,
+      "tax_relaxed_match": true,
+      "reason": "Dr Prepaid Rent $24,000 / Cr Cash $24,000 \u2014 correct classification; amounts exact"
+    },
+    "int_hard_16b_rent_expense": {
+      "match": true,
+      "tax_relaxed_match": true,
+      "reason": "Dr Rent expense $24,000 / Cr Cash $24,000 \u2014 correct classification; amounts exact"
+    }
+  }
+}

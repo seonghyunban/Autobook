@@ -1,0 +1,527 @@
+{
+  "test_case_id": "basic_04_sell_inventory",
+  "variant_name": "baseline_v4_dualtrack",
+  "model": "sonnet",
+  "debit_tuple_exact_match": true,
+  "credit_tuple_exact_match": true,
+  "debit_tuple_slot_accuracy": 0.8333333333333334,
+  "credit_tuple_slot_accuracy": 0.8333333333333334,
+  "entry_valid": true,
+  "debit_tuple": [
+    1,
+    1,
+    0,
+    0,
+    0
+  ],
+  "credit_tuple": [
+    0,
+    0,
+    1,
+    1,
+    0
+  ],
+  "journal_entry": {
+    "reason": "Inventory sale for cash with cost of goods sold recognized",
+    "lines": [
+      {
+        "type": "debit",
+        "account_name": "Cash and cash equivalents",
+        "amount": 500.0
+      },
+      {
+        "type": "debit",
+        "account_name": "Cost of sales",
+        "amount": 300.0
+      },
+      {
+        "type": "credit",
+        "account_name": "Revenue from sale of goods",
+        "amount": 500.0
+      },
+      {
+        "type": "credit",
+        "account_name": "Inventories \u2014 merchandise",
+        "amount": 300.0
+      }
+    ]
+  },
+  "actual_cost_usd": 0.0380946,
+  "raw_cost_usd": 0.100362,
+  "total_latency_ms": 20798,
+  "total_input_tokens": 27074,
+  "total_output_tokens": 1276,
+  "total_llm_calls": 6,
+  "iteration_count": 1,
+  "final_decision": "APPROVED",
+  "fix_attempted": null,
+  "fix_succeeded": null,
+  "agent_metrics": {
+    "tax_specialist": {
+      "input_tokens": 501,
+      "output_tokens": 130,
+      "cache_read_tokens": 3277,
+      "cache_write_tokens": 0,
+      "total_input_tokens": 3778,
+      "llm_calls": 1,
+      "actual_cost_usd": 0.0044361,
+      "raw_cost_usd": 0.013284,
+      "output": {
+        "reasoning": "Sale of inventory is a taxable supply, but the transaction text does not mention any tax amount or rate",
+        "tax_mentioned": false,
+        "taxable": true,
+        "add_tax_lines": false,
+        "tax_rate": null,
+        "tax_amount": null,
+        "treatment": "not_applicable"
+      },
+      "reason": null
+    },
+    "debit_classifier": {
+      "input_tokens": 479,
+      "output_tokens": 187,
+      "cache_read_tokens": 4282,
+      "cache_write_tokens": 0,
+      "total_input_tokens": 4761,
+      "llm_calls": 1,
+      "actual_cost_usd": 0.0055266000000000004,
+      "raw_cost_usd": 0.017088,
+      "output": {
+        "asset_increase": [
+          {
+            "reason": "Cash received from sale of inventory",
+            "category": "Cash and cash equivalents",
+            "count": 1
+          }
+        ],
+        "expense_increase": [
+          {
+            "reason": "Cost of inventory sold",
+            "category": "Cost of sales",
+            "count": 1
+          }
+        ],
+        "liability_decrease": [],
+        "equity_decrease": [],
+        "revenue_decrease": [],
+        "tuple": [
+          1,
+          1,
+          0,
+          0,
+          0
+        ]
+      },
+      "reason": null
+    },
+    "credit_classifier": {
+      "input_tokens": 476,
+      "output_tokens": 192,
+      "cache_read_tokens": 4203,
+      "cache_write_tokens": 0,
+      "total_input_tokens": 4679,
+      "llm_calls": 1,
+      "actual_cost_usd": 0.0055689,
+      "raw_cost_usd": 0.016917,
+      "output": {
+        "liability_increase": [],
+        "equity_increase": [],
+        "revenue_increase": [
+          {
+            "reason": "Inventory sold to customer for cash",
+            "category": "Revenue from sale of goods",
+            "count": 1
+          }
+        ],
+        "asset_decrease": [
+          {
+            "reason": "Inventory released to fulfill sale",
+            "category": "Inventories \u2014 merchandise",
+            "count": 1
+          }
+        ],
+        "expense_decrease": [],
+        "tuple": [
+          0,
+          0,
+          1,
+          1,
+          0
+        ]
+      },
+      "reason": null
+    },
+    "unknown": {
+      "input_tokens": 535,
+      "output_tokens": 407,
+      "cache_read_tokens": 4550,
+      "cache_write_tokens": 0,
+      "total_input_tokens": 5085,
+      "llm_calls": 1,
+      "actual_cost_usd": 0.009075,
+      "raw_cost_usd": 0.02136,
+      "output": null,
+      "reason": null
+    },
+    "entry_drafter": {
+      "input_tokens": 2021,
+      "output_tokens": 360,
+      "cache_read_tokens": 6750,
+      "cache_write_tokens": 0,
+      "total_input_tokens": 8771,
+      "llm_calls": 2,
+      "actual_cost_usd": 0.013488,
+      "raw_cost_usd": 0.031713,
+      "output": {
+        "reason": "Inventory sale for cash with cost of goods sold recognized",
+        "lines": [
+          {
+            "type": "debit",
+            "account_name": "Cash and cash equivalents",
+            "amount": 500.0
+          },
+          {
+            "type": "debit",
+            "account_name": "Cost of sales",
+            "amount": 300.0
+          },
+          {
+            "type": "credit",
+            "account_name": "Revenue from sale of goods",
+            "amount": 500.0
+          },
+          {
+            "type": "credit",
+            "account_name": "Inventories \u2014 merchandise",
+            "amount": 300.0
+          }
+        ]
+      },
+      "reason": "Inventory sale for cash with cost of goods sold recognized"
+    }
+  },
+  "pre_fix_debit_tuple": null,
+  "post_fix_debit_tuple": null,
+  "pre_fix_credit_tuple": null,
+  "post_fix_credit_tuple": null,
+  "fix_root_cause_agent": null,
+  "rejection_reason": null,
+  "diagnostician_decision": null,
+  "validation_error": null,
+  "decision_correct": true,
+  "entry_match": null,
+  "clarification_correct": null,
+  "clarification_questions": null,
+  "ambiguous": false,
+  "tier": "basic",
+  "error": null,
+  "pipeline_state": {
+    "iteration": 0,
+    "output_ambiguity_detector": [
+      {
+        "ambiguities": [
+          {
+            "aspect": "Tax treatment on sale",
+            "input_contextualized_conventional_default": null,
+            "input_contextualized_ifrs_default": "Province ON = 13% HST applies to sales; buyer-side tax is recoverable, seller records tax payable.",
+            "clarification_question": null,
+            "cases": null,
+            "ambiguous": false
+          },
+          {
+            "aspect": "Revenue recognition timing",
+            "input_contextualized_conventional_default": "'Sell' implies delivery and transfer of control \u2014 revenue recognized for stated amount.",
+            "input_contextualized_ifrs_default": "IFRS 15: performance obligation satisfied upon sale \u2014 recognize revenue.",
+            "clarification_question": null,
+            "cases": null,
+            "ambiguous": false
+          },
+          {
+            "aspect": "Inventory costing method",
+            "input_contextualized_conventional_default": "Stated cost of $300 is definitive \u2014 use as written.",
+            "input_contextualized_ifrs_default": null,
+            "clarification_question": null,
+            "cases": null,
+            "ambiguous": false
+          }
+        ]
+      }
+    ],
+    "output_complexity_detector": [
+      {
+        "flags": [
+          {
+            "aspect": "Standard inventory sale with HST",
+            "best_attempt": null,
+            "gap": null,
+            "beyond_llm_capability": false
+          }
+        ]
+      }
+    ],
+    "output_tax_specialist": [
+      {
+        "reasoning": "Sale of inventory is a taxable supply, but the transaction text does not mention any tax amount or rate",
+        "tax_mentioned": false,
+        "taxable": true,
+        "add_tax_lines": false,
+        "tax_rate": null,
+        "tax_amount": null,
+        "treatment": "not_applicable"
+      }
+    ],
+    "output_decision_maker": [
+      {
+        "ambiguities": [
+          {
+            "aspect": "Tax treatment on sale",
+            "input_contextualized_conventional_default": null,
+            "input_contextualized_ifrs_default": "Province ON = 13% HST applies to sales; buyer-side tax is recoverable, seller records tax payable.",
+            "clarification_question": null,
+            "cases": null,
+            "ambiguous": false
+          },
+          {
+            "aspect": "Revenue recognition timing",
+            "input_contextualized_conventional_default": "'Sell' implies delivery and transfer of control \u2014 revenue recognized for stated amount.",
+            "input_contextualized_ifrs_default": "IFRS 15: performance obligation satisfied upon sale \u2014 recognize revenue.",
+            "clarification_question": null,
+            "cases": null,
+            "ambiguous": false
+          },
+          {
+            "aspect": "Inventory costing method",
+            "input_contextualized_conventional_default": "Stated cost of $300 is definitive \u2014 use as written.",
+            "input_contextualized_ifrs_default": null,
+            "clarification_question": null,
+            "cases": null,
+            "ambiguous": false
+          }
+        ],
+        "complexity_flags": [
+          {
+            "aspect": "Standard inventory sale with HST",
+            "best_attempt": null,
+            "gap": null,
+            "beyond_llm_capability": false
+          }
+        ],
+        "proceed_reason": "Stated amounts are definitive, 'sell' resolves as revenue recognized, and ON province determines 13% HST \u2014 no ambiguities or capability gaps.",
+        "clarification_questions": null,
+        "stuck_reason": null,
+        "overall_final_rationale": "Transaction is a straightforward inventory sale with stated cost and selling price; HST is determinable from ON province; all aspects resolved by convention and IFRS rules.",
+        "decision": "PROCEED"
+      }
+    ],
+    "output_entry_drafter": [
+      {
+        "reason": "Inventory sale for cash with cost of goods sold recognized",
+        "lines": [
+          {
+            "type": "debit",
+            "account_name": "Cash and cash equivalents",
+            "amount": 500.0
+          },
+          {
+            "type": "debit",
+            "account_name": "Cost of sales",
+            "amount": 300.0
+          },
+          {
+            "type": "credit",
+            "account_name": "Revenue from sale of goods",
+            "amount": 500.0
+          },
+          {
+            "type": "credit",
+            "account_name": "Inventories \u2014 merchandise",
+            "amount": 300.0
+          }
+        ]
+      }
+    ],
+    "output_disambiguator": [
+      {
+        "ambiguities": [
+          {
+            "aspect": "Tax treatment on sale",
+            "input_contextualized_conventional_default": null,
+            "input_contextualized_ifrs_default": "Province ON = 13% HST applies to sales; buyer-side tax is recoverable, seller records tax payable.",
+            "clarification_question": null,
+            "cases": null,
+            "ambiguous": false
+          },
+          {
+            "aspect": "Revenue recognition timing",
+            "input_contextualized_conventional_default": "'Sell' implies delivery and transfer of control \u2014 revenue recognized for stated amount.",
+            "input_contextualized_ifrs_default": "IFRS 15: performance obligation satisfied upon sale \u2014 recognize revenue.",
+            "clarification_question": null,
+            "cases": null,
+            "ambiguous": false
+          },
+          {
+            "aspect": "Inventory costing method",
+            "input_contextualized_conventional_default": "Stated cost of $300 is definitive \u2014 use as written.",
+            "input_contextualized_ifrs_default": null,
+            "clarification_question": null,
+            "cases": null,
+            "ambiguous": false
+          }
+        ]
+      }
+    ],
+    "output_debit_classifier": [
+      {
+        "asset_increase": [
+          {
+            "reason": "Cash received from sale of inventory",
+            "category": "Cash and cash equivalents",
+            "count": 1
+          }
+        ],
+        "expense_increase": [
+          {
+            "reason": "Cost of inventory sold",
+            "category": "Cost of sales",
+            "count": 1
+          }
+        ],
+        "liability_decrease": [],
+        "equity_decrease": [],
+        "revenue_decrease": [],
+        "tuple": [
+          1,
+          1,
+          0,
+          0,
+          0
+        ]
+      }
+    ],
+    "output_credit_classifier": [
+      {
+        "liability_increase": [],
+        "equity_increase": [],
+        "revenue_increase": [
+          {
+            "reason": "Inventory sold to customer for cash",
+            "category": "Revenue from sale of goods",
+            "count": 1
+          }
+        ],
+        "asset_decrease": [
+          {
+            "reason": "Inventory released to fulfill sale",
+            "category": "Inventories \u2014 merchandise",
+            "count": 1
+          }
+        ],
+        "expense_decrease": [],
+        "tuple": [
+          0,
+          0,
+          1,
+          1,
+          0
+        ]
+      }
+    ],
+    "output_debit_corrector": [],
+    "output_credit_corrector": [],
+    "output_entry_builder": [],
+    "output_approver": [],
+    "output_diagnostician": [],
+    "status_ambiguity_detector": 1,
+    "status_complexity_detector": 1,
+    "status_tax_specialist": 1,
+    "status_decision_maker": 1,
+    "status_entry_drafter": 1,
+    "status_disambiguator": 1,
+    "status_debit_classifier": 1,
+    "status_credit_classifier": 1,
+    "status_debit_corrector": 0,
+    "status_credit_corrector": 0,
+    "status_entry_builder": 0,
+    "status_approver": 0,
+    "status_diagnostician": 0,
+    "fix_context_disambiguator": [],
+    "fix_context_debit_classifier": [],
+    "fix_context_credit_classifier": [],
+    "fix_context_debit_corrector": [],
+    "fix_context_credit_corrector": [],
+    "fix_context_entry_builder": [],
+    "fix_context_approver": [],
+    "fix_context_diagnostician": [],
+    "decision": "APPROVED",
+    "validation_error": null,
+    "llm_calls": [
+      {
+        "node": "tax_specialist",
+        "stop_reason": "tool_use",
+        "input_tokens": 501,
+        "output_tokens": 130,
+        "input_token_details": {
+          "cache_read": 3277,
+          "cache_creation": 0
+        }
+      },
+      {
+        "node": "debit_classifier",
+        "stop_reason": "tool_use",
+        "input_tokens": 479,
+        "output_tokens": 187,
+        "input_token_details": {
+          "cache_read": 4282,
+          "cache_creation": 0
+        }
+      },
+      {
+        "node": "credit_classifier",
+        "stop_reason": "tool_use",
+        "input_tokens": 476,
+        "output_tokens": 192,
+        "input_token_details": {
+          "cache_read": 4203,
+          "cache_creation": 0
+        }
+      },
+      {
+        "node": "unknown",
+        "stop_reason": "tool_use",
+        "input_tokens": 535,
+        "output_tokens": 407,
+        "input_token_details": {
+          "cache_read": 4550,
+          "cache_creation": 0
+        }
+      },
+      {
+        "node": "entry_drafter",
+        "stop_reason": "tool_use",
+        "input_tokens": 944,
+        "output_tokens": 150,
+        "input_token_details": {
+          "cache_read": 3405,
+          "cache_creation": 0
+        }
+      },
+      {
+        "node": "entry_drafter",
+        "stop_reason": "tool_use",
+        "input_tokens": 1077,
+        "output_tokens": 210,
+        "input_token_details": {
+          "cache_read": 3345,
+          "cache_creation": 0
+        }
+      }
+    ],
+    "stop_reasons": {
+      "tax_specialist": "tool_use",
+      "debit_classifier": "tool_use",
+      "credit_classifier": "tool_use",
+      "unknown": "tool_use",
+      "entry_drafter": "tool_use"
+    }
+  }
+}

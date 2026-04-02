@@ -1,0 +1,57 @@
+{
+  "evaluator": "claude",
+  "evaluated_at": "2026-04-01T00:00:00Z",
+  "prompt_version": "v4",
+  "results": {
+    "int_17": {
+      "match": true,
+      "tax_relaxed_match": true,
+      "reason": "Dr Cash and cash equivalents $5,000 / Cr Contract liabilities $5,000 — accounts and amounts match expected (Cash–chequing is a sub-account of Cash and cash equivalents; Contract liabilities exact match)"
+    },
+    "int_18": {
+      "match": true,
+      "tax_relaxed_match": true,
+      "reason": "Dr Office equipment $5,500 / Dr Motor vehicles $250,000 / Cr Cash and cash equivalents $5,500 / Cr Trade payables $250,000 — semantically equivalent to expected PP&E sub-accounts and payment accounts; all amounts exact"
+    },
+    "int_19": {
+      "match": true,
+      "tax_relaxed_match": true,
+      "reason": "Dr Cash and cash equivalents $25,500 / Cr Revenue from rendering of services $25,500 — semantically equivalent accounts and exact amounts"
+    },
+    "int_20": {
+      "match": true,
+      "tax_relaxed_match": true,
+      "reason": "Dr Trade receivables $31,500 / Cr Revenue from rendering of services $31,500 — exact account match and amounts"
+    },
+    "int_21": {
+      "match": true,
+      "tax_relaxed_match": true,
+      "reason": "Dr Research and development expense $50,000 / Cr Cash and cash equivalents $50,000 — semantically equivalent to R&D expense and Cash–chequing; amounts exact"
+    },
+    "int_22": {
+      "match": true,
+      "tax_relaxed_match": true,
+      "reason": "All 6 lines match: Dr Cash $45,900 / Dr Trade receivables $30,000 / Dr Cost of sales $55,500 / Cr Revenue $69,000 / Cr Tax liabilities $6,900 / Cr Inventories $55,500 — semantically equivalent accounts and exact amounts"
+    },
+    "int_23": {
+      "match": true,
+      "tax_relaxed_match": true,
+      "reason": "Dr Inventories–WIP $15,000 / Dr Utilities expense $5,500 / Cr Credit card payable $20,500 — WIP equivalent to WIP Manufacturing overhead; Utilities expense and Credit card payable exact; amounts match"
+    },
+    "int_24": {
+      "match": false,
+      "tax_relaxed_match": true,
+      "reason": "Model split HST from tax-inclusive $22,000: Dr Advertising expense $19,469.03 + Dr Tax assets $2,530.97 / Cr Cash $22,000. Expected: Dr Advertising expense $22,000 / Cr Cash $22,000. Difference is tax-only (HST extraction); tax_relaxed grants leniency"
+    },
+    "int_25": {
+      "match": false,
+      "tax_relaxed_match": false,
+      "reason": "Debit side correct (Land $6M, Buildings $3M, Input Tax Credit $300K matches VAT receivable). Credit side: model used 'Accounts Payable' $4,500,000 but expected 'Other payables' — deferred instalment on property purchase is non-trade, not Accounts Payable. Cash $4,800,000 correct."
+    },
+    "int_26a": {
+      "match": false,
+      "tax_relaxed_match": false,
+      "reason": "Pipeline returned INCOMPLETE_INFORMATION with no journal entry (journal_entry is null). Expected consolidated entry: Dr WIP Direct labour $25,000 / Dr Salaries expense $20,000 / Cr Statutory withholdings payable $7,750 / Cr Cash–chequing $37,250"
+    }
+  }
+}

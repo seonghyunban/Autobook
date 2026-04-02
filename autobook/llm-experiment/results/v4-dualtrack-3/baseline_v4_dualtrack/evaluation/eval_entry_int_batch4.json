@@ -1,0 +1,47 @@
+{
+  "evaluator": "claude",
+  "evaluated_at": "2026-04-01T12:00:00Z",
+  "prompt_version": "v4",
+  "results": {
+    "int_hard_27a_meal_overtime": {
+      "match": true,
+      "tax_relaxed_match": true,
+      "reason": "Dr Employee Benefits Expense $125 / Cr Credit Card Payable $125 — exact match on accounts and amounts."
+    },
+    "int_hard_27b_meal_meeting": {
+      "match": false,
+      "tax_relaxed_match": false,
+      "reason": "Debit account is 'Meals and Entertainment Expense' ($110.62) instead of expected 'Meeting expense' ($125). Wrong expense classification and unwanted HST split. Even ignoring tax, account name mismatch remains."
+    },
+    "int_hard_27c_meal_entertainment": {
+      "match": true,
+      "tax_relaxed_match": true,
+      "reason": "Dr Entertainment expense $125 / Cr Credit card payable $125 — exact match on accounts and amounts."
+    },
+    "int_hard_27d_meal_factory": {
+      "match": true,
+      "tax_relaxed_match": true,
+      "reason": "Dr Work in Progress Inventory $125 / Cr Credit Card Payable $125 — 'Work in Progress Inventory' correctly captures manufacturing overhead capitalized into WIP, matching expected 'WIP Manufacturing overhead'."
+    },
+    "int_hard_32a_grocery_entertainment": {
+      "match": false,
+      "tax_relaxed_match": true,
+      "reason": "Expense account 'Entertainment Expense' is correct, but amount split into $1,200 expense + $120 ITC instead of expected gross $1,320. Tax-only difference with correct account name."
+    },
+    "int_hard_32b_grocery_breakroom": {
+      "match": false,
+      "tax_relaxed_match": true,
+      "reason": "Expense account 'Employee benefits expense' is correct, but amount split into $1,200 expense + $120 ITC instead of expected gross $1,320. Tax-only difference with correct account name."
+    },
+    "int_hard_16a_rent_prepaid": {
+      "match": true,
+      "tax_relaxed_match": true,
+      "reason": "Dr Prepaid Rent $24,000 / Cr Cash and Cash Equivalents $24,000 — accounts and amounts match ('Cash and Cash Equivalents' accepted as equivalent to 'Cash—chequing')."
+    },
+    "int_hard_16b_rent_expense": {
+      "match": true,
+      "tax_relaxed_match": true,
+      "reason": "Dr Rent Expense $24,000 / Cr Cash $24,000 — accounts and amounts match ('Cash' accepted as equivalent to 'Cash—chequing')."
+    }
+  }
+}

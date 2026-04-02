@@ -1,0 +1,590 @@
+{
+  "test_case_id": "int_09_merchandise_with_costs",
+  "variant_name": "baseline_v4_dualtrack",
+  "model": "sonnet",
+  "debit_tuple_exact_match": true,
+  "credit_tuple_exact_match": true,
+  "debit_tuple_slot_accuracy": 0.8333333333333334,
+  "credit_tuple_slot_accuracy": 0.8333333333333334,
+  "entry_valid": true,
+  "debit_tuple": [
+    1,
+    2,
+    0,
+    0,
+    0
+  ],
+  "credit_tuple": [
+    1,
+    0,
+    0,
+    1,
+    0
+  ],
+  "journal_entry": {
+    "reason": "Merchandise inventory capitalized with inbound freight and shipping insurance; post-acquisition storage and outbound delivery expensed as period costs",
+    "lines": [
+      {
+        "type": "debit",
+        "account_name": "Inventories \u2014 merchandise",
+        "amount": 1150000.0
+      },
+      {
+        "type": "debit",
+        "account_name": "Warehousing expense",
+        "amount": 20000.0
+      },
+      {
+        "type": "debit",
+        "account_name": "Transportation expense",
+        "amount": 50000.0
+      },
+      {
+        "type": "credit",
+        "account_name": "Trade payables",
+        "amount": 1000000.0
+      },
+      {
+        "type": "credit",
+        "account_name": "Cash and cash equivalents",
+        "amount": 220000.0
+      }
+    ]
+  },
+  "actual_cost_usd": 0.037833,
+  "raw_cost_usd": 0.098367,
+  "total_latency_ms": 20575,
+  "total_input_tokens": 25944,
+  "total_output_tokens": 1369,
+  "total_llm_calls": 5,
+  "iteration_count": 1,
+  "final_decision": "APPROVED",
+  "fix_attempted": null,
+  "fix_succeeded": null,
+  "agent_metrics": {
+    "tax_specialist": {
+      "input_tokens": 569,
+      "output_tokens": 187,
+      "cache_read_tokens": 3726,
+      "cache_write_tokens": 0,
+      "total_input_tokens": 4295,
+      "llm_calls": 1,
+      "actual_cost_usd": 0.0056298,
+      "raw_cost_usd": 0.01569,
+      "output": {
+        "reasoning": "Transaction text does not mention tax on any component (merchandise purchase, freight, insurance, storage, or delivery). Although merchandise purchases and freight/insurance are taxable supplies in Ontario, no tax is stated.",
+        "tax_mentioned": false,
+        "taxable": true,
+        "tax_context": null,
+        "tax_rate": null,
+        "add_tax_lines": false,
+        "treatment": "not_applicable"
+      },
+      "reason": null
+    },
+    "debit_classifier": {
+      "input_tokens": 530,
+      "output_tokens": 222,
+      "cache_read_tokens": 4764,
+      "cache_write_tokens": 0,
+      "total_input_tokens": 5294,
+      "llm_calls": 1,
+      "actual_cost_usd": 0.0063492,
+      "raw_cost_usd": 0.019212,
+      "output": {
+        "asset_increase": [
+          {
+            "reason": "Merchandise purchased on account, including freight-in and shipping insurance as capitalizable costs",
+            "category": "Inventories \u2014 merchandise",
+            "count": 1
+          }
+        ],
+        "expense_increase": [
+          {
+            "reason": "Post-acquisition warehouse storage is a period cost, not capitalizable to inventory",
+            "category": "Warehousing expense",
+            "count": 1
+          },
+          {
+            "reason": "Outbound delivery freight to customers is a selling expense, not capitalizable to inventory",
+            "category": "Transportation expense",
+            "count": 1
+          }
+        ],
+        "liability_decrease": [],
+        "equity_decrease": [],
+        "revenue_decrease": [],
+        "tuple": [
+          1,
+          2,
+          0,
+          0,
+          0
+        ]
+      },
+      "reason": null
+    },
+    "unknown": {
+      "input_tokens": 586,
+      "output_tokens": 567,
+      "cache_read_tokens": 4821,
+      "cache_write_tokens": 0,
+      "total_input_tokens": 5407,
+      "llm_calls": 1,
+      "actual_cost_usd": 0.011709299999999999,
+      "raw_cost_usd": 0.024726,
+      "output": null,
+      "reason": null
+    },
+    "credit_classifier": {
+      "input_tokens": 527,
+      "output_tokens": 181,
+      "cache_read_tokens": 4652,
+      "cache_write_tokens": 0,
+      "total_input_tokens": 5179,
+      "llm_calls": 1,
+      "actual_cost_usd": 0.005691600000000001,
+      "raw_cost_usd": 0.018252,
+      "output": {
+        "liability_increase": [
+          {
+            "reason": "Merchandise purchased on account from supplier",
+            "category": "Trade payables",
+            "count": 1
+          }
+        ],
+        "equity_increase": [],
+        "revenue_increase": [],
+        "asset_decrease": [
+          {
+            "reason": "Cash paid for freight to warehouse, shipping insurance, post-acquisition warehouse storage, and outbound delivery freight",
+            "category": "Cash and cash equivalents",
+            "count": 1
+          }
+        ],
+        "expense_decrease": [],
+        "tuple": [
+          1,
+          0,
+          0,
+          1,
+          0
+        ]
+      },
+      "reason": null
+    },
+    "entry_drafter": {
+      "input_tokens": 1312,
+      "output_tokens": 212,
+      "cache_read_tokens": 4457,
+      "cache_write_tokens": 0,
+      "total_input_tokens": 5769,
+      "llm_calls": 1,
+      "actual_cost_usd": 0.0084531,
+      "raw_cost_usd": 0.020487,
+      "output": {
+        "reason": "Merchandise inventory capitalized with inbound freight and shipping insurance; post-acquisition storage and outbound delivery expensed as period costs",
+        "lines": [
+          {
+            "type": "debit",
+            "account_name": "Inventories \u2014 merchandise",
+            "amount": 1150000.0
+          },
+          {
+            "type": "debit",
+            "account_name": "Warehousing expense",
+            "amount": 20000.0
+          },
+          {
+            "type": "debit",
+            "account_name": "Transportation expense",
+            "amount": 50000.0
+          },
+          {
+            "type": "credit",
+            "account_name": "Trade payables",
+            "amount": 1000000.0
+          },
+          {
+            "type": "credit",
+            "account_name": "Cash and cash equivalents",
+            "amount": 220000.0
+          }
+        ]
+      },
+      "reason": "Merchandise inventory capitalized with inbound freight and shipping insurance; post-acquisition storage and outbound delivery expensed as period costs"
+    }
+  },
+  "pre_fix_debit_tuple": null,
+  "post_fix_debit_tuple": null,
+  "pre_fix_credit_tuple": null,
+  "post_fix_credit_tuple": null,
+  "fix_root_cause_agent": null,
+  "rejection_reason": null,
+  "diagnostician_decision": null,
+  "validation_error": null,
+  "decision_correct": true,
+  "entry_match": null,
+  "clarification_correct": null,
+  "clarification_questions": null,
+  "ambiguous": false,
+  "tier": "intermediate",
+  "error": null,
+  "pipeline_state": {
+    "iteration": 0,
+    "output_ambiguity_detector": [
+      {
+        "ambiguities": [
+          {
+            "aspect": "Payment method for merchandise purchase",
+            "input_contextualized_conventional_default": "'on account' = accounts payable",
+            "input_contextualized_ifrs_default": null,
+            "clarification_question": null,
+            "cases": null,
+            "ambiguous": false
+          },
+          {
+            "aspect": "Classification of freight to warehouse",
+            "input_contextualized_conventional_default": null,
+            "input_contextualized_ifrs_default": "IAS 2.11: Costs of purchase include transport and handling costs to bring inventories to their present location \u2014 freight to warehouse is capitalizable to inventory",
+            "clarification_question": null,
+            "cases": null,
+            "ambiguous": false
+          },
+          {
+            "aspect": "Classification of shipping insurance",
+            "input_contextualized_conventional_default": null,
+            "input_contextualized_ifrs_default": "IAS 2.11: Costs of purchase include other costs directly attributable to acquisition \u2014 shipping insurance during transit is capitalizable to inventory",
+            "clarification_question": null,
+            "cases": null,
+            "ambiguous": false
+          },
+          {
+            "aspect": "Classification of post-acquisition warehouse storage",
+            "input_contextualized_conventional_default": null,
+            "input_contextualized_ifrs_default": "IAS 2.16(a): Storage costs after goods reach their intended location are excluded from inventory cost and expensed \u2014 post-acquisition warehouse storage is an expense",
+            "clarification_question": null,
+            "cases": null,
+            "ambiguous": false
+          },
+          {
+            "aspect": "Classification of outbound delivery freight",
+            "input_contextualized_conventional_default": null,
+            "input_contextualized_ifrs_default": "Outbound delivery freight is a selling/distribution cost, not a cost of purchase \u2014 expensed as incurred per IAS 2",
+            "clarification_question": null,
+            "cases": null,
+            "ambiguous": false
+          }
+        ]
+      }
+    ],
+    "output_complexity_detector": [
+      {
+        "flags": [
+          {
+            "aspect": "Multiple cost components with different treatments",
+            "best_attempt": null,
+            "gap": null,
+            "beyond_llm_capability": false
+          }
+        ]
+      }
+    ],
+    "output_tax_specialist": [
+      {
+        "reasoning": "Transaction text does not mention tax on any component (merchandise purchase, freight, insurance, storage, or delivery). Although merchandise purchases and freight/insurance are taxable supplies in Ontario, no tax is stated.",
+        "tax_mentioned": false,
+        "taxable": true,
+        "tax_context": null,
+        "tax_rate": null,
+        "add_tax_lines": false,
+        "treatment": "not_applicable"
+      }
+    ],
+    "output_decision_maker": [
+      {
+        "ambiguities": [
+          {
+            "aspect": "Payment method for merchandise purchase",
+            "input_contextualized_conventional_default": "'on account' = accounts payable",
+            "input_contextualized_ifrs_default": null,
+            "clarification_question": null,
+            "cases": null,
+            "ambiguous": false
+          },
+          {
+            "aspect": "Classification of freight to warehouse",
+            "input_contextualized_conventional_default": null,
+            "input_contextualized_ifrs_default": "IAS 2.11: Costs of purchase include transport and handling costs to bring inventories to their present location \u2014 freight to warehouse is capitalizable to inventory",
+            "clarification_question": null,
+            "cases": null,
+            "ambiguous": false
+          },
+          {
+            "aspect": "Classification of shipping insurance",
+            "input_contextualized_conventional_default": null,
+            "input_contextualized_ifrs_default": "IAS 2.11: Costs of purchase include other costs directly attributable to acquisition \u2014 shipping insurance during transit is capitalizable to inventory",
+            "clarification_question": null,
+            "cases": null,
+            "ambiguous": false
+          },
+          {
+            "aspect": "Classification of post-acquisition warehouse storage",
+            "input_contextualized_conventional_default": null,
+            "input_contextualized_ifrs_default": "IAS 2.16(a): Storage costs after goods reach their intended location are excluded from inventory cost and expensed \u2014 post-acquisition warehouse storage is an expense",
+            "clarification_question": null,
+            "cases": null,
+            "ambiguous": false
+          },
+          {
+            "aspect": "Classification of outbound delivery freight",
+            "input_contextualized_conventional_default": null,
+            "input_contextualized_ifrs_default": "Outbound delivery freight is a selling/distribution cost, not a cost of purchase \u2014 expensed as incurred per IAS 2",
+            "clarification_question": null,
+            "cases": null,
+            "ambiguous": false
+          }
+        ],
+        "complexity_flags": [
+          {
+            "aspect": "Multiple cost components with different treatments",
+            "best_attempt": null,
+            "gap": null,
+            "beyond_llm_capability": false
+          }
+        ],
+        "proceed_reason": "IFRS rules clearly distinguish capitalizable inventory costs (purchase price, inbound freight, shipping insurance) from period expenses (post-acquisition storage, outbound delivery freight).",
+        "clarification_questions": null,
+        "stuck_reason": null,
+        "overall_final_rationale": "All cost components have clear IFRS treatment: merchandise plus inbound freight and shipping insurance are capitalizable to inventory, while post-acquisition storage and outbound delivery are period expenses.",
+        "decision": "PROCEED"
+      }
+    ],
+    "output_entry_drafter": [
+      {
+        "reason": "Merchandise inventory capitalized with inbound freight and shipping insurance; post-acquisition storage and outbound delivery expensed as period costs",
+        "lines": [
+          {
+            "type": "debit",
+            "account_name": "Inventories \u2014 merchandise",
+            "amount": 1150000.0
+          },
+          {
+            "type": "debit",
+            "account_name": "Warehousing expense",
+            "amount": 20000.0
+          },
+          {
+            "type": "debit",
+            "account_name": "Transportation expense",
+            "amount": 50000.0
+          },
+          {
+            "type": "credit",
+            "account_name": "Trade payables",
+            "amount": 1000000.0
+          },
+          {
+            "type": "credit",
+            "account_name": "Cash and cash equivalents",
+            "amount": 220000.0
+          }
+        ]
+      }
+    ],
+    "output_disambiguator": [
+      {
+        "ambiguities": [
+          {
+            "aspect": "Payment method for merchandise purchase",
+            "input_contextualized_conventional_default": "'on account' = accounts payable",
+            "input_contextualized_ifrs_default": null,
+            "clarification_question": null,
+            "cases": null,
+            "ambiguous": false
+          },
+          {
+            "aspect": "Classification of freight to warehouse",
+            "input_contextualized_conventional_default": null,
+            "input_contextualized_ifrs_default": "IAS 2.11: Costs of purchase include transport and handling costs to bring inventories to their present location \u2014 freight to warehouse is capitalizable to inventory",
+            "clarification_question": null,
+            "cases": null,
+            "ambiguous": false
+          },
+          {
+            "aspect": "Classification of shipping insurance",
+            "input_contextualized_conventional_default": null,
+            "input_contextualized_ifrs_default": "IAS 2.11: Costs of purchase include other costs directly attributable to acquisition \u2014 shipping insurance during transit is capitalizable to inventory",
+            "clarification_question": null,
+            "cases": null,
+            "ambiguous": false
+          },
+          {
+            "aspect": "Classification of post-acquisition warehouse storage",
+            "input_contextualized_conventional_default": null,
+            "input_contextualized_ifrs_default": "IAS 2.16(a): Storage costs after goods reach their intended location are excluded from inventory cost and expensed \u2014 post-acquisition warehouse storage is an expense",
+            "clarification_question": null,
+            "cases": null,
+            "ambiguous": false
+          },
+          {
+            "aspect": "Classification of outbound delivery freight",
+            "input_contextualized_conventional_default": null,
+            "input_contextualized_ifrs_default": "Outbound delivery freight is a selling/distribution cost, not a cost of purchase \u2014 expensed as incurred per IAS 2",
+            "clarification_question": null,
+            "cases": null,
+            "ambiguous": false
+          }
+        ]
+      }
+    ],
+    "output_debit_classifier": [
+      {
+        "asset_increase": [
+          {
+            "reason": "Merchandise purchased on account, including freight-in and shipping insurance as capitalizable costs",
+            "category": "Inventories \u2014 merchandise",
+            "count": 1
+          }
+        ],
+        "expense_increase": [
+          {
+            "reason": "Post-acquisition warehouse storage is a period cost, not capitalizable to inventory",
+            "category": "Warehousing expense",
+            "count": 1
+          },
+          {
+            "reason": "Outbound delivery freight to customers is a selling expense, not capitalizable to inventory",
+            "category": "Transportation expense",
+            "count": 1
+          }
+        ],
+        "liability_decrease": [],
+        "equity_decrease": [],
+        "revenue_decrease": [],
+        "tuple": [
+          1,
+          2,
+          0,
+          0,
+          0
+        ]
+      }
+    ],
+    "output_credit_classifier": [
+      {
+        "liability_increase": [
+          {
+            "reason": "Merchandise purchased on account from supplier",
+            "category": "Trade payables",
+            "count": 1
+          }
+        ],
+        "equity_increase": [],
+        "revenue_increase": [],
+        "asset_decrease": [
+          {
+            "reason": "Cash paid for freight to warehouse, shipping insurance, post-acquisition warehouse storage, and outbound delivery freight",
+            "category": "Cash and cash equivalents",
+            "count": 1
+          }
+        ],
+        "expense_decrease": [],
+        "tuple": [
+          1,
+          0,
+          0,
+          1,
+          0
+        ]
+      }
+    ],
+    "output_debit_corrector": [],
+    "output_credit_corrector": [],
+    "output_entry_builder": [],
+    "output_approver": [],
+    "output_diagnostician": [],
+    "status_ambiguity_detector": 1,
+    "status_complexity_detector": 1,
+    "status_tax_specialist": 1,
+    "status_decision_maker": 1,
+    "status_entry_drafter": 1,
+    "status_disambiguator": 1,
+    "status_debit_classifier": 1,
+    "status_credit_classifier": 1,
+    "status_debit_corrector": 0,
+    "status_credit_corrector": 0,
+    "status_entry_builder": 0,
+    "status_approver": 0,
+    "status_diagnostician": 0,
+    "fix_context_disambiguator": [],
+    "fix_context_debit_classifier": [],
+    "fix_context_credit_classifier": [],
+    "fix_context_debit_corrector": [],
+    "fix_context_credit_corrector": [],
+    "fix_context_entry_builder": [],
+    "fix_context_approver": [],
+    "fix_context_diagnostician": [],
+    "decision": "APPROVED",
+    "validation_error": null,
+    "llm_calls": [
+      {
+        "node": "tax_specialist",
+        "stop_reason": "tool_use",
+        "input_tokens": 569,
+        "output_tokens": 187,
+        "input_token_details": {
+          "cache_read": 3726,
+          "cache_creation": 0
+        }
+      },
+      {
+        "node": "debit_classifier",
+        "stop_reason": "tool_use",
+        "input_tokens": 530,
+        "output_tokens": 222,
+        "input_token_details": {
+          "cache_read": 4764,
+          "cache_creation": 0
+        }
+      },
+      {
+        "node": "unknown",
+        "stop_reason": "tool_use",
+        "input_tokens": 586,
+        "output_tokens": 567,
+        "input_token_details": {
+          "cache_read": 4821,
+          "cache_creation": 0
+        }
+      },
+      {
+        "node": "credit_classifier",
+        "stop_reason": "tool_use",
+        "input_tokens": 527,
+        "output_tokens": 181,
+        "input_token_details": {
+          "cache_read": 4652,
+          "cache_creation": 0
+        }
+      },
+      {
+        "node": "entry_drafter",
+        "stop_reason": "tool_use",
+        "input_tokens": 1312,
+        "output_tokens": 212,
+        "input_token_details": {
+          "cache_read": 4457,
+          "cache_creation": 0
+        }
+      }
+    ],
+    "stop_reasons": {
+      "tax_specialist": "tool_use",
+      "debit_classifier": "tool_use",
+      "unknown": "tool_use",
+      "credit_classifier": "tool_use",
+      "entry_drafter": "tool_use"
+    }
+  }
+}

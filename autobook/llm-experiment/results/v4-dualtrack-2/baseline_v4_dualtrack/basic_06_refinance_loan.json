@@ -1,0 +1,425 @@
+{
+  "test_case_id": "basic_06_refinance_loan",
+  "variant_name": "baseline_v4_dualtrack",
+  "model": "sonnet",
+  "debit_tuple_exact_match": true,
+  "credit_tuple_exact_match": true,
+  "debit_tuple_slot_accuracy": 0.8333333333333334,
+  "credit_tuple_slot_accuracy": 0.8333333333333334,
+  "entry_valid": true,
+  "debit_tuple": [
+    0,
+    0,
+    1,
+    0,
+    0
+  ],
+  "credit_tuple": [
+    1,
+    0,
+    0,
+    0,
+    0
+  ],
+  "journal_entry": {
+    "reason": "Refinancing transaction removes old loan obligation and creates new loan obligation at equal face value",
+    "lines": [
+      {
+        "type": "debit",
+        "account_name": "Long-term borrowings",
+        "amount": 100.0
+      },
+      {
+        "type": "credit",
+        "account_name": "Long-term borrowings",
+        "amount": 100.0
+      }
+    ]
+  },
+  "actual_cost_usd": 0.057648599999999994,
+  "raw_cost_usd": 0.093981,
+  "total_latency_ms": 18055,
+  "total_input_tokens": 26852,
+  "total_output_tokens": 895,
+  "total_llm_calls": 6,
+  "iteration_count": 1,
+  "final_decision": "APPROVED",
+  "fix_attempted": null,
+  "fix_succeeded": null,
+  "agent_metrics": {
+    "debit_classifier": {
+      "input_tokens": 484,
+      "output_tokens": 142,
+      "cache_read_tokens": 4282,
+      "cache_write_tokens": 0,
+      "total_input_tokens": 4766,
+      "llm_calls": 1,
+      "actual_cost_usd": 0.0048666000000000004,
+      "raw_cost_usd": 0.016428,
+      "output": {
+        "asset_increase": [],
+        "expense_increase": [],
+        "liability_decrease": [
+          {
+            "reason": "Old bank loan obligation removed in refinancing transaction",
+            "category": "Long-term borrowings",
+            "count": 1
+          }
+        ],
+        "equity_decrease": [],
+        "revenue_decrease": [],
+        "tuple": [
+          0,
+          0,
+          1,
+          0,
+          0
+        ]
+      },
+      "reason": null
+    },
+    "tax_specialist": {
+      "input_tokens": 506,
+      "output_tokens": 140,
+      "cache_read_tokens": 3277,
+      "cache_write_tokens": 0,
+      "total_input_tokens": 3783,
+      "llm_calls": 1,
+      "actual_cost_usd": 0.0046011,
+      "raw_cost_usd": 0.013449,
+      "output": {
+        "reasoning": "Refinancing a loan is a financial transaction involving debt obligations, not a taxable supply of goods or services. No tax is mentioned in the transaction text.",
+        "tax_mentioned": false,
+        "taxable": false,
+        "add_tax_lines": false,
+        "tax_rate": null,
+        "tax_amount": null,
+        "treatment": "not_applicable"
+      },
+      "reason": null
+    },
+    "credit_classifier": {
+      "input_tokens": 481,
+      "output_tokens": 153,
+      "cache_read_tokens": 4203,
+      "cache_write_tokens": 0,
+      "total_input_tokens": 4684,
+      "llm_calls": 1,
+      "actual_cost_usd": 0.0049989,
+      "raw_cost_usd": 0.016347,
+      "output": {
+        "liability_increase": [
+          {
+            "reason": "New loan obligation created to replace old loan",
+            "category": "Long-term borrowings",
+            "count": 1
+          }
+        ],
+        "equity_increase": [],
+        "revenue_increase": [],
+        "asset_decrease": [],
+        "expense_decrease": [],
+        "tuple": [
+          1,
+          0,
+          0,
+          0,
+          0
+        ]
+      },
+      "reason": null
+    },
+    "unknown": {
+      "input_tokens": 540,
+      "output_tokens": 262,
+      "cache_read_tokens": 0,
+      "cache_write_tokens": 4550,
+      "total_input_tokens": 5090,
+      "llm_calls": 1,
+      "actual_cost_usd": 0.03285,
+      "raw_cost_usd": 0.0192,
+      "output": null,
+      "reason": null
+    },
+    "entry_drafter": {
+      "input_tokens": 1779,
+      "output_tokens": 198,
+      "cache_read_tokens": 6750,
+      "cache_write_tokens": 0,
+      "total_input_tokens": 8529,
+      "llm_calls": 2,
+      "actual_cost_usd": 0.010332000000000001,
+      "raw_cost_usd": 0.028557,
+      "output": {
+        "reason": "Refinancing transaction removes old loan obligation and creates new loan obligation at equal face value",
+        "lines": [
+          {
+            "type": "debit",
+            "account_name": "Long-term borrowings",
+            "amount": 100.0
+          },
+          {
+            "type": "credit",
+            "account_name": "Long-term borrowings",
+            "amount": 100.0
+          }
+        ]
+      },
+      "reason": "Refinancing transaction removes old loan obligation and creates new loan obligation at equal face value"
+    }
+  },
+  "pre_fix_debit_tuple": null,
+  "post_fix_debit_tuple": null,
+  "pre_fix_credit_tuple": null,
+  "post_fix_credit_tuple": null,
+  "fix_root_cause_agent": null,
+  "rejection_reason": null,
+  "diagnostician_decision": null,
+  "validation_error": null,
+  "decision_correct": true,
+  "entry_match": null,
+  "clarification_correct": null,
+  "clarification_questions": null,
+  "ambiguous": false,
+  "tier": "basic",
+  "error": null,
+  "pipeline_state": {
+    "iteration": 0,
+    "output_ambiguity_detector": [
+      {
+        "ambiguities": [
+          {
+            "aspect": "Treatment of refinancing",
+            "input_contextualized_conventional_default": "'refinanced' = old obligation removed, new created \u2014 Dr Notes Payable (old) $100 / Cr Notes Payable (new) $100",
+            "input_contextualized_ifrs_default": null,
+            "clarification_question": null,
+            "cases": null,
+            "ambiguous": false
+          }
+        ]
+      }
+    ],
+    "output_complexity_detector": [
+      {
+        "flags": [
+          {
+            "aspect": "Straightforward liability swap at face value",
+            "best_attempt": null,
+            "gap": null,
+            "beyond_llm_capability": false
+          }
+        ]
+      }
+    ],
+    "output_tax_specialist": [
+      {
+        "reasoning": "Refinancing a loan is a financial transaction involving debt obligations, not a taxable supply of goods or services. No tax is mentioned in the transaction text.",
+        "tax_mentioned": false,
+        "taxable": false,
+        "add_tax_lines": false,
+        "tax_rate": null,
+        "tax_amount": null,
+        "treatment": "not_applicable"
+      }
+    ],
+    "output_decision_maker": [
+      {
+        "ambiguities": [
+          {
+            "aspect": "Treatment of refinancing",
+            "input_contextualized_conventional_default": "'refinanced' = old obligation removed, new created \u2014 Dr Notes Payable (old) $100 / Cr Notes Payable (new) $100",
+            "input_contextualized_ifrs_default": null,
+            "clarification_question": null,
+            "cases": null,
+            "ambiguous": false
+          }
+        ],
+        "complexity_flags": [
+          {
+            "aspect": "Straightforward liability swap at face value",
+            "best_attempt": null,
+            "gap": null,
+            "beyond_llm_capability": false
+          }
+        ],
+        "proceed_reason": "Convention 'refinanced' definitively resolves as removing old liability and creating new liability at stated face values.",
+        "clarification_questions": null,
+        "stuck_reason": null,
+        "overall_final_rationale": "Convention 'refinanced' resolves as old obligation removed and new created at stated amounts, with no modification accounting required since amounts are equal.",
+        "decision": "PROCEED"
+      }
+    ],
+    "output_entry_drafter": [
+      {
+        "reason": "Refinancing transaction removes old loan obligation and creates new loan obligation at equal face value",
+        "lines": [
+          {
+            "type": "debit",
+            "account_name": "Long-term borrowings",
+            "amount": 100.0
+          },
+          {
+            "type": "credit",
+            "account_name": "Long-term borrowings",
+            "amount": 100.0
+          }
+        ]
+      }
+    ],
+    "output_disambiguator": [
+      {
+        "ambiguities": [
+          {
+            "aspect": "Treatment of refinancing",
+            "input_contextualized_conventional_default": "'refinanced' = old obligation removed, new created \u2014 Dr Notes Payable (old) $100 / Cr Notes Payable (new) $100",
+            "input_contextualized_ifrs_default": null,
+            "clarification_question": null,
+            "cases": null,
+            "ambiguous": false
+          }
+        ]
+      }
+    ],
+    "output_debit_classifier": [
+      {
+        "asset_increase": [],
+        "expense_increase": [],
+        "liability_decrease": [
+          {
+            "reason": "Old bank loan obligation removed in refinancing transaction",
+            "category": "Long-term borrowings",
+            "count": 1
+          }
+        ],
+        "equity_decrease": [],
+        "revenue_decrease": [],
+        "tuple": [
+          0,
+          0,
+          1,
+          0,
+          0
+        ]
+      }
+    ],
+    "output_credit_classifier": [
+      {
+        "liability_increase": [
+          {
+            "reason": "New loan obligation created to replace old loan",
+            "category": "Long-term borrowings",
+            "count": 1
+          }
+        ],
+        "equity_increase": [],
+        "revenue_increase": [],
+        "asset_decrease": [],
+        "expense_decrease": [],
+        "tuple": [
+          1,
+          0,
+          0,
+          0,
+          0
+        ]
+      }
+    ],
+    "output_debit_corrector": [],
+    "output_credit_corrector": [],
+    "output_entry_builder": [],
+    "output_approver": [],
+    "output_diagnostician": [],
+    "status_ambiguity_detector": 1,
+    "status_complexity_detector": 1,
+    "status_tax_specialist": 1,
+    "status_decision_maker": 1,
+    "status_entry_drafter": 1,
+    "status_disambiguator": 1,
+    "status_debit_classifier": 1,
+    "status_credit_classifier": 1,
+    "status_debit_corrector": 0,
+    "status_credit_corrector": 0,
+    "status_entry_builder": 0,
+    "status_approver": 0,
+    "status_diagnostician": 0,
+    "fix_context_disambiguator": [],
+    "fix_context_debit_classifier": [],
+    "fix_context_credit_classifier": [],
+    "fix_context_debit_corrector": [],
+    "fix_context_credit_corrector": [],
+    "fix_context_entry_builder": [],
+    "fix_context_approver": [],
+    "fix_context_diagnostician": [],
+    "decision": "APPROVED",
+    "validation_error": null,
+    "llm_calls": [
+      {
+        "node": "debit_classifier",
+        "stop_reason": "tool_use",
+        "input_tokens": 484,
+        "output_tokens": 142,
+        "input_token_details": {
+          "cache_read": 4282,
+          "cache_creation": 0
+        }
+      },
+      {
+        "node": "tax_specialist",
+        "stop_reason": "tool_use",
+        "input_tokens": 506,
+        "output_tokens": 140,
+        "input_token_details": {
+          "cache_read": 3277,
+          "cache_creation": 0
+        }
+      },
+      {
+        "node": "credit_classifier",
+        "stop_reason": "tool_use",
+        "input_tokens": 481,
+        "output_tokens": 153,
+        "input_token_details": {
+          "cache_read": 4203,
+          "cache_creation": 0
+        }
+      },
+      {
+        "node": "unknown",
+        "stop_reason": "tool_use",
+        "input_tokens": 540,
+        "output_tokens": 262,
+        "input_token_details": {
+          "cache_read": 0,
+          "cache_creation": 4550
+        }
+      },
+      {
+        "node": "entry_drafter",
+        "stop_reason": "tool_use",
+        "input_tokens": 823,
+        "output_tokens": 55,
+        "input_token_details": {
+          "cache_read": 3405,
+          "cache_creation": 0
+        }
+      },
+      {
+        "node": "entry_drafter",
+        "stop_reason": "tool_use",
+        "input_tokens": 956,
+        "output_tokens": 143,
+        "input_token_details": {
+          "cache_read": 3345,
+          "cache_creation": 0
+        }
+      }
+    ],
+    "stop_reasons": {
+      "debit_classifier": "tool_use",
+      "tax_specialist": "tool_use",
+      "credit_classifier": "tool_use",
+      "unknown": "tool_use",
+      "entry_drafter": "tool_use"
+    }
+  }
+}

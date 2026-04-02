@@ -1,0 +1,5 @@
+test_case_id,tier,transaction_text,actual_cost_usd,total_latency_ms,exp_relationship,exp_account,exp_debit,exp_credit,act_account,act_debit,act_credit,act_relationship,act_category,act_count
+int_hard_01a_note_derecognition,intermediate,"Ford received a 90-day, non-interest-bearing promissory note with a face value of $100,000 as settlement of a trade receivable. Fifty days after the note's issue date, Ford discounted the note at the bank at an annual discount rate of 15%, receiving the net proceeds in cash after deducting the discount charges. Management has determined that this qualifies as derecognition (transfer of risks and rewards) under IFRS 9.",0.0350,25429,asset_increase,Cash,"98,356.00",,Cash and cash equivalents,"98,356.16",,asset_increase,Cash and cash equivalents,1
+,,,,,expense_increase,Loss on derecognition of receivables,"1,644.00",,Loss on disposal of financial asset,"1,643.84",,revenue_decrease,Gains (losses) on disposals,1
+,,,,,asset_decrease,Trade receivables,,"100,000.00",Trade receivables,,"100,000.00",asset_decrease,Trade receivables,1
+,,,,,,TOTAL,"100,000.00","100,000.00",TOTAL,"100,000.00","100,000.00",,,
