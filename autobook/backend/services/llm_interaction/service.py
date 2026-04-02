@@ -75,13 +75,15 @@ def _build_entry_via_agent(english_text: str) -> dict | None:
     message = {"input_text": english_text}
     result = agent_execute(message)
 
-    proposed = result.get("proposed_entry")
-    if not proposed:
+    if result.get("decision") != "PROCEED":
         return None
 
-    entry_meta = proposed.get("entry") or {}
+    entry = result.get("entry")
+    if not entry or not entry.get("lines"):
+        return None
+
     return {
-        "description": entry_meta.get("description") or "",
+        "description": english_text,
         "lines": [
             {
                 "account_code": line.get("account_code", ""),
@@ -89,7 +91,7 @@ def _build_entry_via_agent(english_text: str) -> dict | None:
                 "type": line.get("type", "debit"),
                 "amount": float(line.get("amount", 0)),
             }
-            for line in proposed.get("lines") or []
+            for line in entry["lines"]
         ],
     }
 
