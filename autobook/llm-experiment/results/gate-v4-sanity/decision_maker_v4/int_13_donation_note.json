@@ -1,0 +1,245 @@
+{
+  "test_case_id": "int_13_donation_note",
+  "variant_name": "decision_maker_v4",
+  "model": "opus",
+  "debit_tuple_exact_match": false,
+  "credit_tuple_exact_match": false,
+  "debit_tuple_slot_accuracy": 0.0,
+  "credit_tuple_slot_accuracy": 0.0,
+  "entry_valid": false,
+  "debit_tuple": null,
+  "credit_tuple": null,
+  "journal_entry": null,
+  "actual_cost_usd": 0.018098,
+  "raw_cost_usd": 0.038195,
+  "total_latency_ms": 11238,
+  "total_input_tokens": 5024,
+  "total_output_tokens": 523,
+  "total_llm_calls": 1,
+  "iteration_count": 1,
+  "final_decision": "APPROVED",
+  "fix_attempted": null,
+  "fix_succeeded": null,
+  "agent_metrics": {
+    "single_agent": {
+      "input_tokens": 558,
+      "output_tokens": 523,
+      "cache_read_tokens": 4466,
+      "cache_write_tokens": 0,
+      "total_input_tokens": 5024,
+      "llm_calls": 1,
+      "actual_cost_usd": 0.018098,
+      "raw_cost_usd": 0.038195,
+      "output": null,
+      "reason": null
+    }
+  },
+  "pre_fix_debit_tuple": null,
+  "post_fix_debit_tuple": null,
+  "pre_fix_credit_tuple": null,
+  "post_fix_credit_tuple": null,
+  "fix_root_cause_agent": null,
+  "rejection_reason": null,
+  "diagnostician_decision": null,
+  "validation_error": null,
+  "decision_correct": true,
+  "entry_match": null,
+  "clarification_correct": null,
+  "clarification_questions": null,
+  "ambiguous": false,
+  "tier": "intermediate",
+  "error": null,
+  "pipeline_state": {
+    "iteration": 0,
+    "output_ambiguity_detector": [
+      {
+        "ambiguities": [
+          {
+            "aspect": "Donation expense classification",
+            "input_contextualized_conventional_default": "'pledged a donation' = commitment made, expense recognized when obligation is established",
+            "input_contextualized_ifrs_default": "Under IAS 37, a constructive obligation arises from the pledge announcement, requiring recognition of expense and liability",
+            "clarification_question": null,
+            "cases": null,
+            "ambiguous": false
+          },
+          {
+            "aspect": "Payment method",
+            "input_contextualized_conventional_default": "'issued a promissory note' = liability created (notes payable), not immediate cash payment",
+            "input_contextualized_ifrs_default": null,
+            "clarification_question": null,
+            "cases": null,
+            "ambiguous": false
+          },
+          {
+            "aspect": "Short-term note measurement",
+            "input_contextualized_conventional_default": "1-month promissory note is within 3 months, resolved at face value per short-term payment plan convention",
+            "input_contextualized_ifrs_default": null,
+            "clarification_question": null,
+            "cases": null,
+            "ambiguous": false
+          }
+        ]
+      }
+    ],
+    "output_complexity_detector": [
+      {
+        "flags": [
+          {
+            "aspect": "Donation expense recognition",
+            "best_attempt": {
+              "reason": "Pledge creates an obligation evidenced by promissory note; donation expense recognized with corresponding notes payable liability at face value for short-term note",
+              "lines": [
+                {
+                  "type": "debit",
+                  "account_name": "Donation Expense",
+                  "amount": 1000000.0
+                },
+                {
+                  "type": "credit",
+                  "account_name": "Notes Payable",
+                  "amount": 1000000.0
+                }
+              ]
+            },
+            "gap": null,
+            "beyond_llm_capability": false
+          }
+        ]
+      }
+    ],
+    "output_tax_specialist": [],
+    "output_decision_maker": [
+      {
+        "ambiguities": [
+          {
+            "aspect": "Donation expense classification",
+            "input_contextualized_conventional_default": "'pledged a donation' = commitment made, expense recognized when obligation is established",
+            "input_contextualized_ifrs_default": "Under IAS 37, a constructive obligation arises from the pledge announcement, requiring recognition of expense and liability",
+            "clarification_question": null,
+            "cases": null,
+            "ambiguous": false
+          },
+          {
+            "aspect": "Payment method",
+            "input_contextualized_conventional_default": "'issued a promissory note' = liability created (notes payable), not immediate cash payment",
+            "input_contextualized_ifrs_default": null,
+            "clarification_question": null,
+            "cases": null,
+            "ambiguous": false
+          },
+          {
+            "aspect": "Short-term note measurement",
+            "input_contextualized_conventional_default": "1-month promissory note is within 3 months, resolved at face value per short-term payment plan convention",
+            "input_contextualized_ifrs_default": null,
+            "clarification_question": null,
+            "cases": null,
+            "ambiguous": false
+          }
+        ],
+        "complexity_flags": [
+          {
+            "aspect": "Donation expense recognition",
+            "best_attempt": {
+              "reason": "Pledge creates an obligation evidenced by promissory note; donation expense recognized with corresponding notes payable liability at face value for short-term note",
+              "lines": [
+                {
+                  "type": "debit",
+                  "account_name": "Donation Expense",
+                  "amount": 1000000.0
+                },
+                {
+                  "type": "credit",
+                  "account_name": "Notes Payable",
+                  "amount": 1000000.0
+                }
+              ]
+            },
+            "gap": null,
+            "beyond_llm_capability": false
+          }
+        ],
+        "proceed_reason": "All aspects resolved: 'pledged donation' creates expense, 'issued promissory note' creates notes payable liability, and 1-month term qualifies for face value measurement under short-term convention.",
+        "clarification_questions": null,
+        "stuck_reason": null,
+        "overall_final_rationale": "The transaction clearly states a donation pledge with a 1-month promissory note, which resolves to expense recognition with notes payable at face value under conventional and IFRS rules.",
+        "decision": "PROCEED"
+      }
+    ],
+    "output_entry_drafter": [],
+    "output_disambiguator": [
+      {
+        "ambiguities": [
+          {
+            "aspect": "Donation expense classification",
+            "input_contextualized_conventional_default": "'pledged a donation' = commitment made, expense recognized when obligation is established",
+            "input_contextualized_ifrs_default": "Under IAS 37, a constructive obligation arises from the pledge announcement, requiring recognition of expense and liability",
+            "clarification_question": null,
+            "cases": null,
+            "ambiguous": false
+          },
+          {
+            "aspect": "Payment method",
+            "input_contextualized_conventional_default": "'issued a promissory note' = liability created (notes payable), not immediate cash payment",
+            "input_contextualized_ifrs_default": null,
+            "clarification_question": null,
+            "cases": null,
+            "ambiguous": false
+          },
+          {
+            "aspect": "Short-term note measurement",
+            "input_contextualized_conventional_default": "1-month promissory note is within 3 months, resolved at face value per short-term payment plan convention",
+            "input_contextualized_ifrs_default": null,
+            "clarification_question": null,
+            "cases": null,
+            "ambiguous": false
+          }
+        ]
+      }
+    ],
+    "output_debit_classifier": [],
+    "output_credit_classifier": [],
+    "output_debit_corrector": [],
+    "output_credit_corrector": [],
+    "output_entry_builder": [],
+    "output_approver": [],
+    "output_diagnostician": [],
+    "status_ambiguity_detector": 1,
+    "status_complexity_detector": 1,
+    "status_tax_specialist": 0,
+    "status_decision_maker": 1,
+    "status_entry_drafter": 0,
+    "status_disambiguator": 1,
+    "status_debit_classifier": 0,
+    "status_credit_classifier": 0,
+    "status_debit_corrector": 0,
+    "status_credit_corrector": 0,
+    "status_entry_builder": 0,
+    "status_approver": 0,
+    "status_diagnostician": 0,
+    "fix_context_disambiguator": [],
+    "fix_context_debit_classifier": [],
+    "fix_context_credit_classifier": [],
+    "fix_context_debit_corrector": [],
+    "fix_context_credit_corrector": [],
+    "fix_context_entry_builder": [],
+    "fix_context_approver": [],
+    "fix_context_diagnostician": [],
+    "decision": "APPROVED",
+    "validation_error": null,
+    "llm_calls": [
+      {
+        "node": "single_agent",
+        "stop_reason": "tool_use",
+        "input_tokens": 558,
+        "output_tokens": 523,
+        "input_token_details": {
+          "cache_read": 4466,
+          "cache_creation": 0
+        }
+      }
+    ],
+    "stop_reasons": {
+      "single_agent": "tool_use"
+    }
+  }
+}

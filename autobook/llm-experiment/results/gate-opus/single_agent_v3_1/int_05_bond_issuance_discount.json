@@ -1,0 +1,162 @@
+{
+  "test_case_id": "int_05_bond_issuance_discount",
+  "variant_name": "single_agent_v3_1",
+  "model": "opus",
+  "debit_tuple_exact_match": false,
+  "credit_tuple_exact_match": false,
+  "debit_tuple_slot_accuracy": 0.0,
+  "credit_tuple_slot_accuracy": 0.0,
+  "entry_valid": false,
+  "debit_tuple": null,
+  "credit_tuple": null,
+  "journal_entry": null,
+  "actual_cost_usd": 0.0168,
+  "raw_cost_usd": 0.0357,
+  "total_latency_ms": 16267,
+  "total_input_tokens": 4790,
+  "total_output_tokens": 470,
+  "total_llm_calls": 1,
+  "iteration_count": 1,
+  "final_decision": "APPROVED",
+  "fix_attempted": null,
+  "fix_succeeded": null,
+  "agent_metrics": {
+    "single_agent": {
+      "input_tokens": 590,
+      "output_tokens": 470,
+      "cache_read_tokens": 4200,
+      "cache_write_tokens": 0,
+      "total_input_tokens": 4790,
+      "llm_calls": 1,
+      "actual_cost_usd": 0.0168,
+      "raw_cost_usd": 0.0357,
+      "output": null,
+      "reason": null
+    }
+  },
+  "pre_fix_debit_tuple": null,
+  "post_fix_debit_tuple": null,
+  "pre_fix_credit_tuple": null,
+  "post_fix_credit_tuple": null,
+  "fix_root_cause_agent": null,
+  "rejection_reason": null,
+  "diagnostician_decision": null,
+  "validation_error": null,
+  "decision_correct": true,
+  "entry_match": null,
+  "clarification_correct": null,
+  "clarification_questions": null,
+  "ambiguous": false,
+  "tier": "intermediate",
+  "error": null,
+  "pipeline_state": {
+    "iteration": 0,
+    "output_ambiguity_detector": [
+      {
+        "ambiguities": [
+          {
+            "aspect": "Bond issuance at discount - present value calculation",
+            "input_contextualized_conventional_default": null,
+            "input_contextualized_ifrs_default": "IFRS 9 requires bonds payable to be initially recognized at fair value (present value of cash flows discounted at market rate), with discount amortized using effective interest method.",
+            "clarification_question": null,
+            "cases": null,
+            "ambiguous": false
+          }
+        ]
+      }
+    ],
+    "output_complexity_detector": [
+      {
+        "flags": [
+          {
+            "aspect": "Present value calculation for bond discount",
+            "best_attempt": {
+              "reason": "Bond issued at discount: PV of principal ($3,000,000 \u00d7 0.6575) = $1,972,500 + PV of annuity ($300,000 \u00d7 2.2832) = $684,960, total proceeds = $2,657,460; discount = $342,540",
+              "lines": [
+                {
+                  "type": "debit",
+                  "account_name": "Cash",
+                  "amount": 2657460.0
+                },
+                {
+                  "type": "debit",
+                  "account_name": "Discount on Bonds Payable",
+                  "amount": 342540.0
+                },
+                {
+                  "type": "credit",
+                  "account_name": "Bonds Payable",
+                  "amount": 3000000.0
+                }
+              ]
+            },
+            "gap": null,
+            "beyond_llm_capability": false
+          }
+        ]
+      }
+    ],
+    "output_tax_specialist": [],
+    "output_decision_maker": [],
+    "output_entry_drafter": [],
+    "output_disambiguator": [
+      {
+        "ambiguities": [
+          {
+            "aspect": "Bond issuance at discount - present value calculation",
+            "input_contextualized_conventional_default": null,
+            "input_contextualized_ifrs_default": "IFRS 9 requires bonds payable to be initially recognized at fair value (present value of cash flows discounted at market rate), with discount amortized using effective interest method.",
+            "clarification_question": null,
+            "cases": null,
+            "ambiguous": false
+          }
+        ]
+      }
+    ],
+    "output_debit_classifier": [],
+    "output_credit_classifier": [],
+    "output_debit_corrector": [],
+    "output_credit_corrector": [],
+    "output_entry_builder": [],
+    "output_approver": [],
+    "output_diagnostician": [],
+    "status_ambiguity_detector": 1,
+    "status_complexity_detector": 1,
+    "status_tax_specialist": 0,
+    "status_decision_maker": 0,
+    "status_entry_drafter": 0,
+    "status_disambiguator": 1,
+    "status_debit_classifier": 0,
+    "status_credit_classifier": 0,
+    "status_debit_corrector": 0,
+    "status_credit_corrector": 0,
+    "status_entry_builder": 0,
+    "status_approver": 0,
+    "status_diagnostician": 0,
+    "fix_context_disambiguator": [],
+    "fix_context_debit_classifier": [],
+    "fix_context_credit_classifier": [],
+    "fix_context_debit_corrector": [],
+    "fix_context_credit_corrector": [],
+    "fix_context_entry_builder": [],
+    "fix_context_approver": [],
+    "fix_context_diagnostician": [],
+    "decision": "APPROVED",
+    "validation_error": null,
+    "llm_calls": [
+      {
+        "node": "single_agent",
+        "stop_reason": "tool_use",
+        "input_tokens": 590,
+        "output_tokens": 470,
+        "input_token_details": {
+          "cache_read": 4200,
+          "cache_creation": 0
+        }
+      }
+    ],
+    "stop_reasons": {
+      "single_agent": "tool_use"
+    }
+  }
+}

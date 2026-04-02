@@ -1,0 +1,168 @@
+{
+  "test_case_id": "int_hard_01a_note_derecognition",
+  "variant_name": "single_agent_v3_1",
+  "model": "sonnet",
+  "debit_tuple_exact_match": false,
+  "credit_tuple_exact_match": false,
+  "debit_tuple_slot_accuracy": 0.0,
+  "credit_tuple_slot_accuracy": 0.0,
+  "entry_valid": false,
+  "debit_tuple": null,
+  "credit_tuple": null,
+  "journal_entry": null,
+  "actual_cost_usd": 0.014835600000000001,
+  "raw_cost_usd": 0.025695,
+  "total_latency_ms": 13728,
+  "total_input_tokens": 4645,
+  "total_output_tokens": 784,
+  "total_llm_calls": 1,
+  "iteration_count": 1,
+  "final_decision": "APPROVED",
+  "fix_attempted": null,
+  "fix_succeeded": null,
+  "agent_metrics": {
+    "single_agent": {
+      "input_tokens": 623,
+      "output_tokens": 784,
+      "cache_read_tokens": 4022,
+      "cache_write_tokens": 0,
+      "total_input_tokens": 4645,
+      "llm_calls": 1,
+      "actual_cost_usd": 0.014835600000000001,
+      "raw_cost_usd": 0.025695,
+      "output": null,
+      "reason": null
+    }
+  },
+  "pre_fix_debit_tuple": null,
+  "post_fix_debit_tuple": null,
+  "pre_fix_credit_tuple": null,
+  "post_fix_credit_tuple": null,
+  "fix_root_cause_agent": null,
+  "rejection_reason": null,
+  "diagnostician_decision": null,
+  "validation_error": null,
+  "decision_correct": true,
+  "entry_match": null,
+  "clarification_correct": null,
+  "clarification_questions": null,
+  "ambiguous": false,
+  "tier": "intermediate",
+  "error": null,
+  "pipeline_state": {
+    "iteration": 0,
+    "output_ambiguity_detector": [
+      {
+        "ambiguities": [
+          {
+            "aspect": "Sale vs secured borrowing treatment of discounted note",
+            "input_contextualized_conventional_default": "Convention marks 'discounted at the bank' as explicitly ambiguous, BUT the transaction text states 'Management has determined that this qualifies as derecognition (transfer of risks and rewards) under IFRS 9' \u2014 this is a definitive stated determination.",
+            "input_contextualized_ifrs_default": "IFRS 9 derecognition assessment is stated as complete by management \u2014 derecognition applies.",
+            "clarification_question": null,
+            "cases": null,
+            "ambiguous": false
+          }
+        ]
+      }
+    ],
+    "output_complexity_detector": [
+      {
+        "flags": [
+          {
+            "aspect": "Calculation of discount charges and net proceeds",
+            "best_attempt": {
+              "reason": "Face value $100,000 discounted at 15% annual rate for remaining 40 days (90-50): discount = $100,000 \u00d7 0.15 \u00d7 (40/365) = $1,644; net proceeds = $100,000 - $1,644 = $98,356; loss on derecognition = carrying amount $100,000 - proceeds $98,356 = $1,644.",
+              "lines": [
+                {
+                  "type": "debit",
+                  "account_name": "Cash",
+                  "amount": 98356.0
+                },
+                {
+                  "type": "debit",
+                  "account_name": "Loss on Derecognition of Note Receivable",
+                  "amount": 1644.0
+                },
+                {
+                  "type": "credit",
+                  "account_name": "Notes Receivable",
+                  "amount": 100000.0
+                }
+              ]
+            },
+            "gap": null,
+            "beyond_llm_capability": false
+          },
+          {
+            "aspect": "Non-interest-bearing note initial recognition at present value",
+            "best_attempt": null,
+            "gap": "The transaction states the note was received 'as settlement of a trade receivable' \u2014 this means the note was recorded at the carrying amount of the receivable it settled, which equals face value $100,000 under the significant financing component exemption (IFRS 15) or immateriality. No gap exists because the stated facts resolve this.",
+            "beyond_llm_capability": false
+          }
+        ]
+      }
+    ],
+    "output_tax_specialist": [],
+    "output_decision_maker": [],
+    "output_entry_drafter": [],
+    "output_disambiguator": [
+      {
+        "ambiguities": [
+          {
+            "aspect": "Sale vs secured borrowing treatment of discounted note",
+            "input_contextualized_conventional_default": "Convention marks 'discounted at the bank' as explicitly ambiguous, BUT the transaction text states 'Management has determined that this qualifies as derecognition (transfer of risks and rewards) under IFRS 9' \u2014 this is a definitive stated determination.",
+            "input_contextualized_ifrs_default": "IFRS 9 derecognition assessment is stated as complete by management \u2014 derecognition applies.",
+            "clarification_question": null,
+            "cases": null,
+            "ambiguous": false
+          }
+        ]
+      }
+    ],
+    "output_debit_classifier": [],
+    "output_credit_classifier": [],
+    "output_debit_corrector": [],
+    "output_credit_corrector": [],
+    "output_entry_builder": [],
+    "output_approver": [],
+    "output_diagnostician": [],
+    "status_ambiguity_detector": 1,
+    "status_complexity_detector": 1,
+    "status_tax_specialist": 0,
+    "status_decision_maker": 0,
+    "status_entry_drafter": 0,
+    "status_disambiguator": 1,
+    "status_debit_classifier": 0,
+    "status_credit_classifier": 0,
+    "status_debit_corrector": 0,
+    "status_credit_corrector": 0,
+    "status_entry_builder": 0,
+    "status_approver": 0,
+    "status_diagnostician": 0,
+    "fix_context_disambiguator": [],
+    "fix_context_debit_classifier": [],
+    "fix_context_credit_classifier": [],
+    "fix_context_debit_corrector": [],
+    "fix_context_credit_corrector": [],
+    "fix_context_entry_builder": [],
+    "fix_context_approver": [],
+    "fix_context_diagnostician": [],
+    "decision": "APPROVED",
+    "validation_error": null,
+    "llm_calls": [
+      {
+        "node": "single_agent",
+        "stop_reason": "tool_use",
+        "input_tokens": 623,
+        "output_tokens": 784,
+        "input_token_details": {
+          "cache_read": 4022,
+          "cache_creation": 0
+        }
+      }
+    ],
+    "stop_reasons": {
+      "single_agent": "tool_use"
+    }
+  }
+}

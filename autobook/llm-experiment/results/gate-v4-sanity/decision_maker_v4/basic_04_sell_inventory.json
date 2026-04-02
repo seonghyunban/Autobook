@@ -1,0 +1,217 @@
+{
+  "test_case_id": "basic_04_sell_inventory",
+  "variant_name": "decision_maker_v4",
+  "model": "opus",
+  "debit_tuple_exact_match": false,
+  "credit_tuple_exact_match": false,
+  "debit_tuple_slot_accuracy": 0.0,
+  "credit_tuple_slot_accuracy": 0.0,
+  "entry_valid": false,
+  "debit_tuple": null,
+  "credit_tuple": null,
+  "journal_entry": null,
+  "actual_cost_usd": 0.014508,
+  "raw_cost_usd": 0.034605,
+  "total_latency_ms": 12676,
+  "total_input_tokens": 5001,
+  "total_output_tokens": 384,
+  "total_llm_calls": 1,
+  "iteration_count": 1,
+  "final_decision": "APPROVED",
+  "fix_attempted": null,
+  "fix_succeeded": null,
+  "agent_metrics": {
+    "single_agent": {
+      "input_tokens": 535,
+      "output_tokens": 384,
+      "cache_read_tokens": 4466,
+      "cache_write_tokens": 0,
+      "total_input_tokens": 5001,
+      "llm_calls": 1,
+      "actual_cost_usd": 0.014508,
+      "raw_cost_usd": 0.034605,
+      "output": null,
+      "reason": null
+    }
+  },
+  "pre_fix_debit_tuple": null,
+  "post_fix_debit_tuple": null,
+  "pre_fix_credit_tuple": null,
+  "post_fix_credit_tuple": null,
+  "fix_root_cause_agent": null,
+  "rejection_reason": null,
+  "diagnostician_decision": null,
+  "validation_error": null,
+  "decision_correct": true,
+  "entry_match": null,
+  "clarification_correct": null,
+  "clarification_questions": null,
+  "ambiguous": false,
+  "tier": "basic",
+  "error": null,
+  "pipeline_state": {
+    "iteration": 0,
+    "output_ambiguity_detector": [
+      {
+        "ambiguities": [
+          {
+            "aspect": "Revenue recognition timing",
+            "input_contextualized_conventional_default": "'Sell' implies revenue is earned and recognized at the point of sale \u2014 performance obligation satisfied.",
+            "input_contextualized_ifrs_default": "IFRS 15: control transferred to customer at point of sale \u2014 recognize revenue.",
+            "clarification_question": null,
+            "cases": null,
+            "ambiguous": false
+          },
+          {
+            "aspect": "Payment method",
+            "input_contextualized_conventional_default": "'cash' = cash payment received at the stated amount.",
+            "input_contextualized_ifrs_default": null,
+            "clarification_question": null,
+            "cases": null,
+            "ambiguous": false
+          },
+          {
+            "aspect": "Inventory costing method",
+            "input_contextualized_conventional_default": "Stated cost of $300 is definitive \u2014 use as written.",
+            "input_contextualized_ifrs_default": null,
+            "clarification_question": null,
+            "cases": null,
+            "ambiguous": false
+          }
+        ]
+      }
+    ],
+    "output_complexity_detector": [
+      {
+        "flags": [
+          {
+            "aspect": "Standard inventory sale transaction",
+            "best_attempt": null,
+            "gap": null,
+            "beyond_llm_capability": false
+          }
+        ]
+      }
+    ],
+    "output_tax_specialist": [],
+    "output_decision_maker": [
+      {
+        "ambiguities": [
+          {
+            "aspect": "Revenue recognition timing",
+            "input_contextualized_conventional_default": "'Sell' implies revenue is earned and recognized at the point of sale \u2014 performance obligation satisfied.",
+            "input_contextualized_ifrs_default": "IFRS 15: control transferred to customer at point of sale \u2014 recognize revenue.",
+            "clarification_question": null,
+            "cases": null,
+            "ambiguous": false
+          },
+          {
+            "aspect": "Payment method",
+            "input_contextualized_conventional_default": "'cash' = cash payment received at the stated amount.",
+            "input_contextualized_ifrs_default": null,
+            "clarification_question": null,
+            "cases": null,
+            "ambiguous": false
+          },
+          {
+            "aspect": "Inventory costing method",
+            "input_contextualized_conventional_default": "Stated cost of $300 is definitive \u2014 use as written.",
+            "input_contextualized_ifrs_default": null,
+            "clarification_question": null,
+            "cases": null,
+            "ambiguous": false
+          }
+        ],
+        "complexity_flags": [
+          {
+            "aspect": "Standard inventory sale transaction",
+            "best_attempt": null,
+            "gap": null,
+            "beyond_llm_capability": false
+          }
+        ],
+        "proceed_reason": "All amounts are stated, 'sell' resolves revenue recognition, and 'cash' resolves payment method \u2014 standard inventory sale entry.",
+        "clarification_questions": null,
+        "stuck_reason": null,
+        "overall_final_rationale": "This is a straightforward inventory sale with all amounts stated \u2014 revenue of $500 and cost of goods sold of $300 are clearly defined.",
+        "decision": "PROCEED"
+      }
+    ],
+    "output_entry_drafter": [],
+    "output_disambiguator": [
+      {
+        "ambiguities": [
+          {
+            "aspect": "Revenue recognition timing",
+            "input_contextualized_conventional_default": "'Sell' implies revenue is earned and recognized at the point of sale \u2014 performance obligation satisfied.",
+            "input_contextualized_ifrs_default": "IFRS 15: control transferred to customer at point of sale \u2014 recognize revenue.",
+            "clarification_question": null,
+            "cases": null,
+            "ambiguous": false
+          },
+          {
+            "aspect": "Payment method",
+            "input_contextualized_conventional_default": "'cash' = cash payment received at the stated amount.",
+            "input_contextualized_ifrs_default": null,
+            "clarification_question": null,
+            "cases": null,
+            "ambiguous": false
+          },
+          {
+            "aspect": "Inventory costing method",
+            "input_contextualized_conventional_default": "Stated cost of $300 is definitive \u2014 use as written.",
+            "input_contextualized_ifrs_default": null,
+            "clarification_question": null,
+            "cases": null,
+            "ambiguous": false
+          }
+        ]
+      }
+    ],
+    "output_debit_classifier": [],
+    "output_credit_classifier": [],
+    "output_debit_corrector": [],
+    "output_credit_corrector": [],
+    "output_entry_builder": [],
+    "output_approver": [],
+    "output_diagnostician": [],
+    "status_ambiguity_detector": 1,
+    "status_complexity_detector": 1,
+    "status_tax_specialist": 0,
+    "status_decision_maker": 1,
+    "status_entry_drafter": 0,
+    "status_disambiguator": 1,
+    "status_debit_classifier": 0,
+    "status_credit_classifier": 0,
+    "status_debit_corrector": 0,
+    "status_credit_corrector": 0,
+    "status_entry_builder": 0,
+    "status_approver": 0,
+    "status_diagnostician": 0,
+    "fix_context_disambiguator": [],
+    "fix_context_debit_classifier": [],
+    "fix_context_credit_classifier": [],
+    "fix_context_debit_corrector": [],
+    "fix_context_credit_corrector": [],
+    "fix_context_entry_builder": [],
+    "fix_context_approver": [],
+    "fix_context_diagnostician": [],
+    "decision": "APPROVED",
+    "validation_error": null,
+    "llm_calls": [
+      {
+        "node": "single_agent",
+        "stop_reason": "tool_use",
+        "input_tokens": 535,
+        "output_tokens": 384,
+        "input_token_details": {
+          "cache_read": 4466,
+          "cache_creation": 0
+        }
+      }
+    ],
+    "stop_reasons": {
+      "single_agent": "tool_use"
+    }
+  }
+}

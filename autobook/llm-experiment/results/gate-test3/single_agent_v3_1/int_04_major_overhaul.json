@@ -1,0 +1,411 @@
+{
+  "test_case_id": "int_04_major_overhaul",
+  "variant_name": "single_agent_v3_1",
+  "model": "sonnet",
+  "debit_tuple_exact_match": false,
+  "credit_tuple_exact_match": false,
+  "debit_tuple_slot_accuracy": 0.0,
+  "credit_tuple_slot_accuracy": 0.0,
+  "entry_valid": false,
+  "debit_tuple": null,
+  "credit_tuple": null,
+  "journal_entry": null,
+  "actual_cost_usd": 0.027255599999999998,
+  "raw_cost_usd": 0.038115,
+  "total_latency_ms": 20079,
+  "total_input_tokens": 4605,
+  "total_output_tokens": 1620,
+  "total_llm_calls": 1,
+  "iteration_count": 1,
+  "final_decision": "INCOMPLETE_INFORMATION",
+  "fix_attempted": null,
+  "fix_succeeded": null,
+  "agent_metrics": {
+    "single_agent": {
+      "input_tokens": 583,
+      "output_tokens": 1620,
+      "cache_read_tokens": 4022,
+      "cache_write_tokens": 0,
+      "total_input_tokens": 4605,
+      "llm_calls": 1,
+      "actual_cost_usd": 0.027255599999999998,
+      "raw_cost_usd": 0.038115,
+      "output": null,
+      "reason": null
+    }
+  },
+  "pre_fix_debit_tuple": null,
+  "post_fix_debit_tuple": null,
+  "pre_fix_credit_tuple": null,
+  "post_fix_credit_tuple": null,
+  "fix_root_cause_agent": null,
+  "rejection_reason": null,
+  "diagnostician_decision": null,
+  "validation_error": null,
+  "decision_correct": false,
+  "entry_match": null,
+  "clarification_correct": null,
+  "clarification_questions": null,
+  "ambiguous": false,
+  "tier": "intermediate",
+  "error": null,
+  "pipeline_state": {
+    "iteration": 0,
+    "output_ambiguity_detector": [
+      {
+        "ambiguities": [
+          {
+            "aspect": "Accumulated depreciation at time of overhaul",
+            "input_contextualized_conventional_default": null,
+            "input_contextualized_ifrs_default": null,
+            "clarification_question": "What is the accumulated depreciation on the machinery at the time of the overhaul in year 5?",
+            "cases": [
+              {
+                "case": "Straight-line depreciation was used, resulting in accumulated depreciation of $400,000 (4 years \u00d7 $80,000/year)",
+                "possible_entry": {
+                  "reason": "Capitalize overhaul cost to machinery; accumulated depreciation is $400,000, carrying amount before overhaul is $400,000",
+                  "lines": [
+                    {
+                      "type": "debit",
+                      "account_name": "Machinery",
+                      "amount": 200000.0
+                    },
+                    {
+                      "type": "credit",
+                      "account_name": "Cash",
+                      "amount": 200000.0
+                    }
+                  ]
+                }
+              },
+              {
+                "case": "Accelerated depreciation was used, resulting in higher accumulated depreciation of $500,000",
+                "possible_entry": {
+                  "reason": "Capitalize overhaul cost to machinery; accumulated depreciation is $500,000, carrying amount before overhaul is $300,000",
+                  "lines": [
+                    {
+                      "type": "debit",
+                      "account_name": "Machinery",
+                      "amount": 200000.0
+                    },
+                    {
+                      "type": "credit",
+                      "account_name": "Cash",
+                      "amount": 200000.0
+                    }
+                  ]
+                }
+              }
+            ],
+            "ambiguous": true
+          },
+          {
+            "aspect": "Depreciation method used",
+            "input_contextualized_conventional_default": null,
+            "input_contextualized_ifrs_default": "IFRS requires the depreciation method that reflects the pattern of economic benefits consumption, but the transaction does not specify which method",
+            "clarification_question": "What depreciation method has been used for this machinery (straight-line, declining balance, units of production, etc.)?",
+            "cases": [
+              {
+                "case": "Straight-line depreciation method",
+                "possible_entry": {
+                  "reason": "Same entry for overhaul capitalization regardless of method; method affects only accumulated depreciation calculation",
+                  "lines": [
+                    {
+                      "type": "debit",
+                      "account_name": "Machinery",
+                      "amount": 200000.0
+                    },
+                    {
+                      "type": "credit",
+                      "account_name": "Cash",
+                      "amount": 200000.0
+                    }
+                  ]
+                }
+              },
+              {
+                "case": "Declining balance depreciation method",
+                "possible_entry": {
+                  "reason": "Same entry for overhaul capitalization regardless of method; method affects only accumulated depreciation calculation",
+                  "lines": [
+                    {
+                      "type": "debit",
+                      "account_name": "Machinery",
+                      "amount": 200000.0
+                    },
+                    {
+                      "type": "credit",
+                      "account_name": "Cash",
+                      "amount": 200000.0
+                    }
+                  ]
+                }
+              }
+            ],
+            "ambiguous": true
+          },
+          {
+            "aspect": "Residual value assumption",
+            "input_contextualized_conventional_default": null,
+            "input_contextualized_ifrs_default": "IFRS requires residual value to be estimated, but the transaction does not specify whether residual value is zero or another amount",
+            "clarification_question": "What is the estimated residual value of the machinery?",
+            "cases": [
+              {
+                "case": "Residual value is zero",
+                "possible_entry": {
+                  "reason": "Same entry for overhaul capitalization; residual value affects only depreciation calculation, not the overhaul entry",
+                  "lines": [
+                    {
+                      "type": "debit",
+                      "account_name": "Machinery",
+                      "amount": 200000.0
+                    },
+                    {
+                      "type": "credit",
+                      "account_name": "Cash",
+                      "amount": 200000.0
+                    }
+                  ]
+                }
+              },
+              {
+                "case": "Residual value is $50,000",
+                "possible_entry": {
+                  "reason": "Same entry for overhaul capitalization; residual value affects only depreciation calculation, not the overhaul entry",
+                  "lines": [
+                    {
+                      "type": "debit",
+                      "account_name": "Machinery",
+                      "amount": 200000.0
+                    },
+                    {
+                      "type": "credit",
+                      "account_name": "Cash",
+                      "amount": 200000.0
+                    }
+                  ]
+                }
+              }
+            ],
+            "ambiguous": true
+          }
+        ]
+      }
+    ],
+    "output_complexity_detector": [
+      {
+        "flags": [
+          {
+            "aspect": "Subsequent depreciation calculation after overhaul",
+            "best_attempt": {
+              "reason": "Capitalize the $200,000 overhaul cost to machinery, reducing cash",
+              "lines": [
+                {
+                  "type": "debit",
+                  "account_name": "Machinery",
+                  "amount": 200000.0
+                },
+                {
+                  "type": "credit",
+                  "account_name": "Cash",
+                  "amount": 200000.0
+                }
+              ]
+            },
+            "gap": "Cannot calculate the new depreciation schedule without knowing the accumulated depreciation at year 5, the depreciation method used, and the residual value",
+            "beyond_llm_capability": true
+          }
+        ]
+      }
+    ],
+    "output_tax_specialist": [],
+    "output_decision_maker": [],
+    "output_entry_drafter": [],
+    "output_disambiguator": [
+      {
+        "ambiguities": [
+          {
+            "aspect": "Accumulated depreciation at time of overhaul",
+            "input_contextualized_conventional_default": null,
+            "input_contextualized_ifrs_default": null,
+            "clarification_question": "What is the accumulated depreciation on the machinery at the time of the overhaul in year 5?",
+            "cases": [
+              {
+                "case": "Straight-line depreciation was used, resulting in accumulated depreciation of $400,000 (4 years \u00d7 $80,000/year)",
+                "possible_entry": {
+                  "reason": "Capitalize overhaul cost to machinery; accumulated depreciation is $400,000, carrying amount before overhaul is $400,000",
+                  "lines": [
+                    {
+                      "type": "debit",
+                      "account_name": "Machinery",
+                      "amount": 200000.0
+                    },
+                    {
+                      "type": "credit",
+                      "account_name": "Cash",
+                      "amount": 200000.0
+                    }
+                  ]
+                }
+              },
+              {
+                "case": "Accelerated depreciation was used, resulting in higher accumulated depreciation of $500,000",
+                "possible_entry": {
+                  "reason": "Capitalize overhaul cost to machinery; accumulated depreciation is $500,000, carrying amount before overhaul is $300,000",
+                  "lines": [
+                    {
+                      "type": "debit",
+                      "account_name": "Machinery",
+                      "amount": 200000.0
+                    },
+                    {
+                      "type": "credit",
+                      "account_name": "Cash",
+                      "amount": 200000.0
+                    }
+                  ]
+                }
+              }
+            ],
+            "ambiguous": true
+          },
+          {
+            "aspect": "Depreciation method used",
+            "input_contextualized_conventional_default": null,
+            "input_contextualized_ifrs_default": "IFRS requires the depreciation method that reflects the pattern of economic benefits consumption, but the transaction does not specify which method",
+            "clarification_question": "What depreciation method has been used for this machinery (straight-line, declining balance, units of production, etc.)?",
+            "cases": [
+              {
+                "case": "Straight-line depreciation method",
+                "possible_entry": {
+                  "reason": "Same entry for overhaul capitalization regardless of method; method affects only accumulated depreciation calculation",
+                  "lines": [
+                    {
+                      "type": "debit",
+                      "account_name": "Machinery",
+                      "amount": 200000.0
+                    },
+                    {
+                      "type": "credit",
+                      "account_name": "Cash",
+                      "amount": 200000.0
+                    }
+                  ]
+                }
+              },
+              {
+                "case": "Declining balance depreciation method",
+                "possible_entry": {
+                  "reason": "Same entry for overhaul capitalization regardless of method; method affects only accumulated depreciation calculation",
+                  "lines": [
+                    {
+                      "type": "debit",
+                      "account_name": "Machinery",
+                      "amount": 200000.0
+                    },
+                    {
+                      "type": "credit",
+                      "account_name": "Cash",
+                      "amount": 200000.0
+                    }
+                  ]
+                }
+              }
+            ],
+            "ambiguous": true
+          },
+          {
+            "aspect": "Residual value assumption",
+            "input_contextualized_conventional_default": null,
+            "input_contextualized_ifrs_default": "IFRS requires residual value to be estimated, but the transaction does not specify whether residual value is zero or another amount",
+            "clarification_question": "What is the estimated residual value of the machinery?",
+            "cases": [
+              {
+                "case": "Residual value is zero",
+                "possible_entry": {
+                  "reason": "Same entry for overhaul capitalization; residual value affects only depreciation calculation, not the overhaul entry",
+                  "lines": [
+                    {
+                      "type": "debit",
+                      "account_name": "Machinery",
+                      "amount": 200000.0
+                    },
+                    {
+                      "type": "credit",
+                      "account_name": "Cash",
+                      "amount": 200000.0
+                    }
+                  ]
+                }
+              },
+              {
+                "case": "Residual value is $50,000",
+                "possible_entry": {
+                  "reason": "Same entry for overhaul capitalization; residual value affects only depreciation calculation, not the overhaul entry",
+                  "lines": [
+                    {
+                      "type": "debit",
+                      "account_name": "Machinery",
+                      "amount": 200000.0
+                    },
+                    {
+                      "type": "credit",
+                      "account_name": "Cash",
+                      "amount": 200000.0
+                    }
+                  ]
+                }
+              }
+            ],
+            "ambiguous": true
+          }
+        ]
+      }
+    ],
+    "output_debit_classifier": [],
+    "output_credit_classifier": [],
+    "output_debit_corrector": [],
+    "output_credit_corrector": [],
+    "output_entry_builder": [],
+    "output_approver": [],
+    "output_diagnostician": [],
+    "status_ambiguity_detector": 1,
+    "status_complexity_detector": 1,
+    "status_tax_specialist": 0,
+    "status_decision_maker": 0,
+    "status_entry_drafter": 0,
+    "status_disambiguator": 1,
+    "status_debit_classifier": 0,
+    "status_credit_classifier": 0,
+    "status_debit_corrector": 0,
+    "status_credit_corrector": 0,
+    "status_entry_builder": 0,
+    "status_approver": 0,
+    "status_diagnostician": 0,
+    "fix_context_disambiguator": [],
+    "fix_context_debit_classifier": [],
+    "fix_context_credit_classifier": [],
+    "fix_context_debit_corrector": [],
+    "fix_context_credit_corrector": [],
+    "fix_context_entry_builder": [],
+    "fix_context_approver": [],
+    "fix_context_diagnostician": [],
+    "decision": "INCOMPLETE_INFORMATION",
+    "validation_error": null,
+    "llm_calls": [
+      {
+        "node": "single_agent",
+        "stop_reason": "tool_use",
+        "input_tokens": 583,
+        "output_tokens": 1620,
+        "input_token_details": {
+          "cache_read": 4022,
+          "cache_creation": 0
+        }
+      }
+    ],
+    "stop_reasons": {
+      "single_agent": "tool_use"
+    }
+  }
+}

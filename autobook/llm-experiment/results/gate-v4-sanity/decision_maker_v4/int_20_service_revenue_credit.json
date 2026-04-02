@@ -1,0 +1,217 @@
+{
+  "test_case_id": "int_20_service_revenue_credit",
+  "variant_name": "decision_maker_v4",
+  "model": "opus",
+  "debit_tuple_exact_match": false,
+  "credit_tuple_exact_match": false,
+  "debit_tuple_slot_accuracy": 0.0,
+  "credit_tuple_slot_accuracy": 0.0,
+  "entry_valid": false,
+  "debit_tuple": null,
+  "credit_tuple": null,
+  "journal_entry": null,
+  "actual_cost_usd": 0.015518,
+  "raw_cost_usd": 0.035615,
+  "total_latency_ms": 11152,
+  "total_input_tokens": 5013,
+  "total_output_tokens": 422,
+  "total_llm_calls": 1,
+  "iteration_count": 1,
+  "final_decision": "APPROVED",
+  "fix_attempted": null,
+  "fix_succeeded": null,
+  "agent_metrics": {
+    "single_agent": {
+      "input_tokens": 547,
+      "output_tokens": 422,
+      "cache_read_tokens": 4466,
+      "cache_write_tokens": 0,
+      "total_input_tokens": 5013,
+      "llm_calls": 1,
+      "actual_cost_usd": 0.015518,
+      "raw_cost_usd": 0.035615,
+      "output": null,
+      "reason": null
+    }
+  },
+  "pre_fix_debit_tuple": null,
+  "post_fix_debit_tuple": null,
+  "pre_fix_credit_tuple": null,
+  "post_fix_credit_tuple": null,
+  "fix_root_cause_agent": null,
+  "rejection_reason": null,
+  "diagnostician_decision": null,
+  "validation_error": null,
+  "decision_correct": true,
+  "entry_match": null,
+  "clarification_correct": null,
+  "clarification_questions": null,
+  "ambiguous": false,
+  "tier": "intermediate",
+  "error": null,
+  "pipeline_state": {
+    "iteration": 0,
+    "output_ambiguity_detector": [
+      {
+        "ambiguities": [
+          {
+            "aspect": "Revenue recognition timing",
+            "input_contextualized_conventional_default": "'provided services' implies services were delivered/performed, resolving as revenue recognized for the stated amount.",
+            "input_contextualized_ifrs_default": "IFRS 15: performance obligation satisfied upon service delivery \u2014 recognize revenue when services are provided.",
+            "clarification_question": null,
+            "cases": null,
+            "ambiguous": false
+          },
+          {
+            "aspect": "Payment method and receivable classification",
+            "input_contextualized_conventional_default": "'Payment is due in 10 days' indicates credit terms creating an accounts receivable, not cash payment.",
+            "input_contextualized_ifrs_default": null,
+            "clarification_question": null,
+            "cases": null,
+            "ambiguous": false
+          },
+          {
+            "aspect": "HST/GST treatment",
+            "input_contextualized_conventional_default": null,
+            "input_contextualized_ifrs_default": "No tax rate is stated in the transaction text; the $31,500 is the stated service amount. Seller-side tax would require explicit mention.",
+            "clarification_question": null,
+            "cases": null,
+            "ambiguous": false
+          }
+        ]
+      }
+    ],
+    "output_complexity_detector": [
+      {
+        "flags": [
+          {
+            "aspect": "Standard service revenue transaction",
+            "best_attempt": null,
+            "gap": null,
+            "beyond_llm_capability": false
+          }
+        ]
+      }
+    ],
+    "output_tax_specialist": [],
+    "output_decision_maker": [
+      {
+        "ambiguities": [
+          {
+            "aspect": "Revenue recognition timing",
+            "input_contextualized_conventional_default": "'provided services' implies services were delivered/performed, resolving as revenue recognized for the stated amount.",
+            "input_contextualized_ifrs_default": "IFRS 15: performance obligation satisfied upon service delivery \u2014 recognize revenue when services are provided.",
+            "clarification_question": null,
+            "cases": null,
+            "ambiguous": false
+          },
+          {
+            "aspect": "Payment method and receivable classification",
+            "input_contextualized_conventional_default": "'Payment is due in 10 days' indicates credit terms creating an accounts receivable, not cash payment.",
+            "input_contextualized_ifrs_default": null,
+            "clarification_question": null,
+            "cases": null,
+            "ambiguous": false
+          },
+          {
+            "aspect": "HST/GST treatment",
+            "input_contextualized_conventional_default": null,
+            "input_contextualized_ifrs_default": "No tax rate is stated in the transaction text; the $31,500 is the stated service amount. Seller-side tax would require explicit mention.",
+            "clarification_question": null,
+            "cases": null,
+            "ambiguous": false
+          }
+        ],
+        "complexity_flags": [
+          {
+            "aspect": "Standard service revenue transaction",
+            "best_attempt": null,
+            "gap": null,
+            "beyond_llm_capability": false
+          }
+        ],
+        "proceed_reason": "'Provided services' resolves as revenue recognized, and 'payment due in 10 days' resolves as accounts receivable at the stated $31,500 amount.",
+        "clarification_questions": null,
+        "stuck_reason": null,
+        "overall_final_rationale": "The transaction clearly describes completed service delivery with payment due in 10 days, resolving as revenue recognized with accounts receivable at the stated amount of $31,500.",
+        "decision": "PROCEED"
+      }
+    ],
+    "output_entry_drafter": [],
+    "output_disambiguator": [
+      {
+        "ambiguities": [
+          {
+            "aspect": "Revenue recognition timing",
+            "input_contextualized_conventional_default": "'provided services' implies services were delivered/performed, resolving as revenue recognized for the stated amount.",
+            "input_contextualized_ifrs_default": "IFRS 15: performance obligation satisfied upon service delivery \u2014 recognize revenue when services are provided.",
+            "clarification_question": null,
+            "cases": null,
+            "ambiguous": false
+          },
+          {
+            "aspect": "Payment method and receivable classification",
+            "input_contextualized_conventional_default": "'Payment is due in 10 days' indicates credit terms creating an accounts receivable, not cash payment.",
+            "input_contextualized_ifrs_default": null,
+            "clarification_question": null,
+            "cases": null,
+            "ambiguous": false
+          },
+          {
+            "aspect": "HST/GST treatment",
+            "input_contextualized_conventional_default": null,
+            "input_contextualized_ifrs_default": "No tax rate is stated in the transaction text; the $31,500 is the stated service amount. Seller-side tax would require explicit mention.",
+            "clarification_question": null,
+            "cases": null,
+            "ambiguous": false
+          }
+        ]
+      }
+    ],
+    "output_debit_classifier": [],
+    "output_credit_classifier": [],
+    "output_debit_corrector": [],
+    "output_credit_corrector": [],
+    "output_entry_builder": [],
+    "output_approver": [],
+    "output_diagnostician": [],
+    "status_ambiguity_detector": 1,
+    "status_complexity_detector": 1,
+    "status_tax_specialist": 0,
+    "status_decision_maker": 1,
+    "status_entry_drafter": 0,
+    "status_disambiguator": 1,
+    "status_debit_classifier": 0,
+    "status_credit_classifier": 0,
+    "status_debit_corrector": 0,
+    "status_credit_corrector": 0,
+    "status_entry_builder": 0,
+    "status_approver": 0,
+    "status_diagnostician": 0,
+    "fix_context_disambiguator": [],
+    "fix_context_debit_classifier": [],
+    "fix_context_credit_classifier": [],
+    "fix_context_debit_corrector": [],
+    "fix_context_credit_corrector": [],
+    "fix_context_entry_builder": [],
+    "fix_context_approver": [],
+    "fix_context_diagnostician": [],
+    "decision": "APPROVED",
+    "validation_error": null,
+    "llm_calls": [
+      {
+        "node": "single_agent",
+        "stop_reason": "tool_use",
+        "input_tokens": 547,
+        "output_tokens": 422,
+        "input_token_details": {
+          "cache_read": 4466,
+          "cache_creation": 0
+        }
+      }
+    ],
+    "stop_reasons": {
+      "single_agent": "tool_use"
+    }
+  }
+}

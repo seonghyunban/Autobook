@@ -1,0 +1,281 @@
+{
+  "test_case_id": "int_26b_payroll_remittance",
+  "variant_name": "decision_maker_v4",
+  "model": "opus",
+  "debit_tuple_exact_match": false,
+  "credit_tuple_exact_match": false,
+  "debit_tuple_slot_accuracy": 0.0,
+  "credit_tuple_slot_accuracy": 0.0,
+  "entry_valid": false,
+  "debit_tuple": null,
+  "credit_tuple": null,
+  "journal_entry": null,
+  "actual_cost_usd": 0.022463,
+  "raw_cost_usd": 0.04256,
+  "total_latency_ms": 16574,
+  "total_input_tokens": 5057,
+  "total_output_tokens": 691,
+  "total_llm_calls": 1,
+  "iteration_count": 1,
+  "final_decision": "APPROVED",
+  "fix_attempted": null,
+  "fix_succeeded": null,
+  "agent_metrics": {
+    "single_agent": {
+      "input_tokens": 591,
+      "output_tokens": 691,
+      "cache_read_tokens": 4466,
+      "cache_write_tokens": 0,
+      "total_input_tokens": 5057,
+      "llm_calls": 1,
+      "actual_cost_usd": 0.022463,
+      "raw_cost_usd": 0.04256,
+      "output": null,
+      "reason": null
+    }
+  },
+  "pre_fix_debit_tuple": null,
+  "post_fix_debit_tuple": null,
+  "pre_fix_credit_tuple": null,
+  "post_fix_credit_tuple": null,
+  "fix_root_cause_agent": null,
+  "rejection_reason": null,
+  "diagnostician_decision": null,
+  "validation_error": null,
+  "decision_correct": true,
+  "entry_match": null,
+  "clarification_correct": null,
+  "clarification_questions": null,
+  "ambiguous": false,
+  "tier": "intermediate",
+  "error": null,
+  "pipeline_state": {
+    "iteration": 0,
+    "output_ambiguity_detector": [
+      {
+        "ambiguities": [
+          {
+            "aspect": "Split between employee withholdings and employer matching contributions",
+            "input_contextualized_conventional_default": null,
+            "input_contextualized_ifrs_default": "IFRS resolves payroll remittance with employer matching: employee portion = liability decrease, employer portion = expense. For items with matching (pension, health insurance, employment insurance), each stated amount is split 50/50 between employee withholding and employer match.",
+            "clarification_question": null,
+            "cases": null,
+            "ambiguous": false
+          },
+          {
+            "aspect": "Treatment of income tax withholdings",
+            "input_contextualized_conventional_default": "'remitted' = cash payment; employee income tax withholdings are purely employee amounts with no employer match, so the full $1,450 is a liability decrease.",
+            "input_contextualized_ifrs_default": null,
+            "clarification_question": null,
+            "cases": null,
+            "ambiguous": false
+          }
+        ]
+      }
+    ],
+    "output_complexity_detector": [
+      {
+        "flags": [
+          {
+            "aspect": "Multiple statutory deduction categories with matching contributions",
+            "best_attempt": {
+              "reason": "Per IFRS rule, matching items split 50/50: employee withholding reduces liability, employer match is expense; income tax withholding is purely liability reduction.",
+              "lines": [
+                {
+                  "type": "debit",
+                  "account_name": "Pension Payable (Employee Withholding)",
+                  "amount": 2000.0
+                },
+                {
+                  "type": "debit",
+                  "account_name": "Pension Expense (Employer Match)",
+                  "amount": 2000.0
+                },
+                {
+                  "type": "debit",
+                  "account_name": "Health Insurance Payable (Employee Withholding)",
+                  "amount": 3250.0
+                },
+                {
+                  "type": "debit",
+                  "account_name": "Health Insurance Expense (Employer Match)",
+                  "amount": 3250.0
+                },
+                {
+                  "type": "debit",
+                  "account_name": "Employment Insurance Payable (Employee Withholding)",
+                  "amount": 1050.0
+                },
+                {
+                  "type": "debit",
+                  "account_name": "Employment Insurance Expense (Employer Match)",
+                  "amount": 1050.0
+                },
+                {
+                  "type": "debit",
+                  "account_name": "Income Tax Payable (Employee Withholding)",
+                  "amount": 1450.0
+                },
+                {
+                  "type": "credit",
+                  "account_name": "Cash",
+                  "amount": 14050.0
+                }
+              ]
+            },
+            "gap": null,
+            "beyond_llm_capability": false
+          }
+        ]
+      }
+    ],
+    "output_tax_specialist": [],
+    "output_decision_maker": [
+      {
+        "ambiguities": [
+          {
+            "aspect": "Split between employee withholdings and employer matching contributions",
+            "input_contextualized_conventional_default": null,
+            "input_contextualized_ifrs_default": "IFRS resolves payroll remittance with employer matching: employee portion = liability decrease, employer portion = expense. For items with matching (pension, health insurance, employment insurance), each stated amount is split 50/50 between employee withholding and employer match.",
+            "clarification_question": null,
+            "cases": null,
+            "ambiguous": false
+          },
+          {
+            "aspect": "Treatment of income tax withholdings",
+            "input_contextualized_conventional_default": "'remitted' = cash payment; employee income tax withholdings are purely employee amounts with no employer match, so the full $1,450 is a liability decrease.",
+            "input_contextualized_ifrs_default": null,
+            "clarification_question": null,
+            "cases": null,
+            "ambiguous": false
+          }
+        ],
+        "complexity_flags": [
+          {
+            "aspect": "Multiple statutory deduction categories with matching contributions",
+            "best_attempt": {
+              "reason": "Per IFRS rule, matching items split 50/50: employee withholding reduces liability, employer match is expense; income tax withholding is purely liability reduction.",
+              "lines": [
+                {
+                  "type": "debit",
+                  "account_name": "Pension Payable (Employee Withholding)",
+                  "amount": 2000.0
+                },
+                {
+                  "type": "debit",
+                  "account_name": "Pension Expense (Employer Match)",
+                  "amount": 2000.0
+                },
+                {
+                  "type": "debit",
+                  "account_name": "Health Insurance Payable (Employee Withholding)",
+                  "amount": 3250.0
+                },
+                {
+                  "type": "debit",
+                  "account_name": "Health Insurance Expense (Employer Match)",
+                  "amount": 3250.0
+                },
+                {
+                  "type": "debit",
+                  "account_name": "Employment Insurance Payable (Employee Withholding)",
+                  "amount": 1050.0
+                },
+                {
+                  "type": "debit",
+                  "account_name": "Employment Insurance Expense (Employer Match)",
+                  "amount": 1050.0
+                },
+                {
+                  "type": "debit",
+                  "account_name": "Income Tax Payable (Employee Withholding)",
+                  "amount": 1450.0
+                },
+                {
+                  "type": "credit",
+                  "account_name": "Cash",
+                  "amount": 14050.0
+                }
+              ]
+            },
+            "gap": null,
+            "beyond_llm_capability": false
+          }
+        ],
+        "proceed_reason": "IFRS rule for payroll remittance with employer matching resolves the split: employee portion decreases liability, employer portion is expense, and the stated amounts are definitive.",
+        "clarification_questions": null,
+        "stuck_reason": null,
+        "overall_final_rationale": "The transaction explicitly states combining employee withholdings with company matching contributions, and IFRS rules resolve the split as 50/50 for matching items; income tax withholdings are purely employee amounts with no match.",
+        "decision": "PROCEED"
+      }
+    ],
+    "output_entry_drafter": [],
+    "output_disambiguator": [
+      {
+        "ambiguities": [
+          {
+            "aspect": "Split between employee withholdings and employer matching contributions",
+            "input_contextualized_conventional_default": null,
+            "input_contextualized_ifrs_default": "IFRS resolves payroll remittance with employer matching: employee portion = liability decrease, employer portion = expense. For items with matching (pension, health insurance, employment insurance), each stated amount is split 50/50 between employee withholding and employer match.",
+            "clarification_question": null,
+            "cases": null,
+            "ambiguous": false
+          },
+          {
+            "aspect": "Treatment of income tax withholdings",
+            "input_contextualized_conventional_default": "'remitted' = cash payment; employee income tax withholdings are purely employee amounts with no employer match, so the full $1,450 is a liability decrease.",
+            "input_contextualized_ifrs_default": null,
+            "clarification_question": null,
+            "cases": null,
+            "ambiguous": false
+          }
+        ]
+      }
+    ],
+    "output_debit_classifier": [],
+    "output_credit_classifier": [],
+    "output_debit_corrector": [],
+    "output_credit_corrector": [],
+    "output_entry_builder": [],
+    "output_approver": [],
+    "output_diagnostician": [],
+    "status_ambiguity_detector": 1,
+    "status_complexity_detector": 1,
+    "status_tax_specialist": 0,
+    "status_decision_maker": 1,
+    "status_entry_drafter": 0,
+    "status_disambiguator": 1,
+    "status_debit_classifier": 0,
+    "status_credit_classifier": 0,
+    "status_debit_corrector": 0,
+    "status_credit_corrector": 0,
+    "status_entry_builder": 0,
+    "status_approver": 0,
+    "status_diagnostician": 0,
+    "fix_context_disambiguator": [],
+    "fix_context_debit_classifier": [],
+    "fix_context_credit_classifier": [],
+    "fix_context_debit_corrector": [],
+    "fix_context_credit_corrector": [],
+    "fix_context_entry_builder": [],
+    "fix_context_approver": [],
+    "fix_context_diagnostician": [],
+    "decision": "APPROVED",
+    "validation_error": null,
+    "llm_calls": [
+      {
+        "node": "single_agent",
+        "stop_reason": "tool_use",
+        "input_tokens": 591,
+        "output_tokens": 691,
+        "input_token_details": {
+          "cache_read": 4466,
+          "cache_creation": 0
+        }
+      }
+    ],
+    "stop_reasons": {
+      "single_agent": "tool_use"
+    }
+  }
+}

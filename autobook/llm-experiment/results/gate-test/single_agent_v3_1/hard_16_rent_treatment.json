@@ -1,0 +1,215 @@
+{
+  "test_case_id": "hard_16_rent_treatment",
+  "variant_name": "single_agent_v3_1",
+  "model": "sonnet",
+  "debit_tuple_exact_match": false,
+  "credit_tuple_exact_match": false,
+  "debit_tuple_slot_accuracy": 0.0,
+  "credit_tuple_slot_accuracy": 0.0,
+  "entry_valid": true,
+  "debit_tuple": null,
+  "credit_tuple": null,
+  "journal_entry": null,
+  "actual_cost_usd": 0.0163158,
+  "raw_cost_usd": 0.028563,
+  "total_latency_ms": 14335,
+  "total_input_tokens": 5061,
+  "total_output_tokens": 892,
+  "total_llm_calls": 1,
+  "iteration_count": 1,
+  "final_decision": "INCOMPLETE_INFORMATION",
+  "fix_attempted": null,
+  "fix_succeeded": null,
+  "agent_metrics": {
+    "single_agent": {
+      "input_tokens": 525,
+      "output_tokens": 892,
+      "cache_read_tokens": 4536,
+      "cache_write_tokens": 0,
+      "total_input_tokens": 5061,
+      "llm_calls": 1,
+      "actual_cost_usd": 0.0163158,
+      "raw_cost_usd": 0.028563,
+      "output": null,
+      "reason": null
+    }
+  },
+  "pre_fix_debit_tuple": null,
+  "post_fix_debit_tuple": null,
+  "pre_fix_credit_tuple": null,
+  "post_fix_credit_tuple": null,
+  "fix_root_cause_agent": null,
+  "rejection_reason": null,
+  "diagnostician_decision": null,
+  "validation_error": null,
+  "decision_correct": true,
+  "entry_match": false,
+  "clarification_correct": null,
+  "clarification_questions": [
+    "Has Atlas Van Lines elected to apply the IFRS 16.5 recognition exemption for short-term leases (treating rent as a period expense), or does the company capitalize lease prepayments as assets?"
+  ],
+  "ambiguous": true,
+  "tier": "hard",
+  "error": null,
+  "pipeline_state": {
+    "iteration": 0,
+    "output_ambiguity_detector": [
+      {
+        "ambiguities": [
+          {
+            "aspect": "Treatment of 12-month rent payment as prepaid asset vs immediate expense under IFRS 16.5 short-term lease exemption",
+            "clarification_question": "Has Atlas Van Lines elected to apply the IFRS 16.5 recognition exemption for short-term leases (treating rent as a period expense), or does the company capitalize lease prepayments as assets?",
+            "cases": [
+              {
+                "case": "Company policy is to capitalize prepaid rent as an asset",
+                "possible_entry": {
+                  "reason": "12-month rent payment creates a prepaid asset that will be expensed over the lease term",
+                  "lines": [
+                    {
+                      "type": "debit",
+                      "account_name": "Prepaid expenses",
+                      "amount": 24000.0
+                    },
+                    {
+                      "type": "credit",
+                      "account_name": "Cash and cash equivalents",
+                      "amount": 24000.0
+                    }
+                  ]
+                }
+              },
+              {
+                "case": "Company has elected IFRS 16.5 short-term lease exemption to expense rent immediately",
+                "possible_entry": {
+                  "reason": "Under the short-term lease recognition exemption, rent is expensed when paid rather than capitalized",
+                  "lines": [
+                    {
+                      "type": "debit",
+                      "account_name": "Occupancy expense",
+                      "amount": 24000.0
+                    },
+                    {
+                      "type": "credit",
+                      "account_name": "Cash and cash equivalents",
+                      "amount": 24000.0
+                    }
+                  ]
+                }
+              }
+            ],
+            "ambiguous": true
+          }
+        ]
+      }
+    ],
+    "output_complexity_detector": [
+      {
+        "flags": [
+          {
+            "aspect": "12-month lease payment accounting treatment",
+            "best_attempt": null,
+            "gap": null,
+            "beyond_llm_capability": false
+          }
+        ]
+      }
+    ],
+    "output_tax_specialist": [],
+    "output_decision_maker": [],
+    "output_entry_drafter": [],
+    "output_disambiguator": [
+      {
+        "ambiguities": [
+          {
+            "aspect": "Treatment of 12-month rent payment as prepaid asset vs immediate expense under IFRS 16.5 short-term lease exemption",
+            "clarification_question": "Has Atlas Van Lines elected to apply the IFRS 16.5 recognition exemption for short-term leases (treating rent as a period expense), or does the company capitalize lease prepayments as assets?",
+            "cases": [
+              {
+                "case": "Company policy is to capitalize prepaid rent as an asset",
+                "possible_entry": {
+                  "reason": "12-month rent payment creates a prepaid asset that will be expensed over the lease term",
+                  "lines": [
+                    {
+                      "type": "debit",
+                      "account_name": "Prepaid expenses",
+                      "amount": 24000.0
+                    },
+                    {
+                      "type": "credit",
+                      "account_name": "Cash and cash equivalents",
+                      "amount": 24000.0
+                    }
+                  ]
+                }
+              },
+              {
+                "case": "Company has elected IFRS 16.5 short-term lease exemption to expense rent immediately",
+                "possible_entry": {
+                  "reason": "Under the short-term lease recognition exemption, rent is expensed when paid rather than capitalized",
+                  "lines": [
+                    {
+                      "type": "debit",
+                      "account_name": "Occupancy expense",
+                      "amount": 24000.0
+                    },
+                    {
+                      "type": "credit",
+                      "account_name": "Cash and cash equivalents",
+                      "amount": 24000.0
+                    }
+                  ]
+                }
+              }
+            ],
+            "ambiguous": true
+          }
+        ]
+      }
+    ],
+    "output_debit_classifier": [],
+    "output_credit_classifier": [],
+    "output_debit_corrector": [],
+    "output_credit_corrector": [],
+    "output_entry_builder": [],
+    "output_approver": [],
+    "output_diagnostician": [],
+    "status_ambiguity_detector": 1,
+    "status_complexity_detector": 1,
+    "status_tax_specialist": 0,
+    "status_decision_maker": 0,
+    "status_entry_drafter": 0,
+    "status_disambiguator": 1,
+    "status_debit_classifier": 0,
+    "status_credit_classifier": 0,
+    "status_debit_corrector": 0,
+    "status_credit_corrector": 0,
+    "status_entry_builder": 0,
+    "status_approver": 0,
+    "status_diagnostician": 0,
+    "fix_context_disambiguator": [],
+    "fix_context_debit_classifier": [],
+    "fix_context_credit_classifier": [],
+    "fix_context_debit_corrector": [],
+    "fix_context_credit_corrector": [],
+    "fix_context_entry_builder": [],
+    "fix_context_approver": [],
+    "fix_context_diagnostician": [],
+    "decision": "INCOMPLETE_INFORMATION",
+    "validation_error": null,
+    "llm_calls": [
+      {
+        "node": "single_agent",
+        "stop_reason": "tool_use",
+        "input_tokens": 525,
+        "output_tokens": 892,
+        "input_token_details": {
+          "cache_read": 4536,
+          "cache_creation": 0
+        }
+      }
+    ],
+    "stop_reasons": {
+      "single_agent": "tool_use"
+    }
+  }
+}

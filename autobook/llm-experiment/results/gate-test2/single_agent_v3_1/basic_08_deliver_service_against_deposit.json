@@ -1,0 +1,259 @@
+{
+  "test_case_id": "basic_08_deliver_service_against_deposit",
+  "variant_name": "single_agent_v3_1",
+  "model": "sonnet",
+  "debit_tuple_exact_match": false,
+  "credit_tuple_exact_match": false,
+  "debit_tuple_slot_accuracy": 0.0,
+  "credit_tuple_slot_accuracy": 0.0,
+  "entry_valid": false,
+  "debit_tuple": null,
+  "credit_tuple": null,
+  "journal_entry": null,
+  "actual_cost_usd": 0.019047599999999998,
+  "raw_cost_usd": 0.029529,
+  "total_latency_ms": 17080,
+  "total_input_tokens": 4413,
+  "total_output_tokens": 1086,
+  "total_llm_calls": 1,
+  "iteration_count": 1,
+  "final_decision": "INCOMPLETE_INFORMATION",
+  "fix_attempted": null,
+  "fix_succeeded": null,
+  "agent_metrics": {
+    "single_agent": {
+      "input_tokens": 531,
+      "output_tokens": 1086,
+      "cache_read_tokens": 3882,
+      "cache_write_tokens": 0,
+      "total_input_tokens": 4413,
+      "llm_calls": 1,
+      "actual_cost_usd": 0.019047599999999998,
+      "raw_cost_usd": 0.029529,
+      "output": null,
+      "reason": null
+    }
+  },
+  "pre_fix_debit_tuple": null,
+  "post_fix_debit_tuple": null,
+  "pre_fix_credit_tuple": null,
+  "post_fix_credit_tuple": null,
+  "fix_root_cause_agent": null,
+  "rejection_reason": null,
+  "diagnostician_decision": null,
+  "validation_error": null,
+  "decision_correct": false,
+  "entry_match": null,
+  "clarification_correct": null,
+  "clarification_questions": null,
+  "ambiguous": false,
+  "tier": "basic",
+  "error": null,
+  "pipeline_state": {
+    "iteration": 0,
+    "output_ambiguity_detector": [
+      {
+        "ambiguities": [
+          {
+            "aspect": "Whether the service delivered equals the full $100 deposit or only a portion",
+            "clarification_question": "Does the service delivered consume the entire $100 deposit, or only a portion of it?",
+            "cases": [
+              {
+                "case": "Service delivered equals the full $100 deposit",
+                "possible_entry": {
+                  "reason": "The entire deposit liability is extinguished and recognized as revenue because the service has been fully performed",
+                  "lines": [
+                    {
+                      "type": "debit",
+                      "account_name": "Unearned Revenue",
+                      "amount": 100.0
+                    },
+                    {
+                      "type": "credit",
+                      "account_name": "Service Revenue",
+                      "amount": 100.0
+                    }
+                  ]
+                }
+              },
+              {
+                "case": "Service delivered is only $60 of the $100 deposit",
+                "possible_entry": {
+                  "reason": "Only $60 of the deposit liability is extinguished and recognized as revenue; $40 remains as unearned revenue",
+                  "lines": [
+                    {
+                      "type": "debit",
+                      "account_name": "Unearned Revenue",
+                      "amount": 60.0
+                    },
+                    {
+                      "type": "credit",
+                      "account_name": "Service Revenue",
+                      "amount": 60.0
+                    }
+                  ]
+                }
+              },
+              {
+                "case": "Service delivered is $120, exceeding the $100 deposit",
+                "possible_entry": {
+                  "reason": "The entire $100 deposit is recognized as revenue, and an additional $20 receivable is created for the balance owed",
+                  "lines": [
+                    {
+                      "type": "debit",
+                      "account_name": "Unearned Revenue",
+                      "amount": 100.0
+                    },
+                    {
+                      "type": "debit",
+                      "account_name": "Accounts Receivable",
+                      "amount": 20.0
+                    },
+                    {
+                      "type": "credit",
+                      "account_name": "Service Revenue",
+                      "amount": 120.0
+                    }
+                  ]
+                }
+              }
+            ],
+            "ambiguous": true
+          }
+        ]
+      }
+    ],
+    "output_complexity_detector": [
+      {
+        "flags": [
+          {
+            "aspect": "Revenue recognition for service delivery against deposit",
+            "best_attempt": null,
+            "gap": null,
+            "beyond_llm_capability": false
+          }
+        ]
+      }
+    ],
+    "output_tax_specialist": [],
+    "output_decision_maker": [],
+    "output_entry_drafter": [],
+    "output_disambiguator": [
+      {
+        "ambiguities": [
+          {
+            "aspect": "Whether the service delivered equals the full $100 deposit or only a portion",
+            "clarification_question": "Does the service delivered consume the entire $100 deposit, or only a portion of it?",
+            "cases": [
+              {
+                "case": "Service delivered equals the full $100 deposit",
+                "possible_entry": {
+                  "reason": "The entire deposit liability is extinguished and recognized as revenue because the service has been fully performed",
+                  "lines": [
+                    {
+                      "type": "debit",
+                      "account_name": "Unearned Revenue",
+                      "amount": 100.0
+                    },
+                    {
+                      "type": "credit",
+                      "account_name": "Service Revenue",
+                      "amount": 100.0
+                    }
+                  ]
+                }
+              },
+              {
+                "case": "Service delivered is only $60 of the $100 deposit",
+                "possible_entry": {
+                  "reason": "Only $60 of the deposit liability is extinguished and recognized as revenue; $40 remains as unearned revenue",
+                  "lines": [
+                    {
+                      "type": "debit",
+                      "account_name": "Unearned Revenue",
+                      "amount": 60.0
+                    },
+                    {
+                      "type": "credit",
+                      "account_name": "Service Revenue",
+                      "amount": 60.0
+                    }
+                  ]
+                }
+              },
+              {
+                "case": "Service delivered is $120, exceeding the $100 deposit",
+                "possible_entry": {
+                  "reason": "The entire $100 deposit is recognized as revenue, and an additional $20 receivable is created for the balance owed",
+                  "lines": [
+                    {
+                      "type": "debit",
+                      "account_name": "Unearned Revenue",
+                      "amount": 100.0
+                    },
+                    {
+                      "type": "debit",
+                      "account_name": "Accounts Receivable",
+                      "amount": 20.0
+                    },
+                    {
+                      "type": "credit",
+                      "account_name": "Service Revenue",
+                      "amount": 120.0
+                    }
+                  ]
+                }
+              }
+            ],
+            "ambiguous": true
+          }
+        ]
+      }
+    ],
+    "output_debit_classifier": [],
+    "output_credit_classifier": [],
+    "output_debit_corrector": [],
+    "output_credit_corrector": [],
+    "output_entry_builder": [],
+    "output_approver": [],
+    "output_diagnostician": [],
+    "status_ambiguity_detector": 1,
+    "status_complexity_detector": 1,
+    "status_tax_specialist": 0,
+    "status_decision_maker": 0,
+    "status_entry_drafter": 0,
+    "status_disambiguator": 1,
+    "status_debit_classifier": 0,
+    "status_credit_classifier": 0,
+    "status_debit_corrector": 0,
+    "status_credit_corrector": 0,
+    "status_entry_builder": 0,
+    "status_approver": 0,
+    "status_diagnostician": 0,
+    "fix_context_disambiguator": [],
+    "fix_context_debit_classifier": [],
+    "fix_context_credit_classifier": [],
+    "fix_context_debit_corrector": [],
+    "fix_context_credit_corrector": [],
+    "fix_context_entry_builder": [],
+    "fix_context_approver": [],
+    "fix_context_diagnostician": [],
+    "decision": "INCOMPLETE_INFORMATION",
+    "validation_error": null,
+    "llm_calls": [
+      {
+        "node": "single_agent",
+        "stop_reason": "tool_use",
+        "input_tokens": 531,
+        "output_tokens": 1086,
+        "input_token_details": {
+          "cache_read": 3882,
+          "cache_creation": 0
+        }
+      }
+    ],
+    "stop_reasons": {
+      "single_agent": "tool_use"
+    }
+  }
+}

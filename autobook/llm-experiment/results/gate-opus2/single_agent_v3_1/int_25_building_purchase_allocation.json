@@ -1,0 +1,339 @@
+{
+  "test_case_id": "int_25_building_purchase_allocation",
+  "variant_name": "single_agent_v3_1",
+  "model": "opus",
+  "debit_tuple_exact_match": false,
+  "credit_tuple_exact_match": false,
+  "debit_tuple_slot_accuracy": 0.0,
+  "credit_tuple_slot_accuracy": 0.0,
+  "entry_valid": false,
+  "debit_tuple": null,
+  "credit_tuple": null,
+  "journal_entry": null,
+  "actual_cost_usd": 0.03259,
+  "raw_cost_usd": 0.051535,
+  "total_latency_ms": 21091,
+  "total_input_tokens": 4832,
+  "total_output_tokens": 1095,
+  "total_llm_calls": 1,
+  "iteration_count": 1,
+  "final_decision": "INCOMPLETE_INFORMATION",
+  "fix_attempted": null,
+  "fix_succeeded": null,
+  "agent_metrics": {
+    "single_agent": {
+      "input_tokens": 622,
+      "output_tokens": 1095,
+      "cache_read_tokens": 4210,
+      "cache_write_tokens": 0,
+      "total_input_tokens": 4832,
+      "llm_calls": 1,
+      "actual_cost_usd": 0.03259,
+      "raw_cost_usd": 0.051535,
+      "output": null,
+      "reason": null
+    }
+  },
+  "pre_fix_debit_tuple": null,
+  "post_fix_debit_tuple": null,
+  "pre_fix_credit_tuple": null,
+  "post_fix_credit_tuple": null,
+  "fix_root_cause_agent": null,
+  "rejection_reason": null,
+  "diagnostician_decision": null,
+  "validation_error": null,
+  "decision_correct": false,
+  "entry_match": null,
+  "clarification_correct": null,
+  "clarification_questions": null,
+  "ambiguous": false,
+  "tier": "intermediate",
+  "error": null,
+  "pipeline_state": {
+    "iteration": 0,
+    "output_ambiguity_detector": [
+      {
+        "ambiguities": [
+          {
+            "aspect": "Allocation of purchase price between land and building",
+            "input_contextualized_conventional_default": null,
+            "input_contextualized_ifrs_default": "IFRS requires allocation based on relative fair values \u2014 land FV $8M and building FV $4M gives 2:1 ratio, so $9M allocated as $6M land and $3M building.",
+            "clarification_question": null,
+            "cases": null,
+            "ambiguous": false
+          },
+          {
+            "aspect": "Payment method and timing",
+            "input_contextualized_conventional_default": "'paid by cheque' = cash payment; '50% due in 6 months' = accounts payable for deferred portion.",
+            "input_contextualized_ifrs_default": null,
+            "clarification_question": null,
+            "cases": null,
+            "ambiguous": false
+          },
+          {
+            "aspect": "Sales tax treatment",
+            "input_contextualized_conventional_default": "Tax explicitly stated as 10% on building \u2014 extract stated rate and apply to building portion only.",
+            "input_contextualized_ifrs_default": null,
+            "clarification_question": null,
+            "cases": null,
+            "ambiguous": false
+          },
+          {
+            "aspect": "Whether sales tax is recoverable (input tax credit)",
+            "input_contextualized_conventional_default": null,
+            "input_contextualized_ifrs_default": null,
+            "clarification_question": "Is the 10% sales tax on the building recoverable as an input tax credit, or is it a non-recoverable cost to be capitalized?",
+            "cases": [
+              {
+                "case": "Sales tax is recoverable (recorded as receivable)",
+                "possible_entry": {
+                  "reason": "Land $6M and Building $3M allocated by FV ratio; 50% paid now ($4.5M) plus tax on building ($300K) by cheque; 50% payable in 6 months.",
+                  "lines": [
+                    {
+                      "type": "debit",
+                      "account_name": "Land",
+                      "amount": 6000000.0
+                    },
+                    {
+                      "type": "debit",
+                      "account_name": "Building",
+                      "amount": 3000000.0
+                    },
+                    {
+                      "type": "debit",
+                      "account_name": "Sales Tax Receivable",
+                      "amount": 300000.0
+                    },
+                    {
+                      "type": "credit",
+                      "account_name": "Cash",
+                      "amount": 4800000.0
+                    },
+                    {
+                      "type": "credit",
+                      "account_name": "Accounts Payable",
+                      "amount": 4500000.0
+                    }
+                  ]
+                }
+              },
+              {
+                "case": "Sales tax is non-recoverable (capitalized into building cost)",
+                "possible_entry": {
+                  "reason": "Land $6M and Building $3M + $300K tax = $3.3M allocated by FV ratio; 50% paid now ($4.5M) plus tax ($300K) by cheque; 50% payable in 6 months.",
+                  "lines": [
+                    {
+                      "type": "debit",
+                      "account_name": "Land",
+                      "amount": 6000000.0
+                    },
+                    {
+                      "type": "debit",
+                      "account_name": "Building",
+                      "amount": 3300000.0
+                    },
+                    {
+                      "type": "credit",
+                      "account_name": "Cash",
+                      "amount": 4800000.0
+                    },
+                    {
+                      "type": "credit",
+                      "account_name": "Accounts Payable",
+                      "amount": 4500000.0
+                    }
+                  ]
+                }
+              }
+            ],
+            "ambiguous": true
+          }
+        ]
+      }
+    ],
+    "output_complexity_detector": [
+      {
+        "flags": [
+          {
+            "aspect": "Relative fair value allocation calculation",
+            "best_attempt": {
+              "reason": "Total FV = $12M; Land ratio = 8/12 = 2/3; Building ratio = 4/12 = 1/3; Land = $9M \u00d7 2/3 = $6M; Building = $9M \u00d7 1/3 = $3M.",
+              "lines": [
+                {
+                  "type": "debit",
+                  "account_name": "Land",
+                  "amount": 6000000.0
+                },
+                {
+                  "type": "debit",
+                  "account_name": "Building",
+                  "amount": 3000000.0
+                },
+                {
+                  "type": "credit",
+                  "account_name": "Cash",
+                  "amount": 4800000.0
+                },
+                {
+                  "type": "credit",
+                  "account_name": "Accounts Payable",
+                  "amount": 4500000.0
+                }
+              ]
+            },
+            "gap": null,
+            "beyond_llm_capability": false
+          }
+        ]
+      }
+    ],
+    "output_tax_specialist": [],
+    "output_decision_maker": [],
+    "output_entry_drafter": [],
+    "output_disambiguator": [
+      {
+        "ambiguities": [
+          {
+            "aspect": "Allocation of purchase price between land and building",
+            "input_contextualized_conventional_default": null,
+            "input_contextualized_ifrs_default": "IFRS requires allocation based on relative fair values \u2014 land FV $8M and building FV $4M gives 2:1 ratio, so $9M allocated as $6M land and $3M building.",
+            "clarification_question": null,
+            "cases": null,
+            "ambiguous": false
+          },
+          {
+            "aspect": "Payment method and timing",
+            "input_contextualized_conventional_default": "'paid by cheque' = cash payment; '50% due in 6 months' = accounts payable for deferred portion.",
+            "input_contextualized_ifrs_default": null,
+            "clarification_question": null,
+            "cases": null,
+            "ambiguous": false
+          },
+          {
+            "aspect": "Sales tax treatment",
+            "input_contextualized_conventional_default": "Tax explicitly stated as 10% on building \u2014 extract stated rate and apply to building portion only.",
+            "input_contextualized_ifrs_default": null,
+            "clarification_question": null,
+            "cases": null,
+            "ambiguous": false
+          },
+          {
+            "aspect": "Whether sales tax is recoverable (input tax credit)",
+            "input_contextualized_conventional_default": null,
+            "input_contextualized_ifrs_default": null,
+            "clarification_question": "Is the 10% sales tax on the building recoverable as an input tax credit, or is it a non-recoverable cost to be capitalized?",
+            "cases": [
+              {
+                "case": "Sales tax is recoverable (recorded as receivable)",
+                "possible_entry": {
+                  "reason": "Land $6M and Building $3M allocated by FV ratio; 50% paid now ($4.5M) plus tax on building ($300K) by cheque; 50% payable in 6 months.",
+                  "lines": [
+                    {
+                      "type": "debit",
+                      "account_name": "Land",
+                      "amount": 6000000.0
+                    },
+                    {
+                      "type": "debit",
+                      "account_name": "Building",
+                      "amount": 3000000.0
+                    },
+                    {
+                      "type": "debit",
+                      "account_name": "Sales Tax Receivable",
+                      "amount": 300000.0
+                    },
+                    {
+                      "type": "credit",
+                      "account_name": "Cash",
+                      "amount": 4800000.0
+                    },
+                    {
+                      "type": "credit",
+                      "account_name": "Accounts Payable",
+                      "amount": 4500000.0
+                    }
+                  ]
+                }
+              },
+              {
+                "case": "Sales tax is non-recoverable (capitalized into building cost)",
+                "possible_entry": {
+                  "reason": "Land $6M and Building $3M + $300K tax = $3.3M allocated by FV ratio; 50% paid now ($4.5M) plus tax ($300K) by cheque; 50% payable in 6 months.",
+                  "lines": [
+                    {
+                      "type": "debit",
+                      "account_name": "Land",
+                      "amount": 6000000.0
+                    },
+                    {
+                      "type": "debit",
+                      "account_name": "Building",
+                      "amount": 3300000.0
+                    },
+                    {
+                      "type": "credit",
+                      "account_name": "Cash",
+                      "amount": 4800000.0
+                    },
+                    {
+                      "type": "credit",
+                      "account_name": "Accounts Payable",
+                      "amount": 4500000.0
+                    }
+                  ]
+                }
+              }
+            ],
+            "ambiguous": true
+          }
+        ]
+      }
+    ],
+    "output_debit_classifier": [],
+    "output_credit_classifier": [],
+    "output_debit_corrector": [],
+    "output_credit_corrector": [],
+    "output_entry_builder": [],
+    "output_approver": [],
+    "output_diagnostician": [],
+    "status_ambiguity_detector": 1,
+    "status_complexity_detector": 1,
+    "status_tax_specialist": 0,
+    "status_decision_maker": 0,
+    "status_entry_drafter": 0,
+    "status_disambiguator": 1,
+    "status_debit_classifier": 0,
+    "status_credit_classifier": 0,
+    "status_debit_corrector": 0,
+    "status_credit_corrector": 0,
+    "status_entry_builder": 0,
+    "status_approver": 0,
+    "status_diagnostician": 0,
+    "fix_context_disambiguator": [],
+    "fix_context_debit_classifier": [],
+    "fix_context_credit_classifier": [],
+    "fix_context_debit_corrector": [],
+    "fix_context_credit_corrector": [],
+    "fix_context_entry_builder": [],
+    "fix_context_approver": [],
+    "fix_context_diagnostician": [],
+    "decision": "INCOMPLETE_INFORMATION",
+    "validation_error": null,
+    "llm_calls": [
+      {
+        "node": "single_agent",
+        "stop_reason": "tool_use",
+        "input_tokens": 622,
+        "output_tokens": 1095,
+        "input_token_details": {
+          "cache_read": 4210,
+          "cache_creation": 0
+        }
+      }
+    ],
+    "stop_reasons": {
+      "single_agent": "tool_use"
+    }
+  }
+}

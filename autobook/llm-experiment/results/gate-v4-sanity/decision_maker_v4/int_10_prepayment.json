@@ -1,0 +1,169 @@
+{
+  "test_case_id": "int_10_prepayment",
+  "variant_name": "decision_maker_v4",
+  "model": "opus",
+  "debit_tuple_exact_match": false,
+  "credit_tuple_exact_match": false,
+  "debit_tuple_slot_accuracy": 0.0,
+  "credit_tuple_slot_accuracy": 0.0,
+  "entry_valid": false,
+  "debit_tuple": null,
+  "credit_tuple": null,
+  "journal_entry": null,
+  "actual_cost_usd": 0.012393,
+  "raw_cost_usd": 0.03249,
+  "total_latency_ms": 6655,
+  "total_input_tokens": 5023,
+  "total_output_tokens": 295,
+  "total_llm_calls": 1,
+  "iteration_count": 1,
+  "final_decision": "APPROVED",
+  "fix_attempted": null,
+  "fix_succeeded": null,
+  "agent_metrics": {
+    "single_agent": {
+      "input_tokens": 557,
+      "output_tokens": 295,
+      "cache_read_tokens": 4466,
+      "cache_write_tokens": 0,
+      "total_input_tokens": 5023,
+      "llm_calls": 1,
+      "actual_cost_usd": 0.012393,
+      "raw_cost_usd": 0.03249,
+      "output": null,
+      "reason": null
+    }
+  },
+  "pre_fix_debit_tuple": null,
+  "post_fix_debit_tuple": null,
+  "pre_fix_credit_tuple": null,
+  "post_fix_credit_tuple": null,
+  "fix_root_cause_agent": null,
+  "rejection_reason": null,
+  "diagnostician_decision": null,
+  "validation_error": null,
+  "decision_correct": true,
+  "entry_match": null,
+  "clarification_correct": null,
+  "clarification_questions": null,
+  "ambiguous": false,
+  "tier": "intermediate",
+  "error": null,
+  "pipeline_state": {
+    "iteration": 0,
+    "output_ambiguity_detector": [
+      {
+        "ambiguities": [
+          {
+            "aspect": "Classification of prepayment as asset",
+            "input_contextualized_conventional_default": "'prepaid' or 'prepayment' = asset \u2014 the $1,000,000 is recorded as a prepaid asset until materials are received.",
+            "input_contextualized_ifrs_default": "Under IFRS, prepayments for goods are recognized as assets (advance payments) until the goods are received and control transfers.",
+            "clarification_question": null,
+            "cases": null,
+            "ambiguous": false
+          }
+        ]
+      }
+    ],
+    "output_complexity_detector": [
+      {
+        "flags": [
+          {
+            "aspect": "Standard prepayment transaction",
+            "best_attempt": null,
+            "gap": null,
+            "beyond_llm_capability": false
+          }
+        ]
+      }
+    ],
+    "output_tax_specialist": [],
+    "output_decision_maker": [
+      {
+        "ambiguities": [
+          {
+            "aspect": "Classification of prepayment as asset",
+            "input_contextualized_conventional_default": "'prepaid' or 'prepayment' = asset \u2014 the $1,000,000 is recorded as a prepaid asset until materials are received.",
+            "input_contextualized_ifrs_default": "Under IFRS, prepayments for goods are recognized as assets (advance payments) until the goods are received and control transfers.",
+            "clarification_question": null,
+            "cases": null,
+            "ambiguous": false
+          }
+        ],
+        "complexity_flags": [
+          {
+            "aspect": "Standard prepayment transaction",
+            "best_attempt": null,
+            "gap": null,
+            "beyond_llm_capability": false
+          }
+        ],
+        "proceed_reason": "Convention 'prepayment' resolves as asset, and the stated amount of $1,000,000 cash is definitive.",
+        "clarification_questions": null,
+        "stuck_reason": null,
+        "overall_final_rationale": "The transaction clearly describes a prepayment for raw materials paid in cash, which by convention and IFRS is recorded as an asset until materials are received.",
+        "decision": "PROCEED"
+      }
+    ],
+    "output_entry_drafter": [],
+    "output_disambiguator": [
+      {
+        "ambiguities": [
+          {
+            "aspect": "Classification of prepayment as asset",
+            "input_contextualized_conventional_default": "'prepaid' or 'prepayment' = asset \u2014 the $1,000,000 is recorded as a prepaid asset until materials are received.",
+            "input_contextualized_ifrs_default": "Under IFRS, prepayments for goods are recognized as assets (advance payments) until the goods are received and control transfers.",
+            "clarification_question": null,
+            "cases": null,
+            "ambiguous": false
+          }
+        ]
+      }
+    ],
+    "output_debit_classifier": [],
+    "output_credit_classifier": [],
+    "output_debit_corrector": [],
+    "output_credit_corrector": [],
+    "output_entry_builder": [],
+    "output_approver": [],
+    "output_diagnostician": [],
+    "status_ambiguity_detector": 1,
+    "status_complexity_detector": 1,
+    "status_tax_specialist": 0,
+    "status_decision_maker": 1,
+    "status_entry_drafter": 0,
+    "status_disambiguator": 1,
+    "status_debit_classifier": 0,
+    "status_credit_classifier": 0,
+    "status_debit_corrector": 0,
+    "status_credit_corrector": 0,
+    "status_entry_builder": 0,
+    "status_approver": 0,
+    "status_diagnostician": 0,
+    "fix_context_disambiguator": [],
+    "fix_context_debit_classifier": [],
+    "fix_context_credit_classifier": [],
+    "fix_context_debit_corrector": [],
+    "fix_context_credit_corrector": [],
+    "fix_context_entry_builder": [],
+    "fix_context_approver": [],
+    "fix_context_diagnostician": [],
+    "decision": "APPROVED",
+    "validation_error": null,
+    "llm_calls": [
+      {
+        "node": "single_agent",
+        "stop_reason": "tool_use",
+        "input_tokens": 557,
+        "output_tokens": 295,
+        "input_token_details": {
+          "cache_read": 4466,
+          "cache_creation": 0
+        }
+      }
+    ],
+    "stop_reasons": {
+      "single_agent": "tool_use"
+    }
+  }
+}

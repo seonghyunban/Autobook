@@ -1,0 +1,245 @@
+{
+  "test_case_id": "int_30_short_term_loan_advance",
+  "variant_name": "decision_maker_v4",
+  "model": "opus",
+  "debit_tuple_exact_match": false,
+  "credit_tuple_exact_match": false,
+  "debit_tuple_slot_accuracy": 0.0,
+  "credit_tuple_slot_accuracy": 0.0,
+  "entry_valid": false,
+  "debit_tuple": null,
+  "credit_tuple": null,
+  "journal_entry": null,
+  "actual_cost_usd": 0.019828,
+  "raw_cost_usd": 0.039925,
+  "total_latency_ms": 13317,
+  "total_input_tokens": 5055,
+  "total_output_tokens": 586,
+  "total_llm_calls": 1,
+  "iteration_count": 1,
+  "final_decision": "APPROVED",
+  "fix_attempted": null,
+  "fix_succeeded": null,
+  "agent_metrics": {
+    "single_agent": {
+      "input_tokens": 589,
+      "output_tokens": 586,
+      "cache_read_tokens": 4466,
+      "cache_write_tokens": 0,
+      "total_input_tokens": 5055,
+      "llm_calls": 1,
+      "actual_cost_usd": 0.019828,
+      "raw_cost_usd": 0.039925,
+      "output": null,
+      "reason": null
+    }
+  },
+  "pre_fix_debit_tuple": null,
+  "post_fix_debit_tuple": null,
+  "pre_fix_credit_tuple": null,
+  "post_fix_credit_tuple": null,
+  "fix_root_cause_agent": null,
+  "rejection_reason": null,
+  "diagnostician_decision": null,
+  "validation_error": null,
+  "decision_correct": true,
+  "entry_match": null,
+  "clarification_correct": null,
+  "clarification_questions": null,
+  "ambiguous": false,
+  "tier": "intermediate",
+  "error": null,
+  "pipeline_state": {
+    "iteration": 0,
+    "output_ambiguity_detector": [
+      {
+        "ambiguities": [
+          {
+            "aspect": "Classification of loan as short-term vs long-term",
+            "input_contextualized_conventional_default": "'short-term loan' with 'one year' term = current asset (Notes Receivable or Loan Receivable)",
+            "input_contextualized_ifrs_default": "IFRS classifies loans due within 12 months as current assets",
+            "clarification_question": null,
+            "cases": null,
+            "ambiguous": false
+          },
+          {
+            "aspect": "Interest recognition timing",
+            "input_contextualized_conventional_default": "'receivable at the end of each month' = monthly accrual of interest income",
+            "input_contextualized_ifrs_default": "IFRS 9 requires effective interest method; for simple interest at stated rate, monthly accrual is appropriate",
+            "clarification_question": null,
+            "cases": null,
+            "ambiguous": false
+          },
+          {
+            "aspect": "Initial measurement of loan",
+            "input_contextualized_conventional_default": "Stated amount $2,000,000 is the face value advanced",
+            "input_contextualized_ifrs_default": "IFRS 9 requires initial recognition at fair value; for a market-rate short-term loan, face value approximates fair value",
+            "clarification_question": null,
+            "cases": null,
+            "ambiguous": false
+          }
+        ]
+      }
+    ],
+    "output_complexity_detector": [
+      {
+        "flags": [
+          {
+            "aspect": "Monthly interest calculation",
+            "best_attempt": {
+              "reason": "Initial loan disbursement recorded at face value; monthly interest of $7,500 ($2,000,000 \u00d7 4.5% \u00f7 12) will be recognized each month as a separate entry",
+              "lines": [
+                {
+                  "type": "debit",
+                  "account_name": "Loan Receivable - Business Partner",
+                  "amount": 2000000.0
+                },
+                {
+                  "type": "credit",
+                  "account_name": "Cash - Chequing Account",
+                  "amount": 2000000.0
+                }
+              ]
+            },
+            "gap": null,
+            "beyond_llm_capability": false
+          }
+        ]
+      }
+    ],
+    "output_tax_specialist": [],
+    "output_decision_maker": [
+      {
+        "ambiguities": [
+          {
+            "aspect": "Classification of loan as short-term vs long-term",
+            "input_contextualized_conventional_default": "'short-term loan' with 'one year' term = current asset (Notes Receivable or Loan Receivable)",
+            "input_contextualized_ifrs_default": "IFRS classifies loans due within 12 months as current assets",
+            "clarification_question": null,
+            "cases": null,
+            "ambiguous": false
+          },
+          {
+            "aspect": "Interest recognition timing",
+            "input_contextualized_conventional_default": "'receivable at the end of each month' = monthly accrual of interest income",
+            "input_contextualized_ifrs_default": "IFRS 9 requires effective interest method; for simple interest at stated rate, monthly accrual is appropriate",
+            "clarification_question": null,
+            "cases": null,
+            "ambiguous": false
+          },
+          {
+            "aspect": "Initial measurement of loan",
+            "input_contextualized_conventional_default": "Stated amount $2,000,000 is the face value advanced",
+            "input_contextualized_ifrs_default": "IFRS 9 requires initial recognition at fair value; for a market-rate short-term loan, face value approximates fair value",
+            "clarification_question": null,
+            "cases": null,
+            "ambiguous": false
+          }
+        ],
+        "complexity_flags": [
+          {
+            "aspect": "Monthly interest calculation",
+            "best_attempt": {
+              "reason": "Initial loan disbursement recorded at face value; monthly interest of $7,500 ($2,000,000 \u00d7 4.5% \u00f7 12) will be recognized each month as a separate entry",
+              "lines": [
+                {
+                  "type": "debit",
+                  "account_name": "Loan Receivable - Business Partner",
+                  "amount": 2000000.0
+                },
+                {
+                  "type": "credit",
+                  "account_name": "Cash - Chequing Account",
+                  "amount": 2000000.0
+                }
+              ]
+            },
+            "gap": null,
+            "beyond_llm_capability": false
+          }
+        ],
+        "proceed_reason": "All terms are explicitly stated: $2,000,000 principal, one-year term, 4.5% annual interest receivable monthly \u2014 no ambiguity in initial recognition entry.",
+        "clarification_questions": null,
+        "stuck_reason": null,
+        "overall_final_rationale": "The transaction clearly states all necessary information: principal amount, term, interest rate, and payment timing, allowing for unambiguous initial recognition of the loan receivable.",
+        "decision": "PROCEED"
+      }
+    ],
+    "output_entry_drafter": [],
+    "output_disambiguator": [
+      {
+        "ambiguities": [
+          {
+            "aspect": "Classification of loan as short-term vs long-term",
+            "input_contextualized_conventional_default": "'short-term loan' with 'one year' term = current asset (Notes Receivable or Loan Receivable)",
+            "input_contextualized_ifrs_default": "IFRS classifies loans due within 12 months as current assets",
+            "clarification_question": null,
+            "cases": null,
+            "ambiguous": false
+          },
+          {
+            "aspect": "Interest recognition timing",
+            "input_contextualized_conventional_default": "'receivable at the end of each month' = monthly accrual of interest income",
+            "input_contextualized_ifrs_default": "IFRS 9 requires effective interest method; for simple interest at stated rate, monthly accrual is appropriate",
+            "clarification_question": null,
+            "cases": null,
+            "ambiguous": false
+          },
+          {
+            "aspect": "Initial measurement of loan",
+            "input_contextualized_conventional_default": "Stated amount $2,000,000 is the face value advanced",
+            "input_contextualized_ifrs_default": "IFRS 9 requires initial recognition at fair value; for a market-rate short-term loan, face value approximates fair value",
+            "clarification_question": null,
+            "cases": null,
+            "ambiguous": false
+          }
+        ]
+      }
+    ],
+    "output_debit_classifier": [],
+    "output_credit_classifier": [],
+    "output_debit_corrector": [],
+    "output_credit_corrector": [],
+    "output_entry_builder": [],
+    "output_approver": [],
+    "output_diagnostician": [],
+    "status_ambiguity_detector": 1,
+    "status_complexity_detector": 1,
+    "status_tax_specialist": 0,
+    "status_decision_maker": 1,
+    "status_entry_drafter": 0,
+    "status_disambiguator": 1,
+    "status_debit_classifier": 0,
+    "status_credit_classifier": 0,
+    "status_debit_corrector": 0,
+    "status_credit_corrector": 0,
+    "status_entry_builder": 0,
+    "status_approver": 0,
+    "status_diagnostician": 0,
+    "fix_context_disambiguator": [],
+    "fix_context_debit_classifier": [],
+    "fix_context_credit_classifier": [],
+    "fix_context_debit_corrector": [],
+    "fix_context_credit_corrector": [],
+    "fix_context_entry_builder": [],
+    "fix_context_approver": [],
+    "fix_context_diagnostician": [],
+    "decision": "APPROVED",
+    "validation_error": null,
+    "llm_calls": [
+      {
+        "node": "single_agent",
+        "stop_reason": "tool_use",
+        "input_tokens": 589,
+        "output_tokens": 586,
+        "input_token_details": {
+          "cache_read": 4466,
+          "cache_creation": 0
+        }
+      }
+    ],
+    "stop_reasons": {
+      "single_agent": "tool_use"
+    }
+  }
+}

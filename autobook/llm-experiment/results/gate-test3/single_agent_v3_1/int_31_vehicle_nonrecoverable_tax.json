@@ -1,0 +1,295 @@
+{
+  "test_case_id": "int_31_vehicle_nonrecoverable_tax",
+  "variant_name": "single_agent_v3_1",
+  "model": "sonnet",
+  "debit_tuple_exact_match": false,
+  "credit_tuple_exact_match": false,
+  "debit_tuple_slot_accuracy": 0.0,
+  "credit_tuple_slot_accuracy": 0.0,
+  "entry_valid": false,
+  "debit_tuple": null,
+  "credit_tuple": null,
+  "journal_entry": null,
+  "actual_cost_usd": 0.019740599999999997,
+  "raw_cost_usd": 0.0306,
+  "total_latency_ms": 16472,
+  "total_input_tokens": 4605,
+  "total_output_tokens": 1119,
+  "total_llm_calls": 1,
+  "iteration_count": 1,
+  "final_decision": "INCOMPLETE_INFORMATION",
+  "fix_attempted": null,
+  "fix_succeeded": null,
+  "agent_metrics": {
+    "single_agent": {
+      "input_tokens": 583,
+      "output_tokens": 1119,
+      "cache_read_tokens": 4022,
+      "cache_write_tokens": 0,
+      "total_input_tokens": 4605,
+      "llm_calls": 1,
+      "actual_cost_usd": 0.019740599999999997,
+      "raw_cost_usd": 0.0306,
+      "output": null,
+      "reason": null
+    }
+  },
+  "pre_fix_debit_tuple": null,
+  "post_fix_debit_tuple": null,
+  "pre_fix_credit_tuple": null,
+  "post_fix_credit_tuple": null,
+  "fix_root_cause_agent": null,
+  "rejection_reason": null,
+  "diagnostician_decision": null,
+  "validation_error": null,
+  "decision_correct": false,
+  "entry_match": null,
+  "clarification_correct": null,
+  "clarification_questions": null,
+  "ambiguous": false,
+  "tier": "intermediate",
+  "error": null,
+  "pipeline_state": {
+    "iteration": 0,
+    "output_ambiguity_detector": [
+      {
+        "ambiguities": [
+          {
+            "aspect": "Asset classification: personal vs business use vehicle",
+            "input_contextualized_conventional_default": "Vehicle purchased by corporation for executive use is a corporate asset regardless of personal use component",
+            "input_contextualized_ifrs_default": "IAS 16: asset controlled by entity and used in business operations is recognized as PP&E",
+            "clarification_question": null,
+            "cases": null,
+            "ambiguous": false
+          },
+          {
+            "aspect": "Sales tax treatment",
+            "input_contextualized_conventional_default": "Text states 'non-recoverable sales tax' \u2014 this is a definitive statement that tax cannot be recovered",
+            "input_contextualized_ifrs_default": "IAS 16.16(a): non-recoverable purchase taxes are capitalized into asset cost",
+            "clarification_question": null,
+            "cases": null,
+            "ambiguous": false
+          },
+          {
+            "aspect": "Financing arrangement nature",
+            "input_contextualized_conventional_default": "'financed through dealer payment plan' indicates accounts payable or notes payable to dealer",
+            "input_contextualized_ifrs_default": "IFRS 9: 3-month payment plan is a financial liability at amortized cost",
+            "clarification_question": null,
+            "cases": null,
+            "ambiguous": false
+          },
+          {
+            "aspect": "Interest rate on payment plan",
+            "input_contextualized_conventional_default": null,
+            "input_contextualized_ifrs_default": null,
+            "clarification_question": "What is the interest rate on the 3-month dealer payment plan?",
+            "cases": [
+              {
+                "case": "Zero-interest promotional financing",
+                "possible_entry": {
+                  "reason": "Vehicle and tax capitalized at full cost, no interest component",
+                  "lines": [
+                    {
+                      "type": "debit",
+                      "account_name": "Vehicles",
+                      "amount": 52800.0
+                    },
+                    {
+                      "type": "credit",
+                      "account_name": "Accounts Payable - Ford",
+                      "amount": 52800.0
+                    }
+                  ]
+                }
+              },
+              {
+                "case": "Interest-bearing financing at market rate (e.g., 6% annual)",
+                "possible_entry": {
+                  "reason": "Vehicle recorded at present value, discount amortized over 3 months as interest expense",
+                  "lines": [
+                    {
+                      "type": "debit",
+                      "account_name": "Vehicles",
+                      "amount": 52019.0
+                    },
+                    {
+                      "type": "debit",
+                      "account_name": "Discount on Notes Payable",
+                      "amount": 781.0
+                    },
+                    {
+                      "type": "credit",
+                      "account_name": "Notes Payable - Ford",
+                      "amount": 52800.0
+                    }
+                  ]
+                }
+              }
+            ],
+            "ambiguous": true
+          }
+        ]
+      }
+    ],
+    "output_complexity_detector": [
+      {
+        "flags": [
+          {
+            "aspect": "Present value calculation for financing",
+            "best_attempt": {
+              "reason": "Without interest rate, system assumes zero-interest and records at face value per common dealer promotional practice",
+              "lines": [
+                {
+                  "type": "debit",
+                  "account_name": "Vehicles",
+                  "amount": 52800.0
+                },
+                {
+                  "type": "credit",
+                  "account_name": "Accounts Payable - Ford",
+                  "amount": 52800.0
+                }
+              ]
+            },
+            "gap": null,
+            "beyond_llm_capability": false
+          },
+          {
+            "aspect": "Personal use component tracking",
+            "best_attempt": null,
+            "gap": null,
+            "beyond_llm_capability": false
+          }
+        ]
+      }
+    ],
+    "output_tax_specialist": [],
+    "output_decision_maker": [],
+    "output_entry_drafter": [],
+    "output_disambiguator": [
+      {
+        "ambiguities": [
+          {
+            "aspect": "Asset classification: personal vs business use vehicle",
+            "input_contextualized_conventional_default": "Vehicle purchased by corporation for executive use is a corporate asset regardless of personal use component",
+            "input_contextualized_ifrs_default": "IAS 16: asset controlled by entity and used in business operations is recognized as PP&E",
+            "clarification_question": null,
+            "cases": null,
+            "ambiguous": false
+          },
+          {
+            "aspect": "Sales tax treatment",
+            "input_contextualized_conventional_default": "Text states 'non-recoverable sales tax' \u2014 this is a definitive statement that tax cannot be recovered",
+            "input_contextualized_ifrs_default": "IAS 16.16(a): non-recoverable purchase taxes are capitalized into asset cost",
+            "clarification_question": null,
+            "cases": null,
+            "ambiguous": false
+          },
+          {
+            "aspect": "Financing arrangement nature",
+            "input_contextualized_conventional_default": "'financed through dealer payment plan' indicates accounts payable or notes payable to dealer",
+            "input_contextualized_ifrs_default": "IFRS 9: 3-month payment plan is a financial liability at amortized cost",
+            "clarification_question": null,
+            "cases": null,
+            "ambiguous": false
+          },
+          {
+            "aspect": "Interest rate on payment plan",
+            "input_contextualized_conventional_default": null,
+            "input_contextualized_ifrs_default": null,
+            "clarification_question": "What is the interest rate on the 3-month dealer payment plan?",
+            "cases": [
+              {
+                "case": "Zero-interest promotional financing",
+                "possible_entry": {
+                  "reason": "Vehicle and tax capitalized at full cost, no interest component",
+                  "lines": [
+                    {
+                      "type": "debit",
+                      "account_name": "Vehicles",
+                      "amount": 52800.0
+                    },
+                    {
+                      "type": "credit",
+                      "account_name": "Accounts Payable - Ford",
+                      "amount": 52800.0
+                    }
+                  ]
+                }
+              },
+              {
+                "case": "Interest-bearing financing at market rate (e.g., 6% annual)",
+                "possible_entry": {
+                  "reason": "Vehicle recorded at present value, discount amortized over 3 months as interest expense",
+                  "lines": [
+                    {
+                      "type": "debit",
+                      "account_name": "Vehicles",
+                      "amount": 52019.0
+                    },
+                    {
+                      "type": "debit",
+                      "account_name": "Discount on Notes Payable",
+                      "amount": 781.0
+                    },
+                    {
+                      "type": "credit",
+                      "account_name": "Notes Payable - Ford",
+                      "amount": 52800.0
+                    }
+                  ]
+                }
+              }
+            ],
+            "ambiguous": true
+          }
+        ]
+      }
+    ],
+    "output_debit_classifier": [],
+    "output_credit_classifier": [],
+    "output_debit_corrector": [],
+    "output_credit_corrector": [],
+    "output_entry_builder": [],
+    "output_approver": [],
+    "output_diagnostician": [],
+    "status_ambiguity_detector": 1,
+    "status_complexity_detector": 1,
+    "status_tax_specialist": 0,
+    "status_decision_maker": 0,
+    "status_entry_drafter": 0,
+    "status_disambiguator": 1,
+    "status_debit_classifier": 0,
+    "status_credit_classifier": 0,
+    "status_debit_corrector": 0,
+    "status_credit_corrector": 0,
+    "status_entry_builder": 0,
+    "status_approver": 0,
+    "status_diagnostician": 0,
+    "fix_context_disambiguator": [],
+    "fix_context_debit_classifier": [],
+    "fix_context_credit_classifier": [],
+    "fix_context_debit_corrector": [],
+    "fix_context_credit_corrector": [],
+    "fix_context_entry_builder": [],
+    "fix_context_approver": [],
+    "fix_context_diagnostician": [],
+    "decision": "INCOMPLETE_INFORMATION",
+    "validation_error": null,
+    "llm_calls": [
+      {
+        "node": "single_agent",
+        "stop_reason": "tool_use",
+        "input_tokens": 583,
+        "output_tokens": 1119,
+        "input_token_details": {
+          "cache_read": 4022,
+          "cache_creation": 0
+        }
+      }
+    ],
+    "stop_reasons": {
+      "single_agent": "tool_use"
+    }
+  }
+}

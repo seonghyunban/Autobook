@@ -1,0 +1,189 @@
+{
+  "test_case_id": "int_15_bank_loan",
+  "variant_name": "single_agent_v3_1",
+  "model": "opus",
+  "debit_tuple_exact_match": false,
+  "credit_tuple_exact_match": false,
+  "debit_tuple_slot_accuracy": 0.0,
+  "credit_tuple_slot_accuracy": 0.0,
+  "entry_valid": false,
+  "debit_tuple": null,
+  "credit_tuple": null,
+  "journal_entry": null,
+  "actual_cost_usd": 0.019006,
+  "raw_cost_usd": 0.038365,
+  "total_latency_ms": 11665,
+  "total_input_tokens": 4863,
+  "total_output_tokens": 562,
+  "total_llm_calls": 1,
+  "iteration_count": 1,
+  "final_decision": "APPROVED",
+  "fix_attempted": null,
+  "fix_succeeded": null,
+  "agent_metrics": {
+    "single_agent": {
+      "input_tokens": 561,
+      "output_tokens": 562,
+      "cache_read_tokens": 4302,
+      "cache_write_tokens": 0,
+      "total_input_tokens": 4863,
+      "llm_calls": 1,
+      "actual_cost_usd": 0.019006,
+      "raw_cost_usd": 0.038365,
+      "output": null,
+      "reason": null
+    }
+  },
+  "pre_fix_debit_tuple": null,
+  "post_fix_debit_tuple": null,
+  "pre_fix_credit_tuple": null,
+  "post_fix_credit_tuple": null,
+  "fix_root_cause_agent": null,
+  "rejection_reason": null,
+  "diagnostician_decision": null,
+  "validation_error": null,
+  "decision_correct": true,
+  "entry_match": null,
+  "clarification_correct": null,
+  "clarification_questions": null,
+  "ambiguous": false,
+  "tier": "intermediate",
+  "error": null,
+  "pipeline_state": {
+    "iteration": 0,
+    "output_ambiguity_detector": [
+      {
+        "ambiguities": [
+          {
+            "aspect": "Loan classification (current vs non-current)",
+            "input_contextualized_conventional_default": "3-year term indicates non-current liability; the portion due within 12 months would be current, but initial recognition is at full amount as non-current.",
+            "input_contextualized_ifrs_default": "IFRS requires classification based on settlement timing; 3-year term = non-current liability at inception.",
+            "clarification_question": null,
+            "cases": null,
+            "ambiguous": false
+          },
+          {
+            "aspect": "Interest rate type (simple vs compound)",
+            "input_contextualized_conventional_default": "Semi-annual interest payments with stated annual rate conventionally means simple interest calculated on principal at 6%/2 = 3% per period.",
+            "input_contextualized_ifrs_default": null,
+            "clarification_question": null,
+            "cases": null,
+            "ambiguous": false
+          },
+          {
+            "aspect": "Fair value vs face value measurement",
+            "input_contextualized_conventional_default": "'Borrowed $200,000 in cash' indicates cash received equals face value - no discount or premium.",
+            "input_contextualized_ifrs_default": "IFRS 9: When cash received equals face value and rate is market rate, initial measurement at transaction price is appropriate.",
+            "clarification_question": null,
+            "cases": null,
+            "ambiguous": false
+          }
+        ]
+      }
+    ],
+    "output_complexity_detector": [
+      {
+        "flags": [
+          {
+            "aspect": "Interest calculation and future entries",
+            "best_attempt": {
+              "reason": "Initial borrowing entry records cash received and corresponding loan liability at face value.",
+              "lines": [
+                {
+                  "type": "debit",
+                  "account_name": "Cash",
+                  "amount": 200000.0
+                },
+                {
+                  "type": "credit",
+                  "account_name": "Bank Loan Payable",
+                  "amount": 200000.0
+                }
+              ]
+            },
+            "gap": null,
+            "beyond_llm_capability": false
+          }
+        ]
+      }
+    ],
+    "output_tax_specialist": [],
+    "output_decision_maker": [],
+    "output_entry_drafter": [],
+    "output_disambiguator": [
+      {
+        "ambiguities": [
+          {
+            "aspect": "Loan classification (current vs non-current)",
+            "input_contextualized_conventional_default": "3-year term indicates non-current liability; the portion due within 12 months would be current, but initial recognition is at full amount as non-current.",
+            "input_contextualized_ifrs_default": "IFRS requires classification based on settlement timing; 3-year term = non-current liability at inception.",
+            "clarification_question": null,
+            "cases": null,
+            "ambiguous": false
+          },
+          {
+            "aspect": "Interest rate type (simple vs compound)",
+            "input_contextualized_conventional_default": "Semi-annual interest payments with stated annual rate conventionally means simple interest calculated on principal at 6%/2 = 3% per period.",
+            "input_contextualized_ifrs_default": null,
+            "clarification_question": null,
+            "cases": null,
+            "ambiguous": false
+          },
+          {
+            "aspect": "Fair value vs face value measurement",
+            "input_contextualized_conventional_default": "'Borrowed $200,000 in cash' indicates cash received equals face value - no discount or premium.",
+            "input_contextualized_ifrs_default": "IFRS 9: When cash received equals face value and rate is market rate, initial measurement at transaction price is appropriate.",
+            "clarification_question": null,
+            "cases": null,
+            "ambiguous": false
+          }
+        ]
+      }
+    ],
+    "output_debit_classifier": [],
+    "output_credit_classifier": [],
+    "output_debit_corrector": [],
+    "output_credit_corrector": [],
+    "output_entry_builder": [],
+    "output_approver": [],
+    "output_diagnostician": [],
+    "status_ambiguity_detector": 1,
+    "status_complexity_detector": 1,
+    "status_tax_specialist": 0,
+    "status_decision_maker": 0,
+    "status_entry_drafter": 0,
+    "status_disambiguator": 1,
+    "status_debit_classifier": 0,
+    "status_credit_classifier": 0,
+    "status_debit_corrector": 0,
+    "status_credit_corrector": 0,
+    "status_entry_builder": 0,
+    "status_approver": 0,
+    "status_diagnostician": 0,
+    "fix_context_disambiguator": [],
+    "fix_context_debit_classifier": [],
+    "fix_context_credit_classifier": [],
+    "fix_context_debit_corrector": [],
+    "fix_context_credit_corrector": [],
+    "fix_context_entry_builder": [],
+    "fix_context_approver": [],
+    "fix_context_diagnostician": [],
+    "decision": "APPROVED",
+    "validation_error": null,
+    "llm_calls": [
+      {
+        "node": "single_agent",
+        "stop_reason": "tool_use",
+        "input_tokens": 561,
+        "output_tokens": 562,
+        "input_token_details": {
+          "cache_read": 4302,
+          "cache_creation": 0
+        }
+      }
+    ],
+    "stop_reasons": {
+      "single_agent": "tool_use"
+    }
+  }
+}

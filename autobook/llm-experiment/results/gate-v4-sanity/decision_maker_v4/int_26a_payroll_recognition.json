@@ -1,0 +1,295 @@
+{
+  "test_case_id": "int_26a_payroll_recognition",
+  "variant_name": "decision_maker_v4",
+  "model": "opus",
+  "debit_tuple_exact_match": false,
+  "credit_tuple_exact_match": false,
+  "debit_tuple_slot_accuracy": 0.0,
+  "credit_tuple_slot_accuracy": 0.0,
+  "entry_valid": false,
+  "debit_tuple": null,
+  "credit_tuple": null,
+  "journal_entry": null,
+  "actual_cost_usd": 0.021638,
+  "raw_cost_usd": 0.041735,
+  "total_latency_ms": 12997,
+  "total_input_tokens": 5092,
+  "total_output_tokens": 651,
+  "total_llm_calls": 1,
+  "iteration_count": 1,
+  "final_decision": "APPROVED",
+  "fix_attempted": null,
+  "fix_succeeded": null,
+  "agent_metrics": {
+    "single_agent": {
+      "input_tokens": 626,
+      "output_tokens": 651,
+      "cache_read_tokens": 4466,
+      "cache_write_tokens": 0,
+      "total_input_tokens": 5092,
+      "llm_calls": 1,
+      "actual_cost_usd": 0.021638,
+      "raw_cost_usd": 0.041735,
+      "output": null,
+      "reason": null
+    }
+  },
+  "pre_fix_debit_tuple": null,
+  "post_fix_debit_tuple": null,
+  "pre_fix_credit_tuple": null,
+  "post_fix_credit_tuple": null,
+  "fix_root_cause_agent": null,
+  "rejection_reason": null,
+  "diagnostician_decision": null,
+  "validation_error": null,
+  "decision_correct": true,
+  "entry_match": null,
+  "clarification_correct": null,
+  "clarification_questions": null,
+  "ambiguous": false,
+  "tier": "intermediate",
+  "error": null,
+  "pipeline_state": {
+    "iteration": 0,
+    "output_ambiguity_detector": [
+      {
+        "ambiguities": [
+          {
+            "aspect": "Gross vs net salary interpretation",
+            "input_contextualized_conventional_default": "Stated amounts ($25,000 + $20,000 = $45,000 gross) are definitive; deductions are explicitly itemized as employee-borne withholdings.",
+            "input_contextualized_ifrs_default": null,
+            "clarification_question": null,
+            "cases": null,
+            "ambiguous": false
+          },
+          {
+            "aspect": "Payment method",
+            "input_contextualized_conventional_default": "'transferred from the chequing account' = cash payment from bank account.",
+            "input_contextualized_ifrs_default": null,
+            "clarification_question": null,
+            "cases": null,
+            "ambiguous": false
+          },
+          {
+            "aspect": "Classification of wages vs salaries",
+            "input_contextualized_conventional_default": "Production worker wages are manufacturing costs (inventory); administrative salaries are period expenses.",
+            "input_contextualized_ifrs_default": "IFRS: Manufacturing costs resolve as inventory (product cost); administrative salaries are period expenses.",
+            "clarification_question": null,
+            "cases": null,
+            "ambiguous": false
+          }
+        ]
+      }
+    ],
+    "output_complexity_detector": [
+      {
+        "flags": [
+          {
+            "aspect": "Multi-line payroll entry with withholdings",
+            "best_attempt": {
+              "reason": "Gross wages/salaries recorded as expense/inventory, withholdings create liabilities, net paid in cash.",
+              "lines": [
+                {
+                  "type": "debit",
+                  "account_name": "Direct Labor (Inventory/WIP)",
+                  "amount": 25000.0
+                },
+                {
+                  "type": "debit",
+                  "account_name": "Administrative Salaries Expense",
+                  "amount": 20000.0
+                },
+                {
+                  "type": "credit",
+                  "account_name": "Pension Contributions Payable",
+                  "amount": 2000.0
+                },
+                {
+                  "type": "credit",
+                  "account_name": "Health Insurance Premiums Payable",
+                  "amount": 3250.0
+                },
+                {
+                  "type": "credit",
+                  "account_name": "Employment Insurance Premiums Payable",
+                  "amount": 1050.0
+                },
+                {
+                  "type": "credit",
+                  "account_name": "Income Tax Withholdings Payable",
+                  "amount": 1450.0
+                },
+                {
+                  "type": "credit",
+                  "account_name": "Cash - Chequing Account",
+                  "amount": 37250.0
+                }
+              ]
+            },
+            "gap": null,
+            "beyond_llm_capability": false
+          }
+        ]
+      }
+    ],
+    "output_tax_specialist": [],
+    "output_decision_maker": [
+      {
+        "ambiguities": [
+          {
+            "aspect": "Gross vs net salary interpretation",
+            "input_contextualized_conventional_default": "Stated amounts ($25,000 + $20,000 = $45,000 gross) are definitive; deductions are explicitly itemized as employee-borne withholdings.",
+            "input_contextualized_ifrs_default": null,
+            "clarification_question": null,
+            "cases": null,
+            "ambiguous": false
+          },
+          {
+            "aspect": "Payment method",
+            "input_contextualized_conventional_default": "'transferred from the chequing account' = cash payment from bank account.",
+            "input_contextualized_ifrs_default": null,
+            "clarification_question": null,
+            "cases": null,
+            "ambiguous": false
+          },
+          {
+            "aspect": "Classification of wages vs salaries",
+            "input_contextualized_conventional_default": "Production worker wages are manufacturing costs (inventory); administrative salaries are period expenses.",
+            "input_contextualized_ifrs_default": "IFRS: Manufacturing costs resolve as inventory (product cost); administrative salaries are period expenses.",
+            "clarification_question": null,
+            "cases": null,
+            "ambiguous": false
+          }
+        ],
+        "complexity_flags": [
+          {
+            "aspect": "Multi-line payroll entry with withholdings",
+            "best_attempt": {
+              "reason": "Gross wages/salaries recorded as expense/inventory, withholdings create liabilities, net paid in cash.",
+              "lines": [
+                {
+                  "type": "debit",
+                  "account_name": "Direct Labor (Inventory/WIP)",
+                  "amount": 25000.0
+                },
+                {
+                  "type": "debit",
+                  "account_name": "Administrative Salaries Expense",
+                  "amount": 20000.0
+                },
+                {
+                  "type": "credit",
+                  "account_name": "Pension Contributions Payable",
+                  "amount": 2000.0
+                },
+                {
+                  "type": "credit",
+                  "account_name": "Health Insurance Premiums Payable",
+                  "amount": 3250.0
+                },
+                {
+                  "type": "credit",
+                  "account_name": "Employment Insurance Premiums Payable",
+                  "amount": 1050.0
+                },
+                {
+                  "type": "credit",
+                  "account_name": "Income Tax Withholdings Payable",
+                  "amount": 1450.0
+                },
+                {
+                  "type": "credit",
+                  "account_name": "Cash - Chequing Account",
+                  "amount": 37250.0
+                }
+              ]
+            },
+            "gap": null,
+            "beyond_llm_capability": false
+          }
+        ],
+        "proceed_reason": "All payroll components (gross wages, deductions, net pay) are explicitly stated with clear classification of production vs administrative costs.",
+        "clarification_questions": null,
+        "stuck_reason": null,
+        "overall_final_rationale": "All amounts are explicitly stated, deductions are itemized as employee-borne, and the payment method is clear; the entry can be constructed without ambiguity.",
+        "decision": "PROCEED"
+      }
+    ],
+    "output_entry_drafter": [],
+    "output_disambiguator": [
+      {
+        "ambiguities": [
+          {
+            "aspect": "Gross vs net salary interpretation",
+            "input_contextualized_conventional_default": "Stated amounts ($25,000 + $20,000 = $45,000 gross) are definitive; deductions are explicitly itemized as employee-borne withholdings.",
+            "input_contextualized_ifrs_default": null,
+            "clarification_question": null,
+            "cases": null,
+            "ambiguous": false
+          },
+          {
+            "aspect": "Payment method",
+            "input_contextualized_conventional_default": "'transferred from the chequing account' = cash payment from bank account.",
+            "input_contextualized_ifrs_default": null,
+            "clarification_question": null,
+            "cases": null,
+            "ambiguous": false
+          },
+          {
+            "aspect": "Classification of wages vs salaries",
+            "input_contextualized_conventional_default": "Production worker wages are manufacturing costs (inventory); administrative salaries are period expenses.",
+            "input_contextualized_ifrs_default": "IFRS: Manufacturing costs resolve as inventory (product cost); administrative salaries are period expenses.",
+            "clarification_question": null,
+            "cases": null,
+            "ambiguous": false
+          }
+        ]
+      }
+    ],
+    "output_debit_classifier": [],
+    "output_credit_classifier": [],
+    "output_debit_corrector": [],
+    "output_credit_corrector": [],
+    "output_entry_builder": [],
+    "output_approver": [],
+    "output_diagnostician": [],
+    "status_ambiguity_detector": 1,
+    "status_complexity_detector": 1,
+    "status_tax_specialist": 0,
+    "status_decision_maker": 1,
+    "status_entry_drafter": 0,
+    "status_disambiguator": 1,
+    "status_debit_classifier": 0,
+    "status_credit_classifier": 0,
+    "status_debit_corrector": 0,
+    "status_credit_corrector": 0,
+    "status_entry_builder": 0,
+    "status_approver": 0,
+    "status_diagnostician": 0,
+    "fix_context_disambiguator": [],
+    "fix_context_debit_classifier": [],
+    "fix_context_credit_classifier": [],
+    "fix_context_debit_corrector": [],
+    "fix_context_credit_corrector": [],
+    "fix_context_entry_builder": [],
+    "fix_context_approver": [],
+    "fix_context_diagnostician": [],
+    "decision": "APPROVED",
+    "validation_error": null,
+    "llm_calls": [
+      {
+        "node": "single_agent",
+        "stop_reason": "tool_use",
+        "input_tokens": 626,
+        "output_tokens": 651,
+        "input_token_details": {
+          "cache_read": 4466,
+          "cache_creation": 0
+        }
+      }
+    ],
+    "stop_reasons": {
+      "single_agent": "tool_use"
+    }
+  }
+}

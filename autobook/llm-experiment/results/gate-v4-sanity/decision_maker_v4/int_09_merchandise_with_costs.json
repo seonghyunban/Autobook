@@ -1,0 +1,343 @@
+{
+  "test_case_id": "int_09_merchandise_with_costs",
+  "variant_name": "decision_maker_v4",
+  "model": "opus",
+  "debit_tuple_exact_match": false,
+  "credit_tuple_exact_match": false,
+  "debit_tuple_slot_accuracy": 0.0,
+  "credit_tuple_slot_accuracy": 0.0,
+  "entry_valid": false,
+  "debit_tuple": null,
+  "credit_tuple": null,
+  "journal_entry": null,
+  "actual_cost_usd": 0.024013,
+  "raw_cost_usd": 0.04411,
+  "total_latency_ms": 13105,
+  "total_input_tokens": 5052,
+  "total_output_tokens": 754,
+  "total_llm_calls": 1,
+  "iteration_count": 1,
+  "final_decision": "APPROVED",
+  "fix_attempted": null,
+  "fix_succeeded": null,
+  "agent_metrics": {
+    "single_agent": {
+      "input_tokens": 586,
+      "output_tokens": 754,
+      "cache_read_tokens": 4466,
+      "cache_write_tokens": 0,
+      "total_input_tokens": 5052,
+      "llm_calls": 1,
+      "actual_cost_usd": 0.024013,
+      "raw_cost_usd": 0.04411,
+      "output": null,
+      "reason": null
+    }
+  },
+  "pre_fix_debit_tuple": null,
+  "post_fix_debit_tuple": null,
+  "pre_fix_credit_tuple": null,
+  "post_fix_credit_tuple": null,
+  "fix_root_cause_agent": null,
+  "rejection_reason": null,
+  "diagnostician_decision": null,
+  "validation_error": null,
+  "decision_correct": true,
+  "entry_match": null,
+  "clarification_correct": null,
+  "clarification_questions": null,
+  "ambiguous": false,
+  "tier": "intermediate",
+  "error": null,
+  "pipeline_state": {
+    "iteration": 0,
+    "output_ambiguity_detector": [
+      {
+        "ambiguities": [
+          {
+            "aspect": "Payment method for merchandise",
+            "input_contextualized_conventional_default": "'on account' = accounts payable for the $1,000,000 merchandise purchase",
+            "input_contextualized_ifrs_default": null,
+            "clarification_question": null,
+            "cases": null,
+            "ambiguous": false
+          },
+          {
+            "aspect": "Classification of freight to warehouse",
+            "input_contextualized_conventional_default": null,
+            "input_contextualized_ifrs_default": "IAS 2.11: costs of purchase include transport and handling costs to bring inventory to present location \u2014 freight to warehouse is inventoriable",
+            "clarification_question": null,
+            "cases": null,
+            "ambiguous": false
+          },
+          {
+            "aspect": "Classification of shipping insurance",
+            "input_contextualized_conventional_default": null,
+            "input_contextualized_ifrs_default": "IAS 2.11: costs of purchase include insurance during transit \u2014 shipping insurance is inventoriable",
+            "clarification_question": null,
+            "cases": null,
+            "ambiguous": false
+          },
+          {
+            "aspect": "Classification of post-acquisition warehouse storage",
+            "input_contextualized_conventional_default": null,
+            "input_contextualized_ifrs_default": "IAS 2.16: storage costs after inventory reaches its intended location are excluded from inventory cost \u2014 expense when incurred",
+            "clarification_question": null,
+            "cases": null,
+            "ambiguous": false
+          },
+          {
+            "aspect": "Classification of outbound delivery freight",
+            "input_contextualized_conventional_default": null,
+            "input_contextualized_ifrs_default": "IAS 2: outbound delivery to customers is a selling cost, not a cost of purchase \u2014 expense when incurred",
+            "clarification_question": null,
+            "cases": null,
+            "ambiguous": false
+          }
+        ]
+      }
+    ],
+    "output_complexity_detector": [
+      {
+        "flags": [
+          {
+            "aspect": "Multiple cost classifications under IAS 2",
+            "best_attempt": {
+              "reason": "Merchandise plus inbound freight and insurance are inventoriable; post-acquisition storage and outbound delivery are period expenses per IAS 2",
+              "lines": [
+                {
+                  "type": "debit",
+                  "account_name": "Inventory",
+                  "amount": 1150000.0
+                },
+                {
+                  "type": "credit",
+                  "account_name": "Accounts Payable",
+                  "amount": 1000000.0
+                },
+                {
+                  "type": "credit",
+                  "account_name": "Cash",
+                  "amount": 150000.0
+                },
+                {
+                  "type": "debit",
+                  "account_name": "Storage Expense",
+                  "amount": 20000.0
+                },
+                {
+                  "type": "credit",
+                  "account_name": "Cash",
+                  "amount": 20000.0
+                },
+                {
+                  "type": "debit",
+                  "account_name": "Delivery Expense",
+                  "amount": 50000.0
+                },
+                {
+                  "type": "credit",
+                  "account_name": "Cash",
+                  "amount": 50000.0
+                }
+              ]
+            },
+            "gap": null,
+            "beyond_llm_capability": false
+          }
+        ]
+      }
+    ],
+    "output_tax_specialist": [],
+    "output_decision_maker": [
+      {
+        "ambiguities": [
+          {
+            "aspect": "Payment method for merchandise",
+            "input_contextualized_conventional_default": "'on account' = accounts payable for the $1,000,000 merchandise purchase",
+            "input_contextualized_ifrs_default": null,
+            "clarification_question": null,
+            "cases": null,
+            "ambiguous": false
+          },
+          {
+            "aspect": "Classification of freight to warehouse",
+            "input_contextualized_conventional_default": null,
+            "input_contextualized_ifrs_default": "IAS 2.11: costs of purchase include transport and handling costs to bring inventory to present location \u2014 freight to warehouse is inventoriable",
+            "clarification_question": null,
+            "cases": null,
+            "ambiguous": false
+          },
+          {
+            "aspect": "Classification of shipping insurance",
+            "input_contextualized_conventional_default": null,
+            "input_contextualized_ifrs_default": "IAS 2.11: costs of purchase include insurance during transit \u2014 shipping insurance is inventoriable",
+            "clarification_question": null,
+            "cases": null,
+            "ambiguous": false
+          },
+          {
+            "aspect": "Classification of post-acquisition warehouse storage",
+            "input_contextualized_conventional_default": null,
+            "input_contextualized_ifrs_default": "IAS 2.16: storage costs after inventory reaches its intended location are excluded from inventory cost \u2014 expense when incurred",
+            "clarification_question": null,
+            "cases": null,
+            "ambiguous": false
+          },
+          {
+            "aspect": "Classification of outbound delivery freight",
+            "input_contextualized_conventional_default": null,
+            "input_contextualized_ifrs_default": "IAS 2: outbound delivery to customers is a selling cost, not a cost of purchase \u2014 expense when incurred",
+            "clarification_question": null,
+            "cases": null,
+            "ambiguous": false
+          }
+        ],
+        "complexity_flags": [
+          {
+            "aspect": "Multiple cost classifications under IAS 2",
+            "best_attempt": {
+              "reason": "Merchandise plus inbound freight and insurance are inventoriable; post-acquisition storage and outbound delivery are period expenses per IAS 2",
+              "lines": [
+                {
+                  "type": "debit",
+                  "account_name": "Inventory",
+                  "amount": 1150000.0
+                },
+                {
+                  "type": "credit",
+                  "account_name": "Accounts Payable",
+                  "amount": 1000000.0
+                },
+                {
+                  "type": "credit",
+                  "account_name": "Cash",
+                  "amount": 150000.0
+                },
+                {
+                  "type": "debit",
+                  "account_name": "Storage Expense",
+                  "amount": 20000.0
+                },
+                {
+                  "type": "credit",
+                  "account_name": "Cash",
+                  "amount": 20000.0
+                },
+                {
+                  "type": "debit",
+                  "account_name": "Delivery Expense",
+                  "amount": 50000.0
+                },
+                {
+                  "type": "credit",
+                  "account_name": "Cash",
+                  "amount": 50000.0
+                }
+              ]
+            },
+            "gap": null,
+            "beyond_llm_capability": false
+          }
+        ],
+        "proceed_reason": "IAS 2 provides clear guidance on which costs are inventoriable (merchandise, freight to warehouse, shipping insurance) versus period expenses (post-acquisition storage, outbound delivery).",
+        "clarification_questions": null,
+        "stuck_reason": null,
+        "overall_final_rationale": "All cost classifications are resolved by IAS 2 rules: inbound costs to warehouse are inventoriable, post-acquisition storage and outbound delivery are period expenses.",
+        "decision": "PROCEED"
+      }
+    ],
+    "output_entry_drafter": [],
+    "output_disambiguator": [
+      {
+        "ambiguities": [
+          {
+            "aspect": "Payment method for merchandise",
+            "input_contextualized_conventional_default": "'on account' = accounts payable for the $1,000,000 merchandise purchase",
+            "input_contextualized_ifrs_default": null,
+            "clarification_question": null,
+            "cases": null,
+            "ambiguous": false
+          },
+          {
+            "aspect": "Classification of freight to warehouse",
+            "input_contextualized_conventional_default": null,
+            "input_contextualized_ifrs_default": "IAS 2.11: costs of purchase include transport and handling costs to bring inventory to present location \u2014 freight to warehouse is inventoriable",
+            "clarification_question": null,
+            "cases": null,
+            "ambiguous": false
+          },
+          {
+            "aspect": "Classification of shipping insurance",
+            "input_contextualized_conventional_default": null,
+            "input_contextualized_ifrs_default": "IAS 2.11: costs of purchase include insurance during transit \u2014 shipping insurance is inventoriable",
+            "clarification_question": null,
+            "cases": null,
+            "ambiguous": false
+          },
+          {
+            "aspect": "Classification of post-acquisition warehouse storage",
+            "input_contextualized_conventional_default": null,
+            "input_contextualized_ifrs_default": "IAS 2.16: storage costs after inventory reaches its intended location are excluded from inventory cost \u2014 expense when incurred",
+            "clarification_question": null,
+            "cases": null,
+            "ambiguous": false
+          },
+          {
+            "aspect": "Classification of outbound delivery freight",
+            "input_contextualized_conventional_default": null,
+            "input_contextualized_ifrs_default": "IAS 2: outbound delivery to customers is a selling cost, not a cost of purchase \u2014 expense when incurred",
+            "clarification_question": null,
+            "cases": null,
+            "ambiguous": false
+          }
+        ]
+      }
+    ],
+    "output_debit_classifier": [],
+    "output_credit_classifier": [],
+    "output_debit_corrector": [],
+    "output_credit_corrector": [],
+    "output_entry_builder": [],
+    "output_approver": [],
+    "output_diagnostician": [],
+    "status_ambiguity_detector": 1,
+    "status_complexity_detector": 1,
+    "status_tax_specialist": 0,
+    "status_decision_maker": 1,
+    "status_entry_drafter": 0,
+    "status_disambiguator": 1,
+    "status_debit_classifier": 0,
+    "status_credit_classifier": 0,
+    "status_debit_corrector": 0,
+    "status_credit_corrector": 0,
+    "status_entry_builder": 0,
+    "status_approver": 0,
+    "status_diagnostician": 0,
+    "fix_context_disambiguator": [],
+    "fix_context_debit_classifier": [],
+    "fix_context_credit_classifier": [],
+    "fix_context_debit_corrector": [],
+    "fix_context_credit_corrector": [],
+    "fix_context_entry_builder": [],
+    "fix_context_approver": [],
+    "fix_context_diagnostician": [],
+    "decision": "APPROVED",
+    "validation_error": null,
+    "llm_calls": [
+      {
+        "node": "single_agent",
+        "stop_reason": "tool_use",
+        "input_tokens": 586,
+        "output_tokens": 754,
+        "input_token_details": {
+          "cache_read": 4466,
+          "cache_creation": 0
+        }
+      }
+    ],
+    "stop_reasons": {
+      "single_agent": "tool_use"
+    }
+  }
+}

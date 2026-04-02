@@ -1,0 +1,339 @@
+{
+  "test_case_id": "hard_32_grocery_purpose",
+  "variant_name": "single_agent_v3_1",
+  "model": "sonnet",
+  "debit_tuple_exact_match": false,
+  "credit_tuple_exact_match": false,
+  "debit_tuple_slot_accuracy": 0.0,
+  "credit_tuple_slot_accuracy": 0.0,
+  "entry_valid": true,
+  "debit_tuple": null,
+  "credit_tuple": null,
+  "journal_entry": null,
+  "actual_cost_usd": 0.0209928,
+  "raw_cost_usd": 0.03324,
+  "total_latency_ms": 16247,
+  "total_input_tokens": 5075,
+  "total_output_tokens": 1201,
+  "total_llm_calls": 1,
+  "iteration_count": 1,
+  "final_decision": "INCOMPLETE_INFORMATION",
+  "fix_attempted": null,
+  "fix_succeeded": null,
+  "agent_metrics": {
+    "single_agent": {
+      "input_tokens": 539,
+      "output_tokens": 1201,
+      "cache_read_tokens": 4536,
+      "cache_write_tokens": 0,
+      "total_input_tokens": 5075,
+      "llm_calls": 1,
+      "actual_cost_usd": 0.0209928,
+      "raw_cost_usd": 0.03324,
+      "output": null,
+      "reason": null
+    }
+  },
+  "pre_fix_debit_tuple": null,
+  "post_fix_debit_tuple": null,
+  "pre_fix_credit_tuple": null,
+  "post_fix_credit_tuple": null,
+  "fix_root_cause_agent": null,
+  "rejection_reason": null,
+  "diagnostician_decision": null,
+  "validation_error": null,
+  "decision_correct": true,
+  "entry_match": false,
+  "clarification_correct": null,
+  "clarification_questions": [
+    "What was the business purpose of this purchase of tea, beverages, and refreshments? (e.g., office pantry for employees, client meeting refreshments, resale inventory, or other purpose)"
+  ],
+  "ambiguous": true,
+  "tier": "hard",
+  "error": null,
+  "pipeline_state": {
+    "iteration": 0,
+    "output_ambiguity_detector": [
+      {
+        "ambiguities": [
+          {
+            "aspect": "Business purpose of tea, beverages, and refreshments purchase",
+            "clarification_question": "What was the business purpose of this purchase? (e.g., office pantry for employees, client meeting refreshments, resale inventory, or other purpose)",
+            "cases": [
+              {
+                "case": "Office pantry supplies for general employee use",
+                "possible_entry": {
+                  "reason": "Tea and refreshments for employee consumption are employee benefits; recoverable sales tax is an asset",
+                  "lines": [
+                    {
+                      "type": "debit",
+                      "account_name": "Employee benefits expense",
+                      "amount": 1200.0
+                    },
+                    {
+                      "type": "debit",
+                      "account_name": "Tax assets",
+                      "amount": 120.0
+                    },
+                    {
+                      "type": "credit",
+                      "account_name": "Credit card payable",
+                      "amount": 1320.0
+                    }
+                  ]
+                }
+              },
+              {
+                "case": "Client meeting or entertainment refreshments",
+                "possible_entry": {
+                  "reason": "Refreshments for clients are entertainment expenses; recoverable sales tax is an asset",
+                  "lines": [
+                    {
+                      "type": "debit",
+                      "account_name": "Entertainment expense",
+                      "amount": 1200.0
+                    },
+                    {
+                      "type": "debit",
+                      "account_name": "Tax assets",
+                      "amount": 120.0
+                    },
+                    {
+                      "type": "credit",
+                      "account_name": "Credit card payable",
+                      "amount": 1320.0
+                    }
+                  ]
+                }
+              },
+              {
+                "case": "Inventory for resale",
+                "possible_entry": {
+                  "reason": "Beverages purchased for resale are inventory; recoverable sales tax is an asset",
+                  "lines": [
+                    {
+                      "type": "debit",
+                      "account_name": "Inventories \u2014 merchandise",
+                      "amount": 1200.0
+                    },
+                    {
+                      "type": "debit",
+                      "account_name": "Tax assets",
+                      "amount": 120.0
+                    },
+                    {
+                      "type": "credit",
+                      "account_name": "Credit card payable",
+                      "amount": 1320.0
+                    }
+                  ]
+                }
+              },
+              {
+                "case": "Office supplies for general business operations",
+                "possible_entry": {
+                  "reason": "General office refreshments are office supplies expense; recoverable sales tax is an asset",
+                  "lines": [
+                    {
+                      "type": "debit",
+                      "account_name": "Office supplies expense",
+                      "amount": 1200.0
+                    },
+                    {
+                      "type": "debit",
+                      "account_name": "Tax assets",
+                      "amount": 120.0
+                    },
+                    {
+                      "type": "credit",
+                      "account_name": "Credit card payable",
+                      "amount": 1320.0
+                    }
+                  ]
+                }
+              }
+            ],
+            "ambiguous": true
+          }
+        ]
+      }
+    ],
+    "output_complexity_detector": [
+      {
+        "flags": [
+          {
+            "aspect": "Sales tax treatment as recoverable input tax credit",
+            "best_attempt": null,
+            "gap": null,
+            "beyond_llm_capability": false
+          },
+          {
+            "aspect": "Credit card payment mechanism",
+            "best_attempt": null,
+            "gap": null,
+            "beyond_llm_capability": false
+          },
+          {
+            "aspect": "Purchase amount and tax calculation",
+            "best_attempt": null,
+            "gap": null,
+            "beyond_llm_capability": false
+          }
+        ]
+      }
+    ],
+    "output_tax_specialist": [],
+    "output_decision_maker": [],
+    "output_entry_drafter": [],
+    "output_disambiguator": [
+      {
+        "ambiguities": [
+          {
+            "aspect": "Business purpose of tea, beverages, and refreshments purchase",
+            "clarification_question": "What was the business purpose of this purchase? (e.g., office pantry for employees, client meeting refreshments, resale inventory, or other purpose)",
+            "cases": [
+              {
+                "case": "Office pantry supplies for general employee use",
+                "possible_entry": {
+                  "reason": "Tea and refreshments for employee consumption are employee benefits; recoverable sales tax is an asset",
+                  "lines": [
+                    {
+                      "type": "debit",
+                      "account_name": "Employee benefits expense",
+                      "amount": 1200.0
+                    },
+                    {
+                      "type": "debit",
+                      "account_name": "Tax assets",
+                      "amount": 120.0
+                    },
+                    {
+                      "type": "credit",
+                      "account_name": "Credit card payable",
+                      "amount": 1320.0
+                    }
+                  ]
+                }
+              },
+              {
+                "case": "Client meeting or entertainment refreshments",
+                "possible_entry": {
+                  "reason": "Refreshments for clients are entertainment expenses; recoverable sales tax is an asset",
+                  "lines": [
+                    {
+                      "type": "debit",
+                      "account_name": "Entertainment expense",
+                      "amount": 1200.0
+                    },
+                    {
+                      "type": "debit",
+                      "account_name": "Tax assets",
+                      "amount": 120.0
+                    },
+                    {
+                      "type": "credit",
+                      "account_name": "Credit card payable",
+                      "amount": 1320.0
+                    }
+                  ]
+                }
+              },
+              {
+                "case": "Inventory for resale",
+                "possible_entry": {
+                  "reason": "Beverages purchased for resale are inventory; recoverable sales tax is an asset",
+                  "lines": [
+                    {
+                      "type": "debit",
+                      "account_name": "Inventories \u2014 merchandise",
+                      "amount": 1200.0
+                    },
+                    {
+                      "type": "debit",
+                      "account_name": "Tax assets",
+                      "amount": 120.0
+                    },
+                    {
+                      "type": "credit",
+                      "account_name": "Credit card payable",
+                      "amount": 1320.0
+                    }
+                  ]
+                }
+              },
+              {
+                "case": "Office supplies for general business operations",
+                "possible_entry": {
+                  "reason": "General office refreshments are office supplies expense; recoverable sales tax is an asset",
+                  "lines": [
+                    {
+                      "type": "debit",
+                      "account_name": "Office supplies expense",
+                      "amount": 1200.0
+                    },
+                    {
+                      "type": "debit",
+                      "account_name": "Tax assets",
+                      "amount": 120.0
+                    },
+                    {
+                      "type": "credit",
+                      "account_name": "Credit card payable",
+                      "amount": 1320.0
+                    }
+                  ]
+                }
+              }
+            ],
+            "ambiguous": true
+          }
+        ]
+      }
+    ],
+    "output_debit_classifier": [],
+    "output_credit_classifier": [],
+    "output_debit_corrector": [],
+    "output_credit_corrector": [],
+    "output_entry_builder": [],
+    "output_approver": [],
+    "output_diagnostician": [],
+    "status_ambiguity_detector": 1,
+    "status_complexity_detector": 1,
+    "status_tax_specialist": 0,
+    "status_decision_maker": 0,
+    "status_entry_drafter": 0,
+    "status_disambiguator": 1,
+    "status_debit_classifier": 0,
+    "status_credit_classifier": 0,
+    "status_debit_corrector": 0,
+    "status_credit_corrector": 0,
+    "status_entry_builder": 0,
+    "status_approver": 0,
+    "status_diagnostician": 0,
+    "fix_context_disambiguator": [],
+    "fix_context_debit_classifier": [],
+    "fix_context_credit_classifier": [],
+    "fix_context_debit_corrector": [],
+    "fix_context_credit_corrector": [],
+    "fix_context_entry_builder": [],
+    "fix_context_approver": [],
+    "fix_context_diagnostician": [],
+    "decision": "INCOMPLETE_INFORMATION",
+    "validation_error": null,
+    "llm_calls": [
+      {
+        "node": "single_agent",
+        "stop_reason": "tool_use",
+        "input_tokens": 539,
+        "output_tokens": 1201,
+        "input_token_details": {
+          "cache_read": 4536,
+          "cache_creation": 0
+        }
+      }
+    ],
+    "stop_reasons": {
+      "single_agent": "tool_use"
+    }
+  }
+}

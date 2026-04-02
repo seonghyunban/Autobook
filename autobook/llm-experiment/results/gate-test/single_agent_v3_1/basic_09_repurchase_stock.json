@@ -1,0 +1,242 @@
+{
+  "test_case_id": "basic_09_repurchase_stock",
+  "variant_name": "single_agent_v3_1",
+  "model": "sonnet",
+  "debit_tuple_exact_match": false,
+  "credit_tuple_exact_match": false,
+  "debit_tuple_slot_accuracy": 0.0,
+  "credit_tuple_slot_accuracy": 0.0,
+  "entry_valid": false,
+  "debit_tuple": null,
+  "credit_tuple": null,
+  "journal_entry": null,
+  "actual_cost_usd": 0.0200328,
+  "raw_cost_usd": 0.03228,
+  "total_latency_ms": 19520,
+  "total_input_tokens": 5050,
+  "total_output_tokens": 1142,
+  "total_llm_calls": 1,
+  "iteration_count": 1,
+  "final_decision": "INCOMPLETE_INFORMATION",
+  "fix_attempted": null,
+  "fix_succeeded": null,
+  "agent_metrics": {
+    "single_agent": {
+      "input_tokens": 514,
+      "output_tokens": 1142,
+      "cache_read_tokens": 4536,
+      "cache_write_tokens": 0,
+      "total_input_tokens": 5050,
+      "llm_calls": 1,
+      "actual_cost_usd": 0.0200328,
+      "raw_cost_usd": 0.03228,
+      "output": null,
+      "reason": null
+    }
+  },
+  "pre_fix_debit_tuple": null,
+  "post_fix_debit_tuple": null,
+  "pre_fix_credit_tuple": null,
+  "post_fix_credit_tuple": null,
+  "fix_root_cause_agent": null,
+  "rejection_reason": null,
+  "diagnostician_decision": null,
+  "validation_error": null,
+  "decision_correct": false,
+  "entry_match": null,
+  "clarification_correct": null,
+  "clarification_questions": null,
+  "ambiguous": false,
+  "tier": "basic",
+  "error": null,
+  "pipeline_state": {
+    "iteration": 0,
+    "output_ambiguity_detector": [
+      {
+        "ambiguities": [
+          {
+            "aspect": "Treatment of repurchased shares",
+            "clarification_question": "Are the repurchased shares being held as treasury shares or immediately cancelled/retired?",
+            "cases": [
+              {
+                "case": "Held as treasury shares",
+                "possible_entry": {
+                  "reason": "Shares repurchased and held in treasury are recorded as a contra-equity account (Treasury shares), reducing total equity. The cost method records the purchase at acquisition cost.",
+                  "lines": [
+                    {
+                      "type": "debit",
+                      "account_name": "Treasury shares",
+                      "amount": 200.0
+                    },
+                    {
+                      "type": "credit",
+                      "account_name": "Cash and cash equivalents",
+                      "amount": 200.0
+                    }
+                  ]
+                }
+              },
+              {
+                "case": "Cancelled or retired immediately",
+                "possible_entry": {
+                  "reason": "Shares cancelled are removed from issued capital. Without knowing the original issue price per share, we cannot determine the split between Issued capital reduction and the gain/loss (Retained earnings adjustment). Assuming $1 par value per share as illustration: $100 reduces Issued capital, $100 excess reduces Retained earnings.",
+                  "lines": [
+                    {
+                      "type": "debit",
+                      "account_name": "Issued capital",
+                      "amount": 100.0
+                    },
+                    {
+                      "type": "debit",
+                      "account_name": "Retained earnings",
+                      "amount": 100.0
+                    },
+                    {
+                      "type": "credit",
+                      "account_name": "Cash and cash equivalents",
+                      "amount": 200.0
+                    }
+                  ]
+                }
+              }
+            ],
+            "ambiguous": true
+          }
+        ]
+      }
+    ],
+    "output_complexity_detector": [
+      {
+        "flags": [
+          {
+            "aspect": "Share cancellation accounting",
+            "best_attempt": {
+              "reason": "If shares are cancelled, the entry would debit Issued capital for the original issue amount and adjust Retained earnings for any difference, with credit to Cash. However, without the original issue price per share, the split cannot be determined accurately.",
+              "lines": [
+                {
+                  "type": "debit",
+                  "account_name": "Issued capital",
+                  "amount": 100.0
+                },
+                {
+                  "type": "debit",
+                  "account_name": "Retained earnings",
+                  "amount": 100.0
+                },
+                {
+                  "type": "credit",
+                  "account_name": "Cash and cash equivalents",
+                  "amount": 200.0
+                }
+              ]
+            },
+            "gap": "The transaction does not provide the original issue price per share. If the shares are being cancelled, we need this information to correctly allocate the $200 payment between reduction of Issued capital (at original issue price) and adjustment to Retained earnings (for any premium or discount on repurchase). The best attempt assumes $1 per share original issue price, which may be incorrect.",
+            "beyond_llm_capability": true
+          }
+        ]
+      }
+    ],
+    "output_tax_specialist": [],
+    "output_decision_maker": [],
+    "output_entry_drafter": [],
+    "output_disambiguator": [
+      {
+        "ambiguities": [
+          {
+            "aspect": "Treatment of repurchased shares",
+            "clarification_question": "Are the repurchased shares being held as treasury shares or immediately cancelled/retired?",
+            "cases": [
+              {
+                "case": "Held as treasury shares",
+                "possible_entry": {
+                  "reason": "Shares repurchased and held in treasury are recorded as a contra-equity account (Treasury shares), reducing total equity. The cost method records the purchase at acquisition cost.",
+                  "lines": [
+                    {
+                      "type": "debit",
+                      "account_name": "Treasury shares",
+                      "amount": 200.0
+                    },
+                    {
+                      "type": "credit",
+                      "account_name": "Cash and cash equivalents",
+                      "amount": 200.0
+                    }
+                  ]
+                }
+              },
+              {
+                "case": "Cancelled or retired immediately",
+                "possible_entry": {
+                  "reason": "Shares cancelled are removed from issued capital. Without knowing the original issue price per share, we cannot determine the split between Issued capital reduction and the gain/loss (Retained earnings adjustment). Assuming $1 par value per share as illustration: $100 reduces Issued capital, $100 excess reduces Retained earnings.",
+                  "lines": [
+                    {
+                      "type": "debit",
+                      "account_name": "Issued capital",
+                      "amount": 100.0
+                    },
+                    {
+                      "type": "debit",
+                      "account_name": "Retained earnings",
+                      "amount": 100.0
+                    },
+                    {
+                      "type": "credit",
+                      "account_name": "Cash and cash equivalents",
+                      "amount": 200.0
+                    }
+                  ]
+                }
+              }
+            ],
+            "ambiguous": true
+          }
+        ]
+      }
+    ],
+    "output_debit_classifier": [],
+    "output_credit_classifier": [],
+    "output_debit_corrector": [],
+    "output_credit_corrector": [],
+    "output_entry_builder": [],
+    "output_approver": [],
+    "output_diagnostician": [],
+    "status_ambiguity_detector": 1,
+    "status_complexity_detector": 1,
+    "status_tax_specialist": 0,
+    "status_decision_maker": 0,
+    "status_entry_drafter": 0,
+    "status_disambiguator": 1,
+    "status_debit_classifier": 0,
+    "status_credit_classifier": 0,
+    "status_debit_corrector": 0,
+    "status_credit_corrector": 0,
+    "status_entry_builder": 0,
+    "status_approver": 0,
+    "status_diagnostician": 0,
+    "fix_context_disambiguator": [],
+    "fix_context_debit_classifier": [],
+    "fix_context_credit_classifier": [],
+    "fix_context_debit_corrector": [],
+    "fix_context_credit_corrector": [],
+    "fix_context_entry_builder": [],
+    "fix_context_approver": [],
+    "fix_context_diagnostician": [],
+    "decision": "INCOMPLETE_INFORMATION",
+    "validation_error": null,
+    "llm_calls": [
+      {
+        "node": "single_agent",
+        "stop_reason": "tool_use",
+        "input_tokens": 514,
+        "output_tokens": 1142,
+        "input_token_details": {
+          "cache_read": 4536,
+          "cache_creation": 0
+        }
+      }
+    ],
+    "stop_reasons": {
+      "single_agent": "tool_use"
+    }
+  }
+}

@@ -1,0 +1,207 @@
+{
+  "test_case_id": "int_05_bond_issuance_discount",
+  "variant_name": "decision_maker_v4",
+  "model": "opus",
+  "debit_tuple_exact_match": false,
+  "credit_tuple_exact_match": false,
+  "debit_tuple_slot_accuracy": 0.0,
+  "credit_tuple_slot_accuracy": 0.0,
+  "entry_valid": false,
+  "debit_tuple": null,
+  "credit_tuple": null,
+  "journal_entry": null,
+  "actual_cost_usd": 0.017333,
+  "raw_cost_usd": 0.03743,
+  "total_latency_ms": 14302,
+  "total_input_tokens": 5056,
+  "total_output_tokens": 486,
+  "total_llm_calls": 1,
+  "iteration_count": 1,
+  "final_decision": "APPROVED",
+  "fix_attempted": null,
+  "fix_succeeded": null,
+  "agent_metrics": {
+    "single_agent": {
+      "input_tokens": 590,
+      "output_tokens": 486,
+      "cache_read_tokens": 4466,
+      "cache_write_tokens": 0,
+      "total_input_tokens": 5056,
+      "llm_calls": 1,
+      "actual_cost_usd": 0.017333,
+      "raw_cost_usd": 0.03743,
+      "output": null,
+      "reason": null
+    }
+  },
+  "pre_fix_debit_tuple": null,
+  "post_fix_debit_tuple": null,
+  "pre_fix_credit_tuple": null,
+  "post_fix_credit_tuple": null,
+  "fix_root_cause_agent": null,
+  "rejection_reason": null,
+  "diagnostician_decision": null,
+  "validation_error": null,
+  "decision_correct": true,
+  "entry_match": null,
+  "clarification_correct": null,
+  "clarification_questions": null,
+  "ambiguous": false,
+  "tier": "intermediate",
+  "error": null,
+  "pipeline_state": {
+    "iteration": 0,
+    "output_ambiguity_detector": [
+      {
+        "ambiguities": [
+          {
+            "aspect": "Bond issuance at discount with stated market rate",
+            "input_contextualized_conventional_default": "'issued' bonds with stated face value, coupon rate, term, and market rate provides all inputs needed for PV calculation of proceeds",
+            "input_contextualized_ifrs_default": "IFRS 9 requires financial liabilities to be initially measured at fair value (PV of cash flows at market rate); effective interest method applies for subsequent measurement",
+            "clarification_question": null,
+            "cases": null,
+            "ambiguous": false
+          }
+        ]
+      }
+    ],
+    "output_complexity_detector": [
+      {
+        "flags": [
+          {
+            "aspect": "Present value calculation for bond proceeds",
+            "best_attempt": {
+              "reason": "Bond issued at discount requires PV calculation: PV of principal ($3,000,000 at 15% for 3 years) + PV of annuity ($300,000 annual coupon at 15% for 3 years); downstream calculator will compute exact proceeds",
+              "lines": [
+                {
+                  "type": "debit",
+                  "account_name": "Cash",
+                  "amount": 2657395.96
+                },
+                {
+                  "type": "debit",
+                  "account_name": "Discount on Bonds Payable",
+                  "amount": 342604.04
+                },
+                {
+                  "type": "credit",
+                  "account_name": "Bonds Payable",
+                  "amount": 3000000.0
+                }
+              ]
+            },
+            "gap": null,
+            "beyond_llm_capability": false
+          }
+        ]
+      }
+    ],
+    "output_tax_specialist": [],
+    "output_decision_maker": [
+      {
+        "ambiguities": [
+          {
+            "aspect": "Bond issuance at discount with stated market rate",
+            "input_contextualized_conventional_default": "'issued' bonds with stated face value, coupon rate, term, and market rate provides all inputs needed for PV calculation of proceeds",
+            "input_contextualized_ifrs_default": "IFRS 9 requires financial liabilities to be initially measured at fair value (PV of cash flows at market rate); effective interest method applies for subsequent measurement",
+            "clarification_question": null,
+            "cases": null,
+            "ambiguous": false
+          }
+        ],
+        "complexity_flags": [
+          {
+            "aspect": "Present value calculation for bond proceeds",
+            "best_attempt": {
+              "reason": "Bond issued at discount requires PV calculation: PV of principal ($3,000,000 at 15% for 3 years) + PV of annuity ($300,000 annual coupon at 15% for 3 years); downstream calculator will compute exact proceeds",
+              "lines": [
+                {
+                  "type": "debit",
+                  "account_name": "Cash",
+                  "amount": 2657395.96
+                },
+                {
+                  "type": "debit",
+                  "account_name": "Discount on Bonds Payable",
+                  "amount": 342604.04
+                },
+                {
+                  "type": "credit",
+                  "account_name": "Bonds Payable",
+                  "amount": 3000000.0
+                }
+              ]
+            },
+            "gap": null,
+            "beyond_llm_capability": false
+          }
+        ],
+        "proceed_reason": "Transaction provides all necessary inputs (face value, coupon rate, term, market rate) for the downstream calculator to compute bond proceeds at discount.",
+        "clarification_questions": null,
+        "stuck_reason": null,
+        "overall_final_rationale": "All inputs for the bond issuance calculation are stated (face value $3,000,000, coupon 10%, term 3 years, market rate 15%), and the downstream calculator can compute the exact proceeds using PV formulas.",
+        "decision": "PROCEED"
+      }
+    ],
+    "output_entry_drafter": [],
+    "output_disambiguator": [
+      {
+        "ambiguities": [
+          {
+            "aspect": "Bond issuance at discount with stated market rate",
+            "input_contextualized_conventional_default": "'issued' bonds with stated face value, coupon rate, term, and market rate provides all inputs needed for PV calculation of proceeds",
+            "input_contextualized_ifrs_default": "IFRS 9 requires financial liabilities to be initially measured at fair value (PV of cash flows at market rate); effective interest method applies for subsequent measurement",
+            "clarification_question": null,
+            "cases": null,
+            "ambiguous": false
+          }
+        ]
+      }
+    ],
+    "output_debit_classifier": [],
+    "output_credit_classifier": [],
+    "output_debit_corrector": [],
+    "output_credit_corrector": [],
+    "output_entry_builder": [],
+    "output_approver": [],
+    "output_diagnostician": [],
+    "status_ambiguity_detector": 1,
+    "status_complexity_detector": 1,
+    "status_tax_specialist": 0,
+    "status_decision_maker": 1,
+    "status_entry_drafter": 0,
+    "status_disambiguator": 1,
+    "status_debit_classifier": 0,
+    "status_credit_classifier": 0,
+    "status_debit_corrector": 0,
+    "status_credit_corrector": 0,
+    "status_entry_builder": 0,
+    "status_approver": 0,
+    "status_diagnostician": 0,
+    "fix_context_disambiguator": [],
+    "fix_context_debit_classifier": [],
+    "fix_context_credit_classifier": [],
+    "fix_context_debit_corrector": [],
+    "fix_context_credit_corrector": [],
+    "fix_context_entry_builder": [],
+    "fix_context_approver": [],
+    "fix_context_diagnostician": [],
+    "decision": "APPROVED",
+    "validation_error": null,
+    "llm_calls": [
+      {
+        "node": "single_agent",
+        "stop_reason": "tool_use",
+        "input_tokens": 590,
+        "output_tokens": 486,
+        "input_token_details": {
+          "cache_read": 4466,
+          "cache_creation": 0
+        }
+      }
+    ],
+    "stop_reasons": {
+      "single_agent": "tool_use"
+    }
+  }
+}

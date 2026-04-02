@@ -1,0 +1,215 @@
+{
+  "test_case_id": "int_25_building_purchase_allocation",
+  "variant_name": "single_agent_v3_1",
+  "model": "sonnet",
+  "debit_tuple_exact_match": false,
+  "credit_tuple_exact_match": false,
+  "debit_tuple_slot_accuracy": 0.0,
+  "credit_tuple_slot_accuracy": 0.0,
+  "entry_valid": false,
+  "debit_tuple": null,
+  "credit_tuple": null,
+  "journal_entry": null,
+  "actual_cost_usd": 0.0154476,
+  "raw_cost_usd": 0.026307,
+  "total_latency_ms": 13749,
+  "total_input_tokens": 4644,
+  "total_output_tokens": 825,
+  "total_llm_calls": 1,
+  "iteration_count": 1,
+  "final_decision": "APPROVED",
+  "fix_attempted": null,
+  "fix_succeeded": null,
+  "agent_metrics": {
+    "single_agent": {
+      "input_tokens": 622,
+      "output_tokens": 825,
+      "cache_read_tokens": 4022,
+      "cache_write_tokens": 0,
+      "total_input_tokens": 4644,
+      "llm_calls": 1,
+      "actual_cost_usd": 0.0154476,
+      "raw_cost_usd": 0.026307,
+      "output": null,
+      "reason": null
+    }
+  },
+  "pre_fix_debit_tuple": null,
+  "post_fix_debit_tuple": null,
+  "pre_fix_credit_tuple": null,
+  "post_fix_credit_tuple": null,
+  "fix_root_cause_agent": null,
+  "rejection_reason": null,
+  "diagnostician_decision": null,
+  "validation_error": null,
+  "decision_correct": true,
+  "entry_match": null,
+  "clarification_correct": null,
+  "clarification_questions": null,
+  "ambiguous": false,
+  "tier": "intermediate",
+  "error": null,
+  "pipeline_state": {
+    "iteration": 0,
+    "output_ambiguity_detector": [
+      {
+        "ambiguities": [
+          {
+            "aspect": "Allocation of $9M purchase price between land and building",
+            "input_contextualized_conventional_default": null,
+            "input_contextualized_ifrs_default": "IFRS requires allocation based on relative fair values: Land = $9M \u00d7 ($8M/$12M) = $6M; Building = $9M \u00d7 ($4M/$12M) = $3M",
+            "clarification_question": null,
+            "cases": null,
+            "ambiguous": false
+          },
+          {
+            "aspect": "Which portion of purchase price was paid immediately",
+            "input_contextualized_conventional_default": "Text states 'fifty percent due in 6 months' implies the other fifty percent ($4.5M) was paid immediately, plus the sales tax on building",
+            "input_contextualized_ifrs_default": null,
+            "clarification_question": null,
+            "cases": null,
+            "ambiguous": false
+          },
+          {
+            "aspect": "Sales tax application",
+            "input_contextualized_conventional_default": null,
+            "input_contextualized_ifrs_default": "Sales tax applies only to building ($3M allocated), not land (exempt in Ontario); 10% \u00d7 $3M = $300,000",
+            "clarification_question": null,
+            "cases": null,
+            "ambiguous": false
+          },
+          {
+            "aspect": "Treatment of sales tax on building",
+            "input_contextualized_conventional_default": null,
+            "input_contextualized_ifrs_default": "Under IAS 16, non-recoverable purchase taxes are capitalized to the asset cost; building cost becomes $3M + $300K = $3.3M",
+            "clarification_question": null,
+            "cases": null,
+            "ambiguous": false
+          }
+        ]
+      }
+    ],
+    "output_complexity_detector": [
+      {
+        "flags": [
+          {
+            "aspect": "Fair value allocation of lump-sum purchase",
+            "best_attempt": {
+              "reason": "Allocated $9M purchase price using relative fair values ($8M/$12M and $4M/$12M), capitalized sales tax to building, recorded immediate payment of $4.5M plus $300K tax by cheque and deferred payment of $4.5M",
+              "lines": [
+                {
+                  "type": "debit",
+                  "account_name": "Land",
+                  "amount": 6000000.0
+                },
+                {
+                  "type": "debit",
+                  "account_name": "Building",
+                  "amount": 3300000.0
+                },
+                {
+                  "type": "credit",
+                  "account_name": "Cash",
+                  "amount": 4800000.0
+                },
+                {
+                  "type": "credit",
+                  "account_name": "Accounts Payable",
+                  "amount": 4500000.0
+                }
+              ]
+            },
+            "gap": null,
+            "beyond_llm_capability": false
+          }
+        ]
+      }
+    ],
+    "output_tax_specialist": [],
+    "output_decision_maker": [],
+    "output_entry_drafter": [],
+    "output_disambiguator": [
+      {
+        "ambiguities": [
+          {
+            "aspect": "Allocation of $9M purchase price between land and building",
+            "input_contextualized_conventional_default": null,
+            "input_contextualized_ifrs_default": "IFRS requires allocation based on relative fair values: Land = $9M \u00d7 ($8M/$12M) = $6M; Building = $9M \u00d7 ($4M/$12M) = $3M",
+            "clarification_question": null,
+            "cases": null,
+            "ambiguous": false
+          },
+          {
+            "aspect": "Which portion of purchase price was paid immediately",
+            "input_contextualized_conventional_default": "Text states 'fifty percent due in 6 months' implies the other fifty percent ($4.5M) was paid immediately, plus the sales tax on building",
+            "input_contextualized_ifrs_default": null,
+            "clarification_question": null,
+            "cases": null,
+            "ambiguous": false
+          },
+          {
+            "aspect": "Sales tax application",
+            "input_contextualized_conventional_default": null,
+            "input_contextualized_ifrs_default": "Sales tax applies only to building ($3M allocated), not land (exempt in Ontario); 10% \u00d7 $3M = $300,000",
+            "clarification_question": null,
+            "cases": null,
+            "ambiguous": false
+          },
+          {
+            "aspect": "Treatment of sales tax on building",
+            "input_contextualized_conventional_default": null,
+            "input_contextualized_ifrs_default": "Under IAS 16, non-recoverable purchase taxes are capitalized to the asset cost; building cost becomes $3M + $300K = $3.3M",
+            "clarification_question": null,
+            "cases": null,
+            "ambiguous": false
+          }
+        ]
+      }
+    ],
+    "output_debit_classifier": [],
+    "output_credit_classifier": [],
+    "output_debit_corrector": [],
+    "output_credit_corrector": [],
+    "output_entry_builder": [],
+    "output_approver": [],
+    "output_diagnostician": [],
+    "status_ambiguity_detector": 1,
+    "status_complexity_detector": 1,
+    "status_tax_specialist": 0,
+    "status_decision_maker": 0,
+    "status_entry_drafter": 0,
+    "status_disambiguator": 1,
+    "status_debit_classifier": 0,
+    "status_credit_classifier": 0,
+    "status_debit_corrector": 0,
+    "status_credit_corrector": 0,
+    "status_entry_builder": 0,
+    "status_approver": 0,
+    "status_diagnostician": 0,
+    "fix_context_disambiguator": [],
+    "fix_context_debit_classifier": [],
+    "fix_context_credit_classifier": [],
+    "fix_context_debit_corrector": [],
+    "fix_context_credit_corrector": [],
+    "fix_context_entry_builder": [],
+    "fix_context_approver": [],
+    "fix_context_diagnostician": [],
+    "decision": "APPROVED",
+    "validation_error": null,
+    "llm_calls": [
+      {
+        "node": "single_agent",
+        "stop_reason": "tool_use",
+        "input_tokens": 622,
+        "output_tokens": 825,
+        "input_token_details": {
+          "cache_read": 4022,
+          "cache_creation": 0
+        }
+      }
+    ],
+    "stop_reasons": {
+      "single_agent": "tool_use"
+    }
+  }
+}

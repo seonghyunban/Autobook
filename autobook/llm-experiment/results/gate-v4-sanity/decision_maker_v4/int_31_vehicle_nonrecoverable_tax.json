@@ -1,0 +1,245 @@
+{
+  "test_case_id": "int_31_vehicle_nonrecoverable_tax",
+  "variant_name": "decision_maker_v4",
+  "model": "opus",
+  "debit_tuple_exact_match": false,
+  "credit_tuple_exact_match": false,
+  "debit_tuple_slot_accuracy": 0.0,
+  "credit_tuple_slot_accuracy": 0.0,
+  "entry_valid": false,
+  "debit_tuple": null,
+  "credit_tuple": null,
+  "journal_entry": null,
+  "actual_cost_usd": 0.020698,
+  "raw_cost_usd": 0.040795,
+  "total_latency_ms": 13644,
+  "total_input_tokens": 5049,
+  "total_output_tokens": 622,
+  "total_llm_calls": 1,
+  "iteration_count": 1,
+  "final_decision": "APPROVED",
+  "fix_attempted": null,
+  "fix_succeeded": null,
+  "agent_metrics": {
+    "single_agent": {
+      "input_tokens": 583,
+      "output_tokens": 622,
+      "cache_read_tokens": 4466,
+      "cache_write_tokens": 0,
+      "total_input_tokens": 5049,
+      "llm_calls": 1,
+      "actual_cost_usd": 0.020698,
+      "raw_cost_usd": 0.040795,
+      "output": null,
+      "reason": null
+    }
+  },
+  "pre_fix_debit_tuple": null,
+  "post_fix_debit_tuple": null,
+  "pre_fix_credit_tuple": null,
+  "post_fix_credit_tuple": null,
+  "fix_root_cause_agent": null,
+  "rejection_reason": null,
+  "diagnostician_decision": null,
+  "validation_error": null,
+  "decision_correct": true,
+  "entry_match": null,
+  "clarification_correct": null,
+  "clarification_questions": null,
+  "ambiguous": false,
+  "tier": "intermediate",
+  "error": null,
+  "pipeline_state": {
+    "iteration": 0,
+    "output_ambiguity_detector": [
+      {
+        "ambiguities": [
+          {
+            "aspect": "Payment method - dealer payment plan",
+            "input_contextualized_conventional_default": "Short-term payment plans (3 months or less) resolve at face value within normal credit terms \u2014 the $52,800 is recorded as a payable.",
+            "input_contextualized_ifrs_default": "IFRS allows short-term payables to be recorded at face value when within normal credit terms.",
+            "clarification_question": null,
+            "cases": null,
+            "ambiguous": false
+          },
+          {
+            "aspect": "Tax treatment - recoverable vs non-recoverable",
+            "input_contextualized_conventional_default": "Text explicitly states '10% non-recoverable sales tax' \u2014 tax is capitalized into the asset cost, not recorded as a separate recoverable asset.",
+            "input_contextualized_ifrs_default": "IAS 16.16(a) includes non-recoverable taxes in the cost of PP&E.",
+            "clarification_question": null,
+            "cases": null,
+            "ambiguous": false
+          },
+          {
+            "aspect": "Asset classification - vehicle for executive use",
+            "input_contextualized_conventional_default": "Vehicle purchased for business use is classified as PP&E (Motor Vehicles or similar).",
+            "input_contextualized_ifrs_default": "IAS 16 \u2014 tangible asset held for use in operations is PP&E.",
+            "clarification_question": null,
+            "cases": null,
+            "ambiguous": false
+          }
+        ]
+      }
+    ],
+    "output_complexity_detector": [
+      {
+        "flags": [
+          {
+            "aspect": "Straightforward PP&E acquisition with non-recoverable tax and short-term financing",
+            "best_attempt": {
+              "reason": "Vehicle cost of $48,000 plus non-recoverable sales tax of $4,800 equals total capitalized cost of $52,800, financed through a short-term payable.",
+              "lines": [
+                {
+                  "type": "debit",
+                  "account_name": "Motor Vehicles",
+                  "amount": 52800.0
+                },
+                {
+                  "type": "credit",
+                  "account_name": "Accounts Payable - Ford",
+                  "amount": 52800.0
+                }
+              ]
+            },
+            "gap": null,
+            "beyond_llm_capability": false
+          }
+        ]
+      }
+    ],
+    "output_tax_specialist": [],
+    "output_decision_maker": [
+      {
+        "ambiguities": [
+          {
+            "aspect": "Payment method - dealer payment plan",
+            "input_contextualized_conventional_default": "Short-term payment plans (3 months or less) resolve at face value within normal credit terms \u2014 the $52,800 is recorded as a payable.",
+            "input_contextualized_ifrs_default": "IFRS allows short-term payables to be recorded at face value when within normal credit terms.",
+            "clarification_question": null,
+            "cases": null,
+            "ambiguous": false
+          },
+          {
+            "aspect": "Tax treatment - recoverable vs non-recoverable",
+            "input_contextualized_conventional_default": "Text explicitly states '10% non-recoverable sales tax' \u2014 tax is capitalized into the asset cost, not recorded as a separate recoverable asset.",
+            "input_contextualized_ifrs_default": "IAS 16.16(a) includes non-recoverable taxes in the cost of PP&E.",
+            "clarification_question": null,
+            "cases": null,
+            "ambiguous": false
+          },
+          {
+            "aspect": "Asset classification - vehicle for executive use",
+            "input_contextualized_conventional_default": "Vehicle purchased for business use is classified as PP&E (Motor Vehicles or similar).",
+            "input_contextualized_ifrs_default": "IAS 16 \u2014 tangible asset held for use in operations is PP&E.",
+            "clarification_question": null,
+            "cases": null,
+            "ambiguous": false
+          }
+        ],
+        "complexity_flags": [
+          {
+            "aspect": "Straightforward PP&E acquisition with non-recoverable tax and short-term financing",
+            "best_attempt": {
+              "reason": "Vehicle cost of $48,000 plus non-recoverable sales tax of $4,800 equals total capitalized cost of $52,800, financed through a short-term payable.",
+              "lines": [
+                {
+                  "type": "debit",
+                  "account_name": "Motor Vehicles",
+                  "amount": 52800.0
+                },
+                {
+                  "type": "credit",
+                  "account_name": "Accounts Payable - Ford",
+                  "amount": 52800.0
+                }
+              ]
+            },
+            "gap": null,
+            "beyond_llm_capability": false
+          }
+        ],
+        "proceed_reason": "Transaction text provides all necessary information: stated amounts are exact, tax treatment is explicitly specified as non-recoverable, and 3-month payment plan resolves at face value per IFRS short-term payable rules.",
+        "clarification_questions": null,
+        "stuck_reason": null,
+        "overall_final_rationale": "All aspects are resolved: non-recoverable tax is capitalized per IAS 16, short-term payment plan is recorded at face value, and the vehicle is classified as PP&E.",
+        "decision": "PROCEED"
+      }
+    ],
+    "output_entry_drafter": [],
+    "output_disambiguator": [
+      {
+        "ambiguities": [
+          {
+            "aspect": "Payment method - dealer payment plan",
+            "input_contextualized_conventional_default": "Short-term payment plans (3 months or less) resolve at face value within normal credit terms \u2014 the $52,800 is recorded as a payable.",
+            "input_contextualized_ifrs_default": "IFRS allows short-term payables to be recorded at face value when within normal credit terms.",
+            "clarification_question": null,
+            "cases": null,
+            "ambiguous": false
+          },
+          {
+            "aspect": "Tax treatment - recoverable vs non-recoverable",
+            "input_contextualized_conventional_default": "Text explicitly states '10% non-recoverable sales tax' \u2014 tax is capitalized into the asset cost, not recorded as a separate recoverable asset.",
+            "input_contextualized_ifrs_default": "IAS 16.16(a) includes non-recoverable taxes in the cost of PP&E.",
+            "clarification_question": null,
+            "cases": null,
+            "ambiguous": false
+          },
+          {
+            "aspect": "Asset classification - vehicle for executive use",
+            "input_contextualized_conventional_default": "Vehicle purchased for business use is classified as PP&E (Motor Vehicles or similar).",
+            "input_contextualized_ifrs_default": "IAS 16 \u2014 tangible asset held for use in operations is PP&E.",
+            "clarification_question": null,
+            "cases": null,
+            "ambiguous": false
+          }
+        ]
+      }
+    ],
+    "output_debit_classifier": [],
+    "output_credit_classifier": [],
+    "output_debit_corrector": [],
+    "output_credit_corrector": [],
+    "output_entry_builder": [],
+    "output_approver": [],
+    "output_diagnostician": [],
+    "status_ambiguity_detector": 1,
+    "status_complexity_detector": 1,
+    "status_tax_specialist": 0,
+    "status_decision_maker": 1,
+    "status_entry_drafter": 0,
+    "status_disambiguator": 1,
+    "status_debit_classifier": 0,
+    "status_credit_classifier": 0,
+    "status_debit_corrector": 0,
+    "status_credit_corrector": 0,
+    "status_entry_builder": 0,
+    "status_approver": 0,
+    "status_diagnostician": 0,
+    "fix_context_disambiguator": [],
+    "fix_context_debit_classifier": [],
+    "fix_context_credit_classifier": [],
+    "fix_context_debit_corrector": [],
+    "fix_context_credit_corrector": [],
+    "fix_context_entry_builder": [],
+    "fix_context_approver": [],
+    "fix_context_diagnostician": [],
+    "decision": "APPROVED",
+    "validation_error": null,
+    "llm_calls": [
+      {
+        "node": "single_agent",
+        "stop_reason": "tool_use",
+        "input_tokens": 583,
+        "output_tokens": 622,
+        "input_token_details": {
+          "cache_read": 4466,
+          "cache_creation": 0
+        }
+      }
+    ],
+    "stop_reasons": {
+      "single_agent": "tool_use"
+    }
+  }
+}

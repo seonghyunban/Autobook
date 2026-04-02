@@ -1,0 +1,178 @@
+{
+  "test_case_id": "int_hard_01b_note_collateralized",
+  "variant_name": "single_agent_v3_1",
+  "model": "opus",
+  "debit_tuple_exact_match": false,
+  "credit_tuple_exact_match": false,
+  "debit_tuple_slot_accuracy": 0.0,
+  "credit_tuple_slot_accuracy": 0.0,
+  "entry_valid": false,
+  "debit_tuple": null,
+  "credit_tuple": null,
+  "journal_entry": null,
+  "actual_cost_usd": 0.018036,
+  "raw_cost_usd": 0.037395,
+  "total_latency_ms": 14172,
+  "total_input_tokens": 4919,
+  "total_output_tokens": 512,
+  "total_llm_calls": 1,
+  "iteration_count": 1,
+  "final_decision": "APPROVED",
+  "fix_attempted": null,
+  "fix_succeeded": null,
+  "agent_metrics": {
+    "single_agent": {
+      "input_tokens": 617,
+      "output_tokens": 512,
+      "cache_read_tokens": 4302,
+      "cache_write_tokens": 0,
+      "total_input_tokens": 4919,
+      "llm_calls": 1,
+      "actual_cost_usd": 0.018036,
+      "raw_cost_usd": 0.037395,
+      "output": null,
+      "reason": null
+    }
+  },
+  "pre_fix_debit_tuple": null,
+  "post_fix_debit_tuple": null,
+  "pre_fix_credit_tuple": null,
+  "post_fix_credit_tuple": null,
+  "fix_root_cause_agent": null,
+  "rejection_reason": null,
+  "diagnostician_decision": null,
+  "validation_error": null,
+  "decision_correct": true,
+  "entry_match": null,
+  "clarification_correct": null,
+  "clarification_questions": null,
+  "ambiguous": false,
+  "tier": "intermediate",
+  "error": null,
+  "pipeline_state": {
+    "iteration": 0,
+    "output_ambiguity_detector": [
+      {
+        "ambiguities": [
+          {
+            "aspect": "Sale vs secured borrowing",
+            "input_contextualized_conventional_default": null,
+            "input_contextualized_ifrs_default": "Management has explicitly determined this is a collateralized borrowing (risks and rewards not transferred), which is definitive under IFRS 9.",
+            "clarification_question": null,
+            "cases": null,
+            "ambiguous": false
+          },
+          {
+            "aspect": "Discount calculation inputs",
+            "input_contextualized_conventional_default": "All inputs are stated: face value $100,000, 90-day note, discounted 50 days after issue (40 days remaining), 15% annual discount rate.",
+            "input_contextualized_ifrs_default": null,
+            "clarification_question": null,
+            "cases": null,
+            "ambiguous": false
+          }
+        ]
+      }
+    ],
+    "output_complexity_detector": [
+      {
+        "flags": [
+          {
+            "aspect": "Bank discount calculation",
+            "best_attempt": {
+              "reason": "Discount = $100,000 \u00d7 15% \u00d7 (40/365) = $1,643.84; Cash proceeds = $100,000 - $1,643.84 = $98,356.16; Note remains on books as collateral, borrowing recorded as liability, discount is interest expense.",
+              "lines": [
+                {
+                  "type": "debit",
+                  "account_name": "Cash",
+                  "amount": 98356.16
+                },
+                {
+                  "type": "debit",
+                  "account_name": "Interest Expense",
+                  "amount": 1643.84
+                },
+                {
+                  "type": "credit",
+                  "account_name": "Short-term Borrowings",
+                  "amount": 100000.0
+                }
+              ]
+            },
+            "gap": null,
+            "beyond_llm_capability": false
+          }
+        ]
+      }
+    ],
+    "output_tax_specialist": [],
+    "output_decision_maker": [],
+    "output_entry_drafter": [],
+    "output_disambiguator": [
+      {
+        "ambiguities": [
+          {
+            "aspect": "Sale vs secured borrowing",
+            "input_contextualized_conventional_default": null,
+            "input_contextualized_ifrs_default": "Management has explicitly determined this is a collateralized borrowing (risks and rewards not transferred), which is definitive under IFRS 9.",
+            "clarification_question": null,
+            "cases": null,
+            "ambiguous": false
+          },
+          {
+            "aspect": "Discount calculation inputs",
+            "input_contextualized_conventional_default": "All inputs are stated: face value $100,000, 90-day note, discounted 50 days after issue (40 days remaining), 15% annual discount rate.",
+            "input_contextualized_ifrs_default": null,
+            "clarification_question": null,
+            "cases": null,
+            "ambiguous": false
+          }
+        ]
+      }
+    ],
+    "output_debit_classifier": [],
+    "output_credit_classifier": [],
+    "output_debit_corrector": [],
+    "output_credit_corrector": [],
+    "output_entry_builder": [],
+    "output_approver": [],
+    "output_diagnostician": [],
+    "status_ambiguity_detector": 1,
+    "status_complexity_detector": 1,
+    "status_tax_specialist": 0,
+    "status_decision_maker": 0,
+    "status_entry_drafter": 0,
+    "status_disambiguator": 1,
+    "status_debit_classifier": 0,
+    "status_credit_classifier": 0,
+    "status_debit_corrector": 0,
+    "status_credit_corrector": 0,
+    "status_entry_builder": 0,
+    "status_approver": 0,
+    "status_diagnostician": 0,
+    "fix_context_disambiguator": [],
+    "fix_context_debit_classifier": [],
+    "fix_context_credit_classifier": [],
+    "fix_context_debit_corrector": [],
+    "fix_context_credit_corrector": [],
+    "fix_context_entry_builder": [],
+    "fix_context_approver": [],
+    "fix_context_diagnostician": [],
+    "decision": "APPROVED",
+    "validation_error": null,
+    "llm_calls": [
+      {
+        "node": "single_agent",
+        "stop_reason": "tool_use",
+        "input_tokens": 617,
+        "output_tokens": 512,
+        "input_token_details": {
+          "cache_read": 4302,
+          "cache_creation": 0
+        }
+      }
+    ],
+    "stop_reasons": {
+      "single_agent": "tool_use"
+    }
+  }
+}

@@ -1,0 +1,319 @@
+{
+  "test_case_id": "int_04_major_overhaul",
+  "variant_name": "single_agent_v3_1",
+  "model": "sonnet",
+  "debit_tuple_exact_match": false,
+  "credit_tuple_exact_match": false,
+  "debit_tuple_slot_accuracy": 0.0,
+  "credit_tuple_slot_accuracy": 0.0,
+  "entry_valid": false,
+  "debit_tuple": null,
+  "credit_tuple": null,
+  "journal_entry": null,
+  "actual_cost_usd": 0.028323599999999997,
+  "raw_cost_usd": 0.038805,
+  "total_latency_ms": 25706,
+  "total_input_tokens": 4465,
+  "total_output_tokens": 1694,
+  "total_llm_calls": 1,
+  "iteration_count": 1,
+  "final_decision": "APPROVED",
+  "fix_attempted": null,
+  "fix_succeeded": null,
+  "agent_metrics": {
+    "single_agent": {
+      "input_tokens": 583,
+      "output_tokens": 1694,
+      "cache_read_tokens": 3882,
+      "cache_write_tokens": 0,
+      "total_input_tokens": 4465,
+      "llm_calls": 1,
+      "actual_cost_usd": 0.028323599999999997,
+      "raw_cost_usd": 0.038805,
+      "output": null,
+      "reason": null
+    }
+  },
+  "pre_fix_debit_tuple": null,
+  "post_fix_debit_tuple": null,
+  "pre_fix_credit_tuple": null,
+  "post_fix_credit_tuple": null,
+  "fix_root_cause_agent": null,
+  "rejection_reason": null,
+  "diagnostician_decision": null,
+  "validation_error": null,
+  "decision_correct": true,
+  "entry_match": null,
+  "clarification_correct": null,
+  "clarification_questions": null,
+  "ambiguous": false,
+  "tier": "intermediate",
+  "error": null,
+  "pipeline_state": {
+    "iteration": 0,
+    "output_ambiguity_detector": [
+      {
+        "ambiguities": [
+          {
+            "aspect": "Accumulated depreciation balance at year 5",
+            "clarification_question": "What is the accumulated depreciation balance on the machinery at the time of the overhaul?",
+            "cases": [
+              {
+                "case": "Straight-line depreciation with no residual value: accumulated depreciation = $320,000 (4 years \u00d7 $80,000/year)",
+                "possible_entry": {
+                  "reason": "Capitalize the overhaul cost to machinery. The $200,000 extends useful life, meeting IAS 16.12 criteria for capitalization as it enhances future economic benefits beyond original assessment.",
+                  "lines": [
+                    {
+                      "type": "debit",
+                      "account_name": "Machinery",
+                      "amount": 200000.0
+                    },
+                    {
+                      "type": "credit",
+                      "account_name": "Cash",
+                      "amount": 200000.0
+                    }
+                  ]
+                }
+              },
+              {
+                "case": "Different depreciation method or residual value assumed: accumulated depreciation = different amount",
+                "possible_entry": {
+                  "reason": "Capitalize the overhaul cost to machinery. The $200,000 extends useful life, meeting IAS 16.12 criteria for capitalization. Entry structure is identical regardless of accumulated depreciation balance.",
+                  "lines": [
+                    {
+                      "type": "debit",
+                      "account_name": "Machinery",
+                      "amount": 200000.0
+                    },
+                    {
+                      "type": "credit",
+                      "account_name": "Cash",
+                      "amount": 200000.0
+                    }
+                  ]
+                }
+              }
+            ],
+            "ambiguous": true
+          },
+          {
+            "aspect": "Depreciation method and residual value",
+            "clarification_question": "What depreciation method and residual value has Clorox been using for this machinery?",
+            "cases": [
+              {
+                "case": "Straight-line with zero residual value",
+                "possible_entry": {
+                  "reason": "This affects future depreciation calculations but not the current transaction entry. The overhaul is capitalized regardless.",
+                  "lines": [
+                    {
+                      "type": "debit",
+                      "account_name": "Machinery",
+                      "amount": 200000.0
+                    },
+                    {
+                      "type": "credit",
+                      "account_name": "Cash",
+                      "amount": 200000.0
+                    }
+                  ]
+                }
+              },
+              {
+                "case": "Units of production or other method with residual value",
+                "possible_entry": {
+                  "reason": "This affects future depreciation calculations but not the current transaction entry. The overhaul is capitalized regardless.",
+                  "lines": [
+                    {
+                      "type": "debit",
+                      "account_name": "Machinery",
+                      "amount": 200000.0
+                    },
+                    {
+                      "type": "credit",
+                      "account_name": "Cash",
+                      "amount": 200000.0
+                    }
+                  ]
+                }
+              }
+            ],
+            "ambiguous": true
+          }
+        ]
+      }
+    ],
+    "output_complexity_detector": [
+      {
+        "flags": [
+          {
+            "aspect": "Current journal entry for the $200,000 overhaul expenditure",
+            "best_attempt": null,
+            "gap": null,
+            "beyond_llm_capability": false
+          },
+          {
+            "aspect": "Future depreciation schedule revision",
+            "best_attempt": {
+              "reason": "Capitalize the overhaul cost. The system can correctly record the cash payment and asset increase.",
+              "lines": [
+                {
+                  "type": "debit",
+                  "account_name": "Machinery",
+                  "amount": 200000.0
+                },
+                {
+                  "type": "credit",
+                  "account_name": "Cash",
+                  "amount": 200000.0
+                }
+              ]
+            },
+            "gap": "The transaction triggers a requirement under IAS 16.51 to revise the depreciation schedule prospectively. The new carrying amount (original cost $800,000 + overhaul $200,000 - accumulated depreciation at year 5) must be depreciated over the revised remaining useful life (8 years: original 6 years remaining + 2 years extension). The system cannot compute the revised depreciation expense without knowing the accumulated depreciation balance and the depreciation method/residual value used.",
+            "beyond_llm_capability": true
+          }
+        ]
+      }
+    ],
+    "output_tax_specialist": [],
+    "output_decision_maker": [],
+    "output_entry_drafter": [],
+    "output_disambiguator": [
+      {
+        "ambiguities": [
+          {
+            "aspect": "Accumulated depreciation balance at year 5",
+            "clarification_question": "What is the accumulated depreciation balance on the machinery at the time of the overhaul?",
+            "cases": [
+              {
+                "case": "Straight-line depreciation with no residual value: accumulated depreciation = $320,000 (4 years \u00d7 $80,000/year)",
+                "possible_entry": {
+                  "reason": "Capitalize the overhaul cost to machinery. The $200,000 extends useful life, meeting IAS 16.12 criteria for capitalization as it enhances future economic benefits beyond original assessment.",
+                  "lines": [
+                    {
+                      "type": "debit",
+                      "account_name": "Machinery",
+                      "amount": 200000.0
+                    },
+                    {
+                      "type": "credit",
+                      "account_name": "Cash",
+                      "amount": 200000.0
+                    }
+                  ]
+                }
+              },
+              {
+                "case": "Different depreciation method or residual value assumed: accumulated depreciation = different amount",
+                "possible_entry": {
+                  "reason": "Capitalize the overhaul cost to machinery. The $200,000 extends useful life, meeting IAS 16.12 criteria for capitalization. Entry structure is identical regardless of accumulated depreciation balance.",
+                  "lines": [
+                    {
+                      "type": "debit",
+                      "account_name": "Machinery",
+                      "amount": 200000.0
+                    },
+                    {
+                      "type": "credit",
+                      "account_name": "Cash",
+                      "amount": 200000.0
+                    }
+                  ]
+                }
+              }
+            ],
+            "ambiguous": true
+          },
+          {
+            "aspect": "Depreciation method and residual value",
+            "clarification_question": "What depreciation method and residual value has Clorox been using for this machinery?",
+            "cases": [
+              {
+                "case": "Straight-line with zero residual value",
+                "possible_entry": {
+                  "reason": "This affects future depreciation calculations but not the current transaction entry. The overhaul is capitalized regardless.",
+                  "lines": [
+                    {
+                      "type": "debit",
+                      "account_name": "Machinery",
+                      "amount": 200000.0
+                    },
+                    {
+                      "type": "credit",
+                      "account_name": "Cash",
+                      "amount": 200000.0
+                    }
+                  ]
+                }
+              },
+              {
+                "case": "Units of production or other method with residual value",
+                "possible_entry": {
+                  "reason": "This affects future depreciation calculations but not the current transaction entry. The overhaul is capitalized regardless.",
+                  "lines": [
+                    {
+                      "type": "debit",
+                      "account_name": "Machinery",
+                      "amount": 200000.0
+                    },
+                    {
+                      "type": "credit",
+                      "account_name": "Cash",
+                      "amount": 200000.0
+                    }
+                  ]
+                }
+              }
+            ],
+            "ambiguous": true
+          }
+        ]
+      }
+    ],
+    "output_debit_classifier": [],
+    "output_credit_classifier": [],
+    "output_debit_corrector": [],
+    "output_credit_corrector": [],
+    "output_entry_builder": [],
+    "output_approver": [],
+    "output_diagnostician": [],
+    "status_ambiguity_detector": 1,
+    "status_complexity_detector": 1,
+    "status_tax_specialist": 0,
+    "status_decision_maker": 0,
+    "status_entry_drafter": 0,
+    "status_disambiguator": 1,
+    "status_debit_classifier": 0,
+    "status_credit_classifier": 0,
+    "status_debit_corrector": 0,
+    "status_credit_corrector": 0,
+    "status_entry_builder": 0,
+    "status_approver": 0,
+    "status_diagnostician": 0,
+    "fix_context_disambiguator": [],
+    "fix_context_debit_classifier": [],
+    "fix_context_credit_classifier": [],
+    "fix_context_debit_corrector": [],
+    "fix_context_credit_corrector": [],
+    "fix_context_entry_builder": [],
+    "fix_context_approver": [],
+    "fix_context_diagnostician": [],
+    "decision": "APPROVED",
+    "validation_error": null,
+    "llm_calls": [
+      {
+        "node": "single_agent",
+        "stop_reason": "tool_use",
+        "input_tokens": 583,
+        "output_tokens": 1694,
+        "input_token_details": {
+          "cache_read": 3882,
+          "cache_creation": 0
+        }
+      }
+    ],
+    "stop_reasons": {
+      "single_agent": "tool_use"
+    }
+  }
+}

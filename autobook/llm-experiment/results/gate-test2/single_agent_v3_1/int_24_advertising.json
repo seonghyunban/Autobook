@@ -1,0 +1,229 @@
+{
+  "test_case_id": "int_24_advertising",
+  "variant_name": "single_agent_v3_1",
+  "model": "sonnet",
+  "debit_tuple_exact_match": false,
+  "credit_tuple_exact_match": false,
+  "debit_tuple_slot_accuracy": 0.0,
+  "credit_tuple_slot_accuracy": 0.0,
+  "entry_valid": false,
+  "debit_tuple": null,
+  "credit_tuple": null,
+  "journal_entry": null,
+  "actual_cost_usd": 0.017052599999999998,
+  "raw_cost_usd": 0.027534,
+  "total_latency_ms": 16381,
+  "total_input_tokens": 4433,
+  "total_output_tokens": 949,
+  "total_llm_calls": 1,
+  "iteration_count": 1,
+  "final_decision": "INCOMPLETE_INFORMATION",
+  "fix_attempted": null,
+  "fix_succeeded": null,
+  "agent_metrics": {
+    "single_agent": {
+      "input_tokens": 551,
+      "output_tokens": 949,
+      "cache_read_tokens": 3882,
+      "cache_write_tokens": 0,
+      "total_input_tokens": 4433,
+      "llm_calls": 1,
+      "actual_cost_usd": 0.017052599999999998,
+      "raw_cost_usd": 0.027534,
+      "output": null,
+      "reason": null
+    }
+  },
+  "pre_fix_debit_tuple": null,
+  "post_fix_debit_tuple": null,
+  "pre_fix_credit_tuple": null,
+  "post_fix_credit_tuple": null,
+  "fix_root_cause_agent": null,
+  "rejection_reason": null,
+  "diagnostician_decision": null,
+  "validation_error": null,
+  "decision_correct": false,
+  "entry_match": null,
+  "clarification_correct": null,
+  "clarification_questions": null,
+  "ambiguous": false,
+  "tier": "intermediate",
+  "error": null,
+  "pipeline_state": {
+    "iteration": 0,
+    "output_ambiguity_detector": [
+      {
+        "ambiguities": [
+          {
+            "aspect": "Sales tax treatment and recovery",
+            "clarification_question": "Is the sales tax recoverable as an input tax credit (HST paid on business expense), or is it non-recoverable?",
+            "cases": [
+              {
+                "case": "Sales tax is recoverable (HST registrant, eligible ITC)",
+                "possible_entry": {
+                  "reason": "The $22,000 is split into advertising expense (net) and HST receivable. Assuming 13% HST in Ontario: $22,000 \u00f7 1.13 = $19,469 net expense, $2,531 HST. The HST is recoverable as an input tax credit.",
+                  "lines": [
+                    {
+                      "type": "debit",
+                      "account_name": "Advertising Expense",
+                      "amount": 19469.0
+                    },
+                    {
+                      "type": "debit",
+                      "account_name": "HST Receivable (Input Tax Credits)",
+                      "amount": 2531.0
+                    },
+                    {
+                      "type": "credit",
+                      "account_name": "Cash",
+                      "amount": 22000.0
+                    }
+                  ]
+                }
+              },
+              {
+                "case": "Sales tax is non-recoverable",
+                "possible_entry": {
+                  "reason": "The full $22,000 paid is capitalized to expense, with no separate HST recovery. This occurs if the company is not registered for HST or the expense is not eligible for input tax credits.",
+                  "lines": [
+                    {
+                      "type": "debit",
+                      "account_name": "Advertising Expense",
+                      "amount": 22000.0
+                    },
+                    {
+                      "type": "credit",
+                      "account_name": "Cash",
+                      "amount": 22000.0
+                    }
+                  ]
+                }
+              }
+            ],
+            "ambiguous": true
+          }
+        ]
+      }
+    ],
+    "output_complexity_detector": [
+      {
+        "flags": [
+          {
+            "aspect": "Classification of digital marketing campaign as advertising expense",
+            "best_attempt": null,
+            "gap": null,
+            "beyond_llm_capability": false
+          },
+          {
+            "aspect": "Recognition timing (expense when incurred)",
+            "best_attempt": null,
+            "gap": null,
+            "beyond_llm_capability": false
+          }
+        ]
+      }
+    ],
+    "output_tax_specialist": [],
+    "output_decision_maker": [],
+    "output_entry_drafter": [],
+    "output_disambiguator": [
+      {
+        "ambiguities": [
+          {
+            "aspect": "Sales tax treatment and recovery",
+            "clarification_question": "Is the sales tax recoverable as an input tax credit (HST paid on business expense), or is it non-recoverable?",
+            "cases": [
+              {
+                "case": "Sales tax is recoverable (HST registrant, eligible ITC)",
+                "possible_entry": {
+                  "reason": "The $22,000 is split into advertising expense (net) and HST receivable. Assuming 13% HST in Ontario: $22,000 \u00f7 1.13 = $19,469 net expense, $2,531 HST. The HST is recoverable as an input tax credit.",
+                  "lines": [
+                    {
+                      "type": "debit",
+                      "account_name": "Advertising Expense",
+                      "amount": 19469.0
+                    },
+                    {
+                      "type": "debit",
+                      "account_name": "HST Receivable (Input Tax Credits)",
+                      "amount": 2531.0
+                    },
+                    {
+                      "type": "credit",
+                      "account_name": "Cash",
+                      "amount": 22000.0
+                    }
+                  ]
+                }
+              },
+              {
+                "case": "Sales tax is non-recoverable",
+                "possible_entry": {
+                  "reason": "The full $22,000 paid is capitalized to expense, with no separate HST recovery. This occurs if the company is not registered for HST or the expense is not eligible for input tax credits.",
+                  "lines": [
+                    {
+                      "type": "debit",
+                      "account_name": "Advertising Expense",
+                      "amount": 22000.0
+                    },
+                    {
+                      "type": "credit",
+                      "account_name": "Cash",
+                      "amount": 22000.0
+                    }
+                  ]
+                }
+              }
+            ],
+            "ambiguous": true
+          }
+        ]
+      }
+    ],
+    "output_debit_classifier": [],
+    "output_credit_classifier": [],
+    "output_debit_corrector": [],
+    "output_credit_corrector": [],
+    "output_entry_builder": [],
+    "output_approver": [],
+    "output_diagnostician": [],
+    "status_ambiguity_detector": 1,
+    "status_complexity_detector": 1,
+    "status_tax_specialist": 0,
+    "status_decision_maker": 0,
+    "status_entry_drafter": 0,
+    "status_disambiguator": 1,
+    "status_debit_classifier": 0,
+    "status_credit_classifier": 0,
+    "status_debit_corrector": 0,
+    "status_credit_corrector": 0,
+    "status_entry_builder": 0,
+    "status_approver": 0,
+    "status_diagnostician": 0,
+    "fix_context_disambiguator": [],
+    "fix_context_debit_classifier": [],
+    "fix_context_credit_classifier": [],
+    "fix_context_debit_corrector": [],
+    "fix_context_credit_corrector": [],
+    "fix_context_entry_builder": [],
+    "fix_context_approver": [],
+    "fix_context_diagnostician": [],
+    "decision": "INCOMPLETE_INFORMATION",
+    "validation_error": null,
+    "llm_calls": [
+      {
+        "node": "single_agent",
+        "stop_reason": "tool_use",
+        "input_tokens": 551,
+        "output_tokens": 949,
+        "input_token_details": {
+          "cache_read": 3882,
+          "cache_creation": 0
+        }
+      }
+    ],
+    "stop_reasons": {
+      "single_agent": "tool_use"
+    }
+  }
+}

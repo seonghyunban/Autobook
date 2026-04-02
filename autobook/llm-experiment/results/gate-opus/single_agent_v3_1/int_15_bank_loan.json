@@ -1,0 +1,189 @@
+{
+  "test_case_id": "int_15_bank_loan",
+  "variant_name": "single_agent_v3_1",
+  "model": "opus",
+  "debit_tuple_exact_match": false,
+  "credit_tuple_exact_match": false,
+  "debit_tuple_slot_accuracy": 0.0,
+  "credit_tuple_slot_accuracy": 0.0,
+  "entry_valid": false,
+  "debit_tuple": null,
+  "credit_tuple": null,
+  "journal_entry": null,
+  "actual_cost_usd": 0.020555,
+  "raw_cost_usd": 0.039455,
+  "total_latency_ms": 13544,
+  "total_input_tokens": 4761,
+  "total_output_tokens": 626,
+  "total_llm_calls": 1,
+  "iteration_count": 1,
+  "final_decision": "APPROVED",
+  "fix_attempted": null,
+  "fix_succeeded": null,
+  "agent_metrics": {
+    "single_agent": {
+      "input_tokens": 561,
+      "output_tokens": 626,
+      "cache_read_tokens": 4200,
+      "cache_write_tokens": 0,
+      "total_input_tokens": 4761,
+      "llm_calls": 1,
+      "actual_cost_usd": 0.020555,
+      "raw_cost_usd": 0.039455,
+      "output": null,
+      "reason": null
+    }
+  },
+  "pre_fix_debit_tuple": null,
+  "post_fix_debit_tuple": null,
+  "pre_fix_credit_tuple": null,
+  "post_fix_credit_tuple": null,
+  "fix_root_cause_agent": null,
+  "rejection_reason": null,
+  "diagnostician_decision": null,
+  "validation_error": null,
+  "decision_correct": true,
+  "entry_match": null,
+  "clarification_correct": null,
+  "clarification_questions": null,
+  "ambiguous": false,
+  "tier": "intermediate",
+  "error": null,
+  "pipeline_state": {
+    "iteration": 0,
+    "output_ambiguity_detector": [
+      {
+        "ambiguities": [
+          {
+            "aspect": "Classification of loan as current vs non-current liability",
+            "input_contextualized_conventional_default": "A 3-year term loan is a long-term liability; the portion due within 12 months (if any principal payments) would be current, but no principal payment schedule is stated so the full amount is recorded as long-term.",
+            "input_contextualized_ifrs_default": "Under IAS 1, liabilities are classified as non-current when the entity has an unconditional right to defer settlement for at least 12 months; a 3-year term loan qualifies as non-current.",
+            "clarification_question": null,
+            "cases": null,
+            "ambiguous": false
+          },
+          {
+            "aspect": "Interest accrual at inception",
+            "input_contextualized_conventional_default": "At the time of borrowing, no interest has yet accrued; the entry records only the cash received and the loan liability.",
+            "input_contextualized_ifrs_default": "IFRS requires interest expense recognition over time using the effective interest method; at inception, no interest expense is recorded.",
+            "clarification_question": null,
+            "cases": null,
+            "ambiguous": false
+          },
+          {
+            "aspect": "Present value discounting of loan",
+            "input_contextualized_conventional_default": "Loan received at face value with stated market interest rate \u2014 no discounting required as face value equals present value.",
+            "input_contextualized_ifrs_default": "Under IFRS 9, financial liabilities at amortized cost are initially measured at fair value; a loan at market rate has fair value equal to face value.",
+            "clarification_question": null,
+            "cases": null,
+            "ambiguous": false
+          }
+        ]
+      }
+    ],
+    "output_complexity_detector": [
+      {
+        "flags": [
+          {
+            "aspect": "Standard bank loan at market rate",
+            "best_attempt": {
+              "reason": "Cash received increases assets; loan payable is a long-term liability at face value since the loan is at market rate with no discount.",
+              "lines": [
+                {
+                  "type": "debit",
+                  "account_name": "Cash",
+                  "amount": 200000.0
+                },
+                {
+                  "type": "credit",
+                  "account_name": "Bank Loan Payable",
+                  "amount": 200000.0
+                }
+              ]
+            },
+            "gap": null,
+            "beyond_llm_capability": false
+          }
+        ]
+      }
+    ],
+    "output_tax_specialist": [],
+    "output_decision_maker": [],
+    "output_entry_drafter": [],
+    "output_disambiguator": [
+      {
+        "ambiguities": [
+          {
+            "aspect": "Classification of loan as current vs non-current liability",
+            "input_contextualized_conventional_default": "A 3-year term loan is a long-term liability; the portion due within 12 months (if any principal payments) would be current, but no principal payment schedule is stated so the full amount is recorded as long-term.",
+            "input_contextualized_ifrs_default": "Under IAS 1, liabilities are classified as non-current when the entity has an unconditional right to defer settlement for at least 12 months; a 3-year term loan qualifies as non-current.",
+            "clarification_question": null,
+            "cases": null,
+            "ambiguous": false
+          },
+          {
+            "aspect": "Interest accrual at inception",
+            "input_contextualized_conventional_default": "At the time of borrowing, no interest has yet accrued; the entry records only the cash received and the loan liability.",
+            "input_contextualized_ifrs_default": "IFRS requires interest expense recognition over time using the effective interest method; at inception, no interest expense is recorded.",
+            "clarification_question": null,
+            "cases": null,
+            "ambiguous": false
+          },
+          {
+            "aspect": "Present value discounting of loan",
+            "input_contextualized_conventional_default": "Loan received at face value with stated market interest rate \u2014 no discounting required as face value equals present value.",
+            "input_contextualized_ifrs_default": "Under IFRS 9, financial liabilities at amortized cost are initially measured at fair value; a loan at market rate has fair value equal to face value.",
+            "clarification_question": null,
+            "cases": null,
+            "ambiguous": false
+          }
+        ]
+      }
+    ],
+    "output_debit_classifier": [],
+    "output_credit_classifier": [],
+    "output_debit_corrector": [],
+    "output_credit_corrector": [],
+    "output_entry_builder": [],
+    "output_approver": [],
+    "output_diagnostician": [],
+    "status_ambiguity_detector": 1,
+    "status_complexity_detector": 1,
+    "status_tax_specialist": 0,
+    "status_decision_maker": 0,
+    "status_entry_drafter": 0,
+    "status_disambiguator": 1,
+    "status_debit_classifier": 0,
+    "status_credit_classifier": 0,
+    "status_debit_corrector": 0,
+    "status_credit_corrector": 0,
+    "status_entry_builder": 0,
+    "status_approver": 0,
+    "status_diagnostician": 0,
+    "fix_context_disambiguator": [],
+    "fix_context_debit_classifier": [],
+    "fix_context_credit_classifier": [],
+    "fix_context_debit_corrector": [],
+    "fix_context_credit_corrector": [],
+    "fix_context_entry_builder": [],
+    "fix_context_approver": [],
+    "fix_context_diagnostician": [],
+    "decision": "APPROVED",
+    "validation_error": null,
+    "llm_calls": [
+      {
+        "node": "single_agent",
+        "stop_reason": "tool_use",
+        "input_tokens": 561,
+        "output_tokens": 626,
+        "input_token_details": {
+          "cache_read": 4200,
+          "cache_creation": 0
+        }
+      }
+    ],
+    "stop_reasons": {
+      "single_agent": "tool_use"
+    }
+  }
+}

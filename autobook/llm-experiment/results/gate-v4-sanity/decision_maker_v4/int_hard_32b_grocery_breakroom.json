@@ -1,0 +1,217 @@
+{
+  "test_case_id": "int_hard_32b_grocery_breakroom",
+  "variant_name": "decision_maker_v4",
+  "model": "opus",
+  "debit_tuple_exact_match": false,
+  "credit_tuple_exact_match": false,
+  "debit_tuple_slot_accuracy": 0.0,
+  "credit_tuple_slot_accuracy": 0.0,
+  "entry_valid": false,
+  "debit_tuple": null,
+  "credit_tuple": null,
+  "journal_entry": null,
+  "actual_cost_usd": 0.016683,
+  "raw_cost_usd": 0.03678,
+  "total_latency_ms": 12805,
+  "total_input_tokens": 5036,
+  "total_output_tokens": 464,
+  "total_llm_calls": 1,
+  "iteration_count": 1,
+  "final_decision": "APPROVED",
+  "fix_attempted": null,
+  "fix_succeeded": null,
+  "agent_metrics": {
+    "single_agent": {
+      "input_tokens": 570,
+      "output_tokens": 464,
+      "cache_read_tokens": 4466,
+      "cache_write_tokens": 0,
+      "total_input_tokens": 5036,
+      "llm_calls": 1,
+      "actual_cost_usd": 0.016683,
+      "raw_cost_usd": 0.03678,
+      "output": null,
+      "reason": null
+    }
+  },
+  "pre_fix_debit_tuple": null,
+  "post_fix_debit_tuple": null,
+  "pre_fix_credit_tuple": null,
+  "post_fix_credit_tuple": null,
+  "fix_root_cause_agent": null,
+  "rejection_reason": null,
+  "diagnostician_decision": null,
+  "validation_error": null,
+  "decision_correct": true,
+  "entry_match": null,
+  "clarification_correct": null,
+  "clarification_questions": null,
+  "ambiguous": false,
+  "tier": "intermediate",
+  "error": null,
+  "pipeline_state": {
+    "iteration": 0,
+    "output_ambiguity_detector": [
+      {
+        "ambiguities": [
+          {
+            "aspect": "Classification of break room refreshments",
+            "input_contextualized_conventional_default": "Break room supplies for employees are classified as employee benefits/welfare expense by business purpose.",
+            "input_contextualized_ifrs_default": "IAS 19 treats employee amenities as employee benefits expense.",
+            "clarification_question": null,
+            "cases": null,
+            "ambiguous": false
+          },
+          {
+            "aspect": "Payment method",
+            "input_contextualized_conventional_default": "'paid by corporate credit card' = credit card payable liability.",
+            "input_contextualized_ifrs_default": null,
+            "clarification_question": null,
+            "cases": null,
+            "ambiguous": false
+          },
+          {
+            "aspect": "Sales tax treatment (buyer-side)",
+            "input_contextualized_conventional_default": null,
+            "input_contextualized_ifrs_default": "Recoverable tax on purchases is an asset (Input Tax Credit / HST Receivable) for registered corporations.",
+            "clarification_question": null,
+            "cases": null,
+            "ambiguous": false
+          }
+        ]
+      }
+    ],
+    "output_complexity_detector": [
+      {
+        "flags": [
+          {
+            "aspect": "Straightforward expense with tax and credit card payment",
+            "best_attempt": null,
+            "gap": null,
+            "beyond_llm_capability": false
+          }
+        ]
+      }
+    ],
+    "output_tax_specialist": [],
+    "output_decision_maker": [
+      {
+        "ambiguities": [
+          {
+            "aspect": "Classification of break room refreshments",
+            "input_contextualized_conventional_default": "Break room supplies for employees are classified as employee benefits/welfare expense by business purpose.",
+            "input_contextualized_ifrs_default": "IAS 19 treats employee amenities as employee benefits expense.",
+            "clarification_question": null,
+            "cases": null,
+            "ambiguous": false
+          },
+          {
+            "aspect": "Payment method",
+            "input_contextualized_conventional_default": "'paid by corporate credit card' = credit card payable liability.",
+            "input_contextualized_ifrs_default": null,
+            "clarification_question": null,
+            "cases": null,
+            "ambiguous": false
+          },
+          {
+            "aspect": "Sales tax treatment (buyer-side)",
+            "input_contextualized_conventional_default": null,
+            "input_contextualized_ifrs_default": "Recoverable tax on purchases is an asset (Input Tax Credit / HST Receivable) for registered corporations.",
+            "clarification_question": null,
+            "cases": null,
+            "ambiguous": false
+          }
+        ],
+        "complexity_flags": [
+          {
+            "aspect": "Straightforward expense with tax and credit card payment",
+            "best_attempt": null,
+            "gap": null,
+            "beyond_llm_capability": false
+          }
+        ],
+        "proceed_reason": "All aspects resolved: break room supplies are employee benefits expense, sales tax is recoverable as HST Receivable for an Ontario corporation, and credit card payment creates a payable.",
+        "clarification_questions": null,
+        "stuck_reason": null,
+        "overall_final_rationale": "The transaction clearly states the purpose (employee break room), payment method (corporate credit card), amounts ($1,200 plus 10% tax = $1,320), and all elements resolve under conventions and IFRS rules.",
+        "decision": "PROCEED"
+      }
+    ],
+    "output_entry_drafter": [],
+    "output_disambiguator": [
+      {
+        "ambiguities": [
+          {
+            "aspect": "Classification of break room refreshments",
+            "input_contextualized_conventional_default": "Break room supplies for employees are classified as employee benefits/welfare expense by business purpose.",
+            "input_contextualized_ifrs_default": "IAS 19 treats employee amenities as employee benefits expense.",
+            "clarification_question": null,
+            "cases": null,
+            "ambiguous": false
+          },
+          {
+            "aspect": "Payment method",
+            "input_contextualized_conventional_default": "'paid by corporate credit card' = credit card payable liability.",
+            "input_contextualized_ifrs_default": null,
+            "clarification_question": null,
+            "cases": null,
+            "ambiguous": false
+          },
+          {
+            "aspect": "Sales tax treatment (buyer-side)",
+            "input_contextualized_conventional_default": null,
+            "input_contextualized_ifrs_default": "Recoverable tax on purchases is an asset (Input Tax Credit / HST Receivable) for registered corporations.",
+            "clarification_question": null,
+            "cases": null,
+            "ambiguous": false
+          }
+        ]
+      }
+    ],
+    "output_debit_classifier": [],
+    "output_credit_classifier": [],
+    "output_debit_corrector": [],
+    "output_credit_corrector": [],
+    "output_entry_builder": [],
+    "output_approver": [],
+    "output_diagnostician": [],
+    "status_ambiguity_detector": 1,
+    "status_complexity_detector": 1,
+    "status_tax_specialist": 0,
+    "status_decision_maker": 1,
+    "status_entry_drafter": 0,
+    "status_disambiguator": 1,
+    "status_debit_classifier": 0,
+    "status_credit_classifier": 0,
+    "status_debit_corrector": 0,
+    "status_credit_corrector": 0,
+    "status_entry_builder": 0,
+    "status_approver": 0,
+    "status_diagnostician": 0,
+    "fix_context_disambiguator": [],
+    "fix_context_debit_classifier": [],
+    "fix_context_credit_classifier": [],
+    "fix_context_debit_corrector": [],
+    "fix_context_credit_corrector": [],
+    "fix_context_entry_builder": [],
+    "fix_context_approver": [],
+    "fix_context_diagnostician": [],
+    "decision": "APPROVED",
+    "validation_error": null,
+    "llm_calls": [
+      {
+        "node": "single_agent",
+        "stop_reason": "tool_use",
+        "input_tokens": 570,
+        "output_tokens": 464,
+        "input_token_details": {
+          "cache_read": 4466,
+          "cache_creation": 0
+        }
+      }
+    ],
+    "stop_reasons": {
+      "single_agent": "tool_use"
+    }
+  }
+}
