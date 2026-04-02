@@ -171,8 +171,8 @@ SYSTEM_INSTRUCTION = "\n".join([SHARED_INSTRUCTION, AGENT_INSTRUCTION])
 
 def _extract_classified_lines(state: PipelineState) -> tuple[dict, dict]:
     """Extract classified detections from classifier outputs."""
-    debit_out = (state.get("output_debit_classifier") or [None])[-1] or {}
-    credit_out = (state.get("output_credit_classifier") or [None])[-1] or {}
+    debit_out = state.get("output_debit_classifier") or {}
+    credit_out = state.get("output_credit_classifier") or {}
 
     debit_lines = {}
     for slot in DEBIT_SLOTS:
@@ -186,7 +186,7 @@ def _extract_classified_lines(state: PipelineState) -> tuple[dict, dict]:
 
 def _extract_decision_maker_context(state: PipelineState) -> str | None:
     """Extract decision maker v4 context (proceed_reason + resolved ambiguities)."""
-    dm_out = (state.get("output_decision_maker") or [None])[-1]
+    dm_out = state.get("output_decision_maker")
     if not dm_out:
         return None
 
@@ -208,13 +208,19 @@ def _extract_decision_maker_context(state: PipelineState) -> str | None:
             resolution = conv or ifrs or "resolved"
             parts.append(f"Resolved: {a['aspect']} — {resolution}")
 
+    complexity_flags = dm_out.get("complexity_flags", [])
+    for flag in complexity_flags:
+        best = flag.get("best_attempt")
+        if best and best.get("reason"):
+            parts.append(f"Assessment: {flag['aspect']} — {best['reason']}")
+
     return "\n".join(parts) if parts else None
 
 
 def build_prompt(state: PipelineState, tax_output: dict | None = None) -> dict:
     """Build the entry drafter prompt with classified detections and decision context."""
     if tax_output is None:
-        tax_output = (state.get("output_tax_specialist") or [None])[-1]
+        tax_output = state.get("output_tax_specialist")
 
     debit_lines, credit_lines = _extract_classified_lines(state)
 

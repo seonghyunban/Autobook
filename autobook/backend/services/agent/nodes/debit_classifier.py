@@ -6,15 +6,16 @@ Output: DebitClassifierOutput with list per directional slot.
 from langchain_core.runnables import RunnableConfig
 from pydantic import BaseModel, Field
 
-from services.agent.graph.state import PipelineState, DEBIT_CLASSIFIER, COMPLETE
+from services.agent.graph.state import PipelineState, DEBIT_CLASSIFIER
 from services.agent.prompts.debit_classifier import build_prompt
 from services.agent.rag.transaction import retrieve_transaction_examples
 from services.agent.schemas.taxonomy import (
     ASSET_CATEGORIES, EXPENSE_CATEGORIES, LIABILITY_CATEGORIES,
     EQUITY_CATEGORIES, REVENUE_CATEGORIES,
 )
+from langgraph.config import get_stream_writer
+
 from services.agent.utils.llm import get_llm, invoke_structured
-from services.agent.utils.slots import extract_debit_tuple
 
 
 # ── Detection schemas ───────────────────────────────────────────────────
@@ -59,28 +60,45 @@ class DebitClassifierOutput(BaseModel):
     revenue_decrease: list[RevenueDecreaseDetection] = Field(default_factory=list, description="Detected revenue balance decreases")
 
 
+# ── Stream helpers ──────────────────────────────────────────────────────
+
+def _write_start(writer, agent: str) -> None:
+    writer({"agent": agent, "phase": "started"})
+
+
+def _write_complete(writer, agent: str, output: dict) -> None:
+    """Stream classifier output leaf by leaf: slot_and_count, reason, taxonomy per detection."""
+    from services.agent.utils.slots import DEBIT_SLOTS
+    from services.agent.utils.tracing.renderers import (
+        render_slot_and_count, render_slot_reason, render_taxonomy,
+    )
+    has_detections = False
+    for slot in DEBIT_SLOTS:
+        for det in output.get(slot, []):
+            has_detections = True
+            writer({"agent": agent, "phase": "slot_and_count", "text": render_slot_and_count(slot, det.get("count", 1))})
+            writer({"agent": agent, "phase": "slot_reason", "text": render_slot_reason(det.get("reason", ""))})
+            writer({"agent": agent, "phase": "taxonomy", "text": render_taxonomy(det.get("category", ""))})
+    if not has_detections:
+        writer({"agent": agent, "phase": "no_detections", "text": "No debit-side classifications detected."})
+
+
 # ── Node ────────────────────────────────────────────────────────────────
 
 def debit_classifier_node(state: PipelineState, config: RunnableConfig) -> dict:
     """Classify debit lines into per-slot directional categories."""
-    i = state["iteration"]
-    history = list(state.get("output_debit_classifier", []))
+    writer = get_stream_writer()
 
-    if state.get("status_debit_classifier") == COMPLETE:
-        history.append(history[i - 1])
-        return {"output_debit_classifier": history, "status_debit_classifier": COMPLETE}
+    _write_start(writer, "debit_classifier")
 
     rag_examples = retrieve_transaction_examples(state, "rag_cache_debit_classifier")
-    fix_ctx = (state.get("fix_context_debit_classifier") or [None])[-1]
 
-    messages = build_prompt(state, rag_examples, fix_context=fix_ctx)
+    messages = build_prompt(state, rag_examples)
     output = invoke_structured(get_llm(DEBIT_CLASSIFIER, config), DebitClassifierOutput, messages)
 
-    output["tuple"] = list(extract_debit_tuple(output))
-    history.append(output)
+    _write_complete(writer, "debit_classifier", output)
 
     return {
-        "output_debit_classifier": history,
+        "output_debit_classifier": output,
         "rag_cache_debit_classifier": rag_examples,
-        "status_debit_classifier": COMPLETE,
     }

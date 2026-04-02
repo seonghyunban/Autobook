@@ -8,12 +8,8 @@ from services.agent.graph.state import PipelineState
 
 def merge_lines_node(state: PipelineState) -> dict:
     """Merge journal lines with the same account name and type."""
-    entry_out = state.get("output_entry_drafter", [])
-    if not entry_out:
-        return {}
-
-    entry = entry_out[-1]
-    if entry is None or not entry.get("lines"):
+    entry = state.get("output_entry_drafter")
+    if not entry or not entry.get("lines"):
         return {}
 
     merged: dict[tuple[str, str], float] = {}
@@ -33,8 +29,4 @@ def merge_lines_node(state: PipelineState) -> dict:
         for (t, name), amt in ((k, merged[k]) for k in order)
     ]
 
-    new_entry = {**entry, "lines": new_lines}
-    history = list(entry_out)
-    history[-1] = new_entry
-
-    return {"output_entry_drafter": history}
+    return {"output_entry_drafter": {**entry, "lines": new_lines}}

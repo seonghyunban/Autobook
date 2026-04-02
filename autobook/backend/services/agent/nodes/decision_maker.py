@@ -14,18 +14,16 @@ from langgraph.types import RetryPolicy
 from langchain_core.runnables import RunnableConfig
 from pydantic import BaseModel, Field
 
-from services.agent.graph.state import PipelineState, COMPLETE
+from langgraph.config import get_stream_writer
+
+from services.agent.graph.state import PipelineState
+from services.agent.prompts.decision_maker import build_prompt
 from services.agent.utils.llm import get_llm, invoke_structured
 
 
-# ── Journal entry schema (for possible cases and best attempts) ──────────
+# ── Shared journal entry schema ──────────────────────────────────────────
 
-from services.agent.schemas.journal import JournalLine
-
-
-class JournalEntry(BaseModel):
-    reason: str = Field(description="One sentence: why these accounts and amounts")
-    lines: list[JournalLine] = Field(description="Journal entry lines")
+from services.agent.schemas.journal import JournalEntry
 
 
 # ── Ambiguity schema ─────────────────────────────────────────────────────
@@ -55,47 +53,110 @@ class CapabilityGapItem(BaseModel):
 
 # ── Output schema ────────────────────────────────────────────────────────
 
-class SingleAgentV31Output(BaseModel):
+class DecisionMakerOutput(BaseModel):
     ambiguities: list[AmbiguousItem] = Field(description="All identified ambiguities from the transaction text")
     complexity_flags: list[CapabilityGapItem] = Field(description="All aspects assessed for capability gaps")
     proceed_reason: str | None = Field(default=None, description="One sentence: why the entry can proceed despite any flags")
-    clarification_questions: list[str] | None = Field(default=None, description="Questions to resolve missing business facts")
-    stuck_reason: str | None = Field(default=None, description="One sentence: what prevents the system from producing a correct entry")
     overall_final_rationale: str = Field(description="One sentence: final judgment synthesizing all assessments")
     decision: Literal["PROCEED", "MISSING_INFO", "STUCK"] = Field(description="Final decision")
 
 
 # ── Node ─────────────────────────────────────────────────────────────────
 
+def _write_start(writer, agent: str) -> None:
+    writer({"agent": agent, "phase": "started"})
+
+
+def _write_complete(writer, agent: str, output: dict) -> None:
+    """Stream the DM output leaf by leaf in display order."""
+    from services.agent.utils.tracing.renderers import (
+        render_ambiguity_summary, render_ambiguity_aspect,
+        render_conventional_default, render_ifrs_default,
+        render_clarification_question, render_case_label,
+        render_possible_entry, render_ambiguity_status,
+        render_complexity_summary, render_complexity_aspect,
+        render_best_attempt, render_gap_description, render_complexity_status,
+        render_proceed_reason, render_rationale, render_decision,
+    )
+
+    ambiguities = output.get("ambiguities", [])
+    flags = output.get("complexity_flags", [])
+
+    # 1. Ambiguity summary
+    writer({"agent": agent, "phase": "ambiguity_summary", "text": render_ambiguity_summary(ambiguities)})
+
+    # 2. Each ambiguity — leaf by leaf
+    for a in ambiguities:
+        writer({"agent": agent, "phase": "ambiguity_aspect", "text": render_ambiguity_aspect(a.get("aspect", ""))})
+        conv = render_conventional_default(a.get("input_contextualized_conventional_default"))
+        if conv:
+            writer({"agent": agent, "phase": "ambiguity_conventional", "text": conv})
+        ifrs = render_ifrs_default(a.get("input_contextualized_ifrs_default"))
+        if ifrs:
+            writer({"agent": agent, "phase": "ambiguity_ifrs", "text": ifrs})
+        q = render_clarification_question(a.get("clarification_question"))
+        if q:
+            writer({"agent": agent, "phase": "ambiguity_question", "text": q})
+        for case in (a.get("cases") or []):
+            writer({"agent": agent, "phase": "ambiguity_case_label", "text": render_case_label(case.get("case", ""))})
+            pe = render_possible_entry(case.get("possible_entry"))
+            if pe:
+                writer({"agent": agent, "phase": "ambiguity_case_entry", "text": pe})
+        writer({"agent": agent, "phase": "ambiguity_status", "text": render_ambiguity_status(a.get("ambiguous", False))})
+
+    # 3. Complexity summary
+    writer({"agent": agent, "phase": "complexity_summary", "text": render_complexity_summary(flags)})
+
+    # 4. Each complexity — leaf by leaf
+    for f in flags:
+        writer({"agent": agent, "phase": "complexity_aspect", "text": render_complexity_aspect(f.get("aspect", ""))})
+        ba = render_best_attempt(f.get("best_attempt"))
+        if ba:
+            writer({"agent": agent, "phase": "complexity_best_attempt", "text": ba})
+        gap = render_gap_description(f.get("gap"))
+        if gap:
+            writer({"agent": agent, "phase": "complexity_gap", "text": gap})
+        writer({"agent": agent, "phase": "complexity_status", "text": render_complexity_status(f.get("beyond_llm_capability", False))})
+
+    # 5. Proceed reason, rationale, decision
+    pr = render_proceed_reason(output.get("proceed_reason"))
+    if pr:
+        writer({"agent": agent, "phase": "proceed_reason", "text": pr})
+    writer({"agent": agent, "phase": "rationale", "text": render_rationale(output.get("overall_final_rationale", ""))})
+    writer({"agent": agent, "phase": "decision", "text": render_decision(output.get("decision", ""))})
+
+
 def decision_maker_node(state: PipelineState, config: RunnableConfig) -> dict:
     """One LLM call: gating decision with ambiguity cases and capability gaps."""
-    from services.agent.prompts.decision_maker import build_prompt
+    writer = get_stream_writer()
+
+    _write_start(writer, "decision_maker")
 
     messages = build_prompt(state)
-    output = invoke_structured(get_llm("decision_maker", config), SingleAgentV31Output, messages)
+    output = invoke_structured(get_llm("decision_maker", config), DecisionMakerOutput, messages)
 
-    # Map v4 decisions to pipeline state values
-    _DECISION_MAP = {
-        "PROCEED": "APPROVED",
-        "MISSING_INFO": "INCOMPLETE_INFORMATION",
-        "STUCK": "STUCK",
-    }
-    raw_decision = output.get("decision", "PROCEED")
-    pipeline_decision = _DECISION_MAP.get(raw_decision, raw_decision)
+    _write_complete(writer, "decision_maker", output)
+
+    # Extract clarification questions from unresolved ambiguities
+    questions = [
+        a["clarification_question"]
+        for a in output.get("ambiguities", [])
+        if a.get("ambiguous") and a.get("clarification_question")
+    ]
+
+    # Extract stuck reason from capability gaps
+    stuck_reasons = [
+        f["gap"]
+        for f in output.get("complexity_flags", [])
+        if f.get("beyond_llm_capability") and f.get("gap")
+    ]
 
     update = {
-        "output_ambiguity_detector": [{"ambiguities": output.get("ambiguities", [])}],
-        "output_disambiguator": [{"ambiguities": output.get("ambiguities", [])}],
-        "output_complexity_detector": [{"flags": output.get("complexity_flags", [])}],
-        "output_decision_maker": [output],
-        "status_ambiguity_detector": COMPLETE,
-        "status_disambiguator": COMPLETE,
-        "status_complexity_detector": COMPLETE,
-        "status_decision_maker": COMPLETE,
-        "decision": pipeline_decision,
+        "output_decision_maker": output,
+        "decision": output.get("decision", "PROCEED"),
     }
-    if output.get("clarification_questions"):
-        update["clarification_questions"] = output["clarification_questions"]
-    if output.get("stuck_reason"):
-        update["stuck_reason"] = output["stuck_reason"]
+    if questions:
+        update["clarification_questions"] = questions
+    if stuck_reasons:
+        update["stuck_reason"] = "; ".join(stuck_reasons)
     return update
