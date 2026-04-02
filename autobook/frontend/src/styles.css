@@ -1730,6 +1730,16 @@ input[type="file"].text-input::file-selector-button {
   }
 }
 
+@keyframes llm-star-pulse {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50% { opacity: 0.35; transform: scale(0.7); }
+}
+
+.llm-star-pulse {
+  animation: llm-star-pulse 1.5s ease-in-out infinite;
+  display: inline-block;
+}
+
 /* Panel container: grid handles sizing, panel handles padding */
 .llm-english-panel {
   overflow: hidden;
@@ -1753,8 +1763,8 @@ input[type="file"].text-input::file-selector-button {
   padding: 20px 22px;
   pointer-events: auto;
   border-color: rgba(204, 197, 185, 0.1) !important;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3), 0 16px 40px rgba(0, 0, 0, 0.2) !important;
-  background: rgba(64, 61, 57, 0.6) !important;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15), 0 12px 28px rgba(0, 0, 0, 0.2) !important;
+  background: rgba(204, 197, 185, 0.2) !important;
   backdrop-filter: blur(16px) !important;
   -webkit-backdrop-filter: blur(16px) !important;
   /* Show: panel visuals appear immediately with grid expand */

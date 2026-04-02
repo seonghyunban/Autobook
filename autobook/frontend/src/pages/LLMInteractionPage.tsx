@@ -9,25 +9,25 @@ const palette = {
   charcoalBrown: "#403D39",
   carbonBlack: "#252422",
   spicyPaprika: "#EB5E28",
+  hunterGreen: "#31572C",
   fern: "#4F772D",
   palmLeaf: "#90A955",
-  limeCream: "#ECF39E",
 } as const;
 
 // ── Component tokens ─────────────────────────────────────
 const T = {
-  pageBg: palette.carbonBlack,
-  pageText: palette.floralWhite,
+  pageBg: palette.floralWhite,
+  pageText: palette.charcoalBrown,
   pageFont: "system-ui, sans-serif",
 
-  panelBg: "rgba(64, 61, 57, 0.6)",
+  panelBg: "rgba(204, 197, 185, 0.2)",
   panelRadius: 12,
   panelPadding: "20px 22px",
-  panelShadow: "0 4px 12px rgba(0, 0, 0, 0.3), 0 16px 40px rgba(0, 0, 0, 0.2)",
+  panelShadow: "0 2px 6px rgba(0, 0, 0, 0.2), 0 6px 16px rgba(0, 0, 0, 0.15)",
   panelGap: 12,
 
-  textPrimary: palette.floralWhite,
-  textSecondary: palette.silver,
+  textPrimary: palette.carbonBlack,
+  textSecondary: palette.charcoalBrown,
   textMuted: "rgba(204, 197, 185, 0.5)",
 
   inputBorder: "rgba(204, 197, 185, 0.25)",
@@ -81,6 +81,115 @@ function PanelHeader({ title, help }: { title: React.ReactNode; help: React.Reac
   );
 }
 
+// ── Reasoning types ──────────────────────────────────────
+
+type ReasoningChunk =
+  | { type: "line"; label: string; content: string[]; done: boolean }
+  | { type: "collapsible"; label: string; details: string[]; done: boolean };
+
+type SectionId = "ambiguity" | "gap" | "proceed" | "debit" | "credit" | "tax" | "entry";
+
+const SECTION_ORDER: SectionId[] = ["ambiguity", "gap", "proceed", "debit", "credit", "tax", "entry"];
+
+// ── Reasoning chunk components ───────────────────────────
+
+function ChunkIcon({ done }: { done: boolean }) {
+  return (
+    <span
+      className={done ? undefined : "llm-star-pulse"}
+      style={{ fontSize: 11, lineHeight: 1, flexShrink: 0, color: palette.spicyPaprika }}
+    >
+      {done ? "✦" : "✧"}
+    </span>
+  );
+}
+
+const blockStyle: React.CSSProperties = {
+  background: "rgba(204, 197, 185, 0.12)",
+  borderRadius: 4,
+  padding: "6px 8px",
+  fontSize: 12,
+  lineHeight: 1.5,
+  color: T.textSecondary,
+};
+
+function Chunk({ label, done, children }: {
+  label: string;
+  done: boolean;
+  children?: React.ReactNode;
+}) {
+  return (
+    <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
+      <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
+        <ChunkIcon done={done} />
+        <span style={{ fontSize: 12, fontWeight: 600, color: T.textPrimary }}>{label}</span>
+      </div>
+      {children}
+    </div>
+  );
+}
+
+function Block({ children }: { children: React.ReactNode }) {
+  return <div style={blockStyle}>{children}</div>;
+}
+
+function CollapsibleBlock({ children, defaultOpen = false }: {
+  children: React.ReactNode;
+  defaultOpen?: boolean;
+}) {
+  const [open, setOpen] = useState(defaultOpen);
+  return (
+    <div
+      style={{ ...blockStyle, cursor: "pointer", userSelect: "none", position: "relative" }}
+      onClick={() => setOpen((v) => !v)}
+    >
+      <span style={{
+        position: "absolute",
+        top: 6,
+        right: 8,
+        fontSize: 10,
+        lineHeight: 1,
+        color: palette.spicyPaprika,
+      }}>
+        {open ? "◀" : "▼"}
+      </span>
+      <div style={{
+        maxHeight: open ? 1000 : 0,
+        opacity: open ? 1 : 0,
+        overflow: "hidden",
+        transition: "max-height 0.2s ease, opacity 0.15s ease",
+      }}>
+        {children}
+      </div>
+    </div>
+  );
+}
+
+function ReasoningSection({ chunks }: { chunks: ReasoningChunk[] }) {
+  if (chunks.length === 0) return null;
+  return (
+    <div style={{ display: "flex", flexDirection: "column", gap: 14 }}>
+      {chunks.map((chunk, i) =>
+        chunk.type === "line" ? (
+          <Chunk key={i} label={chunk.label} done={chunk.done}>
+            {chunk.content.length > 0 && (
+              <Block>
+                {chunk.content.map((line, j) => <div key={j}>{line}</div>)}
+              </Block>
+            )}
+          </Chunk>
+        ) : (
+          <Chunk key={i} label={chunk.label} done={chunk.done}>
+            <CollapsibleBlock>
+              {chunk.details.map((line, j) => <div key={j}>{line}</div>)}
+            </CollapsibleBlock>
+          </Chunk>
+        )
+      )}
+    </div>
+  );
+}
+
 const MIN_ROWS = 12;
 
 function EntryTable({ lines, scrollRef, onScroll }: {
@@ -89,6 +198,8 @@ function EntryTable({ lines, scrollRef, onScroll }: {
   onScroll?: React.UIEventHandler<HTMLDivElement>;
 }) {
   const emptyRows = Math.max(0, MIN_ROWS - lines.length);
+  const totalDebit = lines.filter(l => l.type === "debit").reduce((s, l) => s + l.amount, 0);
+  const totalCredit = lines.filter(l => l.type === "credit").reduce((s, l) => s + l.amount, 0);
   const tableStyle: React.CSSProperties = {
     width: "100%",
     borderCollapse: "separate",
@@ -98,7 +209,10 @@ function EntryTable({ lines, scrollRef, onScroll }: {
   };
   const colWidths = ["50%", "25%", "25%"];
   const cellRadius = 4;
-  const cellBg = [`${palette.fern}1A`, `${palette.palmLeaf}1A`, `${palette.limeCream}1A`];
+  const cellBg = [`${palette.hunterGreen}1A`, `${palette.fern}1A`, `${palette.palmLeaf}1A`];
+  const cellBgFilled = [`${palette.hunterGreen}33`, `${palette.fern}33`, `${palette.palmLeaf}33`];
+  const totalBg = ["#7F7F7F1A", "#A5A5A51A", "#CCCCCC1A"];
+  const totalBgFilled = ["#7F7F7F4D", "#A5A5A54D", "#CCCCCC4D"];
 
   return (
     <div style={{ display: "flex", flexDirection: "column", flex: 1, minHeight: 0 }}>
@@ -116,8 +230,8 @@ function EntryTable({ lines, scrollRef, onScroll }: {
                 style={{
                   textAlign: i === 0 ? "left" : "right",
                   padding: "8px 10px",
-                  color: palette.floralWhite,
-                  background: [`${palette.fern}B3`, `${palette.palmLeaf}B3`, `${palette.limeCream}B3`][i],
+                  color: "rgba(37, 36, 34, 0.9)",
+                  background: [`${palette.hunterGreen}B3`, `${palette.fern}B3`, `${palette.palmLeaf}B3`][i],
                   fontWeight: 600,
                   whiteSpace: "nowrap",
                   borderRadius: 4,
@@ -139,20 +253,20 @@ function EntryTable({ lines, scrollRef, onScroll }: {
           <tbody>
             {lines.map((line, i) => (
               <tr key={i}>
-                <td style={{ padding: "8px 10px", color: palette.floralWhite, borderRadius: cellRadius, background: cellBg[0] }}>
-                  <span style={{ fontWeight: 500 }}>{line.account_code}</span>
-                  <span style={{ display: "block", fontSize: 11, opacity: 0.7 }}>
-                    {line.account_name}
+                <td style={{ padding: "8px 10px", color: "rgba(37, 36, 34, 0.8)", borderRadius: cellRadius, background: cellBgFilled[0], position: "relative" }}>
+                  <span style={{ display: "flex", alignItems: "center", minHeight: 28 }}>
+                    <span style={{ fontSize: 13, opacity: 0.8 }}>{line.account_name}</span>
                   </span>
+                  <span style={{ position: "absolute", bottom: 4, right: 8, fontSize: 10, fontWeight: 600, opacity: 0.4 }}>{line.account_code}</span>
                 </td>
                 <td
                   style={{
                     padding: "8px 10px",
                     textAlign: "right",
                     fontFamily: "monospace",
-                    color: palette.floralWhite,
-                                       borderRadius: cellRadius,
-                    background: cellBg[1],
+                    color: "rgba(37, 36, 34, 0.8)",
+                    borderRadius: cellRadius,
+                    background: line.type === "debit" ? cellBgFilled[1] : cellBg[1],
                   }}
                 >
                   {line.type === "debit" ? `$${line.amount.toFixed(2)}` : ""}
@@ -162,9 +276,9 @@ function EntryTable({ lines, scrollRef, onScroll }: {
                     padding: "8px 10px",
                     textAlign: "right",
                     fontFamily: "monospace",
-                    color: palette.floralWhite,
-                                       borderRadius: cellRadius,
-                    background: cellBg[2],
+                    color: "rgba(37, 36, 34, 0.8)",
+                    borderRadius: cellRadius,
+                    background: line.type === "credit" ? cellBgFilled[2] : cellBg[2],
                   }}
                 >
                   {line.type === "credit" ? `$${line.amount.toFixed(2)}` : ""}
@@ -181,6 +295,48 @@ function EntryTable({ lines, scrollRef, onScroll }: {
           </tbody>
         </table>
       </div>
+      {/* Total row — fixed below scrollable body */}
+      <div style={{ overflowY: "scroll", flexShrink: 0 }} className="llm-textarea">
+        <table style={tableStyle}>
+          <colgroup>
+            {colWidths.map((w, i) => <col key={i} style={{ width: w }} />)}
+          </colgroup>
+          <tbody>
+            <tr>
+              <td style={{
+                padding: "8px 10px",
+                borderRadius: cellRadius,
+                background: (totalDebit > 0 || totalCredit > 0) ? totalBgFilled[0] : totalBg[0],
+                fontSize: 13,
+                color: "rgba(37, 36, 34, 0.8)",
+                textAlign: "right",
+              }}>
+                Total
+              </td>
+              <td style={{
+                padding: "8px 10px",
+                textAlign: "right",
+                fontFamily: "monospace",
+                color: "rgba(37, 36, 34, 0.8)",
+                borderRadius: cellRadius,
+                background: totalDebit > 0 ? totalBgFilled[1] : totalBg[1],
+              }}>
+                {totalDebit > 0 ? `$${totalDebit.toFixed(2)}` : ""}
+              </td>
+              <td style={{
+                padding: "8px 10px",
+                textAlign: "right",
+                fontFamily: "monospace",
+                color: "rgba(37, 36, 34, 0.8)",
+                borderRadius: cellRadius,
+                background: totalCredit > 0 ? totalBgFilled[2] : totalBg[2],
+              }}>
+                {totalCredit > 0 ? `$${totalCredit.toFixed(2)}` : ""}
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
     </div>
   );
 }
@@ -189,8 +345,57 @@ export function LLMInteractionPage() {
   const [inputText, setInputText] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [result, setResult] = useState<LLMInteractionResponse | null>(null);
+  const [result, setResult] = useState<LLMInteractionResponse | null>({
+    input_text: "Bought a laptop from Apple for $2,400",
+    detected_language: "en",
+    english_text: "Bought a laptop from Apple for $2,400",
+    english_entry: {
+      description: "Purchase of laptop from Apple",
+      lines: [
+        { account_code: "1520", account_name: "Computer Equipment", type: "debit", amount: 2400.00 },
+        { account_code: "2310", account_name: "HST Receivable", type: "debit", amount: 312.00 },
+        { account_code: "1000", account_name: "Cash", type: "credit", amount: 2712.00 },
+      ],
+    },
+    korean_entry: null,
+  });
   const [showEnglish, setShowEnglish] = useState(false);
+  const [showReasoning, setShowReasoning] = useState(true);
+  const [reasoningSections, setReasoningSections] = useState<Record<SectionId, ReasoningChunk[]>>(
+    () => ({
+      ambiguity: [
+        { type: "line" as const, label: "No ambiguity detected", content: ["Transaction text is clear and unambiguous."], done: true },
+      ],
+      gap: [
+        { type: "line" as const, label: "No capability gaps", content: [], done: true },
+      ],
+      proceed: [
+        { type: "line" as const, label: "Proceeding to classify", content: ["All checks passed."], done: true },
+      ],
+      debit: [
+        { type: "collapsible" as const, label: "Asset increase: Computer Equipment", details: [
+          "Purchased a physical asset (laptop)",
+          "Classified as PP&E under IAS 16.7",
+          "Debit: 1520 Computer Equipment $2,400.00",
+        ], done: true },
+        { type: "collapsible" as const, label: "Tax asset: HST Receivable", details: [
+          "Input tax credit recoverable",
+          "Debit: 2310 HST Receivable $312.00",
+        ], done: false },
+      ],
+      credit: [
+        { type: "collapsible" as const, label: "Asset decrease: Cash", details: [
+          "Payment made from operating account",
+        ], done: false },
+      ],
+      tax: [
+        { type: "line" as const, label: "HST 13% applicable", content: ["Ontario — standard rate applies to electronic equipment."], done: true },
+      ],
+      entry: [
+        { type: "line" as const, label: "Entry drafted", content: ["3 lines, balanced at $2,712.00"], done: true },
+      ],
+    }) as Record<SectionId, ReasoningChunk[]>
+  );
   const scrollTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   const entryScrollRef = useRef<HTMLDivElement>(null);
@@ -269,17 +474,75 @@ export function LLMInteractionPage() {
       }}>
 
         {/* Header */}
-        <div>
-          <p style={{ margin: 0, fontSize: 11, fontWeight: 700, letterSpacing: "0.1em", textTransform: "uppercase", color: T.eyebrow }}>
-            LLM Interaction
-          </p>
-          <h1 style={{ margin: "4px 0 0", fontSize: 26, fontWeight: 700, color: T.textPrimary }}>
-            Bilingual Entry Builder
-          </h1>
-          <p style={{ margin: "6px 0 0", fontSize: 14, color: T.textSecondary }}>
-            Enter a transaction in English or Korean — the system detects the language,
-            translates if needed, and produces journal entries in both.
-          </p>
+        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", gap: 16 }}>
+          <div>
+            <p style={{ margin: 0, fontSize: 11, fontWeight: 700, letterSpacing: "0.1em", textTransform: "uppercase", color: T.eyebrow }}>
+              LLM Interaction
+            </p>
+            <h1 style={{ margin: "4px 0 0", fontSize: 26, fontWeight: 700, color: T.textPrimary }}>
+              Bilingual Entry Builder
+            </h1>
+            <p style={{ margin: "6px 0 0", fontSize: 14, color: T.textSecondary }}>
+              Enter a transaction in English or Korean — the system detects the language,
+              translates if needed, and produces journal entries in both.
+            </p>
+          </div>
+          <div style={{ display: "flex", gap: 8, flexShrink: 0, marginTop: 18 }}>
+            <button
+              type="button"
+              onClick={() => setShowEnglish((v) => !v)}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.background = palette.silver;
+                e.currentTarget.style.color = palette.carbonBlack;
+                e.currentTarget.style.borderColor = palette.silver;
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.background = "transparent";
+                e.currentTarget.style.color = T.textSecondary;
+                e.currentTarget.style.borderColor = T.inputBorder;
+              }}
+              style={{
+                padding: "6px 14px",
+                borderRadius: T.buttonRadius,
+                border: `1px solid ${T.inputBorder}`,
+                background: "transparent",
+                color: T.textSecondary,
+                fontSize: 12,
+                fontWeight: 600,
+                cursor: "pointer",
+                transition: "all 0.15s",
+              }}
+            >
+              {showEnglish ? "Hide English" : "Show English"}
+            </button>
+            <button
+              type="button"
+              onClick={() => setShowReasoning((v) => !v)}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.background = palette.silver;
+                e.currentTarget.style.color = palette.carbonBlack;
+                e.currentTarget.style.borderColor = palette.silver;
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.background = "transparent";
+                e.currentTarget.style.color = T.textSecondary;
+                e.currentTarget.style.borderColor = T.inputBorder;
+              }}
+              style={{
+                padding: "6px 14px",
+                borderRadius: T.buttonRadius,
+                border: `1px solid ${T.inputBorder}`,
+                background: "transparent",
+                color: T.textSecondary,
+                fontSize: 12,
+                fontWeight: 600,
+                cursor: "pointer",
+                transition: "all 0.15s",
+              }}
+            >
+              {showReasoning ? "Hide Reasoning" : "Show Reasoning"}
+            </button>
+          </div>
         </div>
 
         {/* Main content: panels + reasoning side by side */}
@@ -373,33 +636,6 @@ export function LLMInteractionPage() {
               <div style={{ display: "flex", justifyContent: "flex-end", gap: 8, padding: 12 }}>
                 <button
                   type="button"
-                  onClick={() => setShowEnglish((v) => !v)}
-                  onMouseEnter={(e) => {
-                    e.currentTarget.style.background = palette.silver;
-                    e.currentTarget.style.color = palette.carbonBlack;
-                    e.currentTarget.style.borderColor = palette.silver;
-                  }}
-                  onMouseLeave={(e) => {
-                    e.currentTarget.style.background = "transparent";
-                    e.currentTarget.style.color = T.textSecondary;
-                    e.currentTarget.style.borderColor = T.inputBorder;
-                  }}
-                  style={{
-                    padding: "9px 18px",
-                    borderRadius: T.buttonRadius,
-                    border: `1px solid ${T.inputBorder}`,
-                    background: "transparent",
-                    color: T.textSecondary,
-                    fontSize: 13,
-                    fontWeight: 600,
-                    cursor: "pointer",
-                    transition: "all 0.15s",
-                  }}
-                >
-                  {showEnglish ? "Hide English" : "Show English"}
-                </button>
-                <button
-                  type="button"
                   disabled={loading || !inputText.trim()}
                   onClick={handleSubmit}
                   style={{
@@ -478,35 +714,56 @@ export function LLMInteractionPage() {
 
         {/* Reasoning & Progress viewer (right) */}
         <section style={{
-          width: 320,
+          width: showReasoning ? 320 : 0,
           flexShrink: 0,
           overflow: "hidden",
-          background: "rgba(204, 197, 185, 0.2)",
-          backdropFilter: "blur(16px)",
-          WebkitBackdropFilter: "blur(16px)",
+          background: showReasoning ? "rgba(204, 197, 185, 0.2)" : "transparent",
+          backdropFilter: showReasoning ? "blur(16px)" : "none",
+          WebkitBackdropFilter: showReasoning ? "blur(16px)" : "none",
           borderRadius: T.panelRadius,
-          padding: T.panelPadding,
+          padding: showReasoning ? T.panelPadding : 0,
           display: "flex",
           flexDirection: "column",
           gap: T.panelGap,
-          border: "1px solid rgba(204, 197, 185, 0.1)",
+          border: showReasoning ? "1px solid rgba(204, 197, 185, 0.1)" : "none",
+          boxShadow: showReasoning ? T.panelShadow : "none",
+          transition: showReasoning
+            ? "width 0.2s ease, padding 0.2s ease, background 0.2s ease, box-shadow 0.2s ease, border 0.2s ease"
+            : "width 0.2s ease 0.2s, padding 0.2s ease 0.2s, background 0.2s ease 0.2s, box-shadow 0.2s ease 0.2s, border 0.2s ease 0.2s",
         }}>
-          <PanelHeader
-            title="Reasoning"
-            help="Agent trace and progress"
-          />
-          <div
-            className="llm-textarea"
-            style={{
-              flex: 1,
-              overflowY: "auto",
-              fontSize: 13,
-              lineHeight: 1.6,
-              color: T.textSecondary,
-              whiteSpace: "pre-wrap",
-            }}
-          >
-            {result ? "Processing complete." : "Agent reasoning and progress will appear here as the pipeline runs."}
+          <div style={{
+            opacity: showReasoning ? 1 : 0,
+            transform: showReasoning ? "translateX(0)" : "translateX(16px)",
+            transition: showReasoning
+              ? "opacity 0.2s ease 0.2s, transform 0.2s ease 0.2s"
+              : "opacity 0.2s ease, transform 0.2s ease",
+            minWidth: 280,
+          }}>
+            <PanelHeader
+              title="Reasoning"
+              help="Agent trace and progress"
+            />
+            <div
+              className="llm-textarea"
+              style={{
+                flex: 1,
+                overflowY: "auto",
+                fontSize: 13,
+                lineHeight: 1.6,
+                color: T.textSecondary,
+                whiteSpace: "pre-wrap",
+                marginTop: T.panelGap,
+                display: "flex",
+                flexDirection: "column",
+                gap: 14,
+              }}
+            >
+              {SECTION_ORDER.map((id) => (
+                <div key={id} data-section={id}>
+                  <ReasoningSection chunks={reasoningSections[id]} />
+                </div>
+              ))}
+            </div>
           </div>
         </section>
 
