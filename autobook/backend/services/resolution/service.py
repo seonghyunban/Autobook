@@ -5,8 +5,9 @@ from config import get_settings
 from db.connection import SessionLocal
 from db.dao.clarifications import ClarificationDAO
 from db.dao.transactions import TransactionDAO
-from queues import sqs
 from queues.pubsub import pub
+from services.flywheel.service import execute as flywheel_execute
+from services.posting.service import execute as posting_execute
 from services.shared.parse_status import record_batch_result_sync, set_status_sync
 
 logger = logging.getLogger(__name__)
@@ -170,4 +171,6 @@ def execute(message: dict) -> None:
             status="resolved",
             input_text=message.get("input_text"),
         )
-    sqs.enqueue.posting(result)
+    posted = posting_execute(result)
+    if posted is not None:
+        flywheel_execute(posted)

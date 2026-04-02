@@ -1,7 +1,7 @@
 # syntax=docker/dockerfile:1
 
 # ── autobook-base ──────────────────────────────────────────────
-# Shared by all 8 services: pydantic, redis, boto3, awslambdaric
+# Shared by all services: pydantic, redis, boto3
 FROM python:3.12-slim AS autobook-base
 
 COPY --from=ghcr.io/astral-sh/uv:0.10 /uv /uvx /bin/
@@ -27,13 +27,14 @@ COPY backend/reporting/ backend/reporting/
 COPY backend/services/__init__.py backend/services/__init__.py
 COPY backend/services/shared/ backend/services/shared/
 COPY backend/vectordb/ backend/vectordb/
+COPY backend/workers/ backend/workers/
 
 RUN groupadd -g 1001 app && useradd -u 1001 -g app -s /bin/false app
 ENV PATH="/app/.venv/bin:$PATH" \
     PYTHONPATH="/app/backend"
 
 # ── autobook-accounting ────────────────────────────────────────
-# Tier workers (precedent, ml_inference, agent, resolution) inherit from this
+# Shared layer for services that need accounting engine
 FROM autobook-base AS autobook-accounting
 
 RUN --mount=type=cache,target=/root/.cache/uv \
@@ -52,66 +53,35 @@ USER app
 EXPOSE 8000
 CMD ["uvicorn", "api.main:app", "--host", "0.0.0.0", "--port", "8000"]
 
-# ── Normalizer (File Worker) ──────────────────────────────────
-FROM autobook-base AS autobook-normalizer
+# ── Fast-Path Worker (ECS) ────────────────────────────────────
+# Runs normalizer → precedent_v2 → ML inference → posting in-process
+FROM autobook-accounting AS autobook-fast-path
 
 RUN --mount=type=cache,target=/root/.cache/uv \
-    uv sync --frozen --no-dev --no-install-project --extra normalizer
+    uv sync --frozen --no-dev --no-install-project --extra normalizer --extra ml-inference --extra flywheel
 
 COPY backend/services/normalizer/ backend/services/normalizer/
-# Lambda: ENTRYPOINT runs the RIC, CMD is the handler (overridden by Terraform image_config)
-# Local: docker-compose overrides with ["python", "-m", "services.normalizer"]
-ENTRYPOINT ["python", "-m", "awslambdaric"]
-CMD ["services.normalizer.aws.handler"]
-
-# ── Precedent Matcher (Tier 1) ─────────────────────────────────
-FROM autobook-accounting AS autobook-precedent
-
 COPY backend/services/precedent/ backend/services/precedent/
 COPY backend/services/precedent_v2/ backend/services/precedent_v2/
-ENTRYPOINT ["python", "-m", "awslambdaric"]
-CMD ["services.precedent.aws.handler"]
-
-# ── ML Inference (Tier 2) ──────────────────────────────────────
-FROM autobook-accounting AS autobook-ml-inference
-
-RUN --mount=type=cache,target=/root/.cache/uv \
-    uv sync --frozen --no-dev --no-install-project --extra ml-inference
-
 COPY backend/services/ml_inference/ backend/services/ml_inference/
-ENTRYPOINT ["python", "-m", "awslambdaric"]
-CMD ["services.ml_inference.aws.handler"]
+COPY backend/services/posting/ backend/services/posting/
+COPY backend/services/flywheel/ backend/services/flywheel/
+COPY backend/services/resolution/ backend/services/resolution/
 
-# ── Agent / LLM Worker (Tier 3) ────────────────────────────────
+USER app
+CMD ["python", "-m", "workers.fast_path"]
+
+# ── Agent / LLM Worker (Lambda, SnapStart) ────────────────────
+# Local dev uses this image. Prod uses zip deploy for SnapStart.
 FROM autobook-accounting AS autobook-agent
 
 RUN --mount=type=cache,target=/root/.cache/uv \
-    uv sync --frozen --no-dev --no-install-project --extra agent
+    uv sync --frozen --no-dev --no-install-project --extra agent --extra flywheel
 
 COPY backend/services/agent/ backend/services/agent/
-ENTRYPOINT ["python", "-m", "awslambdaric"]
-CMD ["services.agent.aws.handler"]
-
-# ── Resolution Worker (Tier 4) ─────────────────────────────────
-FROM autobook-accounting AS autobook-resolution
-
-COPY backend/services/resolution/ backend/services/resolution/
-ENTRYPOINT ["python", "-m", "awslambdaric"]
-CMD ["services.resolution.aws.handler"]
-
-# ── Posting Service ────────────────────────────────────────────
-FROM autobook-base AS autobook-posting
-
 COPY backend/services/posting/ backend/services/posting/
-ENTRYPOINT ["python", "-m", "awslambdaric"]
-CMD ["services.posting.aws.handler"]
-
-# ── Flywheel Worker ────────────────────────────────────────────
-FROM autobook-base AS autobook-flywheel
-
-RUN --mount=type=cache,target=/root/.cache/uv \
-    uv sync --frozen --no-dev --no-install-project --extra flywheel
-
 COPY backend/services/flywheel/ backend/services/flywheel/
+COPY backend/services/resolution/ backend/services/resolution/
+
 ENTRYPOINT ["python", "-m", "awslambdaric"]
-CMD ["services.flywheel.aws.handler"]
+CMD ["workers.agent.handler"]

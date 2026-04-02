@@ -7,7 +7,6 @@ from config import get_settings
 from db.connection import SessionLocal
 from db.dao.journal_entries import JournalEntryDAO
 from db.dao.transactions import TransactionDAO
-from queues import sqs
 from queues.pubsub import pub
 from services.shared.parse_status import record_batch_result_sync, set_status_sync
 
@@ -146,11 +145,10 @@ def execute(message: dict) -> None:
         )
 
     origin_tier = (proposed_entry or {}).get("entry", {}).get("origin_tier")
-    result = {
+    return {
         **message,
         "transaction_id": str(transaction.id),
         "journal_entry_id": journal_entry_id,
         "origin_tier": origin_tier,
         "proposed_entry": proposed_entry,
     }
-    sqs.enqueue.flywheel(result)

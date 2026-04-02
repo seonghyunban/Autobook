@@ -55,7 +55,7 @@ def _enqueue_statement_batch(
     is_batch = len(statements) > 1
     for index, statement in enumerate(statements):
         child_parse_id = parse_id if not is_batch else f"{parse_id}_s{index + 1}"
-        sqs.enqueue.normalization(
+        sqs.enqueue.fast_path(
             parse_id=child_parse_id,
             parent_parse_id=parse_id if is_batch else None,
             statement_index=index,

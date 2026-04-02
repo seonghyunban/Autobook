@@ -1,30 +1,24 @@
-"""Typed enqueue functions — one per pipeline stage.
+"""Typed enqueue functions — one per SQS queue.
 
-Caller sees: sqs.enqueue.normalization(parse_id=..., input_text=..., ...)
-Pydantic validates internally before sending to SQS.
+After migration: only 2 queues remain (fast-path + agent).
 """
 
 from __future__ import annotations
 
-__all__ = ["normalization", "precedent", "ml_inference", "agent", "resolution", "posting", "flywheel"]
+__all__ = ["fast_path", "agent"]
 
 from config import get_settings
 from queues.sqs.client import send
 from schemas.parse import DEFAULT_POST_STAGES, DEFAULT_STAGES
 from schemas.queue_messages import (
     AgentTask,
-    FlywheelTask,
-    MLInferenceTask,
     NormalizationTask,
-    PostingTask,
-    PrecedentTask,
-    ResolutionTask,
 )
 
 settings = get_settings()
 
 
-def normalization(
+def fast_path(
     *,
     parse_id: str,
     user_id: str,
@@ -64,39 +58,6 @@ def normalization(
     return send(settings.SQS_QUEUE_NORMALIZER, msg.model_dump(exclude_none=True))
 
 
-def by_name(stage: str, message: dict) -> str:
-    """Enqueue a message to the queue for the given stage name."""
-    from services.shared.routing import queue_url_for_stage
-
-    url = queue_url_for_stage(stage)
-    return send(url, message)
-
-
-def precedent(message: dict) -> str:
-    PrecedentTask.model_validate(message)
-    return send(settings.SQS_QUEUE_PRECEDENT, message)
-
-
-def ml_inference(message: dict) -> str:
-    MLInferenceTask.model_validate(message)
-    return send(settings.SQS_QUEUE_ML_INFERENCE, message)
-
-
 def agent(message: dict) -> str:
     AgentTask.model_validate(message)
     return send(settings.SQS_QUEUE_AGENT, message)
-
-
-def resolution(message: dict) -> str:
-    ResolutionTask.model_validate(message)
-    return send(settings.SQS_QUEUE_RESOLUTION, message)
-
-
-def posting(message: dict) -> str:
-    PostingTask.model_validate(message)
-    return send(settings.SQS_QUEUE_POSTING, message)
-
-
-def flywheel(message: dict) -> str:
-    FlywheelTask.model_validate(message)
-    return send(settings.SQS_QUEUE_FLYWHEEL, message)

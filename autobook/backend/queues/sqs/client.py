@@ -25,7 +25,11 @@ def send(queue_url: str, payload: dict) -> str:
     return response["MessageId"]
 
 
-def receive(queue_url: str, wait_seconds: int = 20) -> dict | None:
+def receive(queue_url: str, wait_seconds: int = 20) -> tuple[dict, str] | None:
+    """Receive one message. Returns (body, receipt_handle) or None.
+
+    Caller must call delete() after successful processing.
+    """
     response = _client.receive_message(
         QueueUrl=queue_url,
         MaxNumberOfMessages=1,
@@ -36,5 +40,9 @@ def receive(queue_url: str, wait_seconds: int = 20) -> dict | None:
         return None
 
     msg = messages[0]
-    _client.delete_message(QueueUrl=queue_url, ReceiptHandle=msg["ReceiptHandle"])
-    return json.loads(msg["Body"])
+    return json.loads(msg["Body"]), msg["ReceiptHandle"]
+
+
+def delete(queue_url: str, receipt_handle: str) -> None:
+    """Delete a message after successful processing."""
+    _client.delete_message(QueueUrl=queue_url, ReceiptHandle=receipt_handle)

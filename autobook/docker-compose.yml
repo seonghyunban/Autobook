@@ -80,7 +80,7 @@ services:
       - qdrant-data:/qdrant/storage
 
   qdrant-init:
-    build: { context: ., target: autobook-flywheel }
+    build: { context: ., target: autobook-agent }
     entrypoint: ["python", "-m", "vectordb.init"]
     depends_on:
       - qdrant
@@ -105,24 +105,9 @@ services:
     environment:
       <<: *common-env
 
-  normalizer:
-    build: { context: ., target: autobook-normalizer }
+  fast-path:
+    build: { context: ., target: autobook-fast-path }
     <<: *common
-    entrypoint: ["python", "-m", "services.normalizer"]
-    environment:
-      <<: *common-env
-
-  precedent:
-    build: { context: ., target: autobook-precedent }
-    <<: *common
-    entrypoint: ["python", "-m", "services.precedent"]
-    environment:
-      <<: *common-env
-
-  ml-inference:
-    build: { context: ., target: autobook-ml-inference }
-    <<: *common
-    entrypoint: ["python", "-m", "services.ml_inference"]
     environment:
       <<: *common-env
 
@@ -137,36 +122,7 @@ services:
       - qdrant
       - localstack
       - qdrant-init
-    entrypoint: ["python", "-m", "services.agent"]
-    environment:
-      <<: *common-env
-
-  resolution:
-    build: { context: ., target: autobook-resolution }
-    <<: *common
-    entrypoint: ["python", "-m", "services.resolution"]
-    environment:
-      <<: *common-env
-
-  posting:
-    build: { context: ., target: autobook-posting }
-    <<: *common
-    entrypoint: ["python", "-m", "services.posting"]
-    environment:
-      <<: *common-env
-
-  flywheel:
-    build: { context: ., target: autobook-flywheel }
-    <<: *common
-    depends_on:
-      - db
-      - redis
-      - elasticmq
-      - minio
-      - qdrant
-      - localstack
-      - qdrant-init
-    entrypoint: ["python", "-m", "services.flywheel"]
+    entrypoint: ["python", "-c", "from workers.agent import main; main()"]
     environment:
       <<: *common-env
 

@@ -23,7 +23,8 @@ jobs:
     runs-on: ubuntu-latest
     outputs:
       api: ${{ steps.detect.outputs.api }}
-      workers: ${{ steps.detect.outputs.workers }}
+      fast_path: ${{ steps.detect.outputs.fast_path }}
+      agent: ${{ steps.detect.outputs.agent }}
     steps:
       - uses: actions/checkout@v4
         with:
@@ -37,7 +38,8 @@ jobs:
 
           if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
             echo "api=true" >> $GITHUB_OUTPUT
-            echo 'workers=["normalizer","precedent","ml_inference","agent","resolution","posting","flywheel"]' >> $GITHUB_OUTPUT
+            echo "fast_path=true" >> $GITHUB_OUTPUT
+            echo "agent=true" >> $GITHUB_OUTPUT
             exit 0
           fi
 
@@ -47,7 +49,8 @@ jobs:
           else
             echo "::notice::No ${DEPLOY_TAG} tag found — deploying everything"
             echo "api=true" >> $GITHUB_OUTPUT
-            echo 'workers=["normalizer","precedent","ml_inference","agent","resolution","posting","flywheel"]' >> $GITHUB_OUTPUT
+            echo "fast_path=true" >> $GITHUB_OUTPUT
+            echo "agent=true" >> $GITHUB_OUTPUT
             exit 0
           fi
 
@@ -63,6 +66,7 @@ jobs:
             "autobook/backend/local_identity.py"
             "autobook/backend/accounting_engine/"
             "autobook/backend/services/shared/"
+            "autobook/backend/workers/"
             "autobook/pyproject.toml"
             "autobook/uv.lock"
             "autobook/Dockerfile"
@@ -76,44 +80,46 @@ jobs:
             fi
           done
 
+          # API
           API_CHANGED=false
           if [ "$SHARED_CHANGED" = "true" ]; then
             API_CHANGED=true
           elif echo "$CHANGED" | grep -q "^autobook/backend/api/"; then
             API_CHANGED=true
           fi
+          echo "api=${API_CHANGED}" >> $GITHUB_OUTPUT
 
-          # Detect changed workers
-          WORKERS=()
-          declare -A SERVICE_PATHS=(
-            ["normalizer"]="autobook/backend/services/normalizer/"
-            ["precedent"]="autobook/backend/services/precedent/"
-            ["ml_inference"]="autobook/backend/services/ml_inference/"
-            ["agent"]="autobook/backend/services/agent/"
-            ["resolution"]="autobook/backend/services/resolution/"
-            ["posting"]="autobook/backend/services/posting/"
-            ["flywheel"]="autobook/backend/services/flywheel/"
-          )
-
+          # Fast-path worker (normalizer, precedent, ml_inference, posting, flywheel)
+          FAST_PATH_CHANGED=false
           if [ "$SHARED_CHANGED" = "true" ]; then
-            # Shared code changed — all workers need redeployment
-            WORKERS=("\"normalizer\"" "\"precedent\"" "\"ml_inference\"" "\"agent\"" "\"resolution\"" "\"posting\"" "\"flywheel\"")
+            FAST_PATH_CHANGED=true
           else
-            for svc in "${!SERVICE_PATHS[@]}"; do
-              if echo "$CHANGED" | grep -q "^${SERVICE_PATHS[$svc]}"; then
-                WORKERS+=("\"$svc\"")
+            FAST_PATH_PATHS=(
+              "autobook/backend/services/normalizer/"
+              "autobook/backend/services/precedent/"
+              "autobook/backend/services/precedent_v2/"
+              "autobook/backend/services/ml_inference/"
+              "autobook/backend/services/posting/"
+              "autobook/backend/services/flywheel/"
+              "autobook/backend/services/resolution/"
+            )
+            for path in "${FAST_PATH_PATHS[@]}"; do
+              if echo "$CHANGED" | grep -q "^${path}"; then
+                FAST_PATH_CHANGED=true
+                break
               fi
             done
           fi
+          echo "fast_path=${FAST_PATH_CHANGED}" >> $GITHUB_OUTPUT
 
-          echo "api=${API_CHANGED}" >> $GITHUB_OUTPUT
-
-          if [ ${#WORKERS[@]} -eq 0 ]; then
-            echo 'workers=[]' >> $GITHUB_OUTPUT
-          else
-            JOINED=$(IFS=,; echo "${WORKERS[*]}")
-            echo "workers=[${JOINED}]" >> $GITHUB_OUTPUT
+          # Agent Lambda
+          AGENT_CHANGED=false
+          if [ "$SHARED_CHANGED" = "true" ]; then
+            AGENT_CHANGED=true
+          elif echo "$CHANGED" | grep -q "^autobook/backend/services/agent/"; then
+            AGENT_CHANGED=true
           fi
+          echo "agent=${AGENT_CHANGED}" >> $GITHUB_OUTPUT
 
   # ── Deploy API (Docker → ECR → ECS) ──────────────────────────
   deploy-api:
@@ -209,24 +215,25 @@ jobs:
             exit 1
           fi
 
-  # ── Deploy Workers (Docker → ECR → Lambda) ────────────────────
-  deploy-workers:
+  # ── Deploy Fast-Path Worker (Docker → ECR → ECS) ──────────────
+  deploy-fast-path:
     needs: changes
-    if: needs.changes.outputs.workers != '[]'
+    if: needs.changes.outputs.fast_path == 'true'
     runs-on: ubuntu-latest
     permissions:
       id-token: write
       contents: read
-
-    strategy:
-      matrix:
-        service: ${{ fromJson(needs.changes.outputs.workers) }}
 
     env:
       ENVIRONMENT: ${{ github.event_name == 'workflow_dispatch' && github.event.inputs.environment || 'dev' }}
 
     steps:
       - uses: actions/checkout@v4
+
+      - name: Set deploy variables
+        run: |
+          echo "CLUSTER=autobook-${ENVIRONMENT}" >> $GITHUB_ENV
+          echo "SERVICE_NAME=autobook-${ENVIRONMENT}-fast-path" >> $GITHUB_ENV
 
       - name: Configure AWS credentials (OIDC)
         uses: aws-actions/configure-aws-credentials@v4
@@ -238,45 +245,127 @@ jobs:
         id: ecr-login
         uses: aws-actions/amazon-ecr-login@v2
 
-      - name: Build and push worker image
+      - name: Build and push
         run: |
-          # Map service name to Dockerfile target (hyphens, not underscores)
-          declare -A TARGET_MAP=(
-            ["normalizer"]="autobook-normalizer"
-            ["precedent"]="autobook-precedent"
-            ["ml_inference"]="autobook-ml-inference"
-            ["agent"]="autobook-agent"
-            ["resolution"]="autobook-resolution"
-            ["posting"]="autobook-posting"
-            ["flywheel"]="autobook-flywheel"
-          )
-
-          TARGET="${TARGET_MAP[${{ matrix.service }}]}"
-          ECR_REPO="${{ steps.ecr-login.outputs.registry }}/autobook-${ENVIRONMENT}-${{ matrix.service }}"
+          ECR_REPO="${{ steps.ecr-login.outputs.registry }}/${SERVICE_NAME}"
           IMAGE_TAG="${{ github.sha }}"
 
           docker build \
             -f autobook/Dockerfile \
-            --target "$TARGET" \
-            -t "$ECR_REPO:$IMAGE_TAG" \
-            -t "$ECR_REPO:latest" \
+            --target autobook-fast-path \
+            -t $ECR_REPO:$IMAGE_TAG \
+            -t $ECR_REPO:latest \
             autobook/
 
-          docker push "$ECR_REPO:$IMAGE_TAG"
-          docker push "$ECR_REPO:latest"
+          docker push $ECR_REPO:$IMAGE_TAG
+          docker push $ECR_REPO:latest
 
           echo "ECR_REPO=$ECR_REPO" >> $GITHUB_ENV
           echo "IMAGE_TAG=$IMAGE_TAG" >> $GITHUB_ENV
 
+      - name: Register new task definition revision
+        run: |
+          TASK_DEF=$(aws ecs describe-task-definition \
+            --task-definition $SERVICE_NAME \
+            --query 'taskDefinition')
+
+          NEW_TASK_DEF=$(echo $TASK_DEF | jq \
+            --arg IMAGE "$ECR_REPO:$IMAGE_TAG" \
+            '.containerDefinitions[0].image = $IMAGE |
+             del(.taskDefinitionArn, .revision, .status,
+                 .requiresAttributes, .compatibilities,
+                 .registeredAt, .registeredBy)')
+
+          NEW_ARN=$(aws ecs register-task-definition \
+            --cli-input-json "$NEW_TASK_DEF" \
+            --query 'taskDefinition.taskDefinitionArn' \
+            --output text)
+
+          echo "NEW_TASK_DEF_ARN=$NEW_ARN" >> $GITHUB_ENV
+
+      - name: Deploy to ECS
+        run: |
+          aws ecs update-service \
+            --cluster $CLUSTER \
+            --service $SERVICE_NAME \
+            --task-definition $NEW_TASK_DEF_ARN
+
+      - name: Wait for deployment
+        run: |
+          aws ecs wait services-stable \
+            --cluster $CLUSTER \
+            --services $SERVICE_NAME
+
+      - name: Verify deployment
+        run: |
+          DEPLOYED=$(aws ecs describe-services \
+            --cluster $CLUSTER \
+            --services $SERVICE_NAME \
+            --query 'services[0].deployments[?status==`PRIMARY`].taskDefinition' \
+            --output text)
+          if [[ "$DEPLOYED" != "$NEW_TASK_DEF_ARN" ]]; then
+            echo "::error::Deploy of fast-path rolled back by circuit breaker"
+            exit 1
+          fi
+
+  # ── Deploy Agent Lambda (zip deploy + SnapStart) ──────────────
+  deploy-agent:
+    needs: changes
+    if: needs.changes.outputs.agent == 'true'
+    runs-on: ubuntu-latest
+    permissions:
+      id-token: write
+      contents: read
+
+    env:
+      ENVIRONMENT: ${{ github.event_name == 'workflow_dispatch' && github.event.inputs.environment || 'dev' }}
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@v5
+
+      - name: Configure AWS credentials (OIDC)
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: arn:aws:iam::${{ secrets.AWS_ACCOUNT_ID }}:role/autobook-${{ env.ENVIRONMENT }}-github-actions
+          aws-region: ${{ env.AWS_REGION }}
+
+      - name: Package Lambda zip
+        run: |
+          cd autobook
+          uv sync --frozen --no-dev --extra agent --extra flywheel --extra accounting
+          SITE_PACKAGES=$(uv run python -c "import site; print(site.getsitepackages()[0])")
+
+          mkdir -p /tmp/lambda-package
+          cp -r "$SITE_PACKAGES"/* /tmp/lambda-package/
+          cp -r backend/* /tmp/lambda-package/
+
+          cd /tmp/lambda-package
+          # Remove boto3/botocore (pre-installed in Lambda runtime)
+          rm -rf boto3 botocore s3transfer
+          zip -r /tmp/agent-lambda.zip . -x '*.pyc' '__pycache__/*'
+
       - name: Deploy to Lambda
         run: |
+          FUNCTION_NAME="autobook-${ENVIRONMENT}-agent"
+
           aws lambda update-function-code \
-            --function-name autobook-${ENVIRONMENT}-${{ matrix.service }} \
-            --image-uri "$ECR_REPO:$IMAGE_TAG"
+            --function-name $FUNCTION_NAME \
+            --zip-file fileb:///tmp/agent-lambda.zip
+
+          # Wait for update to complete
+          aws lambda wait function-updated --function-name $FUNCTION_NAME
+
+          # Publish version to trigger SnapStart snapshot
+          aws lambda publish-version \
+            --function-name $FUNCTION_NAME \
+            --description "Deploy ${{ github.sha }}"
 
   # ── Tag successful deploy ──────────────────────────────────────
   tag-deployed:
-    needs: [changes, deploy-api, deploy-workers]
+    needs: [changes, deploy-api, deploy-fast-path, deploy-agent]
     if: always() && !failure() && !cancelled()
     runs-on: ubuntu-latest
     permissions:
