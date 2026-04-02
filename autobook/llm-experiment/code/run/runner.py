@@ -254,12 +254,50 @@ async def _run_one(app, tc, config_dict: dict, variant_name: str,
 
 # ── Variant runner ───────────────────────────────────────────────────────
 
+_MODEL_IDS = {
+    "sonnet": "us.anthropic.claude-sonnet-4-5-20250929-v1:0",
+    "sonnet4.6": "us.anthropic.claude-sonnet-4-6",
+    "haiku": "us.anthropic.claude-haiku-4-5-20251001-v1:0",
+    "opus": "us.anthropic.claude-opus-4-5-20251101-v1:0",
+    "opus4.6": "us.anthropic.claude-opus-4-6-v1",
+}
+
+
 async def run_variant_async(variant_name: str, test_cases: list,
                             pricing: dict,
-                            total_runs: int = 1) -> list[list[TestCaseMetrics]]:
+                            total_runs: int = 1,
+                            model: str = "sonnet",
+                            thinking: str | None = None,
+                            agent_model_overrides: dict[str, str] | None = None,
+                            ) -> list[list[TestCaseMetrics]]:
     """Run test cases, returns list of result lists (one per run)."""
     from variants.variants import VARIANTS
-    config_dict = VARIANTS.get(variant_name)
+    config_dict = dict(VARIANTS.get(variant_name) or {})
+
+    # All agent names for bulk overrides
+    _ALL_AGENTS = [
+        "ambiguity_detector", "complexity_detector",
+        "debit_classifier", "credit_classifier", "tax_specialist",
+        "decision_maker", "entry_drafter", "decision_maker_v4",
+        "disambiguator", "debit_corrector", "credit_corrector",
+        "entry_builder", "approver", "diagnostician",
+    ]
+
+    # Apply default model to all agents
+    model_id = _MODEL_IDS.get(model)
+    if model_id:
+        config_dict["model_per_agent"] = {agent: model_id for agent in _ALL_AGENTS}
+
+    # Apply per-agent model overrides
+    if agent_model_overrides:
+        for agent, agent_model in agent_model_overrides.items():
+            override_id = _MODEL_IDS.get(agent_model)
+            if override_id:
+                config_dict.setdefault("model_per_agent", {})[agent] = override_id
+
+    # Apply thinking effort to all agents
+    if thinking:
+        config_dict["thinking_effort_per_agent"] = {agent: thinking for agent in _ALL_AGENTS}
 
     if variant_name == "naive_agent":
         from variants.naive_agent.graph import app
@@ -267,6 +305,12 @@ async def run_variant_async(variant_name: str, test_cases: list,
         from variants.single_agent.graph import app
     elif variant_name == "single_agent_v3":
         from variants.single_agent_v3.graph import app
+    elif variant_name == "single_agent_v3_1":
+        from variants.single_agent_v3_1.graph import app
+    elif variant_name == "decision_maker_v4":
+        from variants.decision_maker_v4.graph import app
+    elif variant_name == "baseline_v4_dualtrack":
+        from variants.baseline_v4_dualtrack.graph import app
     elif variant_name == "v3_simple":
         from services.agent.graph.graph_v3_simple import app
     else:
