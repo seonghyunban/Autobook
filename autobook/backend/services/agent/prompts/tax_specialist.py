@@ -52,29 +52,41 @@ _EXAMPLES = """
 <example>
 Transaction: "Purchased supplies for $500 plus 10% tax"
 Output: {"reasoning": "Text states 10% tax on $500 purchase", \
-"tax_mentioned": true, "taxable": true, "add_tax_lines": true, \
-"tax_rate": 0.10, "tax_amount": 50.0, "treatment": "recoverable"}
+"tax_mentioned": true, "taxable": true, \
+"tax_context": "10% tax on the full $500 purchase amount", \
+"tax_rate": 0.10, "add_tax_lines": true, "treatment": "recoverable"}
 </example>
 
 <example>
 Transaction: "Paid employee salaries of $3,000 in cash"
 Output: {"reasoning": "Payroll is not a taxable supply", \
-"tax_mentioned": false, "taxable": false, "add_tax_lines": false, \
-"tax_rate": null, "tax_amount": null, "treatment": "not_applicable"}
+"tax_mentioned": false, "taxable": false, \
+"tax_context": null, \
+"tax_rate": null, "add_tax_lines": false, "treatment": "not_applicable"}
 </example>
 
 <example>
 Transaction: "Paid monthly rent $2,000 (no tax mentioned)"
 Output: {"reasoning": "Rent is taxable but text does not mention tax", \
-"tax_mentioned": false, "taxable": true, "add_tax_lines": false, \
-"tax_rate": null, "tax_amount": null, "treatment": "not_applicable"}
+"tax_mentioned": false, "taxable": true, \
+"tax_context": null, \
+"tax_rate": null, "add_tax_lines": false, "treatment": "not_applicable"}
 </example>
 
 <example>
 Transaction: "Sold products for $5,000 plus 13% tax"
 Output: {"reasoning": "Sale with 13% tax collected", \
-"tax_mentioned": true, "taxable": true, "add_tax_lines": true, \
-"tax_rate": 0.13, "tax_amount": 650.0, "treatment": "recoverable"}
+"tax_mentioned": true, "taxable": true, \
+"tax_context": "13% tax collected on the $5,000 sale", \
+"tax_rate": 0.13, "add_tax_lines": true, "treatment": "recoverable"}
+</example>
+
+<example>
+Transaction: "Purchased land and building for $9M. 10% sales tax on the building."
+Output: {"reasoning": "10% tax applies to building component only, land exempt", \
+"tax_mentioned": true, "taxable": true, \
+"tax_context": "10% tax on building component only; land is tax-exempt. Apply rate to the allocated building cost, not fair value.", \
+"tax_rate": 0.10, "add_tax_lines": true, "treatment": "recoverable"}
 </example>"""
 
 # ── Task Reminder ────────────────────────────────────────────────────────
@@ -83,7 +95,8 @@ _TASK_REMINDER = """
 ## Task
 
 Determine the tax treatment for this transaction. \
-If tax is mentioned, extract the rate and amount. \
+If tax is mentioned, extract the rate. Do not compute the tax amount — \
+the entry drafter will compute it from the correct base. \
 If not mentioned, do not add tax lines."""
 
 AGENT_INSTRUCTION = "\n".join([_ROLE, _PROCEDURE, _EXAMPLES, ])

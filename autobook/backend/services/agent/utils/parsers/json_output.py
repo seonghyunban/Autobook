@@ -68,7 +68,9 @@ ASSET_CATEGORIES = Literal[
 ]
 
 LIABILITY_CATEGORIES = Literal[
-    "Trade payables", "Accrued liabilities", "Employee benefits payable",
+    "Trade payables", "Other payables", "Credit card payable",
+    "Accrued liabilities", "Employee benefits payable",
+    "Statutory withholdings payable",
     "Warranty provisions", "Legal and restructuring provisions", "Tax liabilities",
     "Short-term borrowings", "Current lease liabilities", "Deferred income",
     "Contract liabilities", "Dividends payable", "Long-term borrowings",
@@ -92,78 +94,106 @@ EXPENSE_CATEGORIES = Literal[
     "Cost of sales", "Employee benefits expense", "Depreciation expense",
     "Amortisation expense", "Impairment loss", "Advertising expense",
     "Professional fees expense", "Travel expense", "Utilities expense",
-    "Repairs and maintenance expense", "Services expense", "Insurance expense",
+    "Warranty expense", "Repairs and maintenance expense", "Services expense", "Insurance expense",
     "Communication expense", "Transportation expense", "Warehousing expense",
-    "Occupancy expense", "Interest expense", "Income tax expense",
+    "Occupancy expense", "Rent expense", "Interest expense", "Income tax expense",
     "Property tax expense", "Payroll tax expense",
     "Research and development expense", "Entertainment expense",
     "Meeting expense", "Donations expense", "Royalty expense", "Casualty loss",
     "Penalties and fines",
 ]
 
-DIVIDEND_CATEGORIES = Literal[
-    "Dividends declared",
-]
+# ── Debit-side detections (increases for A/E, decreases for L/Eq/R) ──────
 
-
-# ── Per-type classified lines ────────────────────────────────────────────
-
-class AssetLine(BaseModel):
-    reason: str = Field(description="Why these asset lines exist")
+class AssetIncreaseDetection(BaseModel):
+    reason: str = Field(description="One sentence: what causes the asset increase")
     category: ASSET_CATEGORIES = Field(description="IFRS asset category")
     count: int = Field(description="Number of journal lines for this category")
 
 
-class LiabilityLine(BaseModel):
-    reason: str = Field(description="Why these liability lines exist")
-    category: LIABILITY_CATEGORIES = Field(description="IFRS liability category")
-    count: int = Field(description="Number of journal lines for this category")
-
-
-class EquityLine(BaseModel):
-    reason: str = Field(description="Why these equity lines exist")
-    category: EQUITY_CATEGORIES = Field(description="IFRS equity category")
-    count: int = Field(description="Number of journal lines for this category")
-
-
-class RevenueLine(BaseModel):
-    reason: str = Field(description="Why these revenue/income lines exist")
-    category: REVENUE_CATEGORIES = Field(description="IFRS revenue/income category")
-    count: int = Field(description="Number of journal lines for this category")
-
-
-class ExpenseLine(BaseModel):
-    reason: str = Field(description="Why these expense lines exist")
+class ExpenseIncreaseDetection(BaseModel):
+    reason: str = Field(description="One sentence: what causes the expense increase")
     category: EXPENSE_CATEGORIES = Field(description="IFRS expense category")
     count: int = Field(description="Number of journal lines for this category")
 
 
-class DividendLine(BaseModel):
-    reason: str = Field(description="Why these dividend lines exist")
-    category: DIVIDEND_CATEGORIES = Field(description="IFRS dividend category")
+class LiabilityDecreaseDetection(BaseModel):
+    reason: str = Field(description="One sentence: what causes the liability decrease")
+    category: LIABILITY_CATEGORIES = Field(description="IFRS liability category")
     count: int = Field(description="Number of journal lines for this category")
+
+
+class EquityDecreaseDetection(BaseModel):
+    reason: str = Field(description="One sentence: what causes the equity decrease")
+    category: EQUITY_CATEGORIES = Field(description="IFRS equity category")
+    count: int = Field(description="Number of journal lines for this category")
+
+
+class RevenueDecreaseDetection(BaseModel):
+    reason: str = Field(description="One sentence: what causes the revenue decrease")
+    category: REVENUE_CATEGORIES = Field(description="IFRS revenue/income category")
+    count: int = Field(description="Number of journal lines for this category")
+
+
+# ── Credit-side detections (increases for L/Eq/R, decreases for A/E) ─────
+
+class LiabilityIncreaseDetection(BaseModel):
+    reason: str = Field(description="One sentence: what causes the liability increase")
+    category: LIABILITY_CATEGORIES = Field(description="IFRS liability category")
+    count: int = Field(description="Number of journal lines for this category")
+
+
+class EquityIncreaseDetection(BaseModel):
+    reason: str = Field(description="One sentence: what causes the equity increase")
+    category: EQUITY_CATEGORIES = Field(description="IFRS equity category")
+    count: int = Field(description="Number of journal lines for this category")
+
+
+class RevenueIncreaseDetection(BaseModel):
+    reason: str = Field(description="One sentence: what causes the revenue increase")
+    category: REVENUE_CATEGORIES = Field(description="IFRS revenue/income category")
+    count: int = Field(description="Number of journal lines for this category")
+
+
+class AssetDecreaseDetection(BaseModel):
+    reason: str = Field(description="One sentence: what causes the asset decrease")
+    category: ASSET_CATEGORIES = Field(description="IFRS asset category")
+    count: int = Field(description="Number of journal lines for this category")
+
+
+class ExpenseDecreaseDetection(BaseModel):
+    reason: str = Field(description="One sentence: what causes the expense decrease")
+    category: EXPENSE_CATEGORIES = Field(description="IFRS expense category")
+    count: int = Field(description="Number of journal lines for this category")
+
+
+# ── Legacy aliases (for backward compatibility) ─────────────────────────
+
+AssetLine = AssetIncreaseDetection
+LiabilityLine = LiabilityDecreaseDetection
+EquityLine = EquityDecreaseDetection
+RevenueLine = RevenueDecreaseDetection
+ExpenseLine = ExpenseIncreaseDetection
 
 
 # ── Debit Classifier ────────────────────────────────────────────────────
 
 class DebitClassifierOutput(BaseModel):
-    asset_increase: list[AssetLine] = Field(default_factory=list, description="Lines that increase asset balances")
-    dividend_increase: list[DividendLine] = Field(default_factory=list, description="Lines that increase dividend/drawing balances")
-    expense_increase: list[ExpenseLine] = Field(default_factory=list, description="Lines that increase expense balances")
-    liability_decrease: list[LiabilityLine] = Field(default_factory=list, description="Lines that decrease liability balances")
-    equity_decrease: list[EquityLine] = Field(default_factory=list, description="Lines that decrease equity balances")
-    revenue_decrease: list[RevenueLine] = Field(default_factory=list, description="Lines that decrease revenue balances")
+    asset_increase: list[AssetIncreaseDetection] = Field(default_factory=list, description="Detected asset balance increases")
+    expense_increase: list[ExpenseIncreaseDetection] = Field(default_factory=list, description="Detected expense balance increases")
+    liability_decrease: list[LiabilityDecreaseDetection] = Field(default_factory=list, description="Detected liability balance decreases")
+    equity_decrease: list[EquityDecreaseDetection] = Field(default_factory=list, description="Detected equity balance decreases")
+    revenue_decrease: list[RevenueDecreaseDetection] = Field(default_factory=list, description="Detected revenue balance decreases")
 
 
 # ── Credit Classifier ───────────────────────────────────────────────────
 
 class CreditClassifierOutput(BaseModel):
-    liability_increase: list[LiabilityLine] = Field(default_factory=list, description="Lines that increase liability balances")
-    equity_increase: list[EquityLine] = Field(default_factory=list, description="Lines that increase equity balances")
-    revenue_increase: list[RevenueLine] = Field(default_factory=list, description="Lines that increase revenue balances")
-    asset_decrease: list[AssetLine] = Field(default_factory=list, description="Lines that decrease asset balances")
-    dividend_decrease: list[DividendLine] = Field(default_factory=list, description="Lines that decrease dividend/drawing balances")
-    expense_decrease: list[ExpenseLine] = Field(default_factory=list, description="Lines that decrease expense balances")
+    liability_increase: list[LiabilityIncreaseDetection] = Field(default_factory=list, description="Detected liability balance increases")
+    equity_increase: list[EquityIncreaseDetection] = Field(default_factory=list, description="Detected equity balance increases")
+    revenue_increase: list[RevenueIncreaseDetection] = Field(default_factory=list, description="Detected revenue balance increases")
+    asset_decrease: list[AssetDecreaseDetection] = Field(default_factory=list, description="Detected asset balance decreases")
+    expense_decrease: list[ExpenseDecreaseDetection] = Field(default_factory=list, description="Detected expense balance decreases")
 
 
 # ── Tax Specialist ───────────────────────────────────────────────────────
@@ -171,10 +201,10 @@ class CreditClassifierOutput(BaseModel):
 class TaxSpecialistOutput(BaseModel):
     reasoning: str = Field(description="Concise: what the transaction text says about tax and what treatment applies")
     tax_mentioned: bool = Field(description="True if the transaction text explicitly mentions tax")
-    taxable: bool = Field(description="True if this transaction type is taxable")
-    add_tax_lines: bool = Field(description="True if the entry should include separate tax lines")
+    taxable: bool = Field(description="Supplementary metadata: true if this supply category is subject to tax. Not an instruction to add tax lines.")
+    tax_context: str | None = Field(default=None, description="Brief tax context for the entry drafter: what tax applies, which components are taxable, any special rules")
     tax_rate: float | None = Field(default=None, description="Tax rate from the transaction text, e.g. 0.10 for 10%")
-    tax_amount: float | None = Field(default=None, description="Tax amount from the transaction text")
+    add_tax_lines: bool = Field(description="True if the entry should include separate tax lines. False means no tax lines regardless of taxability.")
     treatment: Literal["recoverable", "non_recoverable", "not_applicable"] = Field(description="How to record the tax: as receivable, as part of expense, or not applicable")
 
 
@@ -207,12 +237,12 @@ class DecisionMakerOutput(BaseModel):
 
 class JournalLine(BaseModel):
     type: Literal["debit", "credit"] = Field(description="Debit or credit")
-    account_name: str = Field(description="Account name derived from the transaction description")
+    account_name: str = Field(description="Account name from business purpose and transaction context")
     amount: float = Field(description="Dollar amount for this line")
 
 
 class EntryDrafterOutput(BaseModel):
-    reason: str = Field(description="Concise: why these accounts and amounts, derived from transaction text")
+    reason: str = Field(description="One sentence: why these accounts and amounts")
     lines: list[JournalLine] = Field(description="Journal entry lines. Total debits must equal total credits.")
 
 
@@ -298,10 +328,10 @@ _MODELS: dict[str, type[BaseModel]] = {
 
 # ── Helpers ──────────────────────────────────────────────────────────────
 
-DEBIT_SLOTS = ["asset_increase", "dividend_increase", "expense_increase",
+DEBIT_SLOTS = ["asset_increase", "expense_increase",
                "liability_decrease", "equity_decrease", "revenue_decrease"]
 CREDIT_SLOTS = ["liability_increase", "equity_increase", "revenue_increase",
-                "asset_decrease", "dividend_decrease", "expense_decrease"]
+                "asset_decrease", "expense_decrease"]
 
 
 def extract_tuple(output: dict, slots: list[str]) -> tuple[int, ...]:

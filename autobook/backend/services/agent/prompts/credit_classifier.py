@@ -21,25 +21,24 @@ Given a transaction description, classify the CREDIT side only. For each \
 credit-side journal line, identify which directional slot it belongs to and \
 assign an IFRS taxonomy category from the list in Domain Knowledge.
 
-Same category = combine into one line. Different category = separate lines.
-
-You do NOT:
-- Classify the debit side (separate agent handles that)
-- Assign specific account names or dollar amounts (entry drafter does that)
-- Check arithmetic balance"""
+Same category = combine into one line. Different category = separate lines."""
 
 # ── Procedure ────────────────────────────────────────────────────────────
 
 _PROCEDURE = """
 ## Procedure
 
-1. Read the transaction description.
-2. Identify each credit-side journal line implied by the transaction.
-3. For each line, determine the directional slot (liability_increase, \
-asset_decrease, etc.) and pick the IFRS taxonomy category.
-4. If two items share the same category, combine into one line. \
-If they have different categories, keep them separate.
-5. For each line, state the reason (why it exists) and the category."""
+1. Read the transaction text carefully. The transaction text is the \
+primary source of truth. If the text states management's determination, \
+accounting treatment, or classification, you MUST use that interpretation \
+— do not independently re-interpret the transaction.
+2. Classify only CREDIT-side events. Do not classify debit-side \
+events — the debit classifier handles those separately.
+3. Classify each credit-side event into the correct directional slot. \
+Each slot only accepts categories from its own taxonomy.
+4. Same IFRS category = combine into one detection with count. \
+Different categories = separate detections.
+5. For each detection: reason, IFRS category, count."""
 
 # ── Examples ─────────────────────────────────────────────────────────────
 
@@ -47,25 +46,52 @@ _EXAMPLES = """
 ## Examples
 
 <example>
+Transaction: "Purchase equipment $20,000 cash plus $30,000 loan"
+liability_increase: [
+  {"reason": "Loan taken to fund equipment purchase", "category": "Long-term borrowings", "count": 1}
+]
+asset_decrease: [
+  {"reason": "Cash paid for equipment", "category": "Cash and cash equivalents", "count": 1}
+]
+</example>
+
+<example>
 Transaction: "Pay monthly rent $2,000"
-asset_decrease: [("Cash payment for rent", "Cash and cash equivalents")]
+asset_decrease: [{"reason": "Cash paid for rent", "category": "Cash and cash equivalents", "count": 1}]
 </example>
 
 <example>
 Transaction: "Owner invests $50,000 into business"
-equity_increase: [("Owner capital contribution", "Issued capital")]
-</example>
-
-<example>
-Transaction: "Purchase equipment $20,000 cash plus $30,000 loan"
-liability_increase: [("New loan for equipment", "Long-term borrowings")]
-asset_decrease: [("Cash payment for equipment", "Cash and cash equivalents")]
+equity_increase: [{"reason": "Owner contributed capital to the business", "category": "Issued capital", "count": 1}]
 </example>
 
 <example>
 Transaction: "Sell products $5,000 on account, cost $3,000"
-revenue_increase: [("Product sale", "Revenue from sale of goods")]
-asset_decrease: [("Inventory shipped to customer", "Inventories — merchandise")]
+revenue_increase: [{"reason": "Products sold to customer", "category": "Revenue from sale of goods", "count": 1}]
+asset_decrease: [{"reason": "Inventory released to fulfill sale", "category": "Inventories — merchandise", "count": 1}]
+</example>
+
+<example>
+Transaction: "Issue common stock for $180 cash ($100 par, $80 APIC)"
+equity_increase: [
+  {"reason": "Shares issued at par value", "category": "Issued capital", "count": 1},
+  {"reason": "Premium received above par value", "category": "Share premium", "count": 1}
+]
+</example>
+
+<example>
+Transaction: "Sold 300 cases at $230/case (cost $185/case), plus 10% tax. \
+Received $45,900 by bank transfer, remainder on credit."
+liability_increase: [{"reason": "Sales tax collected from customer", "category": "Tax liabilities", "count": 1}]
+revenue_increase: [{"reason": "Products sold to customer", "category": "Revenue from sale of goods", "count": 1}]
+asset_decrease: [{"reason": "Inventory released to fulfill sale", "category": "Inventories — finished goods", "count": 1}]
+</example>
+
+<example>
+Transaction: "Company sold its investment in bonds, receiving $480K cash. \
+Management has classified this as a disposal of a financial asset."
+Note: Text says "disposal" — the asset is removed from the books. Do not re-classify as redemption or maturity.
+asset_decrease: [{"reason": "Bond investment disposed of per management classification", "category": "Investments — FVOCI", "count": 1}]
 </example>"""
 
 # ── Task Reminder ────────────────────────────────────────────────────────

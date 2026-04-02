@@ -21,25 +21,24 @@ Given a transaction description, classify the DEBIT side only. For each \
 debit-side journal line, identify which directional slot it belongs to and \
 assign an IFRS taxonomy category from the list in Domain Knowledge.
 
-Same category = combine into one line. Different category = separate lines.
-
-You do NOT:
-- Classify the credit side (separate agent handles that)
-- Assign specific account names or dollar amounts (entry drafter does that)
-- Check arithmetic balance"""
+Same category = combine into one line. Different category = separate lines."""
 
 # ── Procedure ────────────────────────────────────────────────────────────
 
 _PROCEDURE = """
 ## Procedure
 
-1. Read the transaction description.
-2. Identify each debit-side journal line implied by the transaction.
-3. For each line, determine the directional slot (asset_increase, \
-expense_increase, etc.) and pick the IFRS taxonomy category.
-4. If two items share the same category, combine into one line. \
-If they have different categories, keep them separate.
-5. For each line, state the reason (why it exists) and the category."""
+1. Read the transaction text carefully. The transaction text is the \
+primary source of truth. If the text states management's determination, \
+accounting treatment, or classification, you MUST use that interpretation \
+— do not independently re-interpret the transaction.
+2. Classify only DEBIT-side events. Do not classify credit-side \
+events — the credit classifier handles those separately.
+3. Classify each debit-side event into the correct directional slot. \
+Each slot only accepts categories from its own taxonomy.
+4. Same IFRS category = combine into one detection with count. \
+Different categories = separate detections.
+5. For each detection: reason, IFRS category, count."""
 
 # ── Examples ─────────────────────────────────────────────────────────────
 
@@ -47,38 +46,56 @@ _EXAMPLES = """
 ## Examples
 
 <example>
-Transaction: "Pay monthly rent $2,000"
-expense_increase: [("Rent payment for the month", "Occupancy expense")]
-</example>
-
-<example>
-Transaction: "Owner withdraws $5,000 from business"
-dividend_increase: [("Owner cash withdrawal", "Dividends declared")]
+Transaction: "Purchase land $2M and build fencing $500K"
+asset_increase: [
+  {"reason": "Land purchased as non-depreciable asset", "category": "Land", "count": 1},
+  {"reason": "Fencing purchased as depreciable site improvement", "category": "Site improvements", "count": 1}
+]
 </example>
 
 <example>
 Transaction: "Purchase office desks $2,000 and computers $3,500 cash"
-asset_increase: [("Office desks and computers — same PP&E category", "Office equipment")]
-Note: desks and computers share the same category, so they combine into 1 line.
+asset_increase: [{"reason": "Desks and computers acquired as office equipment", "category": "Office equipment", "count": 1}]
 </example>
 
 <example>
-Transaction: "Purchase land $2M and build fencing $500K"
-asset_increase: [("Non-depreciable land", "Land"), ("Depreciable fencing", "Site improvements")]
-Note: Land and Site improvements are different categories, so they are 2 lines.
+Transaction: "Pay monthly rent $2,000"
+expense_increase: [{"reason": "Monthly rent incurred for occupancy", "category": "Occupancy expense", "count": 1}]
+</example>
+
+<example>
+Transaction: "Owner withdraws $5,000 from business"
+equity_decrease: [{"reason": "Owner withdrew cash, reducing retained earnings", "category": "Retained earnings", "count": 1}]
 </example>
 
 <example>
 Transaction: "Record payroll: production wages $25K, office salaries $20K"
-asset_increase: [("Production wages capitalized to WIP", "Inventories — work in progress")]
-expense_increase: [("Office salaries", "Employee benefits expense")]
+asset_increase: [{"reason": "Production wages capitalized as manufacturing cost", "category": "Inventories — work in progress", "count": 1}]
+expense_increase: [{"reason": "Office salaries incurred as period cost", "category": "Employee benefits expense", "count": 1}]
 </example>
 
 <example>
 Transaction: "Purchased warehouse for $500K, paid with a 5-year note at face value, market rate 8%"
-asset_increase: [("Warehouse at present value of note", "Buildings")]
-liability_decrease: [("Discount on note payable — contra-liability for difference between face value and PV", "Long-term borrowings")]
-Note: When face value and present value differ, the discount is a separate contra-liability line.
+asset_increase: [{"reason": "Warehouse acquired at present value of note", "category": "Buildings", "count": 1}]
+liability_decrease: [{"reason": "Discount on note reflects difference between face and present value", "category": "Long-term borrowings", "count": 1}]
+</example>
+
+<example>
+Transaction: "Company sold its investment in bonds, receiving $480K cash. \
+Management has classified this as a disposal of a financial asset."
+Note: Text says "disposal" — use that interpretation. Do not re-classify as redemption or maturity.
+asset_increase: [{"reason": "Cash received from disposal of bond investment", "category": "Cash and cash equivalents", "count": 1}]
+expense_increase: [{"reason": "Loss on disposal of financial asset (if carrying value > proceeds)", "category": "Losses on disposals", "count": 1}]
+</example>
+
+<example>
+Transaction: "Sold 300 cases at $230/case (cost $185/case), plus 10% tax. \
+Received $45,900 by bank transfer, remainder on credit."
+asset_increase: [
+  {"reason": "Cash received via bank transfer", "category": "Cash and cash equivalents", "count": 1},
+  {"reason": "Remaining amount owed by customer", "category": "Trade receivables", "count": 1}
+]
+expense_increase: [{"reason": "Cost of inventory sold", "category": "Cost of sales", "count": 1}]
 </example>"""
 
 # ── Task Reminder ────────────────────────────────────────────────────────
@@ -86,7 +103,7 @@ Note: When face value and present value differ, the discount is a separate contr
 _TASK_REMINDER = """
 ## Task
 
-Classify the debit side. For each line, provide the reason and \
+Classify ONLY the debit side. For each line, provide the reason and \
 IFRS taxonomy category. Same category = combine. Different = separate."""
 
 AGENT_INSTRUCTION = "\n".join([_ROLE, _PROCEDURE, _EXAMPLES])

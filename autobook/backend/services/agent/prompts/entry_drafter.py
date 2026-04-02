@@ -18,34 +18,47 @@ from services.agent.utils.parsers.json_output import DEBIT_SLOTS, CREDIT_SLOTS
 _ROLE = """
 ## Role
 
-Build a complete double-entry journal entry from the given debit/credit \
-structure and tax context. Trust the upstream classifications — do not \
-re-evaluate them.
-
-You do NOT:
-- Re-classify the transaction (classifiers already did that)
-- Judge ambiguity (ambiguity detector and decision maker handled that)
-- Determine tax treatment (tax specialist handled that)"""
+Confidently build the best possible double-entry journal entry from the \
+given classifications and tax context. The transaction has already been \
+approved by the decision maker — commit to the entry without hedging."""
 
 # ── Procedure ────────────────────────────────────────────────────────────
 
 _PROCEDURE = """
 ## Procedure
 
-1. Read the debit and credit structure counts.
-2. For each non-zero slot, create that many journal lines. \
-Name each account from the business purpose and context of the \
-transaction, not from the physical item description. \
-Use the most specific account name that is necessary for a correct \
-entry — if using a broader name would produce a wrong or misleading \
-entry, be specific; otherwise a standard category name is fine.
-3. Infer dollar amounts from the transaction text. \
-For calculations (PV, interest, allocation), show the formula and \
-compute each term. Use actual/365 day-count for interest.
-4. If tax specialist says add_tax_lines, add separate tax lines \
-using the stated rate and amount.
-5. Verify total debits = total credits.
-6. If vendor history is available, follow precedent on account selection."""
+### Authority of inputs
+
+Each upstream agent is authoritative for its domain:
+- <debit_classification> and <credit_classification> are authoritative \
+for what happened: how many lines, which directional slots, and the \
+specificity of account classification. Your account name should be \
+equally or more specific than the classifier's category. You may use \
+the classifier's category directly when it is already the best \
+accounting practice name for the transaction.
+- <tax_context> is authoritative for whether tax lines should be added. \
+Only add tax lines if add_tax_lines is true.
+- <decision_maker_context> is authoritative for resolving ambiguities \
+and providing disambiguating context. Use it for account naming \
+and treatment decisions when available.
+
+### Steps
+
+1. Map each classified detection to an account name based on the \
+transaction text and business purpose. Use the classifier's category \
+when it is already the appropriate account name. Refine to a more \
+specific name when the transaction context warrants it. Do not \
+generalize to a broader name than the classifier provided.
+2. Infer amounts from the transaction text. For calculations \
+(PV, interest, allocation), use the calculator tool.
+3. Check the tax_context add_tax_lines field. \
+If add_tax_lines is true, add tax lines: use the provided rate and \
+compute the tax amount yourself with the calculator tool (apply the \
+rate to the correct base amount from the entry, not from fair values). \
+If add_tax_lines is false, do NOT add any tax lines — even if the \
+transaction is taxable or you know the applicable tax rate. \
+The tax specialist has already decided whether tax lines belong in this entry.
+4. Verify total debits = total credits."""
 
 # ── Examples ─────────────────────────────────────────────────────────────
 
@@ -54,9 +67,7 @@ _EXAMPLES = """
 
 <example>
 Transaction: "Purchase equipment $20,000 — $5,000 cash, $15,000 loan"
-Debit structure: [1,0,0,0,0,0], Credit structure: [1,0,0,1,0,0]
-Tax: not applicable
-Output: {"reason": "Equipment asset acquired with mixed funding", \
+Output: {"reason": "Equipment acquired with cash and loan funding", \
 "lines": [{"type": "debit", "account_name": "Equipment", "amount": 20000.00}, \
 {"type": "credit", "account_name": "Cash", "amount": 5000.00}, \
 {"type": "credit", "account_name": "Loan Payable", "amount": 15000.00}]}
@@ -64,9 +75,8 @@ Output: {"reason": "Equipment asset acquired with mixed funding", \
 
 <example>
 Transaction: "Sold products for $5,000 plus 10% tax, cost $3,000"
-Debit structure: [1,0,1,0,0,0], Credit structure: [0,0,1,1,0,0]
 Tax: add_tax_lines=true, rate=0.10, amount=500
-Output: {"reason": "Sale with COGS and tax collected", \
+Output: {"reason": "Product sale with COGS and tax collected", \
 "lines": [{"type": "debit", "account_name": "Cash", "amount": 5500.00}, \
 {"type": "debit", "account_name": "Cost of Goods Sold", "amount": 3000.00}, \
 {"type": "credit", "account_name": "Sales Revenue", "amount": 5000.00}, \
@@ -76,26 +86,50 @@ Output: {"reason": "Sale with COGS and tax collected", \
 
 <example>
 Transaction: "Record monthly depreciation on equipment $500"
-Debit structure: [0,0,1,0,0,0], Credit structure: [0,0,0,1,0,0]
-Tax: not applicable
-Output: {"reason": "Depreciation expense with contra-asset", \
+Output: {"reason": "Monthly depreciation recognized on equipment", \
 "lines": [{"type": "debit", "account_name": "Depreciation Expense", "amount": 500.00}, \
 {"type": "credit", "account_name": "Accumulated Depreciation", "amount": 500.00}]}
 </example>
 
 <example>
 Transaction: "Issued bonds $3,000,000 face, 3-year term, 10% coupon annual, market rate 15%"
-Debit structure: [1,0,0,1,0,0], Credit structure: [1,0,0,0,0,0]
-Tax: not applicable
-Calculation: PV of coupons = sum([300000/1.15**i for i in range(1,4)]) = 685,065
-PV of principal = 3000000/1.15**3 = 1,972,545
-Total proceeds = 685,065 + 1,972,545 = 2,657,510
-Discount = 3,000,000 - 2,657,510 = 342,490
-Output: {"reason": "Bonds issued at discount: cash at PV of all future cash flows (coupons + principal)", \
+Output: {"reason": "Bonds issued at discount — cash at PV of coupons plus principal", \
 "lines": [{"type": "debit", "account_name": "Cash", "amount": 2657510.00}, \
 {"type": "debit", "account_name": "Discount on Bonds Payable", "amount": 342490.00}, \
 {"type": "credit", "account_name": "Bonds Payable", "amount": 3000000.00}]}
-Note: Bond PV must include BOTH coupon annuity and principal. Omitting coupons is wrong.
+</example>
+
+<example>
+Transaction: "Paid $8,000 in cash and $12,000 by cheque for consulting services"
+Classifier: 2 credit asset_decrease, both category "Cash and cash equivalents"
+Note: Transaction specifies two distinct payment methods. Name each credit \
+line from the transaction text, not the classifier category.
+Output: {"reason": "Consulting services paid by cash and cheque", \
+"lines": [{"type": "debit", "account_name": "Consulting Expense", "amount": 20000.00}, \
+{"type": "credit", "account_name": "Cash", "amount": 8000.00}, \
+{"type": "credit", "account_name": "Cash — chequing", "amount": 12000.00}]}
+</example>
+
+<example>
+Transaction: "Sold corporate bonds to a broker. Management classified this as a disposal."
+Classifier: expense_increase "Interest expense", asset_decrease "Short-term loans receivable"
+Decision maker context: "Resolved as disposal per management determination"
+Note: The decision maker resolved this as disposal, but the classifier used \
+different categories. Use the decision maker's resolved treatment for naming.
+Output: {"reason": "Bond investment disposed per management classification", \
+"lines": [{"type": "debit", "account_name": "Cash", "amount": 95000.00}, \
+{"type": "debit", "account_name": "Loss on Disposal", "amount": 5000.00}, \
+{"type": "credit", "account_name": "Investments — FVOCI", "amount": 100000.00}]}
+</example>
+
+<example>
+Transaction: "Purchased office furniture for $2,500"
+Tax context: add_tax_lines=false, taxable=true
+Note: The tax specialist determined no tax lines should be added. \
+Do not add tax lines even though taxable=true and you may know the rate.
+Output: {"reason": "Office furniture purchased at stated amount", \
+"lines": [{"type": "debit", "account_name": "Office Furniture", "amount": 2500.00}, \
+{"type": "credit", "account_name": "Cash", "amount": 2500.00}]}
 </example>"""
 
 # ── Input Format ─────────────────────────────────────────────────────────
@@ -107,22 +141,27 @@ You will receive these blocks in the user message:
 
 1. <transaction> — The raw transaction description.
 2. <context> — The user's business context.
-3. <debit_classification> — Classified debit lines with reasons and \
-IFRS taxonomy categories.
-4. <credit_classification> — Classified credit lines with reasons and \
-IFRS taxonomy categories.
-5. <tax_context> — Tax treatment from the tax specialist."""
+3. <debit_classification> — Classified debit detections with reasons \
+and IFRS taxonomy categories.
+4. <credit_classification> — Classified credit detections with reasons \
+and IFRS taxonomy categories.
+5. <tax_context> — Tax treatment from the tax specialist. \
+The key field is add_tax_lines (true/false). The taxable field is \
+supplementary metadata about whether the supply category is subject \
+to tax — it is NOT an instruction to add tax lines.
+6. <decision_maker_context> — Decision maker's resolved ambiguities \
+and proceed reason (if available)."""
 
 # ── Task Reminder ────────────────────────────────────────────────────────
 
 _TASK_REMINDER = """
 ## Task
 
-Build the journal entry from the given structure and transaction text. \
-Trust the structure counts. Name accounts from business purpose and \
-context — be specific when it affects correctness. \
-For calculations, show formula and compute each term. \
-Add tax lines if indicated. Verify total debits = total credits."""
+Confidently build the journal entry from the given classifications \
+and transaction text. Name accounts from business purpose. \
+Use the calculator tool for computations. \
+Only add tax lines if add_tax_lines is true in the tax context. \
+Verify total debits = total credits."""
 
 AGENT_INSTRUCTION = "\n".join([_ROLE, _PROCEDURE, _EXAMPLES, _INPUT_FORMAT, ])
 
@@ -131,11 +170,10 @@ SYSTEM_INSTRUCTION = "\n".join([SHARED_INSTRUCTION, AGENT_INSTRUCTION])
 
 
 def _extract_classified_lines(state: PipelineState) -> tuple[dict, dict]:
-    """Extract classified lines from classifier outputs, with decision maker overrides."""
+    """Extract classified detections from classifier outputs."""
     debit_out = (state.get("output_debit_classifier") or [None])[-1] or {}
     credit_out = (state.get("output_credit_classifier") or [None])[-1] or {}
 
-    # Extract per-slot classified lines
     debit_lines = {}
     for slot in DEBIT_SLOTS:
         debit_lines[slot] = debit_out.get(slot, [])
@@ -143,26 +181,38 @@ def _extract_classified_lines(state: PipelineState) -> tuple[dict, dict]:
     for slot in CREDIT_SLOTS:
         credit_lines[slot] = credit_out.get(slot, [])
 
-    # Apply decision maker overrides if present
-    decision_maker = (state.get("output_decision_maker") or [None])[-1]
-    if decision_maker:
-        if decision_maker.get("override_debit"):
-            # Override replaces all debit lines
-            debit_lines = {slot: [] for slot in DEBIT_SLOTS}
-            for line in decision_maker["override_debit"]:
-                # Place each line in appropriate slot based on category
-                # Decision maker provides flat list; keep in asset_increase as default
-                debit_lines.setdefault("asset_increase", []).append(line)
-        if decision_maker.get("override_credit"):
-            credit_lines = {slot: [] for slot in CREDIT_SLOTS}
-            for line in decision_maker["override_credit"]:
-                credit_lines.setdefault("liability_increase", []).append(line)
-
     return debit_lines, credit_lines
 
 
+def _extract_decision_maker_context(state: PipelineState) -> str | None:
+    """Extract decision maker v4 context (proceed_reason + resolved ambiguities)."""
+    dm_out = (state.get("output_decision_maker") or [None])[-1]
+    if not dm_out:
+        return None
+
+    parts = []
+    proceed_reason = dm_out.get("proceed_reason")
+    if proceed_reason:
+        parts.append(f"Proceed reason: {proceed_reason}")
+
+    rationale = dm_out.get("overall_final_rationale")
+    if rationale:
+        parts.append(f"Rationale: {rationale}")
+
+    ambiguities = dm_out.get("ambiguities", [])
+    resolved = [a for a in ambiguities if not a.get("ambiguous")]
+    if resolved:
+        for a in resolved:
+            conv = a.get("input_contextualized_conventional_default")
+            ifrs = a.get("input_contextualized_ifrs_default")
+            resolution = conv or ifrs or "resolved"
+            parts.append(f"Resolved: {a['aspect']} — {resolution}")
+
+    return "\n".join(parts) if parts else None
+
+
 def build_prompt(state: PipelineState, tax_output: dict | None = None) -> dict:
-    """Build the entry drafter prompt with classified lines."""
+    """Build the entry drafter prompt with classified detections and decision context."""
     if tax_output is None:
         tax_output = (state.get("output_tax_specialist") or [None])[-1]
 
@@ -172,6 +222,10 @@ def build_prompt(state: PipelineState, tax_output: dict | None = None) -> dict:
     context += f"<credit_classification>{json.dumps(credit_lines, indent=2)}</credit_classification>\n"
     if tax_output:
         context += f"<tax_context>{json.dumps(tax_output)}</tax_context>\n"
+
+    dm_context = _extract_decision_maker_context(state)
+    if dm_context:
+        context += f"<decision_maker_context>\n{dm_context}\n</decision_maker_context>\n"
 
     system_blocks = [
         {"text": SHARED_INSTRUCTION}, CACHE_POINT,
