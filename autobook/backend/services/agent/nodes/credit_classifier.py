@@ -63,11 +63,15 @@ class CreditClassifierOutput(BaseModel):
 # ── Stream helpers ──────────────────────────────────────────────────────
 
 def _write_start(writer, agent: str) -> None:
+    if writer is None:
+        return
     writer({"agent": agent, "phase": "started"})
 
 
 def _write_complete(writer, agent: str, output: dict) -> None:
     """Stream classifier output leaf by leaf: slot_and_count, reason, taxonomy per detection."""
+    if writer is None:
+        return
     from services.agent.utils.slots import CREDIT_SLOTS
     from services.agent.utils.tracing.renderers import (
         render_slot_and_count, render_slot_reason, render_taxonomy,
@@ -87,7 +91,7 @@ def _write_complete(writer, agent: str, output: dict) -> None:
 
 def credit_classifier_node(state: PipelineState, config: RunnableConfig) -> dict:
     """Classify credit lines into per-slot directional categories."""
-    writer = get_stream_writer()
+    writer = get_stream_writer() if config.get("configurable", {}).get("streaming") else None
 
     _write_start(writer, "credit_classifier")
 

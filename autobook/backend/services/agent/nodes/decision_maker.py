@@ -64,11 +64,15 @@ class DecisionMakerOutput(BaseModel):
 # ── Node ─────────────────────────────────────────────────────────────────
 
 def _write_start(writer, agent: str) -> None:
+    if writer is None:
+        return
     writer({"agent": agent, "phase": "started"})
 
 
 def _write_complete(writer, agent: str, output: dict) -> None:
     """Stream the DM output leaf by leaf in display order."""
+    if writer is None:
+        return
     from services.agent.utils.tracing.renderers import (
         render_ambiguity_summary, render_ambiguity_aspect,
         render_conventional_default, render_ifrs_default,
@@ -128,7 +132,7 @@ def _write_complete(writer, agent: str, output: dict) -> None:
 
 def decision_maker_node(state: PipelineState, config: RunnableConfig) -> dict:
     """One LLM call: gating decision with ambiguity cases and capability gaps."""
-    writer = get_stream_writer()
+    writer = get_stream_writer() if config.get("configurable", {}).get("streaming") else None
 
     _write_start(writer, "decision_maker")
 

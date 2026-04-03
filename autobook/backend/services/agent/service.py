@@ -117,7 +117,7 @@ def execute(message: dict) -> dict:
     """Run the agent pipeline (sync — for SQS workers and sync callers)."""
     logger.info("Processing: %s", message.get("parse_id"))
     initial_state = _build_initial_state(message)
-    final_state = app.invoke(initial_state)
+    final_state = app.invoke(initial_state, {"configurable": {"streaming": False}})
     return _build_result(final_state, message)
 
 
@@ -125,5 +125,5 @@ async def execute_stream(message: dict):
     """Run the agent pipeline with streaming (async generator — for SSE endpoint)."""
     logger.info("Processing (stream): %s", message.get("parse_id"))
     initial_state = _build_initial_state(message)
-    async for chunk in app.astream(initial_state, stream_mode="custom"):
+    async for chunk in app.astream(initial_state, {"configurable": {"streaming": True}}, stream_mode="custom"):
         yield chunk

@@ -29,11 +29,15 @@ class TaxSpecialistOutput(BaseModel):
 # ── Stream helpers ──────────────────────────────────────────────────────
 
 def _write_start(writer, agent: str) -> None:
+    if writer is None:
+        return
     writer({"agent": agent, "phase": "started"})
 
 
 def _write_complete(writer, agent: str, output: dict) -> None:
     """Stream the tax output leaf by leaf in display order."""
+    if writer is None:
+        return
     from services.agent.utils.tracing.renderers import (
         render_tax_detection, render_tax_context,
         render_tax_reasoning, render_tax_decision,
@@ -52,7 +56,7 @@ def _write_complete(writer, agent: str, output: dict) -> None:
 
 def tax_specialist_node(state: PipelineState, config: RunnableConfig) -> dict:
     """Determine tax treatment for the transaction."""
-    writer = get_stream_writer()
+    writer = get_stream_writer() if config.get("configurable", {}).get("streaming") else None
 
     _write_start(writer, "tax_specialist")
 

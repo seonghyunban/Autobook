@@ -55,11 +55,15 @@ def _map_account_codes(output: dict) -> None:
 # ── Stream helpers ──────────────────────────────────────────────────────
 
 def _write_start(writer, agent: str) -> None:
+    if writer is None:
+        return
     writer({"agent": agent, "phase": "started"})
 
 
 def _write_complete(writer, agent: str, output: dict) -> None:
     """Stream entry drafter output: rationale then final entry."""
+    if writer is None:
+        return
     reason = output.get("reason", "")
     if reason:
         writer({"agent": agent, "phase": "entry_rationale", "text": render_entry_rationale(reason)})
@@ -70,7 +74,7 @@ def _write_complete(writer, agent: str, output: dict) -> None:
 
 def entry_drafter_node(state: PipelineState, config: RunnableConfig) -> dict:
     """Build journal entry from upstream classifications."""
-    writer = get_stream_writer()
+    writer = get_stream_writer() if config.get("configurable", {}).get("streaming") else None
 
     _write_start(writer, "entry_drafter")
 
