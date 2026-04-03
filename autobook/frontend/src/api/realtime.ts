@@ -37,7 +37,8 @@ function parseRealtimeEvent(payload: string) {
         parsed.type === "pipeline.result" ||
         parsed.type === "pipeline.error" ||
         parsed.type === "pipeline.stage_started" ||
-        parsed.type === "pipeline.stage_skipped") &&
+        parsed.type === "pipeline.stage_skipped" ||
+        parsed.type === "agent.stream") &&
       typeof parsed.occurred_at === "string"
     ) {
       return parsed as RealtimeEvent;

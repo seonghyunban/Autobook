@@ -190,7 +190,7 @@ export type StatementsResponse = {
 };
 
 export type RealtimeEvent = {
-  type: "entry.posted" | "clarification.created" | "clarification.resolved" | "pipeline.result" | "pipeline.error" | "pipeline.stage_started" | "pipeline.stage_skipped";
+  type: "entry.posted" | "clarification.created" | "clarification.resolved" | "pipeline.result" | "pipeline.error" | "pipeline.stage_started" | "pipeline.stage_skipped" | "agent.stream";
   journal_entry_id?: string;
   parse_id?: string;
   input_text?: string;
@@ -204,6 +204,10 @@ export type RealtimeEvent = {
   result?: Record<string, unknown>;
   error?: string;
   batch?: BatchSummary;
+  agent?: string;
+  phase?: string;
+  text?: string;
+  label?: string;
 };
 
 export type RealtimeListener = (event: RealtimeEvent) => void;
@@ -218,9 +222,7 @@ export type LLMEntry = {
 };
 
 export type LLMInteractionResponse = {
-  input_text: string;
+  parse_id: string;
   detected_language: "en" | "ko";
   english_text: string;
-  english_entry: LLMEntry | null;
-  korean_entry: LLMEntry | null;
 };
