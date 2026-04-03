@@ -68,6 +68,7 @@ def _write_complete(writer, agent: str, output: dict) -> None:
     if reason:
         writer({"agent": agent, "phase": "entry_rationale", "text": render_entry_rationale(reason)})
     writer({"agent": agent, "phase": "final_entry", "text": render_final_entry(output)})
+    writer({"agent": agent, "phase": "done"})
 
 
 # ── Node ────────────────────────────────────────────────────────────────

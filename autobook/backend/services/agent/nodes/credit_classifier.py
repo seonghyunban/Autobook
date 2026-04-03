@@ -85,6 +85,7 @@ def _write_complete(writer, agent: str, output: dict) -> None:
             writer({"agent": agent, "phase": "taxonomy", "text": render_taxonomy(det.get("category", ""))})
     if not has_detections:
         writer({"agent": agent, "phase": "no_detections", "text": "No credit-side classifications detected."})
+    writer({"agent": agent, "phase": "done"})
 
 
 # ── Node ────────────────────────────────────────────────────────────────

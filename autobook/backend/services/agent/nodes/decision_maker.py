@@ -108,6 +108,8 @@ def _write_complete(writer, agent: str, output: dict) -> None:
                 writer({"agent": agent, "phase": "ambiguity_case_entry", "text": pe})
         writer({"agent": agent, "phase": "ambiguity_status", "text": render_ambiguity_status(a.get("ambiguous", False))})
 
+    writer({"agent": agent, "phase": "ambiguity_done"})
+
     # 3. Complexity summary
     writer({"agent": agent, "phase": "complexity_summary", "text": render_complexity_summary(flags)})
 
@@ -122,12 +124,15 @@ def _write_complete(writer, agent: str, output: dict) -> None:
             writer({"agent": agent, "phase": "complexity_gap", "text": gap})
         writer({"agent": agent, "phase": "complexity_status", "text": render_complexity_status(f.get("beyond_llm_capability", False))})
 
+    writer({"agent": agent, "phase": "complexity_done"})
+
     # 5. Proceed reason, rationale, decision
     pr = render_proceed_reason(output.get("proceed_reason"))
     if pr:
         writer({"agent": agent, "phase": "proceed_reason", "text": pr})
     writer({"agent": agent, "phase": "rationale", "text": render_rationale(output.get("overall_final_rationale", ""))})
     writer({"agent": agent, "phase": "decision", "text": render_decision(output.get("decision", ""))})
+    writer({"agent": agent, "phase": "decision_done"})
 
 
 def decision_maker_node(state: PipelineState, config: RunnableConfig) -> dict:

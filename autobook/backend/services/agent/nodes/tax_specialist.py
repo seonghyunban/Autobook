@@ -50,6 +50,7 @@ def _write_complete(writer, agent: str, output: dict) -> None:
     if reasoning:
         writer({"agent": agent, "phase": "tax_reasoning", "text": reasoning})
     writer({"agent": agent, "phase": "tax_decision", "text": render_tax_decision(output.get("add_tax_lines", False), output.get("tax_rate"), output.get("treatment", ""))})
+    writer({"agent": agent, "phase": "done"})
 
 
 # ── Node ────────────────────────────────────────────────────────────────
