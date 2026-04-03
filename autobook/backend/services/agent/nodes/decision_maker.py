@@ -86,10 +86,8 @@ def _write_complete(writer, agent: str, output: dict) -> None:
     ambiguities = output.get("ambiguities", [])
     flags = output.get("complexity_flags", [])
 
-    # 1. Ambiguity summary
-    writer({"agent": agent, "phase": "ambiguity_summary", "text": render_ambiguity_summary(ambiguities)})
-
-    # 2. Each ambiguity — leaf by leaf
+    # 1. Ambiguity
+    writer({"agent": agent, "phase": "ambiguity_start"})
     for a in ambiguities:
         writer({"agent": agent, "phase": "ambiguity_aspect", "text": render_ambiguity_aspect(a.get("aspect", ""))})
         conv = render_conventional_default(a.get("input_contextualized_conventional_default"))
@@ -107,13 +105,11 @@ def _write_complete(writer, agent: str, output: dict) -> None:
             if pe:
                 writer({"agent": agent, "phase": "ambiguity_case_entry", "text": pe})
         writer({"agent": agent, "phase": "ambiguity_status", "text": render_ambiguity_status(a.get("ambiguous", False))})
-
+    writer({"agent": agent, "phase": "ambiguity_summary", "text": render_ambiguity_summary(ambiguities)})
     writer({"agent": agent, "phase": "ambiguity_done"})
 
-    # 3. Complexity summary
-    writer({"agent": agent, "phase": "complexity_summary", "text": render_complexity_summary(flags)})
-
-    # 4. Each complexity — leaf by leaf
+    # 2. Complexity
+    writer({"agent": agent, "phase": "complexity_start"})
     for f in flags:
         writer({"agent": agent, "phase": "complexity_aspect", "text": render_complexity_aspect(f.get("aspect", ""))})
         ba = render_best_attempt(f.get("best_attempt"))
@@ -123,10 +119,11 @@ def _write_complete(writer, agent: str, output: dict) -> None:
         if gap:
             writer({"agent": agent, "phase": "complexity_gap", "text": gap})
         writer({"agent": agent, "phase": "complexity_status", "text": render_complexity_status(f.get("beyond_llm_capability", False))})
-
+    writer({"agent": agent, "phase": "complexity_summary", "text": render_complexity_summary(flags)})
     writer({"agent": agent, "phase": "complexity_done"})
 
-    # 5. Proceed reason, rationale, decision
+    # 3. Decision
+    writer({"agent": agent, "phase": "decision_start"})
     pr = render_proceed_reason(output.get("proceed_reason"))
     if pr:
         writer({"agent": agent, "phase": "proceed_reason", "text": pr})
