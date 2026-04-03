@@ -82,6 +82,7 @@ COPY backend/services/agent/ backend/services/agent/
 COPY backend/services/posting/ backend/services/posting/
 COPY backend/services/flywheel/ backend/services/flywheel/
 COPY backend/services/resolution/ backend/services/resolution/
+COPY backend/services/precedent_v2/ backend/services/precedent_v2/
 
 ENTRYPOINT ["python", "-m", "awslambdaric"]
 CMD ["workers.agent.handler"]

@@ -1,3 +1,3 @@
-from queues.sqs import dequeue, enqueue
+from queues.sqs import enqueue
 
-__all__ = ["enqueue", "dequeue"]
+__all__ = ["enqueue"]
