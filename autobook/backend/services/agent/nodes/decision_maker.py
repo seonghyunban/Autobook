@@ -87,7 +87,7 @@ def _write_complete(writer, agent: str, output: dict) -> None:
     flags = output.get("complexity_flags", [])
 
     # 1. Ambiguity
-    writer({"agent": agent, "phase": "ambiguity_start"})
+    writer({"agent": agent, "phase": "ambiguity_start", "label": "Ambiguity detected" if ambiguities else "No ambiguity detected"})
     for a in ambiguities:
         writer({"agent": agent, "phase": "ambiguity_aspect", "text": render_ambiguity_aspect(a.get("aspect", ""))})
         conv = render_conventional_default(a.get("input_contextualized_conventional_default"))
@@ -109,7 +109,7 @@ def _write_complete(writer, agent: str, output: dict) -> None:
     writer({"agent": agent, "phase": "ambiguity_done"})
 
     # 2. Complexity
-    writer({"agent": agent, "phase": "complexity_start"})
+    writer({"agent": agent, "phase": "complexity_start", "label": "Complexity detected" if flags else "No complexity detected"})
     for f in flags:
         writer({"agent": agent, "phase": "complexity_aspect", "text": render_complexity_aspect(f.get("aspect", ""))})
         ba = render_best_attempt(f.get("best_attempt"))

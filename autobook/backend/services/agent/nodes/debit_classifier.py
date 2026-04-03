@@ -76,15 +76,13 @@ def _write_complete(writer, agent: str, output: dict) -> None:
     from services.agent.utils.tracing.renderers import (
         render_slot_and_count, render_slot_reason, render_taxonomy,
     )
-    has_detections = False
+    has_detections = any(output.get(slot) for slot in DEBIT_SLOTS)
+    writer({"agent": agent, "phase": "start", "label": "Debit relationship identified" if has_detections else "No debit relationship identified"})
     for slot in DEBIT_SLOTS:
         for det in output.get(slot, []):
-            has_detections = True
             writer({"agent": agent, "phase": "slot_and_count", "text": render_slot_and_count(slot, det.get("count", 1))})
             writer({"agent": agent, "phase": "slot_reason", "text": render_slot_reason(det.get("reason", ""))})
             writer({"agent": agent, "phase": "taxonomy", "text": render_taxonomy(det.get("category", ""))})
-    if not has_detections:
-        writer({"agent": agent, "phase": "no_detections", "text": "No debit-side classifications detected."})
     writer({"agent": agent, "phase": "done"})
 
 
