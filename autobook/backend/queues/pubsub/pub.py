@@ -10,6 +10,7 @@ from datetime import datetime, timezone
 
 from queues.pubsub.client import publish_sync
 from schemas.events import (
+    AgentStreamEvent,
     ClarificationCreatedEvent,
     ClarificationResolvedEvent,
     EntryPostedEvent,
@@ -19,7 +20,7 @@ from schemas.events import (
     StageStartedEvent,
 )
 
-__all__ = ["entry_posted", "clarification_created", "clarification_resolved", "pipeline_result", "pipeline_error", "stage_started", "stage_skipped"]
+__all__ = ["entry_posted", "clarification_created", "clarification_resolved", "pipeline_result", "pipeline_error", "stage_started", "stage_skipped", "agent_stream"]
 
 
 def entry_posted(
@@ -155,3 +156,21 @@ def pipeline_error(
         occurred_at=datetime.now(timezone.utc).isoformat(),
     )
     publish_sync("pipeline.error", event.model_dump())
+
+
+def agent_stream(
+    *,
+    parse_id: str,
+    user_id: str,
+    chunk: dict,
+) -> None:
+    event = AgentStreamEvent(
+        parse_id=parse_id,
+        user_id=user_id,
+        agent=chunk.get("agent", ""),
+        phase=chunk.get("phase", ""),
+        text=chunk.get("text"),
+        label=chunk.get("label"),
+        occurred_at=datetime.now(timezone.utc).isoformat(),
+    )
+    publish_sync("agent.stream", event.model_dump())

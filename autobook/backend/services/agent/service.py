@@ -122,8 +122,18 @@ def execute(message: dict) -> dict:
 
 
 async def execute_stream(message: dict):
-    """Run the agent pipeline with streaming (async generator — for SSE endpoint)."""
+    """Run the agent pipeline with streaming.
+
+    Yields stream chunks, then a final {"phase": "result", "result": ...} event.
+    """
     logger.info("Processing (stream): %s", message.get("parse_id"))
     initial_state = _build_initial_state(message)
-    async for chunk in app.astream(initial_state, {"configurable": {"streaming": True}}, stream_mode="custom"):
-        yield chunk
+    final_state = None
+    async for event in app.astream(initial_state, {"configurable": {"streaming": True}}, stream_mode=["custom", "values"]):
+        mode, payload = event
+        if mode == "custom":
+            yield payload
+        elif mode == "values":
+            final_state = payload
+    if final_state is not None:
+        yield {"phase": "result", "result": _build_result(final_state, message)}

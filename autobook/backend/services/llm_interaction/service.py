@@ -3,10 +3,10 @@
 Orchestrates:
 1. Regex language detection (Korean vs English)
 2. Translation prompt (Korean → English, only if needed)
-3. Agent service (English text → journal entry)
-4. Translate-back prompt (English entry → Korean, only if input was Korean)
+3. Enqueue to SQS-agent (with streaming flag)
+4. Translate-back prompt (English entry → Korean, called by worker after agent completes)
 
-Called synchronously from the API route — not a queue worker.
+API server calls enqueue(). Worker calls translate_entry_to_korean() post-agent.
 """
 
 from __future__ import annotations
@@ -14,11 +14,12 @@ from __future__ import annotations
 import json
 import logging
 import re
+import uuid
 
 import boto3
 
 from config import get_settings
-from services.agent.service import execute as agent_execute
+from queues.sqs.enqueue import agent as enqueue_agent
 
 logger = logging.getLogger(__name__)
 
@@ -70,33 +71,10 @@ def _translate_to_english(client, model_id: str, korean_text: str) -> str:
     )
 
 
-def _build_entry_via_agent(english_text: str) -> dict | None:
-    """Call the agent service and reshape its output to {description, lines}."""
-    message = {"input_text": english_text}
-    result = agent_execute(message)
-
-    if result.get("decision") != "PROCEED":
-        return None
-
-    entry = result.get("entry")
-    if not entry or not entry.get("lines"):
-        return None
-
-    return {
-        "description": english_text,
-        "lines": [
-            {
-                "account_code": line.get("account_code", ""),
-                "account_name": line.get("account_name", ""),
-                "type": line.get("type", "debit"),
-                "amount": float(line.get("amount", 0)),
-            }
-            for line in entry["lines"]
-        ],
-    }
-
-
-def _translate_entry_to_korean(client, model_id: str, entry: dict) -> dict:
+def translate_entry_to_korean(english_entry: dict) -> dict:
+    """Translate an English journal entry to Korean. Called by worker post-agent."""
+    client = _get_client()
+    model_id = _get_model_id()
     raw = _invoke(
         client,
         model_id,
@@ -104,35 +82,35 @@ def _translate_entry_to_korean(client, model_id: str, entry: dict) -> dict:
         "from English to Korean. Translate the description and all account_name values. "
         "Keep account_code, type, and amount unchanged.\n\n"
         "Return ONLY a JSON object with the same structure, nothing else.",
-        json.dumps(entry, ensure_ascii=False),
+        json.dumps(english_entry, ensure_ascii=False),
     )
     return json.loads(_strip_fences(raw))
 
 
-def execute(input_text: str) -> dict:
-    """Run the bilingual entry builder pipeline."""
+def enqueue(input_text: str, user_id: str) -> dict:
+    """Detect language, translate if needed, enqueue to agent, return metadata."""
     lang = detect_language(input_text)
-    client = _get_client()
-    model_id = _get_model_id()
+    parse_id = f"llm_{uuid.uuid4().hex[:12]}"
 
-    # Step 1: Get English text
     if lang == "ko":
+        client = _get_client()
+        model_id = _get_model_id()
         english_text = _translate_to_english(client, model_id, input_text)
     else:
         english_text = input_text
 
-    # Step 2: Build entry via agent service
-    english_entry = _build_entry_via_agent(english_text)
-
-    # Step 3: Translate entry back to Korean if needed
-    korean_entry = None
-    if lang == "ko" and english_entry:
-        korean_entry = _translate_entry_to_korean(client, model_id, english_entry)
+    enqueue_agent({
+        "parse_id": parse_id,
+        "user_id": user_id,
+        "input_text": english_text,
+        "source": "llm_interaction",
+        "streaming": True,
+        "original_input_text": input_text,
+        "detected_language": lang,
+    })
 
     return {
-        "input_text": input_text,
+        "parse_id": parse_id,
         "detected_language": lang,
         "english_text": english_text,
-        "english_entry": english_entry,
-        "korean_entry": korean_entry,
     }

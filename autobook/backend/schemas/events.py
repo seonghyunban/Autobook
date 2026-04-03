@@ -74,3 +74,14 @@ class PipelineErrorEvent(BaseModel):
     stage: str
     error: str
     occurred_at: str
+
+
+class AgentStreamEvent(BaseModel):
+    type: str = "agent.stream"
+    parse_id: str
+    user_id: str
+    agent: str
+    phase: str
+    text: str | None = None
+    label: str | None = None
+    occurred_at: str

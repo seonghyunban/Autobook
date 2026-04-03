@@ -3,13 +3,17 @@
 Flow:
   LLM (agent service) → posting + flywheel (if PROCEED)
                        → resolution (if MISSING_INFO or STUCK)
+
+Supports streaming: if message has "streaming": true, publishes
+per-chunk stream events to Redis for SSE delivery.
 """
 
+import asyncio
 import json
 import logging
 
 from queues.pubsub import pub
-from services.agent.service import execute as agent_execute
+from services.agent.service import execute as agent_execute, execute_stream
 from services.flywheel.service import execute as flywheel_execute
 from services.posting.service import execute as posting_execute
 from services.resolution.service import execute as resolution_execute
@@ -19,6 +23,59 @@ logger = logging.getLogger(__name__)
 logger.setLevel(logging.INFO)
 
 STAGE = "llm"
+
+
+def _run_streaming(message: dict) -> dict:
+    """Run agent with streaming, publish chunks to Redis. Returns final result."""
+    parse_id = message["parse_id"]
+    user_id = message["user_id"]
+    result = None
+
+    async def _stream():
+        nonlocal result
+        async for chunk in execute_stream(message):
+            if chunk.get("phase") == "result":
+                result = chunk["result"]
+            else:
+                pub.agent_stream(parse_id=parse_id, user_id=user_id, chunk=chunk)
+
+    asyncio.run(_stream())
+    return result
+
+
+def _handle_result(result: dict, message: dict) -> None:
+    """Route agent result to posting/resolution or publish for LLM interaction."""
+    decision = result.get("decision", "PROCEED")
+    source = message.get("source")
+
+    if source == "llm_interaction":
+        pub.pipeline_result(
+            parse_id=result.get("parse_id") or message["parse_id"],
+            user_id=result.get("user_id") or message["user_id"],
+            stage="agent",
+            result=result,
+        )
+        return
+
+    if decision == "PROCEED":
+        pub.stage_started(
+            parse_id=result["parse_id"],
+            user_id=result["user_id"],
+            stage="post-llm",
+        )
+        posted = posting_execute(result)
+        if posted is not None:
+            flywheel_execute(posted)
+
+    elif decision in {"MISSING_INFO", "STUCK"}:
+        set_status_sync(
+            parse_id=result["parse_id"],
+            user_id=result["user_id"],
+            status="processing",
+            stage="clarification_pending",
+            input_text=result.get("input_text"),
+        )
+        resolution_execute(result)
 
 
 def handler(event, context):
@@ -37,28 +94,13 @@ def handler(event, context):
                 user_id=message["user_id"],
                 stage=STAGE,
             )
-            result = agent_execute(message)
-            decision = result.get("decision", "PROCEED")
 
-            if decision == "PROCEED":
-                pub.stage_started(
-                    parse_id=result["parse_id"],
-                    user_id=result["user_id"],
-                    stage="post-llm",
-                )
-                posted = posting_execute(result)
-                if posted is not None:
-                    flywheel_execute(posted)
+            if message.get("streaming"):
+                result = _run_streaming(message)
+            else:
+                result = agent_execute(message)
 
-            elif decision in {"MISSING_INFO", "STUCK"}:
-                set_status_sync(
-                    parse_id=result["parse_id"],
-                    user_id=result["user_id"],
-                    status="processing",
-                    stage="clarification_pending",
-                    input_text=result.get("input_text"),
-                )
-                resolution_execute(result)
+            _handle_result(result, message)
 
         except Exception as exc:
             logger.exception("Agent failed for %s", message.get("parse_id"))

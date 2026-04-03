@@ -4,7 +4,7 @@ from fastapi import APIRouter, Depends, HTTPException, status
 
 from auth.deps import AuthContext, get_current_user
 from schemas.llm import LLMInteractionRequest, LLMInteractionResponse
-from services.llm_interaction.service import execute
+from services.llm_interaction.service import enqueue
 
 logger = logging.getLogger(__name__)
 
@@ -22,9 +22,9 @@ def llm_interaction(
             detail="input_text must not be empty",
         )
     try:
-        result = execute(body.input_text.strip())
+        result = enqueue(body.input_text.strip(), str(current_user.user.id))
     except Exception:
-        logger.exception("LLM interaction failed")
+        logger.exception("LLM interaction enqueue failed")
         raise HTTPException(
             status_code=status.HTTP_502_BAD_GATEWAY,
             detail="LLM processing failed",
