@@ -49,6 +49,7 @@ RUN --mount=type=cache,target=/root/.cache/uv \
     uv sync --frozen --no-dev --no-install-project --extra api
 
 COPY backend/api/ backend/api/
+COPY backend/services/llm_interaction/ backend/services/llm_interaction/
 USER app
 EXPOSE 8000
 CMD ["uvicorn", "api.main:app", "--host", "0.0.0.0", "--port", "8000"]
@@ -58,7 +59,7 @@ CMD ["uvicorn", "api.main:app", "--host", "0.0.0.0", "--port", "8000"]
 FROM autobook-accounting AS autobook-fast-path
 
 RUN --mount=type=cache,target=/root/.cache/uv \
-    uv sync --frozen --no-dev --no-install-project --extra normalizer --extra ml-inference --extra flywheel
+    uv sync --frozen --no-dev --no-install-project --extra normalizer --extra ml-inference --extra flywheel --extra precedent
 
 COPY backend/services/normalizer/ backend/services/normalizer/
 COPY backend/services/precedent/ backend/services/precedent/
