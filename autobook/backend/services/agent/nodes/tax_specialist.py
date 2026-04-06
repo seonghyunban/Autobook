@@ -1,6 +1,6 @@
 """Tax Specialist — determines tax treatment from transaction text.
 
-Output: TaxSpecialistOutput {reasoning, tax_mentioned, taxable, tax_context, tax_rate, add_tax_lines, treatment}
+Output: TaxSpecialistOutput {reasoning, tax_mentioned, classification, itc_eligible, amount_tax_inclusive, tax_rate, tax_context}
 """
 from typing import Literal
 
@@ -19,22 +19,22 @@ from services.agent.utils.llm import get_llm, invoke_structured
 class TaxSpecialistOutput(BaseModel):
     reasoning: str = Field(description="Concise: what the transaction text says about tax and what treatment applies")
     tax_mentioned: bool = Field(description="True if the transaction text explicitly mentions tax")
-    taxable: bool = Field(description="Supplementary metadata: true if this supply category is subject to tax. Not an instruction to add tax lines.")
+    classification: Literal["taxable", "zero_rated", "exempt", "out_of_scope"] = Field(description="Tax classification of the supply: taxable (standard rate), zero_rated (0% but ITC claimable), exempt (no tax, no ITC), out_of_scope (not a taxable supply)")
+    itc_eligible: bool = Field(description="True if the business can claim an Input Tax Credit on this tax")
+    amount_tax_inclusive: bool = Field(description="True if the stated transaction amount already includes tax")
+    tax_rate: float | None = Field(default=None, description="Applicable tax rate, e.g. 0.13 for 13% HST Ontario")
     tax_context: str | None = Field(default=None, description="Brief tax context for the entry drafter: what tax applies, which components are taxable, any special rules")
-    tax_rate: float | None = Field(default=None, description="Tax rate from the transaction text, e.g. 0.10 for 10%")
-    add_tax_lines: bool = Field(description="True if the entry should include separate tax lines. False means no tax lines regardless of taxability.")
-    treatment: Literal["recoverable", "non_recoverable", "not_applicable"] = Field(description="How to record the tax: as receivable, as part of expense, or not applicable")
 
 
 # ── Stream helpers ──────────────────────────────────────────────────────
 
-def _write_start(writer, agent: str) -> None:
+def _write_start(writer) -> None:
     if writer is None:
         return
-    writer({"agent": agent, "phase": "started"})
+    writer({"action": "chunk.create", "section": "tax", "label": "Considering tax applicability..."})
 
 
-def _write_complete(writer, agent: str, output: dict) -> None:
+def _write_complete(writer, output: dict) -> None:
     """Stream the tax output leaf by leaf in display order."""
     if writer is None:
         return
@@ -42,15 +42,15 @@ def _write_complete(writer, agent: str, output: dict) -> None:
         render_tax_detection, render_tax_context,
         render_tax_reasoning, render_tax_decision,
     )
-    writer({"agent": agent, "phase": "tax_detection", "text": render_tax_detection(output.get("tax_mentioned", False), output.get("taxable", False))})
+    writer({"action": "block.text", "section": "tax", "text": render_tax_detection(output.get("tax_mentioned", False), output.get("classification", "out_of_scope"))})
     ctx = render_tax_context(output.get("tax_context"))
     if ctx:
-        writer({"agent": agent, "phase": "tax_context", "text": ctx})
+        writer({"action": "block.text", "section": "tax", "text": ctx})
     reasoning = render_tax_reasoning(output.get("reasoning", ""))
     if reasoning:
-        writer({"agent": agent, "phase": "tax_reasoning", "text": reasoning})
-    writer({"agent": agent, "phase": "tax_decision", "text": render_tax_decision(output.get("add_tax_lines", False), output.get("tax_rate"), output.get("treatment", ""))})
-    writer({"agent": agent, "phase": "done"})
+        writer({"action": "block.text", "section": "tax", "text": reasoning})
+    writer({"action": "block.text", "section": "tax", "text": render_tax_decision(output.get("classification", "out_of_scope"), output.get("itc_eligible", False), output.get("amount_tax_inclusive", False), output.get("tax_rate"))})
+    writer({"action": "chunk.done", "section": "tax", "label": "Tax consideration determined"})
 
 
 # ── Node ────────────────────────────────────────────────────────────────
@@ -59,12 +59,12 @@ def tax_specialist_node(state: PipelineState, config: RunnableConfig) -> dict:
     """Determine tax treatment for the transaction."""
     writer = get_stream_writer() if config.get("configurable", {}).get("streaming") else None
 
-    _write_start(writer, "tax_specialist")
+    _write_start(writer)
 
     messages = build_prompt(state)
     output = invoke_structured(get_llm(TAX_SPECIALIST, config), TaxSpecialistOutput, messages)
 
-    _write_complete(writer, "tax_specialist", output)
+    _write_complete(writer, output)
 
     return {
         "output_tax_specialist": output,
