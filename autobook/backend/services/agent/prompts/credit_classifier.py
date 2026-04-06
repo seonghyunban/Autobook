@@ -100,7 +100,9 @@ _TASK_REMINDER = """
 ## Task
 
 Classify the credit side. For each line, provide the reason and \
-IFRS taxonomy category. Same category = combine. Different = separate."""
+IFRS taxonomy category. Same category = combine. Different = separate.
+
+Output all free-text fields in the same language as the transaction text."""
 
 AGENT_INSTRUCTION = "\n".join([_ROLE, _PROCEDURE, _EXAMPLES, ])
 

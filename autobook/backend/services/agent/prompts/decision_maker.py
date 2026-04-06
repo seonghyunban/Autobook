@@ -243,7 +243,9 @@ Apply conventional terms as definitive resolutions. \
 Do not invent information absent from the text. \
 For unresolved ambiguities, show possible cases with entries. \
 For capability gaps, show the best attempt and explain the gap. \
-Synthesize into a final decision."""
+Synthesize into a final decision.
+
+Output all free-text fields in the same language as the transaction text."""
 
 # ── Assembly ─────────────────────────────────────────────────────────────
 

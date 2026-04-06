@@ -36,8 +36,9 @@ specificity of account classification. Your account name should be \
 equally or more specific than the classifier's category. You may use \
 the classifier's category directly when it is already the best \
 accounting practice name for the transaction.
-- <tax_context> is authoritative for whether tax lines should be added. \
-Only add tax lines if add_tax_lines is true.
+- <tax_context> is authoritative for tax treatment. \
+Only add tax lines if classification is "taxable" AND tax_rate is provided. \
+For zero_rated, exempt, or out_of_scope — never add tax lines.
 - <decision_maker_context> is authoritative for resolving ambiguities \
 and providing disambiguating context. Use it for account naming \
 and treatment decisions when available.
@@ -51,13 +52,15 @@ specific name when the transaction context warrants it. Do not \
 generalize to a broader name than the classifier provided.
 2. Infer amounts from the transaction text. For calculations \
 (PV, interest, allocation), use the calculator tool.
-3. Check the tax_context add_tax_lines field. \
-If add_tax_lines is true, add tax lines: use the provided rate and \
-compute the tax amount yourself with the calculator tool (apply the \
-rate to the correct base amount from the entry, not from fair values). \
-If add_tax_lines is false, do NOT add any tax lines — even if the \
-transaction is taxable or you know the applicable tax rate. \
-The tax specialist has already decided whether tax lines belong in this entry.
+3. Check the tax_context classification and tax_rate fields. \
+If classification is "taxable" and tax_rate is provided, add tax lines: \
+compute the tax amount with the calculator tool (apply the rate to the \
+correct base amount from the entry, not from fair values). \
+If itc_eligible is true, record tax as a receivable (e.g. HST Receivable). \
+If itc_eligible is false, include tax in the expense amount. \
+If amount_tax_inclusive is true, back-calculate tax from the total. \
+If classification is not "taxable" or tax_rate is null, do NOT add any \
+tax lines. The tax specialist has already determined the classification.
 4. Verify total debits = total credits."""
 
 # ── Examples ─────────────────────────────────────────────────────────────
@@ -161,7 +164,9 @@ Confidently build the journal entry from the given classifications \
 and transaction text. Name accounts from business purpose. \
 Use the calculator tool for computations. \
 Only add tax lines if add_tax_lines is true in the tax context. \
-Verify total debits = total credits."""
+Verify total debits = total credits.
+
+Output all free-text fields in the same language as the transaction text."""
 
 AGENT_INSTRUCTION = "\n".join([_ROLE, _PROCEDURE, _EXAMPLES, _INPUT_FORMAT, ])
 

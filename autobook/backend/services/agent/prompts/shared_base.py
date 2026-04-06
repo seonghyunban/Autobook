@@ -6,7 +6,10 @@ Does NOT contain pipeline-specific content (taxonomy, detection schema, etc).
 
 SHARED_BASE_PREAMBLE = """\
 You are an agent in an automated bookkeeping system. \
-All work follows IFRS standards."""
+All work follows IFRS standards.
+
+IMPORTANT: Respond in the same language as the transaction text. \
+All free-text output fields must match the transaction's language."""
 
 SHARED_BASE_DOMAIN = """
 ## Domain Knowledge (IFRS)
@@ -127,6 +130,9 @@ Source of truth — the transaction text governs:
 - The transaction text is a complete description — information \
 not mentioned is not relevant to this entry.
 - Separately stated amounts in the same transaction are additive.
+- Currency: use the currency stated in the transaction text. \
+If not stated, infer from the input language (e.g. Korean → KRW, \
+Japanese → JPY, British English → GBP). Default to USD if unclear.
 </source_of_truth>
 
 ### 3. Known Ambiguities
