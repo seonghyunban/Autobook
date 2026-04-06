@@ -8,20 +8,22 @@ from services.agent.graph.graph import app
 
 logger = logging.getLogger(__name__)
 
+CURRENCY_SYMBOLS = {
+    "USD": "$", "CAD": "C$", "EUR": "€", "GBP": "£",
+    "JPY": "¥", "CNY": "¥", "KRW": "₩", "CHF": "Fr",
+    "AUD": "A$", "NZD": "NZ$", "HKD": "HK$", "SGD": "S$",
+    "SEK": "kr", "NOK": "kr", "DKK": "kr", "MXN": "$",
+    "BRL": "R$", "INR": "₹", "TWD": "NT$", "THB": "฿",
+    "ZAR": "R", "TRY": "₺", "PLN": "zł", "RUB": "₽",
+}
+
 
 def _build_initial_state(message: dict) -> dict:
     """Build PipelineState from incoming queue message."""
     return {
         "transaction_text": message.get("input_text") or message.get("description") or "",
-        "user_context": {
-            "province": "ON",
-            "entity_type": "corporation",
-        },
-        "ml_enrichment": {
-            "intent_label": message.get("intent_label"),
-            "bank_category": message.get("bank_category"),
-            "entities": message.get("entities"),
-        },
+        "transaction_graph": message.get("graph"),
+        "user_context": message.get("user_context"),
         "output_decision_maker": None,
         "output_debit_classifier": None,
         "output_credit_classifier": None,
@@ -35,6 +37,15 @@ def _build_initial_state(message: dict) -> dict:
     }
 
 
+def _add_currency_symbol(entry: dict | None) -> dict | None:
+    """Add currency_symbol to an entry dict by mapping its ISO currency code."""
+    if not entry:
+        return entry
+    currency = entry.get("currency", "USD")
+    entry["currency_symbol"] = CURRENCY_SYMBOLS.get(currency, currency)
+    return entry
+
+
 def _build_result(final_state: dict, message: dict) -> dict:
     """Build decision-specific result from graph output.
 
@@ -42,16 +53,29 @@ def _build_result(final_state: dict, message: dict) -> dict:
     - PROCEED:      {decision, entry, proceed_reason, resolved_ambiguities, complexity_assessments}
     - MISSING_INFO: {decision, questions, ambiguities}
     - STUCK:        {decision, stuck_reason, capability_gaps}
+
+    If live_review is true, includes full pipeline state and graph for the review panel.
     """
     decision = final_state.get("decision") or "PROCEED"
     dm = final_state.get("output_decision_maker") or {}
 
     base = {**message, "decision": decision}
 
+    if message.get("live_review"):
+        base["pipeline_state"] = {
+            "transaction_text": final_state.get("transaction_text"),
+            "transaction_graph": final_state.get("transaction_graph"),
+            "output_decision_maker": dm,
+            "output_debit_classifier": final_state.get("output_debit_classifier"),
+            "output_credit_classifier": final_state.get("output_credit_classifier"),
+            "output_tax_specialist": final_state.get("output_tax_specialist"),
+            "output_entry_drafter": _add_currency_symbol(final_state.get("output_entry_drafter") or {}),
+        }
+
     if decision == "PROCEED":
         return {
             **base,
-            "entry": final_state.get("output_entry_drafter"),
+            "entry": _add_currency_symbol(final_state.get("output_entry_drafter") or {}),
             "proceed_reason": dm.get("proceed_reason"),
             "resolved_ambiguities": [
                 {
@@ -87,7 +111,7 @@ def _build_result(final_state: dict, message: dict) -> dict:
                     "cases": [
                         {
                             "case": c["case"],
-                            "possible_entry": c.get("possible_entry"),
+                            "possible_entry": _add_currency_symbol(c.get("possible_entry")),
                         }
                         for c in (a.get("cases") or [])
                     ],
@@ -105,7 +129,7 @@ def _build_result(final_state: dict, message: dict) -> dict:
             {
                 "aspect": f["aspect"],
                 "gap": f.get("gap"),
-                "best_attempt": f.get("best_attempt"),
+                "best_attempt": _add_currency_symbol(f.get("best_attempt")),
             }
             for f in dm.get("complexity_flags", [])
             if f.get("beyond_llm_capability")

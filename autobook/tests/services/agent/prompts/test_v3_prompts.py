@@ -76,11 +76,11 @@ def _base_state(**overrides):
         "output_tax_specialist": [{
             "reasoning": "No tax mentioned",
             "tax_mentioned": False,
-            "taxable": True,
-            "add_tax_lines": False,
+            "classification": "taxable",
+            "itc_eligible": False,
+            "amount_tax_inclusive": False,
             "tax_rate": None,
-            "tax_amount": None,
-            "treatment": "not_applicable",
+            "tax_context": None,
         }],
         "output_decision_maker": None,
         "output_entry_drafter": None,
@@ -374,16 +374,17 @@ class TestTaxSpecialistPrompt:
     def test_procedure_mentions_tax_mentioned_logic(self):
         assert "tax_mentioned" in tax_specialist._PROCEDURE
 
-    def test_procedure_mentions_add_tax_lines_logic(self):
-        assert "add_tax_lines" in tax_specialist._PROCEDURE
+    def test_procedure_mentions_classification(self):
+        assert "classification" in tax_specialist._PROCEDURE
 
-    def test_procedure_mentions_recoverable(self):
-        assert "recoverable" in tax_specialist._PROCEDURE
+    def test_procedure_mentions_itc(self):
+        assert "Input Tax Credit" in tax_specialist._PROCEDURE
 
     def test_examples_include_taxable_and_non_taxable(self):
         examples = tax_specialist._EXAMPLES
         assert "tax_mentioned\": true" in examples
         assert "tax_mentioned\": false" in examples
+        assert "classification" in examples
 
     def test_role_excludes_journal_entry_building(self):
         assert "Build the journal entry" in tax_specialist._ROLE
@@ -564,17 +565,17 @@ class TestEntryDrafterPrompt:
         tax = {
             "reasoning": "10% on supplies",
             "tax_mentioned": True,
-            "taxable": True,
-            "add_tax_lines": True,
+            "classification": "taxable",
+            "itc_eligible": True,
+            "amount_tax_inclusive": False,
             "tax_rate": 0.10,
-            "tax_amount": 50.0,
-            "treatment": "recoverable",
+            "tax_context": "10% tax on supplies",
         }
         result = entry_drafter.build_prompt(state, tax_output=tax)
         _assert_prompt_structure(result)
         human_text = _extract_human_text(result)
         assert "<tax_context>" in human_text
-        assert "recoverable" in human_text
+        assert "taxable" in human_text
 
     def test_build_prompt_with_tax_output_none_falls_back_to_state(self):
         state = _base_state()

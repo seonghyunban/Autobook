@@ -20,11 +20,36 @@ NOT_RUN = 0
 COMPLETE = 1
 
 
+# ── Transaction graph (mirrors normalization output) ─────────────────
+
+class NodeState(TypedDict):
+    index: int
+    name: str
+    role: str  # "reporting_entity" | "counterparty" | "indirect_party"
+
+
+class EdgeState(TypedDict):
+    source: str
+    source_index: int
+    target: str
+    target_index: int
+    nature: str
+    amount: float | None
+    currency: str | None
+    kind: str  # "reciprocal_exchange" | "chained_exchange" | "non_exchange" | "relationship"
+
+
+class TransactionGraphState(TypedDict):
+    nodes: list[NodeState]
+    edges: list[EdgeState]
+    raw_text: str
+
+
 class PipelineState(TypedDict):
     # ── Input ───────────────────────────────────────────────────────────
     transaction_text: str
-    user_context: dict
-    ml_enrichment: dict | None
+    transaction_graph: TransactionGraphState
+    user_context: dict | None
 
     # ── Agent outputs ───────────────────────────────────────────────────
     output_decision_maker: dict | None

@@ -44,6 +44,7 @@ def db_session():
     import db.models.tax
     import db.models.integration
     import db.models.shareholder_loan
+    import db.models.taxonomy
     from db.models.base import Base
 
     engine = create_engine(

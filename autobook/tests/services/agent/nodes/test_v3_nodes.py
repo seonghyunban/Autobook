@@ -270,20 +270,20 @@ class TestTaxSpecialistNode:
         output = {
             "reasoning": "HST applies at 13%",
             "tax_mentioned": True,
-            "taxable": True,
-            "add_tax_lines": True,
+            "classification": "taxable",
+            "itc_eligible": True,
+            "amount_tax_inclusive": False,
             "tax_rate": 0.13,
-            "tax_amount": 260.0,
-            "treatment": "recoverable",
+            "tax_context": "13% HST on purchase",
         }
         with patch("services.agent.nodes.tax_specialist.invoke_structured", return_value=output), \
              patch("services.agent.nodes.tax_specialist.get_llm", return_value=MagicMock()):
             result = tax_specialist_node(state, {})
 
         assert result["status_tax_specialist"] == COMPLETE
-        assert result["output_tax_specialist"][0]["taxable"] is True
+        assert result["output_tax_specialist"][0]["classification"] == "taxable"
         assert result["output_tax_specialist"][0]["tax_rate"] == 0.13
-        assert result["output_tax_specialist"][0]["treatment"] == "recoverable"
+        assert result["output_tax_specialist"][0]["itc_eligible"] is True
 
     def test_non_taxable_transaction(self):
         """Non-taxable transaction (e.g. salary)."""
@@ -293,19 +293,19 @@ class TestTaxSpecialistNode:
         output = {
             "reasoning": "Salaries are not subject to sales tax",
             "tax_mentioned": False,
-            "taxable": False,
-            "add_tax_lines": False,
+            "classification": "out_of_scope",
+            "itc_eligible": False,
+            "amount_tax_inclusive": False,
             "tax_rate": None,
-            "tax_amount": None,
-            "treatment": "not_applicable",
+            "tax_context": None,
         }
         with patch("services.agent.nodes.tax_specialist.invoke_structured", return_value=output), \
              patch("services.agent.nodes.tax_specialist.get_llm", return_value=MagicMock()):
             result = tax_specialist_node(state, {})
 
         assert result["status_tax_specialist"] == COMPLETE
-        assert result["output_tax_specialist"][0]["taxable"] is False
-        assert result["output_tax_specialist"][0]["treatment"] == "not_applicable"
+        assert result["output_tax_specialist"][0]["classification"] == "out_of_scope"
+        assert result["output_tax_specialist"][0]["itc_eligible"] is False
 
     def test_non_recoverable_tax(self):
         """Tax is non-recoverable (e.g. meals entertainment)."""
@@ -315,17 +315,18 @@ class TestTaxSpecialistNode:
         output = {
             "reasoning": "50% of meal tax is non-recoverable",
             "tax_mentioned": True,
-            "taxable": True,
-            "add_tax_lines": True,
+            "classification": "taxable",
+            "itc_eligible": False,
+            "amount_tax_inclusive": False,
             "tax_rate": 0.13,
-            "tax_amount": 65.0,
-            "treatment": "non_recoverable",
+            "tax_context": "Meal entertainment — ITC not claimable",
         }
         with patch("services.agent.nodes.tax_specialist.invoke_structured", return_value=output), \
              patch("services.agent.nodes.tax_specialist.get_llm", return_value=MagicMock()):
             result = tax_specialist_node(state, {})
 
-        assert result["output_tax_specialist"][0]["treatment"] == "non_recoverable"
+        assert result["output_tax_specialist"][0]["itc_eligible"] is False
+        assert result["output_tax_specialist"][0]["classification"] == "taxable"
 
     def test_skip_when_complete(self):
         """Copies previous output when status is COMPLETE."""
@@ -333,9 +334,9 @@ class TestTaxSpecialistNode:
 
         state = _make_state(iteration=1)
         state["status_tax_specialist"] = COMPLETE
-        prev_output = {"reasoning": "prev", "tax_mentioned": False, "taxable": False,
-                       "add_tax_lines": False, "tax_rate": None, "tax_amount": None,
-                       "treatment": "not_applicable"}
+        prev_output = {"reasoning": "prev", "tax_mentioned": False,
+                       "classification": "out_of_scope", "itc_eligible": False,
+                       "amount_tax_inclusive": False, "tax_rate": None, "tax_context": None}
         state["output_tax_specialist"] = [prev_output]
 
         result = tax_specialist_node(state, {})
