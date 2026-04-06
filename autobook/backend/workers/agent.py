@@ -16,7 +16,6 @@ from queues.pubsub import pub
 from services.agent.service import execute as agent_execute, execute_stream
 from services.flywheel.service import execute as flywheel_execute
 from services.posting.service import execute as posting_execute
-from services.resolution.service import execute as resolution_execute
 from services.shared.parse_status import record_batch_result_sync, set_status_sync
 
 logger = logging.getLogger(__name__)
@@ -75,7 +74,6 @@ def _handle_result(result: dict, message: dict) -> None:
             stage="clarification_pending",
             input_text=result.get("input_text"),
         )
-        resolution_execute(result)
 
 
 def handler(event, context):
