@@ -27,7 +27,7 @@ logging.basicConfig(level=logging.INFO, format="%(asctime)s %(name)s %(levelname
 logger = logging.getLogger("fast_path")
 
 settings = get_settings()
-QUEUE_URL = settings.SQS_QUEUE_NORMALIZER  # will be renamed to SQS_QUEUE_FAST_PATH
+QUEUE_URL = settings.SQS_QUEUE_FAST_PATH
 MAX_THREADS = int(getattr(settings, "FAST_PATH_THREADS", 50))
 
 _shutdown = threading.Event()
