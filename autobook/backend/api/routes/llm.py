@@ -22,7 +22,7 @@ def llm_interaction(
             detail="input_text must not be empty",
         )
     try:
-        result = enqueue(body.input_text.strip(), str(current_user.user.id))
+        result = enqueue(body.parse_id, body.input_text.strip(), str(current_user.user.id), live_review=True)
     except Exception:
         logger.exception("LLM interaction enqueue failed")
         raise HTTPException(

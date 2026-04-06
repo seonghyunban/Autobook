@@ -1,395 +1,84 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { submitLLMInteraction } from "../api/llm";
 import { subscribeToRealtimeUpdates, ensureConnection } from "../api/realtime";
-import type { LLMInteractionResponse, JournalLine, RealtimeEvent } from "../api/types";
+import type { LLMInteractionResponse, JournalLine, RealtimeEvent, AgentResult } from "../api/types";
+import s from "./LLMInteractionPage.module.css";
 
-// ── Palette (raw hex only) ────────────────────────────────
-const palette = {
-  floralWhite: "#FFFCF2",
-  silver: "#CCC5B9",
-  charcoalBrown: "#403D39",
-  carbonBlack: "#252422",
-  spicyPaprika: "#EB5E28",
-  hunterGreen: "#31572C",
-  fern: "#4F772D",
-  palmLeaf: "#90A955",
-} as const;
+// ── Shared tokens & components ───────────────────────────
+import { MOTION, palette, T, panel, PanelHeader, HoverButton } from "./llm-interaction/shared";
 
-// ── Component tokens ─────────────────────────────────────
-const T = {
-  pageBg: palette.floralWhite,
-  pageText: palette.charcoalBrown,
-  pageFont: "system-ui, sans-serif",
+// ── Reasoning panel ──────────────────────────────────────
+import {
+  ReasoningSection,
+  SECTION_ORDER,
+} from "./llm-interaction/reasoning_panel";
+import type {
+  EntryLineData,
+  ReasoningChunk,
+  SectionId,
+} from "./llm-interaction/reasoning_panel";
 
-  panelBg: "rgba(204, 197, 185, 0.2)",
-  panelRadius: 12,
-  panelPadding: "20px 22px",
-  panelShadow: "0 2px 6px rgba(0, 0, 0, 0.2), 0 6px 16px rgba(0, 0, 0, 0.15)",
-  panelGap: 12,
+// ── Review panel ─────────────────────────────────────────
+import {
+  TransactionAnalysisContainer,
+  AmbiguityReviewContainer,
+  TaxReviewContainer,
+  FinalEntryReviewContainer,
+  ReviewSectionContainer,
+  REVIEW_SECTIONS,
+} from "./llm-interaction/review_panel";
+import { DUMMY_AGENT_RESULT, EMPTY_AGENT_RESULT } from "./llm-interaction/dummyData";
+import { TransactionDisplay } from "./llm-interaction/shared/TransactionDisplay";
 
-  textPrimary: palette.carbonBlack,
-  textSecondary: palette.charcoalBrown,
-  textMuted: "rgba(204, 197, 185, 0.5)",
+// ── Entry panel ──────────────────────────────────────────
+import { EntryTable, DecisionOverlay } from "./llm-interaction/entry_panel";
 
-  inputBorder: "rgba(204, 197, 185, 0.25)",
-  inputBg: palette.carbonBlack,
-  inputRadius: 6,
-
-  buttonBg: palette.spicyPaprika,
-  buttonBgDisabled: "rgba(204, 197, 185, 0.3)",
-  buttonText: "#fff",
-  buttonRadius: 6,
-
-  badgeBg: palette.spicyPaprika,
-  badgeText: "#fff",
-
-  debitBg: "rgba(235, 94, 40, 0.15)",
-  debitText: "#F4845F",
-  creditBg: "rgba(45, 122, 58, 0.15)",
-  creditText: "#6BCB77",
-
-  errorBg: "rgba(192, 57, 43, 0.15)",
-  errorText: "#F4845F",
-
-  eyebrow: palette.spicyPaprika,
-
-  tableBorder: "rgba(204, 197, 185, 0.2)",
-  tableRowBorder: "rgba(204, 197, 185, 0.08)",
-} as const;
-
-// ── Shared panel style ───────────────────────────────────
-const panel: React.CSSProperties = {
-  background: T.panelBg,
-  backdropFilter: "blur(16px)",
-  WebkitBackdropFilter: "blur(16px)",
-  borderRadius: T.panelRadius,
-  padding: T.panelPadding,
-  display: "flex",
-  flexDirection: "column",
-  gap: T.panelGap,
-  boxShadow: T.panelShadow,
-  border: "1px solid rgba(204, 197, 185, 0.1)",
-};
-
-function PanelHeader({ title, help }: { title: React.ReactNode; help: React.ReactNode }) {
-  return (
-    <div style={{ display: "flex", alignItems: "baseline", gap: 10, overflow: "hidden", whiteSpace: "nowrap" }}>
-      <h2 style={{ margin: 0, fontSize: 15, fontWeight: 600, color: T.textPrimary, flexShrink: 0 }}>
-        {title}
-      </h2>
-      <p style={{ margin: 0, fontSize: 13, color: T.textSecondary, overflow: "hidden", textOverflow: "ellipsis" }}>{help}</p>
-    </div>
-  );
-}
-
-// ── Reasoning types ──────────────────────────────────────
-
-type ReasoningChunk =
-  | { type: "line"; label: string; content: string[]; done: boolean }
-  | { type: "collapsible"; label: string; header: string; details: string[]; done: boolean };
-
-type SectionId = "ambiguity" | "gap" | "proceed" | "debit" | "credit" | "tax" | "entry";
-
-const SECTION_ORDER: SectionId[] = ["ambiguity", "gap", "proceed", "debit", "credit", "tax", "entry"];
-
-// ── Reasoning chunk components ───────────────────────────
-
-function ChunkIcon({ done }: { done: boolean }) {
-  return (
-    <span
-      className={done ? undefined : "llm-star-pulse"}
-      style={{ fontSize: 11, lineHeight: 1, flexShrink: 0, color: palette.spicyPaprika }}
-    >
-      {done ? "✦" : "✧"}
-    </span>
-  );
-}
-
-const blockStyle: React.CSSProperties = {
-  background: "rgba(204, 197, 185, 0.15)",
-  borderRadius: 4,
-  padding: "6px 8px",
-  fontSize: 12,
-  lineHeight: 1.5,
-  color: T.textSecondary,
-  wordBreak: "break-word",
-  overflow: "hidden",
-};
-
-function Chunk({ label, done, children }: {
-  label: string;
-  done: boolean;
-  children?: React.ReactNode;
-}) {
-  return (
-    <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
-      <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
-        <ChunkIcon done={done} />
-        <span style={{ fontSize: 12, fontWeight: 600, color: T.textPrimary }}>{label}</span>
-      </div>
-      {children && <div style={{ paddingLeft: 10 }}>{children}</div>}
-    </div>
-  );
-}
-
-function Block({ children }: { children: React.ReactNode }) {
-  return <div style={blockStyle}>{children}</div>;
-}
-
-function CollapsibleBlock({ header, children, defaultOpen = false }: {
-  header: string;
-  children: React.ReactNode;
-  defaultOpen?: boolean;
-}) {
-  const [open, setOpen] = useState(defaultOpen);
-  return (
-    <div style={blockStyle}>
-      <div
-        onClick={() => setOpen((v) => !v)}
-        style={{ display: "flex", alignItems: "center", gap: 6, cursor: "pointer", userSelect: "none" }}
-      >
-        <span style={{ flex: 1, fontSize: 12, fontWeight: 500, color: T.textPrimary }}>{header}</span>
-        <span style={{ fontSize: 10, lineHeight: 1, flexShrink: 0, color: palette.spicyPaprika }}>
-          {open ? "◀" : "▼"}
-        </span>
-      </div>
-      <div style={{
-        maxHeight: open ? 1000 : 0,
-        opacity: open ? 1 : 0,
-        overflow: "hidden",
-        transition: open
-          ? "max-height 0.2s ease, opacity 0.2s ease 0.2s, margin-top 0.2s ease"
-          : "opacity 0.2s ease, max-height 0.2s ease 0.2s, margin-top 0.2s ease 0.2s",
-        marginTop: open ? 4 : 0,
-      }}>
-        {children}
-      </div>
-    </div>
-  );
-}
-
-function BulletLine({ children }: { children: React.ReactNode }) {
-  return (
-    <div style={{ display: "flex", gap: 6, background: "rgba(204, 197, 185, 0.2)", borderRadius: 3, padding: "3px 6px" }}>
-      <span style={{ width: 12, flexShrink: 0, textAlign: "center", color: palette.charcoalBrown, fontSize: 8, lineHeight: "18px" }}>●</span>
-      <div style={{ flex: 1 }}>{children}</div>
-    </div>
-  );
-}
-
-function ReasoningSection({ chunks }: { chunks: ReasoningChunk[] }) {
-  if (chunks.length === 0) return null;
-  return (
-    <div style={{ display: "flex", flexDirection: "column", gap: 14 }}>
-      {chunks.map((chunk, i) =>
-        chunk.type === "line" ? (
-          <Chunk key={i} label={chunk.label} done={chunk.done}>
-            {chunk.content.length > 0 && (
-              <Block>
-                {chunk.content.map((line, j) => <div key={j}>{line}</div>)}
-              </Block>
-            )}
-          </Chunk>
-        ) : (
-          <Chunk key={i} label={chunk.label} done={chunk.done}>
-            <CollapsibleBlock header={chunk.header}>
-              {chunk.details.map((line, j) => <BulletLine key={j}>{line}</BulletLine>)}
-            </CollapsibleBlock>
-          </Chunk>
-        )
-      )}
-    </div>
-  );
-}
-
-const MIN_ROWS = 12;
-
-function EntryTable({ lines, scrollRef, onScroll }: {
-  lines: JournalLine[];
-  scrollRef?: React.Ref<HTMLDivElement>;
-  onScroll?: React.UIEventHandler<HTMLDivElement>;
-}) {
-  const emptyRows = Math.max(0, MIN_ROWS - lines.length);
-  const totalDebit = lines.filter(l => l.type === "debit").reduce((s, l) => s + l.amount, 0);
-  const totalCredit = lines.filter(l => l.type === "credit").reduce((s, l) => s + l.amount, 0);
-  const tableStyle: React.CSSProperties = {
-    width: "100%",
-    borderCollapse: "separate",
-    borderSpacing: "5px 3px",
-    fontSize: 13,
-    tableLayout: "fixed",
-  };
-  const colWidths = ["50%", "25%", "25%"];
-  const cellRadius = 4;
-  const cellBg = [`${palette.hunterGreen}1A`, `${palette.fern}1A`, `${palette.palmLeaf}1A`];
-  const cellBgFilled = [`${palette.hunterGreen}33`, `${palette.fern}33`, `${palette.palmLeaf}33`];
-  const totalBg = ["#7F7F7F1A", "#A5A5A51A", "#CCCCCC1A"];
-  const totalBgFilled = ["#7F7F7F4D", "#A5A5A54D", "#CCCCCC4D"];
-
-  return (
-    <div style={{ display: "flex", flexDirection: "column", flex: 1, minHeight: 0 }}>
-      {/* Fixed header — matching scrollbar gutter */}
-      <div style={{ overflowY: "scroll", flexShrink: 0 }} className="llm-textarea">
-      <table style={{ ...tableStyle }}>
-        <colgroup>
-          {colWidths.map((w, i) => <col key={i} style={{ width: w }} />)}
-        </colgroup>
-        <thead>
-          <tr>
-            {["Account", "Debit", "Credit"].map((h, i) => (
-              <th
-                key={h}
-                style={{
-                  textAlign: i === 0 ? "left" : "right",
-                  padding: "8px 10px",
-                  color: "rgba(37, 36, 34, 0.9)",
-                  background: [`${palette.hunterGreen}B3`, `${palette.fern}B3`, `${palette.palmLeaf}B3`][i],
-                  fontWeight: 600,
-                  whiteSpace: "nowrap",
-                  borderRadius: 4,
-                }}
-              >
-                {h}
-              </th>
-            ))}
-          </tr>
-        </thead>
-      </table>
-      </div>
-      {/* Scrollable body */}
-      <div ref={scrollRef} onScroll={onScroll} className="llm-textarea" style={{ flex: 1, overflow: "auto", minHeight: 0 }}>
-        <table style={tableStyle}>
-          <colgroup>
-            {colWidths.map((w, i) => <col key={i} style={{ width: w }} />)}
-          </colgroup>
-          <tbody>
-            {lines.map((line, i) => (
-              <tr key={i}>
-                <td style={{ padding: "8px 10px", color: "rgba(37, 36, 34, 0.8)", borderRadius: cellRadius, background: cellBgFilled[0], position: "relative" }}>
-                  <span style={{ display: "flex", alignItems: "center", minHeight: 28 }}>
-                    <span style={{ fontSize: 13, opacity: 0.8, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{line.account_name}</span>
-                  </span>
-                  <span style={{ position: "absolute", bottom: 4, right: 8, fontSize: 10, fontWeight: 600, opacity: 0.4 }}>{line.account_code}</span>
-                </td>
-                <td
-                  style={{
-                    padding: "8px 10px",
-                    textAlign: "right",
-                    fontFamily: "monospace",
-                    color: "rgba(37, 36, 34, 0.8)",
-                    borderRadius: cellRadius,
-                    background: line.type === "debit" ? cellBgFilled[1] : cellBg[1],
-                  }}
-                >
-                  {line.type === "debit" ? `$${line.amount.toFixed(2)}` : ""}
-                </td>
-                <td
-                  style={{
-                    padding: "8px 10px",
-                    textAlign: "right",
-                    fontFamily: "monospace",
-                    color: "rgba(37, 36, 34, 0.8)",
-                    borderRadius: cellRadius,
-                    background: line.type === "credit" ? cellBgFilled[2] : cellBg[2],
-                  }}
-                >
-                  {line.type === "credit" ? `$${line.amount.toFixed(2)}` : ""}
-                </td>
-              </tr>
-            ))}
-            {Array.from({ length: emptyRows }, (_, i) => (
-              <tr key={`empty-${i}`}>
-                <td style={{ padding: "8px 10px", borderRadius: cellRadius, background: cellBg[0] }}>&nbsp;</td>
-                <td style={{ padding: "8px 10px", borderRadius: cellRadius, background: cellBg[1] }} />
-                <td style={{ padding: "8px 10px", borderRadius: cellRadius, background: cellBg[2] }} />
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      </div>
-      {/* Total row — fixed below scrollable body */}
-      <div style={{ overflowY: "scroll", flexShrink: 0 }} className="llm-textarea">
-        <table style={tableStyle}>
-          <colgroup>
-            {colWidths.map((w, i) => <col key={i} style={{ width: w }} />)}
-          </colgroup>
-          <tbody>
-            <tr>
-              <td style={{
-                padding: "8px 10px",
-                borderRadius: cellRadius,
-                background: (totalDebit > 0 || totalCredit > 0) ? totalBgFilled[0] : totalBg[0],
-                fontSize: 13,
-                color: "rgba(37, 36, 34, 0.8)",
-                textAlign: "right",
-              }}>
-                Total
-              </td>
-              <td style={{
-                padding: "8px 10px",
-                textAlign: "right",
-                fontFamily: "monospace",
-                color: "rgba(37, 36, 34, 0.8)",
-                borderRadius: cellRadius,
-                background: totalDebit > 0 ? totalBgFilled[1] : totalBg[1],
-              }}>
-                {totalDebit > 0 ? `$${totalDebit.toFixed(2)}` : ""}
-              </td>
-              <td style={{
-                padding: "8px 10px",
-                textAlign: "right",
-                fontFamily: "monospace",
-                color: "rgba(37, 36, 34, 0.8)",
-                borderRadius: cellRadius,
-                background: totalCredit > 0 ? totalBgFilled[2] : totalBg[2],
-              }}>
-                {totalCredit > 0 ? `$${totalCredit.toFixed(2)}` : ""}
-              </td>
-            </tr>
-          </tbody>
-        </table>
-      </div>
-    </div>
-  );
-}
 
 export function LLMInteractionPage() {
   const [inputText, setInputText] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [result, setResult] = useState<LLMInteractionResponse | null>(null);
-  const [entryLines, setEntryLines] = useState<JournalLine[]>([]);
-  const [entryDescription, setEntryDescription] = useState("");
-  const [showEnglish, setShowEnglish] = useState(false);
+  const [agentResult, setAgentResult] = useState<AgentResult>(DUMMY_AGENT_RESULT);
+  const [overlayVisible, setOverlayVisible] = useState(false);
+  const [showReviewModal, setShowReviewModal] = useState(false);
+  const [reviewModalVisible, setReviewModalVisible] = useState(false);
+  const [showReviewHelp, setShowReviewHelp] = useState(false);
+  const [reviewStep, setReviewStep] = useState(0);
+  const [windowResizing, setWindowResizing] = useState(false);
   const [showReasoning, setShowReasoning] = useState(true);
   const [reasoningWidth, setReasoningWidth] = useState(320);
+  const [reasoningFullscreen, setReasoningFullscreen] = useState(false);
+  const [reasoningFullscreenAnimating, setReasoningFullscreenAnimating] = useState(false);
+  const [graphLayoutVersion, setGraphLayoutVersion] = useState(0);
+  const [reasoningExiting, setReasoningExiting] = useState(false);
+  const savedReasoningWidth = useRef(320);
+  const reasoningSectionRef = useRef<HTMLDivElement>(null);
   const [isResizing, setIsResizing] = useState(false);
   const resizing = useRef(false);
   const mainContentRef = useRef<HTMLDivElement>(null);
   const parseIdRef = useRef<string | null>(null);
   const unsubRef = useRef<(() => void) | null>(null);
 
-  const emptyReasoning = (): Record<SectionId, ReasoningChunk[]> => ({
+  const dummyGraph = DUMMY_AGENT_RESULT.pipeline_state?.transaction_graph;
+
+  const initialReasoning = (): Record<SectionId, ReasoningChunk[]> => ({
+    normalization: dummyGraph ? [{
+      label: "Transaction analyzed",
+      done: true,
+      blocks: [{ type: "graph" as const, tag: "Transaction structure", graph: dummyGraph as import("./llm-interaction/reasoning_panel").GraphBlockData }],
+    }] : [],
     ambiguity: [], gap: [], proceed: [], debit: [], credit: [], tax: [], entry: [],
   });
 
-  const [reasoningSections, setReasoningSections] = useState<Record<SectionId, ReasoningChunk[]>>(emptyReasoning);
+  const emptyReasoning = (): Record<SectionId, ReasoningChunk[]> => ({
+    normalization: [], ambiguity: [], gap: [], proceed: [], debit: [], credit: [], tax: [], entry: [],
+  });
+
+  const [reasoningSections, setReasoningSections] = useState<Record<SectionId, ReasoningChunk[]>>(initialReasoning);
   const scrollTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   const entryScrollRef = useRef<HTMLDivElement>(null);
-  const englishEntryScrollRef = useRef<HTMLDivElement>(null);
-  const syncing = useRef(false);
-
-  const syncScroll = useCallback((source: "entry" | "english") => {
-    if (syncing.current) return;
-    syncing.current = true;
-    const from = source === "entry" ? entryScrollRef.current : englishEntryScrollRef.current;
-    const to = source === "entry" ? englishEntryScrollRef.current : entryScrollRef.current;
-    if (from && to) {
-      to.scrollTop = from.scrollTop;
-    }
-    requestAnimationFrame(() => { syncing.current = false; });
-  }, []);
 
   const handleScroll = useCallback(() => {
     textareaRef.current?.classList.add("scrolling");
@@ -399,108 +88,159 @@ export function LLMInteractionPage() {
     }, 800);
   }, []);
 
-  // ── Map (agent, phase) → section ID ──────────────────────
-  function sectionForEvent(agent: string, phase: string): SectionId | null {
-    if (agent === "decision_maker") {
-      if (phase.startsWith("ambiguity")) return "ambiguity";
-      if (phase.startsWith("complexity")) return "gap";
-      if (phase.startsWith("decision") || phase === "proceed_reason" || phase === "rationale") return "proceed";
-    }
-    if (agent === "debit_classifier") return "debit";
-    if (agent === "credit_classifier") return "credit";
-    if (agent === "tax_specialist") return "tax";
-    if (agent === "entry_drafter") return "entry";
-    return null;
-  }
-
-  // ── Event dispatcher: maps stream events to C/F/B/L ops ──
-  function handleStreamEvent(ev: RealtimeEvent) {
-    const { agent, phase, text, label } = ev;
-    if (!agent || !phase) return;
-
-    const section = sectionForEvent(agent, phase);
-    if (!section) return;
-
-    // Create chunk (C)
-    if (phase === "ambiguity_start" || phase === "complexity_start" || phase === "decision_start"
-        || phase === "started" || phase === "start") {
-      const chunkLabel = label || ({
-        tax_specialist: "Considering tax applicability",
-        entry_drafter: "Drafting journal entry",
-      } as Record<string, string>)[agent] || agent;
-      setReasoningSections((prev) => ({
-        ...prev,
-        [section]: [...prev[section], { type: "line" as const, label: chunkLabel, content: [], done: false }],
-      }));
-      return;
-    }
-
-    // Finish chunk (F)
-    if (phase === "ambiguity_done" || phase === "complexity_done" || phase === "decision_done" || phase === "done") {
-      setReasoningSections((prev) => {
-        const chunks = [...prev[section]];
-        if (chunks.length > 0) {
-          chunks[chunks.length - 1] = { ...chunks[chunks.length - 1], done: true };
-        }
-        return { ...prev, [section]: chunks };
-      });
-      return;
-    }
-
-    if (!text) return;
-
-    // Add block (B) — phases that start a new collapsible block
-    const blockPhases = ["ambiguity_aspect", "complexity_aspect", "slot_and_count"];
-    if (blockPhases.includes(phase)) {
-      setReasoningSections((prev) => ({
-        ...prev,
-        [section]: [...prev[section].slice(0, -1),
-          // Update parent chunk to collapsible type if it was line
-          ...(() => {
-            const last = prev[section][prev[section].length - 1];
-            if (!last) return [];
-            return [last];
-          })(),
-          { type: "collapsible" as const, label: text, header: text, details: [], done: false },
-        ],
-      }));
-      return;
-    }
-
-    // Add block (B) — non-collapsible (summary, tax, entry, decision phases)
-    const nonCollapsibleBlockPhases = [
-      "ambiguity_summary", "complexity_summary",
-      "proceed_reason", "rationale", "decision",
-      "tax_detection", "tax_context", "tax_reasoning", "tax_decision",
-      "entry_rationale", "final_entry",
-      "no_detections",
-    ];
-    if (nonCollapsibleBlockPhases.includes(phase)) {
-      setReasoningSections((prev) => {
-        const chunks = [...prev[section]];
-        const lastChunk = chunks[chunks.length - 1];
-        if (lastChunk && lastChunk.type === "line") {
-          // Add as content line to the existing line-type chunk
-          chunks[chunks.length - 1] = { ...lastChunk, content: [...lastChunk.content, text] };
-        }
-        return { ...prev, [section]: chunks };
-      });
-      return;
-    }
-
-    // Add line (L) — everything else goes into current block's details
+  // ── Helper: update the last chunk in a section ─────────
+  function updateLastChunk(section: SectionId, updater: (chunk: ReasoningChunk) => ReasoningChunk) {
     setReasoningSections((prev) => {
       const chunks = [...prev[section]];
-      for (let i = chunks.length - 1; i >= 0; i--) {
-        const chunk = chunks[i];
-        if (chunk.type === "collapsible") {
-          chunks[i] = { ...chunk, details: [...chunk.details, text] };
-          break;
-        }
-      }
+      if (chunks.length === 0) return prev;
+      chunks[chunks.length - 1] = updater(chunks[chunks.length - 1]);
       return { ...prev, [section]: chunks };
     });
   }
+
+  // ── Event dispatcher: action-based switch ──────────────
+  function handleStreamEvent(ev: RealtimeEvent) {
+    const { action, section, text, label, tag } = ev;
+    if (!action || !section) return;
+
+    const sid = section as SectionId;
+    if (!SECTION_ORDER.includes(sid)) return;
+
+    switch (action) {
+      case "chunk.create":
+        setReasoningSections((prev) => ({
+          ...prev,
+          [sid]: [...prev[sid], { label: label || "", done: false, blocks: [] }],
+        }));
+        break;
+
+      case "chunk.label":
+        if (label) updateLastChunk(sid, (c) => ({ ...c, label }));
+        break;
+
+      case "chunk.done":
+        updateLastChunk(sid, (c) => ({ ...c, done: true, ...(label ? { label } : {}) }));
+        break;
+
+      case "block.collapsible":
+        if (text) updateLastChunk(sid, (c) => ({
+          ...c,
+          blocks: [...c.blocks, { type: "collapsible", header: text, lines: [] }],
+        }));
+        break;
+
+      case "block.text":
+        if (text) updateLastChunk(sid, (c) => ({
+          ...c,
+          blocks: [...c.blocks, { type: "text", content: text }],
+        }));
+        break;
+
+      case "block.entry":
+        if (tag && ev.data) updateLastChunk(sid, (c) => ({
+          ...c,
+          blocks: [...c.blocks, { type: "entry", tag, entry: ev.data as EntryLineData["entry"] }],
+        }));
+        break;
+
+      case "block.graph":
+        if (tag && ev.data) updateLastChunk(sid, (c) => ({
+          ...c,
+          blocks: [...c.blocks, { type: "graph", tag, graph: ev.data as import("./llm-interaction/reasoning_panel").GraphBlockData }],
+        }));
+        break;
+
+      case "line":
+        if (tag && text != null) updateLastChunk(sid, (c) => {
+          const blocks = [...c.blocks];
+          for (let i = blocks.length - 1; i >= 0; i--) {
+            const b = blocks[i];
+            if (b.type === "collapsible") {
+              blocks[i] = { ...b, lines: [...b.lines, { kind: "text", tag, text }] };
+              break;
+            }
+          }
+          return { ...c, blocks };
+        });
+        break;
+
+      case "line.entry":
+        if (tag && ev.data) updateLastChunk(sid, (c) => {
+          const blocks = [...c.blocks];
+          for (let i = blocks.length - 1; i >= 0; i--) {
+            const b = blocks[i];
+            if (b.type === "collapsible") {
+              blocks[i] = { ...b, lines: [...b.lines, { kind: "entry", tag, entry: ev.data as EntryLineData["entry"] }] };
+              break;
+            }
+          }
+          return { ...c, blocks };
+        });
+        break;
+    }
+  }
+
+  function closeReviewModal() {
+    setReviewModalVisible(false);
+    setTimeout(() => setShowReviewModal(false), MOTION.normal);
+  }
+
+  // ── Reasoning fullscreen toggle ──────────────────────────
+  function toggleReasoningFullscreen() {
+    if (!reasoningFullscreen) {
+      // Enter: save width, go absolute, expand
+      savedReasoningWidth.current = reasoningWidth;
+      setReasoningFullscreen(true);
+      setReasoningFullscreenAnimating(true);
+      // After one frame, the absolute position is set — now animate width
+      requestAnimationFrame(() => {
+        setReasoningWidth(mainContentRef.current?.offsetWidth ?? 800);
+      });
+      // After animation, stop animating (disable transitions for resize)
+      setTimeout(() => {
+        setReasoningFullscreenAnimating(false);
+        setGraphLayoutVersion((v) => v + 1);
+      }, MOTION.expand);
+    } else {
+      // Exit: shrink back to saved width
+      setReasoningWidth(savedReasoningWidth.current);
+      setReasoningExiting(true);
+      setReasoningFullscreenAnimating(true);
+      // After animation completes, remove absolute positioning
+      setTimeout(() => {
+        setReasoningFullscreen(false);
+        setReasoningExiting(false);
+        setReasoningFullscreenAnimating(false);
+        setGraphLayoutVersion((v) => v + 1);
+      }, MOTION.expand);
+    }
+  }
+
+
+  // ── Disable layout transitions during window resize
+  useEffect(() => {
+    let timer: ReturnType<typeof setTimeout>;
+    const onResize = () => {
+      setWindowResizing(true);
+      clearTimeout(timer);
+      timer = setTimeout(() => setWindowResizing(false), 100);
+    };
+    window.addEventListener("resize", onResize);
+    return () => {
+      window.removeEventListener("resize", onResize);
+      clearTimeout(timer);
+    };
+  }, []);
+
+  // ── Resize listener: keep fullscreen reasoning at container width
+  useEffect(() => {
+    if (!reasoningFullscreen || reasoningExiting) return;
+    const onResize = () => {
+      setReasoningWidth(mainContentRef.current?.offsetWidth ?? 800);
+    };
+    window.addEventListener("resize", onResize);
+    return () => window.removeEventListener("resize", onResize);
+  }, [reasoningFullscreen, reasoningExiting]);
 
   // ── Cleanup SSE subscription on unmount ──────────────────
   useEffect(() => {
@@ -513,34 +253,34 @@ export function LLMInteractionPage() {
     setLoading(true);
     setError(null);
     setResult(null);
-    setEntryLines([]);
-    setEntryDescription("");
+    setAgentResult(EMPTY_AGENT_RESULT);
+    setOverlayVisible(false);
     setReasoningSections(emptyReasoning());
 
     // Unsubscribe previous
     unsubRef.current?.();
 
+    // Generate parse_id on client and subscribe BEFORE submitting
+    const parseId = `llm_${crypto.randomUUID().replace(/-/g, "").slice(0, 12)}`;
+    parseIdRef.current = parseId;
+
     try {
       // Ensure SSE connection before submitting
-      await ensureConnection();
+      await ensureConnection(true);
 
-      const response = await submitLLMInteraction(trimmed);
-      setResult(response);
-      parseIdRef.current = response.parse_id;
-
-      // Subscribe to SSE events for this parse_id
+      // Subscribe to SSE events BEFORE the POST — no race condition
       unsubRef.current = subscribeToRealtimeUpdates((ev) => {
         if (ev.parse_id !== parseIdRef.current) return;
 
         if (ev.type === "agent.stream") {
           handleStreamEvent(ev);
         } else if (ev.type === "pipeline.result") {
-          const agentResult = ev.result as Record<string, unknown> | undefined;
-          if (agentResult?.decision === "PROCEED") {
-            const entry = agentResult.entry as { reason?: string; lines?: JournalLine[] } | undefined;
-            if (entry?.lines) {
-              setEntryLines(entry.lines);
-              setEntryDescription(entry.reason || "");
+          const result = ev.result as AgentResult | undefined;
+          console.log("agentResult:", result);
+          if (result) {
+            setAgentResult(result);
+            if (result.decision === "MISSING_INFO" || result.decision === "STUCK") {
+              requestAnimationFrame(() => setOverlayVisible(true));
             }
           }
           setLoading(false);
@@ -549,30 +289,22 @@ export function LLMInteractionPage() {
           setLoading(false);
         }
       });
+
+      // Submit AFTER subscription is active
+      const response = await submitLLMInteraction(parseId, trimmed);
+      setResult(response);
     } catch (err) {
       setError(err instanceof Error ? err.message : "Request failed");
       setLoading(false);
     }
   }
 
-  const DUR = "0.25s";
-  const DELAY = "0.25s";
-
-  const grid: React.CSSProperties = {
-    display: "grid",
-    gridTemplateColumns: showEnglish ? "minmax(0, 1fr) minmax(0, 1fr)" : "minmax(0, 1fr) 0fr",
-    gap: showEnglish ? 20 : 0,
-    alignItems: "stretch",
-    transition: showEnglish
-      ? `grid-template-columns ${DUR} ease, gap ${DUR} ease`
-      : `grid-template-columns ${DUR} ease ${DELAY}, gap ${DUR} ease ${DELAY}`,
-  };
 
   return (
     <div
       style={{
         height: "100vh",
-        minWidth: showEnglish ? 1000 : 550,
+        minWidth: 800,
         background: T.pageBg,
         padding: "24px 24px",
         boxSizing: "border-box",
@@ -582,254 +314,181 @@ export function LLMInteractionPage() {
       }}
     >
       <div style={{
-        maxWidth: showEnglish ? "90vw" : "70vw",
+        maxWidth: "90vw",
         margin: "0 auto",
         display: "flex",
         flexDirection: "column",
         gap: 20,
         height: "100%",
-        transition: showEnglish
-          ? `max-width ${DUR} ease`
-          : `max-width ${DUR} ease ${DELAY}`,
-      }}>
+      }}
+      >
 
         {/* Header */}
-        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", gap: 16 }}>
+        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", gap: 16, flexWrap: "nowrap" }}>
           <div>
             <p style={{ margin: 0, fontSize: 11, fontWeight: 700, letterSpacing: "0.1em", textTransform: "uppercase", color: T.eyebrow }}>
               LLM Interaction
             </p>
             <h1 style={{ margin: "4px 0 0", fontSize: 26, fontWeight: 700, color: T.textPrimary }}>
-              Bilingual Entry Builder
+              Entry Builder
             </h1>
-            <p style={{ margin: "6px 0 0", fontSize: 14, color: T.textSecondary }}>
-              Enter a transaction in English or Korean — the system detects the language,
-              translates if needed, and produces journal entries in both.
-            </p>
           </div>
           <div style={{ display: "flex", gap: 8, flexShrink: 0, marginTop: 18 }}>
-            <button
+            <HoverButton
               type="button"
-              onClick={() => setShowEnglish((v) => !v)}
-              onMouseEnter={(e) => {
-                e.currentTarget.style.background = palette.silver;
-                e.currentTarget.style.color = palette.carbonBlack;
-                e.currentTarget.style.borderColor = palette.silver;
+              bgHover={palette.silver}
+              color={T.textSecondary}
+              colorHover={palette.carbonBlack}
+              borderColor={T.inputBorder}
+              borderColorHover={palette.silver}
+              onClick={() => {
+                setShowReviewModal(true);
+                requestAnimationFrame(() => setReviewModalVisible(true));
               }}
-              onMouseLeave={(e) => {
-                e.currentTarget.style.background = "transparent";
-                e.currentTarget.style.color = T.textSecondary;
-                e.currentTarget.style.borderColor = T.inputBorder;
-              }}
-              style={{
-                padding: "6px 14px",
-                borderRadius: T.buttonRadius,
-                border: `1px solid ${T.inputBorder}`,
-                background: "transparent",
-                color: T.textSecondary,
-                fontSize: 12,
-                fontWeight: 600,
-                cursor: "pointer",
-                transition: "all 0.15s",
-              }}
+              style={{ padding: "6px 14px", borderRadius: T.buttonRadius, fontSize: 12, fontWeight: 600 }}
             >
-              {showEnglish ? "Hide English" : "Show English"}
-            </button>
-            <button
+              Review & Correct
+            </HoverButton>
+            <HoverButton
               type="button"
+              bgHover={palette.silver}
+              color={T.textSecondary}
+              colorHover={palette.carbonBlack}
+              borderColor={T.inputBorder}
+              borderColorHover={palette.silver}
               onClick={() => setShowReasoning((v) => !v)}
-              onMouseEnter={(e) => {
-                e.currentTarget.style.background = palette.silver;
-                e.currentTarget.style.color = palette.carbonBlack;
-                e.currentTarget.style.borderColor = palette.silver;
-              }}
-              onMouseLeave={(e) => {
-                e.currentTarget.style.background = "transparent";
-                e.currentTarget.style.color = T.textSecondary;
-                e.currentTarget.style.borderColor = T.inputBorder;
-              }}
-              style={{
-                padding: "6px 14px",
-                borderRadius: T.buttonRadius,
-                border: `1px solid ${T.inputBorder}`,
-                background: "transparent",
-                color: T.textSecondary,
-                fontSize: 12,
-                fontWeight: 600,
-                cursor: "pointer",
-                transition: "all 0.15s",
-              }}
+              style={{ padding: "6px 14px", borderRadius: T.buttonRadius, fontSize: 12, fontWeight: 600 }}
             >
               {showReasoning ? "Hide Reasoning" : "Show Reasoning"}
-            </button>
+            </HoverButton>
           </div>
         </div>
 
         {/* Main content: panels + reasoning side by side */}
-        <div ref={mainContentRef} style={{ display: "flex", gap: 20, flex: 1, minHeight: 0 }}>
+        <div ref={mainContentRef} style={{ display: "flex", gap: 0, flex: 1, minHeight: 0, position: "relative" }}>
 
-        {/* Panels wrapper (left) */}
-        <div style={{ display: "flex", flexDirection: "column", gap: 20, flex: 1, minHeight: 0, minWidth: 0 }}>
+        {/* Panels: main column */}
+        <div style={{ display: "flex", gap: 0, flex: 1, minHeight: 0, minWidth: 440 }}>
 
-        {/* Row 1: Entry (fills remaining space) */}
-        <div className="llm-grid-animated" style={{ ...grid, flex: 1, minHeight: 0 }}>
-          {/* Entry in detected language */}
-          <section style={{ ...panel, overflow: "hidden", minWidth: 450 }}>
-            <PanelHeader
-              title="Entry"
-              help={entryLines.length > 0
-                ? "Journal entry from the agent pipeline."
-                : "Entry will appear here as the agent processes."}
-            />
-            <div style={{ display: "flex", flexDirection: "column", gap: 16, flex: 1, minHeight: 0 }}>
-              {/* Entry section */}
-              <div style={{ flex: 1, minHeight: 0, display: "flex", flexDirection: "column" }}>
-                {entryDescription && (
-                  <p style={{ margin: 0, fontSize: 13, fontWeight: 600, color: T.textSecondary }}>
-                    {entryDescription}
-                  </p>
-                )}
-                <EntryTable lines={entryLines} scrollRef={entryScrollRef} onScroll={() => syncScroll("entry")} />
-              </div>
-
-            </div>
-          </section>
-
-          {/* English Entry (toggled) */}
-          <section className={`llm-english-panel${showEnglish ? " visible" : ""}`} style={{ ...panel, padding: undefined, minWidth: showEnglish ? 450 : 0, overflow: "hidden" }}>
-            <div className="llm-english-content" style={{ display: "flex", flexDirection: "column", gap: T.panelGap, flex: 1, minHeight: 0 }}>
-              <PanelHeader title="English Entry" help="Journal entry generated from the English text." />
-              <div style={{ display: "flex", flexDirection: "column", gap: 16, flex: 1, minHeight: 0 }}>
-                <EntryTable lines={entryLines} scrollRef={englishEntryScrollRef} onScroll={() => syncScroll("english")} />
-              </div>
-            </div>
-          </section>
-        </div>
-
-        {/* Row 2: Input (fixed at bottom) */}
-        <div className="llm-grid-animated" style={{ ...grid, flexShrink: 0 }}>
-          {/* Input Panel */}
-          <section style={{ ...panel, minWidth: 450 }}>
-            <PanelHeader title="Input" help="Describe a transaction in English or Korean." />
-            <div style={{
-              background: T.inputBg,
-              borderRadius: T.inputRadius,
-              border: `1px solid ${T.inputBorder}`,
-              display: "flex",
-              flexDirection: "column",
-            }}>
-              <textarea
-                ref={textareaRef}
-                className="llm-textarea"
-                value={inputText}
-                onChange={(e) => setInputText(e.target.value)}
-                onScroll={handleScroll}
-                onKeyDown={(e) => {
-                  if (e.key === "Enter" && (e.metaKey || e.ctrlKey)) handleSubmit();
-                }}
-                placeholder={"e.g. Bought a laptop from Apple for $2,400\ne.g. 애플에서 노트북을 $2,400에 구매했습니다"}
-                rows={6}
-                style={{
-                  width: "100%",
-                  boxSizing: "border-box",
-                  resize: "none",
-                  overflow: "auto",
-                  border: "none",
-                  borderRadius: T.inputRadius,
-                  padding: "10px 12px",
-                  fontSize: 14,
-                  color: T.textPrimary,
-                  background: "transparent",
-                  outline: "none",
-                  fontFamily: "inherit",
-                }}
+          {/* Main column */}
+          <div style={{
+            display: "flex", flexDirection: "column", gap: 20, flex: 1, minHeight: 0, minWidth: 420,
+            marginRight: showReasoning ? 20 : 0,
+            transition: windowResizing
+              ? "none"
+              : (showReasoning ? "margin-right 0.4s ease" : `margin-right 0.4s ease ${MOTION.expand}ms`),
+          }}>
+            {/* Entry */}
+            <section style={{ ...panel, overflow: "hidden", flex: 1, minHeight: 0, position: "relative" }}>
+              <PanelHeader
+                title="Entry"
+                help={agentResult.entry?.lines?.length
+                  ? "Journal entry from the agent pipeline."
+                  : "Entry will appear here as the agent processes."}
               />
-              <div style={{ display: "flex", justifyContent: "flex-end", gap: 8, padding: 12 }}>
-                <button
-                  type="button"
-                  disabled={loading || !inputText.trim()}
-                  onClick={handleSubmit}
-                  style={{
-                    padding: "9px 22px",
-                    borderRadius: T.buttonRadius,
-                    border: "none",
-                    background: loading || !inputText.trim() ? T.buttonBgDisabled : T.buttonBg,
-                    color: T.buttonText,
-                    fontWeight: 600,
-                    fontSize: 14,
-                    cursor: loading || !inputText.trim() ? "not-allowed" : "pointer",
-                    transition: "background 0.15s",
-                  }}
-                >
-                  {loading ? "Processing…" : "Submit"}
-                </button>
+              <div style={{ display: "flex", flexDirection: "column", gap: 16, flex: 1, minHeight: 0 }}>
+                <div style={{ flex: 1, minHeight: 0, display: "flex", flexDirection: "column" }}>
+                  <EntryTable lines={agentResult.entry?.lines || []} currencySymbol={agentResult.entry?.currency_symbol || ""} scrollable minRows={12} showAccountCode rowAppearAnimation scrollRef={entryScrollRef} />
+                </div>
               </div>
-            </div>
-            {error && (
-              <p style={{ margin: 0, fontSize: 13, color: T.errorText, background: T.errorBg, borderRadius: T.inputRadius, padding: "8px 12px" }}>
-                {error}
-              </p>
-            )}
-          </section>
+              {(agentResult.decision === "MISSING_INFO" || agentResult.decision === "STUCK") && (
+                <DecisionOverlay data={agentResult as unknown as Record<string, unknown>} visible={overlayVisible} onClose={() => {
+                  setOverlayVisible(false);
+                }} />
+              )}
+            </section>
 
-          {/* English Text Panel (toggled) */}
-          <section className={`llm-english-panel${showEnglish ? " visible" : ""}`} style={{ ...panel, padding: undefined, minWidth: showEnglish ? 450 : 0, overflow: "hidden" }}>
-            <div className="llm-english-content" style={{ display: "flex", flexDirection: "column", gap: T.panelGap, flex: 1 }}>
-              <div style={{ display: "flex", alignItems: "baseline", gap: 10 }}>
-                <PanelHeader
-                  title="English Text"
-                  help={result
-                    ? result.detected_language === "ko"
-                      ? "Translated from Korean"
-                      : "Original input (English detected)"
-                    : "The English version of your input will appear here."}
+            {/* Input */}
+            <section style={{ ...panel, flexShrink: 0 }}>
+              <PanelHeader title="Input" help="Describe a transaction in English or Korean." />
+              <div style={{
+                background: T.inputBg,
+                borderRadius: T.inputRadius,
+                border: `1px solid ${T.inputBorder}`,
+                display: "flex",
+                flexDirection: "column",
+              }}>
+                <textarea
+                  ref={textareaRef}
+                  className={s.scrollable}
+                  value={inputText}
+                  onChange={(e) => setInputText(e.target.value)}
+                  onScroll={handleScroll}
+                  onKeyDown={(e) => {
+                    if (e.key === "Enter" && (e.metaKey || e.ctrlKey)) handleSubmit();
+                  }}
+                  placeholder={"e.g. Bought a laptop from Apple for $2,400\ne.g. 从苹果购买了一台笔记本电脑，花费$2,400\ne.g. Compré una laptop de Apple por $2,400\ne.g. 애플에서 노트북을 $2,400에 구매했습니다"}
+                  style={{
+                    width: "100%",
+                    height: 120,
+                    boxSizing: "border-box",
+                    resize: "none",
+                    overflow: "auto",
+                    border: "none",
+                    borderRadius: T.inputRadius,
+                    padding: "10px 12px",
+                    fontSize: 14,
+                    color: palette.floralWhite,
+                    background: "transparent",
+                    outline: "none",
+                    fontFamily: "inherit",
+                  }}
                 />
-                {result && (
-                  <span
+                <div style={{ display: "flex", justifyContent: "flex-end", gap: 8, padding: 12, height: 50, boxSizing: "border-box", alignItems: "center" }}>
+                  <button
+                    className={s.buttonTransition}
+                    type="button"
+                    disabled={loading || !inputText.trim()}
+                    onClick={handleSubmit}
                     style={{
-                      flexShrink: 0,
-                      marginLeft: "auto",
-                      padding: "3px 10px",
-                      borderRadius: 20,
-                      fontSize: 11,
-                      fontWeight: 700,
-                      background: T.badgeBg,
-                      color: T.badgeText,
-                      letterSpacing: "0.03em",
+                      padding: "9px 22px",
+                      borderRadius: T.buttonRadius,
+                      border: "none",
+                      background: loading || !inputText.trim() ? T.buttonBgDisabled : T.buttonBg,
+                      color: T.buttonText,
+                      fontWeight: 600,
+                      fontSize: 14,
+                      cursor: loading || !inputText.trim() ? "not-allowed" : "pointer",
                     }}
                   >
-                    {result.detected_language === "ko" ? "Korean" : "English"}
-                  </span>
-                )}
+                    {loading ? "Processing…" : "Submit"}
+                  </button>
+                </div>
               </div>
-              <div
-                style={{
-                  flex: 1,
-                  borderRadius: 6,
-                  border: `1px solid ${T.inputBorder}`,
-                  background: T.inputBg,
-                  padding: "10px 12px",
-                  fontSize: 14,
-                  color: result?.english_text ? T.textPrimary : T.textSecondary,
-                  whiteSpace: "pre-wrap",
-                  lineHeight: 1.55,
-                }}
-              >
-                {result?.english_text ?? "—"}
-              </div>
-            </div>
-          </section>
-        </div>
+              {error && (
+                <p style={{ margin: 0, fontSize: 13, color: T.errorText, background: T.errorBg, borderRadius: T.inputRadius, padding: "8px 12px" }}>
+                  {error}
+                </p>
+              )}
+            </section>
+          </div>
 
-        </div>{/* end panels wrapper */}
+        </div>{/* end panels */}
 
         {/* Reasoning & Progress viewer (right) */}
-        <section style={{
-          position: "relative",
-          width: showReasoning ? reasoningWidth : 0,
+        <div style={{
           flexShrink: 0,
+          position: "relative",
+          width: (!showReasoning || (reasoningFullscreen && !reasoningExiting)) ? 0 : reasoningWidth,
+          transition: (isResizing || (reasoningFullscreen && !reasoningFullscreenAnimating))
+            ? "none"
+            : showReasoning
+              ? "width 0.4s ease"
+              : `width 0.4s ease ${MOTION.normal}ms`,
+        }}>
+        <section
+          ref={reasoningSectionRef}
+          style={{
+          position: "absolute",
+          top: 0,
+          right: 0,
+          bottom: 0,
+          zIndex: (reasoningFullscreen || reasoningExiting) ? 10 : "auto",
+          width: showReasoning
+            ? ((reasoningFullscreen && !reasoningExiting) ? (mainContentRef.current?.offsetWidth ?? 800) : reasoningWidth)
+            : 0,
           overflow: "hidden",
-          background: showReasoning ? "rgba(204, 197, 185, 0.2)" : "transparent",
+          background: showReasoning ? "rgba(229, 228, 226, 0.3)" : "transparent",
           backdropFilter: showReasoning ? "blur(16px)" : "none",
           WebkitBackdropFilter: showReasoning ? "blur(16px)" : "none",
           borderRadius: T.panelRadius,
@@ -837,16 +496,14 @@ export function LLMInteractionPage() {
           display: "flex",
           flexDirection: "column",
           gap: T.panelGap,
-          border: showReasoning ? "1px solid rgba(204, 197, 185, 0.1)" : "none",
+          border: showReasoning ? "1px solid rgba(229, 228, 226, 0.2)" : "none",
           boxShadow: showReasoning ? T.panelShadow : "none",
-          transition: isResizing
-            ? "padding 0.2s ease, background 0.2s ease, box-shadow 0.2s ease, border 0.2s ease"
-            : showReasoning
-              ? "width 0.2s ease, padding 0.2s ease, background 0.2s ease, box-shadow 0.2s ease, border 0.2s ease"
-              : "width 0.2s ease 0.2s, padding 0.2s ease 0.2s, background 0.2s ease 0.2s, box-shadow 0.2s ease 0.2s, border 0.2s ease 0.2s",
-        }}>
+          ...((reasoningFullscreen || reasoningExiting) ? { transition: "width 0.4s ease, padding 0.4s ease, background 0.4s ease, box-shadow 0.4s ease, border 0.4s ease" } : {}),
+        }}
+        className={(reasoningFullscreen || reasoningExiting) ? undefined : (isResizing ? s.reasoningResizing : showReasoning ? s.reasoningShow : s.reasoningHide)}>
           {showReasoning && (
             <div
+              className={s.resizeHandle}
               onMouseDown={(e) => {
                 e.preventDefault();
                 resizing.current = true;
@@ -854,8 +511,9 @@ export function LLMInteractionPage() {
                 const startX = e.clientX;
                 const startWidth = reasoningWidth;
                 const containerWidth = mainContentRef.current?.offsetWidth ?? 1200;
-                const panelMinTotal = showEnglish ? 450 * 2 + 20 : 450; // two panels + gap, or one
-                const maxReasoningWidth = containerWidth - panelMinTotal - 24;
+                const panelMinTotal = 450;
+                const percentCap = 0.5;
+                const maxReasoningWidth = Math.min(containerWidth * percentCap, containerWidth - panelMinTotal - 24);
                 const onMove = (ev: MouseEvent) => {
                   if (!resizing.current) return;
                   const delta = startX - ev.clientX;
@@ -870,8 +528,6 @@ export function LLMInteractionPage() {
                 document.addEventListener("mousemove", onMove);
                 document.addEventListener("mouseup", onUp);
               }}
-              onMouseEnter={(e) => { e.currentTarget.style.background = "rgba(204, 197, 185, 0.4)"; }}
-              onMouseLeave={(e) => { if (!resizing.current) e.currentTarget.style.background = "transparent"; }}
               style={{
                 position: "absolute",
                 top: 0,
@@ -881,56 +537,251 @@ export function LLMInteractionPage() {
                 cursor: "col-resize",
                 background: "transparent",
                 borderRadius: "4px 0 0 4px",
-                transition: "background 0.15s",
                 zIndex: 2,
               }}
             />
           )}
-          <div style={{
-            opacity: showReasoning ? 1 : 0,
-            transform: showReasoning ? "translateX(0)" : "translateX(16px)",
-            transition: showReasoning
-              ? "opacity 0.2s ease 0.2s, transform 0.2s ease 0.2s"
-              : "opacity 0.2s ease, transform 0.2s ease",
-            minWidth: 0,
-            flex: 1,
-            minHeight: 0,
-            display: "flex",
-            flexDirection: "column",
-            overflow: "hidden",
-          }}>
-            <PanelHeader
-              title="Reasoning"
-              help="Agent trace and progress"
-            />
+          <div
+            className={showReasoning ? s.reasoningContentShow : s.reasoningContentHide}
+            style={{
+              minWidth: 0,
+              flex: 1,
+              minHeight: 0,
+              display: "flex",
+              flexDirection: "column",
+              overflow: "hidden",
+            }}>
+            <div style={{ display: "flex", alignItems: "center", gap: 6, minWidth: 0 }}>
+              <div style={{ flex: 1, minWidth: 0, overflow: "hidden" }}>
+                <PanelHeader
+                  title="Reasoning"
+                  help="Agent trace and progress"
+                />
+              </div>
+              <HoverButton
+                type="button"
+                bgHover="rgba(229, 228, 226, 0.4)"
+                color={T.textSecondary}
+                title={reasoningFullscreen ? "Exit full window" : "Full window"}
+                onClick={toggleReasoningFullscreen}
+                style={{ padding: "4px 6px", borderRadius: 4, fontSize: 14, lineHeight: 1, flexShrink: 0 }}
+              >
+                ⛶
+              </HoverButton>
+            </div>
             <div
-              className="llm-textarea"
+              className={s.scrollable}
               style={{
                 flex: 1,
                 overflowY: "auto",
                 fontSize: 13,
                 lineHeight: 1.6,
                 color: T.textSecondary,
-                whiteSpace: "pre-wrap",
                 marginTop: T.panelGap,
                 marginRight: -4,
                 display: "flex",
                 flexDirection: "column",
-                gap: 14,
+                gap: 24,
               }}
             >
-              {SECTION_ORDER.map((id) => (
-                <div key={id} data-section={id}>
-                  <ReasoningSection chunks={reasoningSections[id]} />
-                </div>
-              ))}
+              {SECTION_ORDER.map((id) =>
+                reasoningSections[id].length > 0 ? (
+                  <div key={id} data-section={id}>
+                    <ReasoningSection chunks={reasoningSections[id]} graphLayoutVersion={graphLayoutVersion} />
+                  </div>
+                ) : null
+              )}
             </div>
           </div>
         </section>
+        </div>{/* end reasoning wrapper */}
 
         </div>{/* end main content */}
 
       </div>
+
+      {/* Review & Correct Modal */}
+      {showReviewModal && (
+        <div
+          style={{
+            position: "fixed",
+            inset: 0,
+            zIndex: 100,
+            background: "transparent",
+            opacity: reviewModalVisible ? 1 : 0,
+            transition: `opacity ${MOTION.normal}ms ease`,
+          }}
+          onClick={(e) => { if (e.target === e.currentTarget) closeReviewModal(); }}
+        >
+          <div style={{
+            position: "absolute",
+            top: mainContentRef.current?.getBoundingClientRect().top ?? 0,
+            left: mainContentRef.current?.getBoundingClientRect().left ?? 0,
+            width: mainContentRef.current?.offsetWidth ?? "100%",
+            height: mainContentRef.current?.offsetHeight ?? "100%",
+            background: "rgba(229, 228, 226, 0.3)",
+            backdropFilter: "blur(16px)",
+            WebkitBackdropFilter: "blur(16px)",
+            borderRadius: T.panelRadius,
+            border: "1px solid rgba(229, 228, 226, 0.2)",
+            opacity: reviewModalVisible ? 1 : 0,
+            transform: reviewModalVisible ? "translateY(0)" : "translateY(8px)",
+            transition: `opacity ${MOTION.normal}ms ease, transform ${MOTION.normal}ms ease`,
+            boxShadow: T.panelShadow,
+            display: "flex",
+            flexDirection: "column",
+            overflow: "hidden",
+          }}>
+            {/* Header */}
+            <div style={{
+              padding: "16px 20px",
+              flexShrink: 0,
+              display: "flex",
+              flexDirection: "column",
+              gap: 4,
+              borderBottom: "1px solid rgba(64, 61, 57, 0.15)",
+            }}>
+              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                <h2 style={{ margin: 0, fontSize: 16, fontWeight: 600, color: T.textPrimary }}>Review & Correct</h2>
+                <HoverButton
+                  onClick={() => closeReviewModal()}
+                  bgHover="rgba(204, 197, 185, 0.3)"
+                  color={T.textSecondary}
+                  style={{ fontSize: 18, lineHeight: 1, padding: "2px 6px", borderRadius: 4 }}
+                >
+                  ✕
+                </HoverButton>
+              </div>
+              <div style={{ display: "flex", justifyContent: "center", alignItems: "center", gap: 6 }}>
+                <h3 style={{ margin: 0, fontSize: 14, fontWeight: 600, color: T.textPrimary }}>{REVIEW_SECTIONS[reviewStep].title}</h3>
+                <button
+                  className={s.buttonTransition}
+                  onClick={() => setShowReviewHelp((v) => !v)}
+                  style={{
+                    background: showReviewHelp ? "rgba(204, 197, 185, 0.3)" : "transparent",
+                    border: "none",
+                    borderRadius: "50%",
+                    width: 18,
+                    height: 18,
+                    fontSize: 11,
+                    fontWeight: 700,
+                    color: T.textSecondary,
+                    cursor: "pointer",
+                    lineHeight: 1,
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                  }}
+                  onMouseEnter={(e) => { e.currentTarget.style.background = "rgba(204, 197, 185, 0.3)"; }}
+                  onMouseLeave={(e) => { if (!showReviewHelp) e.currentTarget.style.background = "transparent"; }}
+                >
+                  ?
+                </button>
+              </div>
+              {/* Collapsible explanation */}
+              <div className={`${s.collapsibleWrapper} ${showReviewHelp ? s.collapsibleWrapperOpen : ""}`}>
+                <div className={s.collapsibleInner}>
+                  <div style={{ margin: "0 auto", fontSize: 11, color: T.textSecondary, textAlign: "center", width: "55%", lineHeight: 1.6, paddingBottom: 12, borderBottom: "1px solid rgba(64, 61, 57, 0.15)" }}>
+                    {reviewStep === 0 && <>
+                      <p style={{ margin: 0 }}>Review how the agent interpreted the transaction structure.</p>
+                      <p style={{ margin: "4px 0 0" }}>The graph shows parties involved and value flows between them.</p>
+                    </>}
+                    {reviewStep === 1 && <>
+                      <p style={{ margin: 0 }}>The agent identified these ambiguities in your transaction.</p>
+                      <p style={{ margin: "4px 0 0" }}>You can correct the agent's attempt by editing, disabling, or adding ambiguities.</p>
+                    </>}
+                    {reviewStep === 2 && <>
+                      <p style={{ margin: 0 }}>Review the tax treatment determined by the agent.</p>
+                      <p style={{ margin: "4px 0 0" }}>You can correct individual fields by clicking Edit.</p>
+                    </>}
+                    {reviewStep === 3 && <>
+                      <p style={{ margin: 0 }}>Review the journal entry drafted by the agent.</p>
+                      <p style={{ margin: "4px 0 0" }}>You can edit account names, amounts, add/delete lines, and correct the rationale.</p>
+                    </>}
+                  </div>
+                </div>
+              </div>
+              {/* Transaction */}
+              <div style={{ marginTop: 16, paddingRight: 8 }}>
+                <TransactionDisplay text={agentResult.pipeline_state?.transaction_text || inputText || ""} />
+              </div>
+            </div>
+
+            {/* Body */}
+            <div className={s.scrollable} style={{
+              flex: 1,
+              overflowY: "auto",
+              scrollbarGutter: "auto",
+              padding: "20px",
+              display: "flex",
+              flexDirection: "column",
+              gap: 24,
+            }}>
+              {reviewStep === 0 && <TransactionAnalysisContainer agentResult={agentResult} />}
+              {reviewStep === 1 && <AmbiguityReviewContainer agentResult={agentResult} />}
+              {reviewStep === 2 && <TaxReviewContainer agentResult={agentResult} />}
+              {reviewStep === 3 && <FinalEntryReviewContainer agentResult={agentResult} />}
+            </div>
+
+            {/* Footer */}
+            <div style={{
+              padding: "12px 20px",
+              flexShrink: 0,
+              display: "flex",
+              alignItems: "center",
+              borderTop: "1px solid rgba(64, 61, 57, 0.15)",
+            }}>
+              <div style={{ width: 160 }} />
+              {/* Progress dots */}
+              <div style={{ flex: 1, display: "flex", justifyContent: "center", gap: 12 }}>
+                {REVIEW_SECTIONS.map((sec, i) => (
+                  <div
+                    key={sec.key}
+                    className={s.buttonTransition}
+                    onClick={() => setReviewStep(i)}
+                    title={sec.title}
+                    style={{
+                      width: 10,
+                      height: 10,
+                      borderRadius: "50%",
+                      background: i === reviewStep ? "rgba(235, 94, 40, 0.7)" : i < reviewStep ? "rgba(64, 61, 57, 0.7)" : "rgba(204, 197, 185, 0.7)",
+                      cursor: "pointer",
+                      transition: "background 0.15s ease",
+                    }}
+                  />
+                ))}
+              </div>
+              {/* Back + Next/Submit */}
+              <div style={{ display: "flex", gap: 8, width: 160, justifyContent: "flex-end" }}>
+                {reviewStep > 0 && (
+                  <HoverButton
+                    bg="rgba(235, 94, 40, 0.7)"
+                    bgHover="rgba(235, 94, 40, 0.9)"
+                    color="#fff"
+                    onClick={() => setReviewStep((s) => s - 1)}
+                    style={{ padding: "8px 18px", borderRadius: T.buttonRadius, fontSize: 13, fontWeight: 600 }}
+                  >
+                    Back
+                  </HoverButton>
+                )}
+                <HoverButton
+                  bg="rgba(235, 94, 40, 0.7)"
+                  bgHover="rgba(235, 94, 40, 0.9)"
+                  color="#fff"
+                  onClick={() => {
+                    if (reviewStep < REVIEW_SECTIONS.length - 1) {
+                      setReviewStep((s) => s + 1);
+                    }
+                  }}
+                  style={{ padding: "8px 18px", borderRadius: T.buttonRadius, fontSize: 13, fontWeight: 600 }}
+                >
+                  {reviewStep === REVIEW_SECTIONS.length - 1 ? "Submit" : "Next"}
+                </HoverButton>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

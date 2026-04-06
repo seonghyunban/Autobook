@@ -5,7 +5,7 @@ const API_BASE_URL = import.meta.env.VITE_API_BASE_URL ?? "http://localhost:8000
 
 export type { LLMInteractionResponse };
 
-export async function submitLLMInteraction(inputText: string): Promise<LLMInteractionResponse> {
+export async function submitLLMInteraction(parseId: string, inputText: string): Promise<LLMInteractionResponse> {
   const token = getAccessToken();
   const headers: Record<string, string> = { "Content-Type": "application/json" };
   if (token) {
@@ -15,7 +15,7 @@ export async function submitLLMInteraction(inputText: string): Promise<LLMIntera
   const response = await fetch(`${API_BASE_URL}/llm`, {
     method: "POST",
     headers,
-    body: JSON.stringify({ input_text: inputText }),
+    body: JSON.stringify({ parse_id: parseId, input_text: inputText }),
   });
 
   if (!response.ok) {

@@ -206,13 +206,18 @@ export type RealtimeEvent = {
   batch?: BatchSummary;
   agent?: string;
   phase?: string;
+  action?: string;
+  section?: string;
+  tag?: string;
   text?: string;
   label?: string;
+  data?: Record<string, unknown>;
 };
 
 export type RealtimeListener = (event: RealtimeEvent) => void;
 
 export type LLMInteractionRequest = {
+  parse_id: string;
   input_text: string;
 };
 
@@ -223,6 +228,70 @@ export type LLMEntry = {
 
 export type LLMInteractionResponse = {
   parse_id: string;
-  detected_language: "en" | "ko";
-  english_text: string;
+};
+
+// ── Pipeline State (from agent service) ─────────────────
+
+export type AmbiguityOutput = {
+  aspect: string;
+  ambiguous: boolean;
+  input_contextualized_conventional_default?: string | null;
+  input_contextualized_ifrs_default?: string | null;
+  clarification_question?: string | null;
+  cases?: Array<{ case: string; possible_entry?: Record<string, unknown> }>;
+};
+
+export type TaxOutput = {
+  reasoning: string;
+  tax_mentioned: boolean;
+  classification: "taxable" | "zero_rated" | "exempt" | "out_of_scope";
+  itc_eligible: boolean;
+  amount_tax_inclusive: boolean;
+  tax_rate: number | null;
+  tax_context: string | null;
+};
+
+export type DecisionOutput = {
+  decision: "PROCEED" | "MISSING_INFO" | "STUCK";
+  rationale: string;
+  ambiguities?: AmbiguityOutput[];
+};
+
+export type ClassifierDetection = {
+  category: string;
+  direction: string;
+  taxonomy: string;
+};
+
+export type ClassifierOutput = {
+  detections: ClassifierDetection[];
+};
+
+export type EntryOutput = {
+  reason: string;
+  currency: string;
+  currency_symbol?: string;
+  lines: JournalLine[];
+};
+
+export type PipelineState = {
+  transaction_text: string;
+  transaction_graph?: Record<string, unknown> | null;
+  output_decision_maker?: DecisionOutput | null;
+  output_debit_classifier?: ClassifierOutput | null;
+  output_credit_classifier?: ClassifierOutput | null;
+  output_tax_specialist?: TaxOutput | null;
+  output_entry_drafter?: EntryOutput | null;
+};
+
+export type AgentResult = {
+  decision: "PROCEED" | "MISSING_INFO" | "STUCK";
+  entry?: EntryOutput;
+  proceed_reason?: string;
+  resolved_ambiguities?: AmbiguityOutput[];
+  questions?: string[];
+  ambiguities?: AmbiguityOutput[];
+  stuck_reason?: string;
+  capability_gaps?: Array<{ aspect: string; gap: string }>;
+  pipeline_state?: PipelineState;
 };

@@ -94,8 +94,8 @@ function connectEventSource(url: string): Promise<void> {
   return connectionReady;
 }
 
-export function ensureConnection(): Promise<void> {
-  if (isMockApiEnabled()) {
+export function ensureConnection(force = false): Promise<void> {
+  if (!force && isMockApiEnabled()) {
     return Promise.resolve();
   }
 
