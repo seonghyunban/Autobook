@@ -1,0 +1,231 @@
+======================================================================
+ int_22_compound_sale_with_tax
+======================================================================
+
+# Decisions
+
+    ## Ambiguity
+        There are 4 potential ambiguities identified, and 0 out of 4 of them are unresolved.
+
+        <1> Ambiguity: Payment method for cash portion
+            - Details: Convention: 'received via bank transfer to chequing account' = cash received (asset increase in Cash/Bank account)
+            - Decision: Ambiguity resolved
+
+        <2> Ambiguity: Credit portion treatment
+            - Details: Convention: 'remainder on credit' = accounts receivable (asset increase)
+            - Decision: Ambiguity resolved
+
+        <3> Ambiguity: Revenue recognition timing
+            - Details: Convention: 'sold' = revenue recognized for the stated amount at point of sale; IFRS: IFRS 15: control transferred at point of sale — recognize revenue
+            - Decision: Ambiguity resolved
+
+        <4> Ambiguity: Sales tax treatment
+            - Details: IFRS: Sales tax collected from customer is a liability (HST/GST Payable) — seller acts as collection agent for the government
+            - Decision: Ambiguity resolved
+
+    ## Complexity
+        There is 1 potential complexity identified, and 0 out of 1 of them are beyond LLM capability.
+
+        <1> Complexity: Multi-component sale with COGS, revenue, tax, and split payment
+            - Details: Best attempt is
+                Dr Cash - Chequing Account                  $   45,900.00
+                Dr Accounts Receivable                      $   30,000.00
+                Dr Cost of Goods Sold                       $   55,500.00
+                Cr Sales Revenue                            $   69,000.00
+                Cr Sales Tax Payable                        $    6,900.00
+                Cr Inventory                                $   55,500.00
+            - Decision: Complexity within capability
+
+    ## Proceed
+        All transaction components are explicitly stated: selling price $69,000, cost $55,500, tax 10% = $6,900, cash received $45,900, and remainder $30,000 on credit — standard sale with COGS recognition.
+
+    ## Final Decision
+        All amounts are explicitly stated in the transaction text, conventional terms resolve payment methods, and IFRS resolves revenue recognition and tax treatment — no ambiguities or capability gaps remain.
+        Decision: PROCEED
+
+
+# Classification
+
+    ## Debit Classification
+        - Identified 1 line associated with asset_increase
+            Taxonomy: Cash and cash equivalents
+            Reason: Cash received via bank transfer for partial payment of sale
+        - Identified 1 line associated with asset_increase
+            Taxonomy: Trade receivables
+            Reason: Remaining amount owed by customer on credit terms
+        - Identified 1 line associated with expense_increase
+            Taxonomy: Cost of sales
+            Reason: Cost of 300 cases of snack products sold at $185 per case
+
+
+    ## Credit Classification
+        - Identified 1 line associated with liability_increase
+            Taxonomy: Tax liabilities
+            Reason: Sales tax collected from customer on sale of snack products
+        - Identified 1 line associated with revenue_increase
+            Taxonomy: Revenue from sale of goods
+            Reason: Sale of 300 cases of snack products at $230 per case
+        - Identified 1 line associated with asset_decrease
+            Taxonomy: Inventories — finished goods
+            Reason: Inventory released to fulfill sale of 300 cases at $185 cost per case
+
+
+# Tax Treatment
+
+    - Tax is mentioned in the input
+    - This might be a taxable transaction
+    - 10% sales tax collected on the $69,000 sale amount. Tax payable (liability) should be recorded separately from revenue.
+    - Text explicitly states "plus 10% sales tax" on the $69,000 selling price. This is a sale transaction, so tax is collected and payable.
+    - Tax lines will be added: At 10%, recoverable as Input Tax Credit.
+
+
+# Journal Entry
+
+    - Final rationale: Sale of 300 cases at $230 each ($69,000) plus 10% tax ($6,900), with $45,900 cash received and $30,000 on credit, and COGS of $55,500 recognized
+    - Final entry is as follows:
+
+        Dr Cash and cash equivalents                $   45,900.00
+        Dr Trade receivables                        $   30,000.00
+        Dr Cost of sales                            $   55,500.00
+        Cr Revenue from sale of goods               $   69,000.00
+        Cr Inventories — finished goods             $   55,500.00
+        Cr Tax liabilities                          $    6,900.00
+        Total: Dr $131,400.00 / Cr $131,400.00
+
+
+======================================================================
+ hard_27_meal_purpose
+======================================================================
+
+# Decisions
+
+    ## Ambiguity
+        There is 1 potential ambiguity identified, and 1 out of 1 of them is unresolved.
+
+        <1> Ambiguity: Business purpose of the meal
+            - Question: What was the business purpose of this meal?
+                If Client entertainment or business development meal:
+                    Dr Entertainment Expense                    $      125.00
+                    Cr Credit Card Payable                      $      125.00
+                If Employee meal during business travel:
+                    Dr Travel Expense                           $      125.00
+                    Cr Credit Card Payable                      $      125.00
+                If Team meeting or working lunch:
+                    Dr Meals Expense                            $      125.00
+                    Cr Credit Card Payable                      $      125.00
+            - Decision: Ambiguity unresolved
+
+    ## Complexity
+        There is 1 potential complexity identified, and 0 out of 1 of them are beyond LLM capability.
+
+        <1> Complexity: Standard expense transaction
+            - Decision: Complexity within capability
+
+    ## Proceed
+        No proceed reason.
+
+    ## Final Decision
+        The business purpose of the meal is not stated, which affects the expense account classification.
+        Decision: MISSING_INFO
+
+
+# Classification
+
+    ## Debit Classification
+        - Identified 1 line associated with expense_increase
+            Taxonomy: Entertainment expense
+            Reason: Meal expense incurred for business entertainment
+
+
+    ## Credit Classification
+        - Identified 1 line associated with liability_increase
+            Taxonomy: Credit card payable
+            Reason: Credit card used to pay for meal creates obligation to card issuer
+
+
+# Tax Treatment
+
+    - Tax is not mentioned in the input
+    - This might be a taxable transaction
+    - No tax lines will be added
+    - not applicable
+    - Reasoning: Meals are taxable supplies, but the transaction text does not mention any tax amount or rate
+
+
+# Journal Entry
+
+    No entry produced.
+
+
+======================================================================
+ int_hard_01a_note_derecognition
+======================================================================
+
+# Decisions
+
+    ## Ambiguity
+        There are 2 potential ambiguities identified, and 0 out of 2 of them are unresolved.
+
+        <1> Ambiguity: Sale vs secured borrowing
+            - Details: IFRS: Management has explicitly determined this qualifies as derecognition under IFRS 9 — resolve as sale/disposal, not borrowing.
+            - Decision: Ambiguity resolved
+
+        <2> Ambiguity: Discount calculation method
+            - Details: IFRS: IFRS rules specify 365-day year as default for interest and discount calculations — discount = $100,000 × 15% × 40/365.
+            - Decision: Ambiguity resolved
+
+    ## Complexity
+        There is 1 potential complexity identified, and 0 out of 1 of them are beyond LLM capability.
+
+        <1> Complexity: Discount computation for 40 remaining days
+            - Details: Best attempt is
+                Dr Cash                                     $   98,356.16
+                Dr Loss on Disposal of Note Receivable      $    1,643.84
+                Cr Notes Receivable                         $  100,000.00
+            - Decision: Complexity within capability
+
+    ## Proceed
+        Management's stated derecognition determination under IFRS 9 resolves the discounting treatment, and all computation inputs (face value, rate, days remaining) are provided.
+
+    ## Final Decision
+        Management's explicit IFRS 9 derecognition determination resolves the sale vs borrowing ambiguity, and the discount computation uses stated inputs with the 365-day default convention.
+        Decision: PROCEED
+
+
+# Classification
+
+    ## Debit Classification
+        - Identified 1 line associated with asset_increase
+            Taxonomy: Cash and cash equivalents
+            Reason: Cash received from discounting the note at the bank
+        - Identified 1 line associated with revenue_decrease
+            Taxonomy: Gains (losses) on disposals
+            Reason: Loss on disposal of financial asset due to discount charges exceeding any premium
+
+
+    ## Credit Classification
+        - Identified 1 line associated with asset_decrease
+            Taxonomy: Trade receivables
+            Reason: Trade receivable derecognized as risks and rewards transferred per management determination under IFRS 9
+
+
+# Tax Treatment
+
+    - Tax is not mentioned in the input
+    - This is not a taxable transaction
+    - No tax lines will be added
+    - not applicable
+    - Reasoning: Transaction describes discounting a promissory note at the bank (financial asset derecognition). This is a financial transaction involving the disposal of a receivable, not a taxable supply of goods or services. No tax is mentioned in the text.
+
+
+# Journal Entry
+
+    - Final rationale: Note receivable discounted at bank with derecognition — cash proceeds after discount, loss on disposal recognized, trade receivable removed
+    - Final entry is as follows:
+
+        Dr Cash and cash equivalents                $   98,356.16
+        Dr Loss on disposal of financial asset      $    1,643.84
+        Cr Trade receivables                        $  100,000.00
+        Total: Dr $100,000.00 / Cr $100,000.00
+
+
