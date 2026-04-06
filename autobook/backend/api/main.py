@@ -37,6 +37,7 @@ from api.routes.clarifications import router as clarifications_router
 from api.routes.statements import router as statements_router
 from api.routes.events import router as events_router
 from api.routes.llm import router as llm_router
+from api.routes.taxonomy import router as taxonomy_router
 app.include_router(health_router)
 app.include_router(auth_router)
 app.include_router(parse_router)
@@ -45,3 +46,4 @@ app.include_router(clarifications_router)
 app.include_router(statements_router)
 app.include_router(events_router)
 app.include_router(llm_router)
+app.include_router(taxonomy_router)

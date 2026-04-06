@@ -8,6 +8,7 @@ from db.models.clarification import ClarificationTask
 from db.models.journal import JournalEntry, JournalLine
 from db.models.schedule import ScheduledEntry
 from db.models.training_data import ModelTrainingData
+from db.models.taxonomy import Taxonomy
 from db.models.transaction import Transaction
 from db.models.user import User
 
@@ -24,4 +25,5 @@ __all__ = [
     "ScheduledEntry",
     "ModelTrainingData",
     "ConfidenceCalibrationData",
+    "Taxonomy",
 ]

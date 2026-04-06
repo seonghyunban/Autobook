@@ -4,6 +4,7 @@ from schemas.ledger import LedgerResponse, LedgerSummary
 from schemas.statements import StatementResponse, Period
 from schemas.events import EntryPostedEvent, ClarificationCreatedEvent, ClarificationResolvedEvent
 from schemas.health import HealthResponse
+from schemas.taxonomy import TaxonomyResponse, TaxonomyCreateRequest, TaxonomyCreateResponse
 
 __all__ = [
     "ParseRequest", "ParseResponse", "Confidence", "JournalLine", "ProposedEntry",
@@ -12,4 +13,5 @@ __all__ = [
     "StatementResponse", "Period",
     "EntryPostedEvent", "ClarificationCreatedEvent", "ClarificationResolvedEvent",
     "HealthResponse",
+    "TaxonomyResponse", "TaxonomyCreateRequest", "TaxonomyCreateResponse",
 ]
