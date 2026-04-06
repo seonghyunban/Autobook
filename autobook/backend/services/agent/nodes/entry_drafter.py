@@ -11,7 +11,6 @@ from services.agent.graph.state import PipelineState, ENTRY_DRAFTER
 from services.agent.prompts.entry_drafter import build_prompt
 from services.agent.schemas.journal import JournalEntry
 from services.agent.utils.llm import get_llm, invoke_structured
-from services.agent.utils.tracing.renderers import render_entry_rationale, render_final_entry
 
 
 # ── Calculator (disabled for now) ───────────────────────────────────────
@@ -54,21 +53,18 @@ def _map_account_codes(output: dict) -> None:
 
 # ── Stream helpers ──────────────────────────────────────────────────────
 
-def _write_start(writer, agent: str) -> None:
+def _write_start(writer) -> None:
     if writer is None:
         return
-    writer({"agent": agent, "phase": "started"})
+    writer({"action": "chunk.create", "section": "entry", "label": "Drafting journal entry..."})
 
 
-def _write_complete(writer, agent: str, output: dict) -> None:
-    """Stream entry drafter output: rationale then final entry."""
+def _write_complete(writer, output: dict) -> None:
+    """Stream entry drafter output as structured entry data."""
     if writer is None:
         return
-    reason = output.get("reason", "")
-    if reason:
-        writer({"agent": agent, "phase": "entry_rationale", "text": render_entry_rationale(reason)})
-    writer({"agent": agent, "phase": "final_entry", "text": render_final_entry(output)})
-    writer({"agent": agent, "phase": "done"})
+    writer({"action": "block.entry", "section": "entry", "tag": "Final entry", "data": output})
+    writer({"action": "chunk.done", "section": "entry", "label": "Journal entry drafted"})
 
 
 # ── Node ────────────────────────────────────────────────────────────────
@@ -77,7 +73,7 @@ def entry_drafter_node(state: PipelineState, config: RunnableConfig) -> dict:
     """Build journal entry from upstream classifications."""
     writer = get_stream_writer() if config.get("configurable", {}).get("streaming") else None
 
-    _write_start(writer, "entry_drafter")
+    _write_start(writer)
 
     messages = build_prompt(state)
     llm = get_llm(ENTRY_DRAFTER, config)
@@ -95,7 +91,7 @@ def entry_drafter_node(state: PipelineState, config: RunnableConfig) -> dict:
     # Step 3: COA mapping — disabled for now
     # _map_account_codes(output)
 
-    _write_complete(writer, "entry_drafter", output)
+    _write_complete(writer, output)
 
     update = {
         "output_entry_drafter": output,

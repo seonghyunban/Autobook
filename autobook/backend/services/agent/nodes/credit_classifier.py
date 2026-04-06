@@ -62,13 +62,13 @@ class CreditClassifierOutput(BaseModel):
 
 # ── Stream helpers ──────────────────────────────────────────────────────
 
-def _write_start(writer, agent: str) -> None:
+def _write_start(writer) -> None:
     if writer is None:
         return
-    writer({"agent": agent, "phase": "started"})
+    writer({"action": "chunk.create", "section": "credit", "label": "Identifying credit relationship..."})
 
 
-def _write_complete(writer, agent: str, output: dict) -> None:
+def _write_complete(writer, output: dict) -> None:
     """Stream classifier output leaf by leaf: slot_and_count, reason, taxonomy per detection."""
     if writer is None:
         return
@@ -77,13 +77,13 @@ def _write_complete(writer, agent: str, output: dict) -> None:
         render_slot_and_count, render_slot_reason, render_taxonomy,
     )
     has_detections = any(output.get(slot) for slot in CREDIT_SLOTS)
-    writer({"agent": agent, "phase": "start", "label": "Credit relationship identified" if has_detections else "No credit relationship identified"})
+    writer({"action": "chunk.label", "section": "credit", "label": "Credit relationship identified" if has_detections else "No credit relationship identified"})
     for slot in CREDIT_SLOTS:
         for det in output.get(slot, []):
-            writer({"agent": agent, "phase": "slot_and_count", "text": render_slot_and_count(slot, det.get("count", 1))})
-            writer({"agent": agent, "phase": "slot_reason", "text": render_slot_reason(det.get("reason", ""))})
-            writer({"agent": agent, "phase": "taxonomy", "text": render_taxonomy(det.get("category", ""))})
-    writer({"agent": agent, "phase": "done"})
+            writer({"action": "block.collapsible", "section": "credit", "text": render_slot_and_count(slot, det.get("count", 1))})
+            writer({"action": "line", "section": "credit", "tag": "Reason", "text": render_slot_reason(det.get("reason", ""))})
+            writer({"action": "line", "section": "credit", "tag": "IFRS category", "text": render_taxonomy(det.get("category", ""))})
+    writer({"action": "chunk.done", "section": "credit"})
 
 
 # ── Node ────────────────────────────────────────────────────────────────
@@ -92,14 +92,14 @@ def credit_classifier_node(state: PipelineState, config: RunnableConfig) -> dict
     """Classify credit lines into per-slot directional categories."""
     writer = get_stream_writer() if config.get("configurable", {}).get("streaming") else None
 
-    _write_start(writer, "credit_classifier")
+    _write_start(writer)
 
     rag_examples = retrieve_transaction_examples(state, "rag_cache_credit_classifier")
 
     messages = build_prompt(state, rag_examples)
     output = invoke_structured(get_llm(CREDIT_CLASSIFIER, config), CreditClassifierOutput, messages)
 
-    _write_complete(writer, "credit_classifier", output)
+    _write_complete(writer, output)
 
     return {
         "output_credit_classifier": output,

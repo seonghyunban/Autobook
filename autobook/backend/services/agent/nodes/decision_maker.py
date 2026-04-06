@@ -63,13 +63,16 @@ class DecisionMakerOutput(BaseModel):
 
 # ── Node ─────────────────────────────────────────────────────────────────
 
-def _write_start(writer, agent: str) -> None:
+def _write_start(writer) -> None:
+    """Emit pending labels before LLM call."""
     if writer is None:
         return
-    writer({"agent": agent, "phase": "started"})
+    writer({"action": "chunk.create", "section": "ambiguity", "label": "Assessing ambiguity..."})
+    writer({"action": "chunk.create", "section": "gap", "label": "Assessing complexity..."})
+    writer({"action": "chunk.create", "section": "proceed", "label": "Determining whether to proceed..."})
 
 
-def _write_complete(writer, agent: str, output: dict) -> None:
+def _write_complete(writer, output: dict) -> None:
     """Stream the DM output leaf by leaf in display order."""
     if writer is None:
         return
@@ -77,71 +80,70 @@ def _write_complete(writer, agent: str, output: dict) -> None:
         render_ambiguity_summary, render_ambiguity_aspect,
         render_conventional_default, render_ifrs_default,
         render_clarification_question, render_case_label,
-        render_possible_entry, render_ambiguity_status,
+        render_ambiguity_status,
         render_complexity_summary, render_complexity_aspect,
-        render_best_attempt, render_gap_description, render_complexity_status,
+        render_gap_description, render_complexity_status,
         render_proceed_reason, render_rationale, render_decision,
     )
 
     ambiguities = output.get("ambiguities", [])
     flags = output.get("complexity_flags", [])
 
-    # 1. Ambiguity
-    writer({"agent": agent, "phase": "ambiguity_start", "label": "Ambiguity detected" if ambiguities else "No ambiguity detected"})
+    # 1. Ambiguity — detected + items + done
+    writer({"action": "chunk.label", "section": "ambiguity", "label": "Ambiguity detected" if ambiguities else "No ambiguity detected"})
     for a in ambiguities:
-        writer({"agent": agent, "phase": "ambiguity_aspect", "text": render_ambiguity_aspect(a.get("aspect", ""))})
+        writer({"action": "block.collapsible", "section": "ambiguity", "text": render_ambiguity_aspect(a.get("aspect", ""))})
         conv = render_conventional_default(a.get("input_contextualized_conventional_default"))
         if conv:
-            writer({"agent": agent, "phase": "ambiguity_conventional", "text": conv})
+            writer({"action": "line", "section": "ambiguity", "tag": "Conventional default", "text": conv})
         ifrs = render_ifrs_default(a.get("input_contextualized_ifrs_default"))
         if ifrs:
-            writer({"agent": agent, "phase": "ambiguity_ifrs", "text": ifrs})
+            writer({"action": "line", "section": "ambiguity", "tag": "IFRS default", "text": ifrs})
         q = render_clarification_question(a.get("clarification_question"))
         if q:
-            writer({"agent": agent, "phase": "ambiguity_question", "text": q})
+            writer({"action": "line", "section": "ambiguity", "tag": "Question", "text": q})
         for case in (a.get("cases") or []):
-            writer({"agent": agent, "phase": "ambiguity_case_label", "text": render_case_label(case.get("case", ""))})
-            pe = render_possible_entry(case.get("possible_entry"))
-            if pe:
-                writer({"agent": agent, "phase": "ambiguity_case_entry", "text": pe})
-        writer({"agent": agent, "phase": "ambiguity_status", "text": render_ambiguity_status(a.get("ambiguous", False))})
-    writer({"agent": agent, "phase": "ambiguity_summary", "text": render_ambiguity_summary(ambiguities)})
-    writer({"agent": agent, "phase": "ambiguity_done"})
+            writer({"action": "line", "section": "ambiguity", "tag": "Case", "text": render_case_label(case.get("case", ""))})
+            pe = case.get("possible_entry")
+            if pe and pe.get("lines"):
+                writer({"action": "line.entry", "section": "ambiguity", "tag": "Possible entry", "data": pe})
+        writer({"action": "line", "section": "ambiguity", "tag": "Status", "text": render_ambiguity_status(a.get("ambiguous", False))})
+    writer({"action": "block.text", "section": "ambiguity", "text": render_ambiguity_summary(ambiguities)})
+    writer({"action": "chunk.done", "section": "ambiguity"})
 
-    # 2. Complexity
-    writer({"agent": agent, "phase": "complexity_start", "label": "Complexity detected" if flags else "No complexity detected"})
+    # 2. Complexity — detected + items + done
+    writer({"action": "chunk.label", "section": "gap", "label": "Complexity detected" if flags else "No complexity detected"})
     for f in flags:
-        writer({"agent": agent, "phase": "complexity_aspect", "text": render_complexity_aspect(f.get("aspect", ""))})
-        ba = render_best_attempt(f.get("best_attempt"))
-        if ba:
-            writer({"agent": agent, "phase": "complexity_best_attempt", "text": ba})
+        writer({"action": "block.collapsible", "section": "gap", "text": render_complexity_aspect(f.get("aspect", ""))})
+        ba = f.get("best_attempt")
+        if ba and ba.get("lines"):
+            writer({"action": "line.entry", "section": "gap", "tag": "Best attempt", "data": ba})
         gap = render_gap_description(f.get("gap"))
         if gap:
-            writer({"agent": agent, "phase": "complexity_gap", "text": gap})
-        writer({"agent": agent, "phase": "complexity_status", "text": render_complexity_status(f.get("beyond_llm_capability", False))})
-    writer({"agent": agent, "phase": "complexity_summary", "text": render_complexity_summary(flags)})
-    writer({"agent": agent, "phase": "complexity_done"})
+            writer({"action": "line", "section": "gap", "tag": "Gap", "text": gap})
+        writer({"action": "line", "section": "gap", "tag": "Status", "text": render_complexity_status(f.get("beyond_llm_capability", False))})
+    writer({"action": "block.text", "section": "gap", "text": render_complexity_summary(flags)})
+    writer({"action": "chunk.done", "section": "gap"})
 
-    # 3. Decision
-    writer({"agent": agent, "phase": "decision_start"})
+    # 3. Decision — items + done (with final label)
     pr = render_proceed_reason(output.get("proceed_reason"))
     if pr:
-        writer({"agent": agent, "phase": "proceed_reason", "text": pr})
-    writer({"agent": agent, "phase": "rationale", "text": render_rationale(output.get("overall_final_rationale", ""))})
-    writer({"agent": agent, "phase": "decision", "text": render_decision(output.get("decision", ""))})
-    writer({"agent": agent, "phase": "decision_done"})
+        writer({"action": "block.text", "section": "proceed", "text": pr})
+    writer({"action": "block.text", "section": "proceed", "text": render_rationale(output.get("overall_final_rationale", ""))})
+    writer({"action": "block.text", "section": "proceed", "text": render_decision(output.get("decision", ""))})
+    writer({"action": "chunk.done", "section": "proceed", "label": "Decision made"})
 
 
 def decision_maker_node(state: PipelineState, config: RunnableConfig) -> dict:
     """One LLM call: gating decision with ambiguity cases and capability gaps."""
     writer = get_stream_writer() if config.get("configurable", {}).get("streaming") else None
 
-    _write_start(writer, "decision_maker")
+    _write_start(writer)
 
     messages = build_prompt(state)
     output = invoke_structured(get_llm("decision_maker", config), DecisionMakerOutput, messages)
 
-    _write_complete(writer, "decision_maker", output)
+    _write_complete(writer, output)
 
     # Extract clarification questions from unresolved ambiguities
     questions = [

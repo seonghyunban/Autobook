@@ -167,10 +167,12 @@ def agent_stream(
     event = AgentStreamEvent(
         parse_id=parse_id,
         user_id=user_id,
-        agent=chunk.get("agent", ""),
-        phase=chunk.get("phase", ""),
+        action=chunk.get("action", ""),
+        section=chunk.get("section", ""),
+        tag=chunk.get("tag"),
         text=chunk.get("text"),
         label=chunk.get("label"),
+        data=chunk.get("data"),
         occurred_at=datetime.now(timezone.utc).isoformat(),
     )
     publish_sync("agent.stream", event.model_dump())

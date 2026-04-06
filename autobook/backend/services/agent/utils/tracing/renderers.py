@@ -116,7 +116,8 @@ def render_decision(decision: str) -> str:
 # ── Classification (per detection) — 3 renderers ───────────────────
 
 def render_slot_and_count(slot: str, count: int) -> str:
-    return f"Identified {count} {'lines' if count != 1 else 'line'} associated with {slot}"
+    label = slot.replace("_", " ")
+    return f"Identified {count} {'lines' if count != 1 else 'line'} associated with {label}"
 
 
 def render_taxonomy(category: str) -> str:
@@ -129,14 +130,11 @@ def render_slot_reason(reason: str) -> str:
 
 # ── Tax — 6 renderers ──────────────────────────────────────────────
 
-def render_tax_detection(mentioned: bool, taxable: bool) -> str:
-    if mentioned and taxable:
-        return "Tax is mentioned in the input. This might be a taxable transaction."
+def render_tax_detection(mentioned: bool, classification: str) -> str:
+    label = classification.replace("_", " ")
     if mentioned:
-        return "Tax is mentioned in the input."
-    if taxable:
-        return "Tax is not mentioned in the input. This might be a taxable transaction."
-    return "Tax is not mentioned in the input. This is not a taxable transaction."
+        return f"Tax is mentioned in the input. Classification: {label}."
+    return f"Tax is not mentioned in the input. Classification: {label}."
 
 
 def render_tax_context(context: str | None) -> str:
@@ -149,17 +147,19 @@ def render_tax_reasoning(reasoning: str) -> str:
     return reasoning
 
 
-def render_tax_decision(add_lines: bool, rate: float | None, treatment: str) -> str:
-    if not add_lines:
-        return "No tax lines will be added."
+def render_tax_decision(classification: str, itc_eligible: bool, amount_tax_inclusive: bool, rate: float | None) -> str:
+    if classification in ("zero_rated", "exempt", "out_of_scope"):
+        return f"No tax lines will be added ({classification.replace('_', ' ')})."
     parts = ["Tax lines will be added"]
     details = []
     if rate is not None:
-        details.append(f"At {rate:.0%}")
-    if treatment == "recoverable":
+        details.append(f"at {rate:.0%}")
+    if itc_eligible:
         details.append("recoverable as Input Tax Credit")
-    elif treatment == "non_recoverable":
+    else:
         details.append("non-recoverable, included in expense")
+    if amount_tax_inclusive:
+        details.append("amount is tax-inclusive")
     if details:
         parts.append(": " + ", ".join(details) + ".")
     else:
@@ -340,14 +340,14 @@ def render_full_trace(state: dict) -> str:
     # ── # Tax Treatment ─────────────────────────────────────────────
     out.append("# Tax Treatment")
     out.append("")
-    out.append(f"    - {render_tax_detection(tax.get('tax_mentioned', False), tax.get('taxable', False))}")
+    out.append(f"    - {render_tax_detection(tax.get('tax_mentioned', False), tax.get('classification', 'out_of_scope'))}")
     ctx = render_tax_context(tax.get("tax_context"))
     if ctx:
         out.append(f"    - {ctx}")
     reasoning = render_tax_reasoning(tax.get("reasoning", ""))
     if reasoning:
         out.append(f"    - {reasoning}")
-    out.append(f"    - {render_tax_decision(tax.get('add_tax_lines', False), tax.get('tax_rate'), tax.get('treatment', ''))}")
+    out.append(f"    - {render_tax_decision(tax.get('classification', 'out_of_scope'), tax.get('itc_eligible', False), tax.get('amount_tax_inclusive', False), tax.get('tax_rate'))}")
 
     out.append("")
     out.append("")

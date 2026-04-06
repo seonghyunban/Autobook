@@ -80,8 +80,10 @@ class AgentStreamEvent(BaseModel):
     type: str = "agent.stream"
     parse_id: str
     user_id: str
-    agent: str
-    phase: str
+    action: str
+    section: str
+    tag: str | None = None
     text: str | None = None
     label: str | None = None
+    data: dict | None = None
     occurred_at: str
