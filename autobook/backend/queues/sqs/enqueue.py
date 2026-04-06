@@ -55,7 +55,7 @@ def fast_path(
         store=store,
         post_stages=post_stages if post_stages is not None else list(DEFAULT_POST_STAGES),
     )
-    return send(settings.SQS_QUEUE_NORMALIZER, msg.model_dump(exclude_none=True))
+    return send(settings.SQS_QUEUE_FAST_PATH, msg.model_dump(exclude_none=True))
 
 
 def agent(message: dict) -> str:

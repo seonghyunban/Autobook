@@ -80,6 +80,7 @@ RUN --mount=type=cache,target=/root/.cache/uv \
     uv sync --frozen --no-dev --no-install-project --extra agent --extra flywheel
 
 COPY backend/services/agent/ backend/services/agent/
+COPY backend/services/normalization/ backend/services/normalization/
 COPY backend/services/posting/ backend/services/posting/
 COPY backend/services/flywheel/ backend/services/flywheel/
 COPY backend/services/resolution/ backend/services/resolution/

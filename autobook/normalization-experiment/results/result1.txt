@@ -1,0 +1,422 @@
+============================================================
+Test: norm_01_machinery_purchase
+Input: Clorox purchased machinery from Ford for $700,000 on account for factory expansion. Clorox also paid by cheque $30,000 in freight, $20,000 in installation, and $50,000 in testing and commissioning costs.
+------------------------------------------------------------
+Time: 6.1s
+{
+  "nodes": [
+    {
+      "index": 0,
+      "name": "Clorox",
+      "role": "reporting_entity"
+    },
+    {
+      "index": 1,
+      "name": "Ford",
+      "role": "counterparty"
+    }
+  ],
+  "edges": [
+    {
+      "source": "Ford",
+      "source_index": 1,
+      "target": "Clorox",
+      "target_index": 0,
+      "nature": "sold machinery",
+      "amount": 700000.0,
+      "currency": "USD",
+      "unilateral": false
+    },
+    {
+      "source": "Clorox",
+      "source_index": 0,
+      "target": "Ford",
+      "target_index": 1,
+      "nature": "owes on account",
+      "amount": 700000.0,
+      "currency": "USD",
+      "unilateral": false
+    },
+    {
+      "source": "Clorox",
+      "source_index": 0,
+      "target": "Ford",
+      "target_index": 1,
+      "nature": "paid freight",
+      "amount": 30000.0,
+      "currency": "USD",
+      "unilateral": false
+    },
+    {
+      "source": "Clorox",
+      "source_index": 0,
+      "target": "Ford",
+      "target_index": 1,
+      "nature": "paid installation",
+      "amount": 20000.0,
+      "currency": "USD",
+      "unilateral": false
+    },
+    {
+      "source": "Clorox",
+      "source_index": 0,
+      "target": "Ford",
+      "target_index": 1,
+      "nature": "paid testing and commissioning costs",
+      "amount": 50000.0,
+      "currency": "USD",
+      "unilateral": false
+    }
+  ],
+  "raw_text": "Clorox purchased machinery from Ford for $700,000 on account for factory expansion. Clorox also paid by cheque $30,000 in freight, $20,000 in installation, and $50,000 in testing and commissioning costs."
+}
+
+
+============================================================
+Test: norm_02_compound_sale_tax
+Input: Mondelez sold 300 cases of snack products to a customer at $230 per case (cost: $185 per case). The total selling price of $69,000 plus 10% sales tax resulted in a gross amount of $75,900. Mondelez received $45,900 via bank transfer to its chequing account, with the remainder on credit.
+------------------------------------------------------------
+Time: 6.5s
+{
+  "nodes": [
+    {
+      "index": 0,
+      "name": "Mondelez",
+      "role": "reporting_entity"
+    },
+    {
+      "index": 1,
+      "name": "Customer",
+      "role": "counterparty"
+    },
+    {
+      "index": 2,
+      "name": "Tax authority",
+      "role": "counterparty"
+    }
+  ],
+  "edges": [
+    {
+      "source": "Mondelez",
+      "source_index": 0,
+      "target": "Customer",
+      "target_index": 1,
+      "nature": "sold snack products",
+      "amount": 69000.0,
+      "currency": "USD",
+      "unilateral": false
+    },
+    {
+      "source": "Mondelez",
+      "source_index": 0,
+      "target": "Tax authority",
+      "target_index": 2,
+      "nature": "collected sales tax",
+      "amount": 6900.0,
+      "currency": "USD",
+      "unilateral": false
+    },
+    {
+      "source": "Customer",
+      "source_index": 1,
+      "target": "Mondelez",
+      "target_index": 0,
+      "nature": "paid via bank transfer",
+      "amount": 45900.0,
+      "currency": "USD",
+      "unilateral": false
+    },
+    {
+      "source": "Customer",
+      "source_index": 1,
+      "target": "Mondelez",
+      "target_index": 0,
+      "nature": "owes on credit",
+      "amount": 30000.0,
+      "currency": "USD",
+      "unilateral": false
+    }
+  ],
+  "raw_text": "Mondelez sold 300 cases of snack products to a customer at $230 per case (cost: $185 per case). The total selling price of $69,000 plus 10% sales tax resulted in a gross amount of $75,900. Mondelez received $45,900 via bank transfer to its chequing account, with the remainder on credit."
+}
+
+
+============================================================
+Test: norm_03_payroll_recognition
+Input: Mondelez recognized January payroll: production worker wages of $25,000 (5 employees) and administrative salaries of $20,000 (5 employees). The following employee-borne statutory deductions were withheld: pension contributions $2,000, health insurance premiums $3,250, employment insurance premiums $1,050, and income tax withholdings $1,450. The net amount was transferred from the chequing account to employees' personal accounts.
+------------------------------------------------------------
+Time: 9.3s
+{
+  "nodes": [
+    {
+      "index": 0,
+      "name": "Mondelez",
+      "role": "reporting_entity"
+    },
+    {
+      "index": 1,
+      "name": "Employees",
+      "role": "counterparty"
+    },
+    {
+      "index": 2,
+      "name": "Pension fund",
+      "role": "counterparty"
+    },
+    {
+      "index": 3,
+      "name": "Health insurance provider",
+      "role": "counterparty"
+    },
+    {
+      "index": 4,
+      "name": "Employment insurance authority",
+      "role": "counterparty"
+    },
+    {
+      "index": 5,
+      "name": "Tax authority",
+      "role": "counterparty"
+    }
+  ],
+  "edges": [
+    {
+      "source": "Employees",
+      "source_index": 1,
+      "target": "Mondelez",
+      "target_index": 0,
+      "nature": "provided labor (production workers)",
+      "amount": 25000.0,
+      "currency": "USD",
+      "unilateral": false
+    },
+    {
+      "source": "Employees",
+      "source_index": 1,
+      "target": "Mondelez",
+      "target_index": 0,
+      "nature": "provided labor (administrative)",
+      "amount": 20000.0,
+      "currency": "USD",
+      "unilateral": false
+    },
+    {
+      "source": "Mondelez",
+      "source_index": 0,
+      "target": "Employees",
+      "target_index": 1,
+      "nature": "owes gross wages and salaries",
+      "amount": 45000.0,
+      "currency": "USD",
+      "unilateral": false
+    },
+    {
+      "source": "Mondelez",
+      "source_index": 0,
+      "target": "Pension fund",
+      "target_index": 2,
+      "nature": "withheld pension contributions",
+      "amount": 2000.0,
+      "currency": "USD",
+      "unilateral": false
+    },
+    {
+      "source": "Mondelez",
+      "source_index": 0,
+      "target": "Health insurance provider",
+      "target_index": 3,
+      "nature": "withheld health insurance premiums",
+      "amount": 3250.0,
+      "currency": "USD",
+      "unilateral": false
+    },
+    {
+      "source": "Mondelez",
+      "source_index": 0,
+      "target": "Employment insurance authority",
+      "target_index": 4,
+      "nature": "withheld employment insurance premiums",
+      "amount": 1050.0,
+      "currency": "USD",
+      "unilateral": false
+    },
+    {
+      "source": "Mondelez",
+      "source_index": 0,
+      "target": "Tax authority",
+      "target_index": 5,
+      "nature": "withheld income tax",
+      "amount": 1450.0,
+      "currency": "USD",
+      "unilateral": false
+    },
+    {
+      "source": "Mondelez",
+      "source_index": 0,
+      "target": "Employees",
+      "target_index": 1,
+      "nature": "transferred net amount",
+      "amount": 37250.0,
+      "currency": "USD",
+      "unilateral": false
+    }
+  ],
+  "raw_text": "Mondelez recognized January payroll: production worker wages of $25,000 (5 employees) and administrative salaries of $20,000 (5 employees). The following employee-borne statutory deductions were withheld: pension contributions $2,000, health insurance premiums $3,250, employment insurance premiums $1,050, and income tax withholdings $1,450. The net amount was transferred from the chequing account to employees' personal accounts."
+}
+
+
+============================================================
+Test: norm_04_donation
+Input: Target pledged a donation of $1,000,000 to a humanitarian food aid program in Somalia and issued a 1-month promissory note for the full amount.
+------------------------------------------------------------
+Time: 4.1s
+{
+  "nodes": [
+    {
+      "index": 0,
+      "name": "Target",
+      "role": "reporting_entity"
+    },
+    {
+      "index": 1,
+      "name": "humanitarian food aid program in Somalia",
+      "role": "counterparty"
+    }
+  ],
+  "edges": [
+    {
+      "source": "Target",
+      "source_index": 0,
+      "target": "humanitarian food aid program in Somalia",
+      "target_index": 1,
+      "nature": "pledged a donation",
+      "amount": 1000000.0,
+      "currency": "USD",
+      "unilateral": true
+    },
+    {
+      "source": "Target",
+      "source_index": 0,
+      "target": "humanitarian food aid program in Somalia",
+      "target_index": 1,
+      "nature": "issued a 1-month promissory note",
+      "amount": 1000000.0,
+      "currency": "USD",
+      "unilateral": false
+    }
+  ],
+  "raw_text": "Target pledged a donation of $1,000,000 to a humanitarian food aid program in Somalia and issued a 1-month promissory note for the full amount."
+}
+
+
+============================================================
+Test: norm_05_decommissioning
+Input: Tidewater acquired an offshore marine structure for $4,000,000 on account. The structure is subject to a 10-year operating permit, which requires full site restoration at the end of the permit term. Tidewater estimated the future restoration cost and determined its present value to be $1,950,000.
+------------------------------------------------------------
+Time: 4.2s
+{
+  "nodes": [
+    {
+      "index": 0,
+      "name": "Tidewater",
+      "role": "reporting_entity"
+    },
+    {
+      "index": 1,
+      "name": "Seller",
+      "role": "counterparty"
+    }
+  ],
+  "edges": [
+    {
+      "source": "Seller",
+      "source_index": 1,
+      "target": "Tidewater",
+      "target_index": 0,
+      "nature": "sold offshore marine structure",
+      "amount": 4000000.0,
+      "currency": "USD",
+      "unilateral": false
+    },
+    {
+      "source": "Tidewater",
+      "source_index": 0,
+      "target": "Seller",
+      "target_index": 1,
+      "nature": "owes on account",
+      "amount": 4000000.0,
+      "currency": "USD",
+      "unilateral": false
+    }
+  ],
+  "raw_text": "Tidewater acquired an offshore marine structure for $4,000,000 on account. The structure is subject to a 10-year operating permit, which requires full site restoration at the end of the permit term. Tidewater estimated the future restoration cost and determined its present value to be $1,950,000."
+}
+
+
+============================================================
+Test: norm_06_note_discounting
+Input: Ford received a 90-day, non-interest-bearing promissory note with a face value of $100,000 as settlement of a trade receivable. Fifty days after the note's issue date, Ford discounted the note at the bank at an annual discount rate of 15%, receiving the net proceeds in cash after deducting the discount charges.
+------------------------------------------------------------
+Time: 5.7s
+{
+  "nodes": [
+    {
+      "index": 0,
+      "name": "Ford",
+      "role": "reporting_entity"
+    },
+    {
+      "index": 1,
+      "name": "Customer",
+      "role": "counterparty"
+    },
+    {
+      "index": 2,
+      "name": "Bank",
+      "role": "counterparty"
+    }
+  ],
+  "edges": [
+    {
+      "source": "Customer",
+      "source_index": 1,
+      "target": "Ford",
+      "target_index": 0,
+      "nature": "issued promissory note as settlement",
+      "amount": 100000.0,
+      "currency": "USD",
+      "unilateral": false
+    },
+    {
+      "source": "Ford",
+      "source_index": 0,
+      "target": "Customer",
+      "target_index": 1,
+      "nature": "settled trade receivable",
+      "amount": 100000.0,
+      "currency": "USD",
+      "unilateral": false
+    },
+    {
+      "source": "Ford",
+      "source_index": 0,
+      "target": "Bank",
+      "target_index": 2,
+      "nature": "discounted note",
+      "amount": 100000.0,
+      "currency": "USD",
+      "unilateral": false
+    },
+    {
+      "source": "Bank",
+      "source_index": 2,
+      "target": "Ford",
+      "target_index": 0,
+      "nature": "paid net proceeds in cash",
+      "amount": null,
+      "currency": "USD",
+      "unilateral": false
+    }
+  ],
+  "raw_text": "Ford received a 90-day, non-interest-bearing promissory note with a face value of $100,000 as settlement of a trade receivable. Fifty days after the note's issue date, Ford discounted the note at the bank at an annual discount rate of 15%, receiving the net proceeds in cash after deducting the discount charges."
+}

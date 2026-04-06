@@ -26,7 +26,6 @@ class Settings(BaseSettings):
         "http://localhost:5173",
         "https://autobook.tech",
         "https://www.autobook.tech",
-        "https://ai-accountant490.netlify.app",
     ]
     AUTO_POST_THRESHOLD: float = 0.95  # confidence >= this → auto-post
     ML_INFERENCE_PROVIDER: str = "heuristic"
@@ -34,6 +33,7 @@ class Settings(BaseSettings):
     ML_ENTITY_MODEL_PATH: str | None = None
     SAGEMAKER_ENDPOINT_NAME: str | None = None
     SQS_ENDPOINT_URL: str | None = None
+    SQS_QUEUE_FAST_PATH: str = "http://elasticmq:9324/queue/fast-path"
     SQS_QUEUE_NORMALIZER: str = "http://elasticmq:9324/queue/normalizer"
     SQS_QUEUE_PRECEDENT: str = "http://elasticmq:9324/queue/precedent"
     SQS_QUEUE_ML_INFERENCE: str = "http://elasticmq:9324/queue/ml-inference"
@@ -44,6 +44,7 @@ class Settings(BaseSettings):
     QDRANT_URL: str = "http://localhost:6333"
     QDRANT_API_KEY: str | None = None
     BEDROCK_MODEL_ROUTING: dict[str, str] = {
+        "normalization":     "us.anthropic.claude-sonnet-4-5-20250929-v1:0",
         "decision_maker":   "us.anthropic.claude-sonnet-4-5-20250929-v1:0",
         "debit_classifier":  "us.anthropic.claude-sonnet-4-5-20250929-v1:0",
         "credit_classifier": "us.anthropic.claude-sonnet-4-5-20250929-v1:0",
@@ -52,7 +53,7 @@ class Settings(BaseSettings):
     }
     BEDROCK_THINKING_EFFORT: dict[str, str] = {}  # empty = no thinking; post-ablation: set per agent
 
-    model_config = {"env_file": ".env", "case_sensitive": False}
+    model_config = {"case_sensitive": False}
 
     @property
     def cognito_region(self) -> str:
