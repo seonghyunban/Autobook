@@ -1,21 +1,18 @@
 import { Navigate, Outlet, Route, Routes } from "react-router-dom";
 import { ProtectedRoute } from "./auth/ProtectedRoute";
-import { AppLayout } from "./layout/AppLayout";
-import { AuthCallbackPage } from "./pages/AuthCallbackPage";
-import { ClarificationPage } from "./pages/ClarificationPage";
-import { DashboardPage } from "./pages/DashboardPage";
-import { LedgerPage } from "./pages/LedgerPage";
+import { AppShellLayout } from "./components/app-shell";
 import { LoginPage } from "./pages/LoginPage";
-import { StatementsPage } from "./pages/StatementsPage";
-import { LLMInteractionPage } from "./pages/LLMInteractionPage";
-import { TransactionPage } from "./pages/TransactionPage";
+import { EntryDrafterPage } from "./pages/EntryDrafterPage";
+import { HistoryPage } from "./pages/HistoryPage";
+import { EntryViewerPage } from "./pages/EntryViewerPage";
 
-function ProtectedShell() {
+/**
+ * Protected LLM shell — sidebar + auth gate.
+ */
+function ProtectedAppShell() {
   return (
     <ProtectedRoute>
-      <AppLayout>
-        <Outlet />
-      </AppLayout>
+      <AppShellLayout />
     </ProtectedRoute>
   );
 }
@@ -23,17 +20,18 @@ function ProtectedShell() {
 export default function App() {
   return (
     <Routes>
+      {/* Public */}
       <Route path="/login" element={<LoginPage />} />
-      <Route path="/auth/callback" element={<AuthCallbackPage />} />
-      <Route element={<ProtectedShell />}>
-        <Route path="/" element={<DashboardPage />} />
-        <Route path="/transactions" element={<TransactionPage />} />
-        <Route path="/clarifications" element={<ClarificationPage />} />
-        <Route path="/ledger" element={<LedgerPage />} />
-        <Route path="/statements" element={<StatementsPage />} />
+
+      {/* Protected — app shell */}
+      <Route element={<ProtectedAppShell />}>
+        <Route path="/draft" element={<EntryDrafterPage />} />
+        <Route path="/history" element={<HistoryPage />} />
+        <Route path="/history/:draftId" element={<EntryViewerPage />} />
       </Route>
-      <Route path="/llm" element={<LLMInteractionPage />} />
-      <Route path="*" element={<Navigate to="/" replace />} />
+
+      {/* Fallback */}
+      <Route path="*" element={<Navigate to="/draft" replace />} />
     </Routes>
   );
 }
