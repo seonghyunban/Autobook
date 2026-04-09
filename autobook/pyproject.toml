@@ -30,12 +30,6 @@ api = [
     "websockets>=12,<14",
     "httpx>=0.28,<1",
 ]
-normalizer = [  # S3 → normalize → write transactions
-    "pandas>=3.0,<4",
-    "pyarrow>=23.0,<24",
-]
-ml-inference = [  # SageMaker inference (tier 2) — uses boto3 (pre-installed in Lambda)
-]
 agent = [  # LangGraph LLM pipeline (tier 3)
     "langgraph>=0.2,<1",
     "langchain-aws>=0.2,<1",

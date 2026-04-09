@@ -16,14 +16,12 @@ RUN --mount=type=cache,target=/root/.cache/uv \
 
 # Shared source
 COPY backend/config.py backend/config.py
-COPY backend/local_identity.py backend/local_identity.py
 COPY backend/auth/ backend/auth/
 COPY backend/db/ backend/db/
 COPY backend/queues/ backend/queues/
 COPY backend/cache/ backend/cache/
 COPY backend/utils/ backend/utils/
 COPY backend/schemas/ backend/schemas/
-COPY backend/reporting/ backend/reporting/
 COPY backend/services/__init__.py backend/services/__init__.py
 COPY backend/services/shared/ backend/services/shared/
 COPY backend/vectordb/ backend/vectordb/
@@ -54,24 +52,6 @@ USER app
 EXPOSE 8000
 CMD ["uvicorn", "api.main:app", "--host", "0.0.0.0", "--port", "8000"]
 
-# ── Fast-Path Worker (ECS) ────────────────────────────────────
-# Runs normalizer → precedent_v2 → ML inference → posting in-process
-FROM autobook-accounting AS autobook-fast-path
-
-RUN --mount=type=cache,target=/root/.cache/uv \
-    uv sync --frozen --no-dev --no-install-project --extra accounting --extra normalizer --extra ml-inference --extra flywheel
-
-COPY backend/services/normalizer/ backend/services/normalizer/
-COPY backend/services/precedent/ backend/services/precedent/
-COPY backend/services/precedent_v2/ backend/services/precedent_v2/
-COPY backend/services/ml_inference/ backend/services/ml_inference/
-COPY backend/services/posting/ backend/services/posting/
-COPY backend/services/flywheel/ backend/services/flywheel/
-COPY backend/services/resolution/ backend/services/resolution/
-
-USER app
-CMD ["python", "-m", "workers.fast_path"]
-
 # ── Agent / LLM Worker (Lambda, SnapStart) ────────────────────
 # Local dev uses this image. Prod uses zip deploy for SnapStart.
 FROM autobook-accounting AS autobook-agent
@@ -83,8 +63,7 @@ COPY backend/services/agent/ backend/services/agent/
 COPY backend/services/normalization/ backend/services/normalization/
 COPY backend/services/posting/ backend/services/posting/
 COPY backend/services/flywheel/ backend/services/flywheel/
-COPY backend/services/resolution/ backend/services/resolution/
-COPY backend/services/precedent_v2/ backend/services/precedent_v2/
+COPY backend/services/precedent/ backend/services/precedent/
 
 ENTRYPOINT ["python", "-m", "awslambdaric"]
 CMD ["workers.agent.handler"]
