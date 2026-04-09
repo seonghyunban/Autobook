@@ -9,8 +9,8 @@
 # crashes mid-processing, the message reappears after the visibility timeout.
 #
 # 7 queues, one per handoff point in the pipeline:
-#   normalizer   — API → Normalizer (raw file/text input)
-#   precedent    — Normalizer → Precedent Matcher (normalized transaction)
+#   normalization — API → Normalization worker (raw text → graph)
+#   precedent    — Normalization → Precedent Matcher (normalized transaction)
 #   ml_inference — Precedent Matcher → ML Inference (cache miss)
 #   agent        — ML Inference → Agent (low-confidence classification)
 #   resolution   — Agent → Resolution Worker (stuck/fixable → human)
@@ -25,7 +25,7 @@ locals {
   name = "${var.project}-${var.environment}" # e.g. "autobook-dev"
 
   # The 7 queues in the pipeline — order matches the data flow
-  queue_names = ["normalizer", "precedent", "ml_inference", "agent", "resolution", "posting", "flywheel"]
+  queue_names = ["normalization", "precedent", "ml_inference", "agent", "resolution", "posting", "flywheel"]
 }
 
 # =============================================================================

@@ -2,13 +2,13 @@
 # REQUIRED INPUTS — caller must provide these
 # =============================================================================
 
-# Used in queue names like "autobook-dev-normalizer"
+# Used in queue names like "autobook-dev-normalization"
 variable "project" {
   type        = string
   description = "Project name, used in queue naming"
 }
 
-# Used in queue names like "autobook-dev-normalizer"
+# Used in queue names like "autobook-dev-normalization"
 variable "environment" {
   type        = string
   description = "Deployment environment, used in queue naming"

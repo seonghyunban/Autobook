@@ -11,10 +11,10 @@ locals {
   api_service = "api"
 
   # SQS queue URL environment variables.
-  # API enqueues to the normalizer queue to kick off the pipeline.
+  # API enqueues to the normalization queue to kick off the pipeline.
   sqs_env = {
     api = [
-      { name = "SQS_QUEUE_NORMALIZER", value = var.queue_urls["normalizer"] },
+      { name = "SQS_QUEUE_NORMALIZATION", value = var.queue_urls["normalization"] },
     ]
   }
 }
@@ -225,6 +225,7 @@ resource "aws_ecs_task_definition" "main" {
         { name = "ENVIRONMENT", value = var.environment },
         { name = "REDIS_URL", value = local.redis_url },
         { name = "S3_BUCKET", value = var.s3_bucket_id },
+        { name = "QDRANT_URL", value = var.qdrant_url },
       ],
       # Only the API service needs Cognito config (to validate auth tokens)
       each.key == local.api_service ? [
@@ -246,6 +247,7 @@ resource "aws_ecs_task_definition" "main" {
       { name = "DB_NAME", valueFrom = "${var.db_credentials_secret_arn}:dbname::" },
       { name = "DB_USER", valueFrom = "${var.db_credentials_secret_arn}:username::" },
       { name = "DB_PASSWORD", valueFrom = "${var.db_credentials_secret_arn}:password::" },
+      { name = "QDRANT_API_KEY", valueFrom = var.qdrant_api_key_secret_arn },
     ]
 
     # --- Logging: send stdout/stderr to CloudWatch ---

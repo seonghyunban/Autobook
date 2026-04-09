@@ -5,9 +5,9 @@ locals {
   # API runs on ECS Fargate — keeps the ECS trust policy
   ecs_services = ["api"]
 
-  # Workers run on Lambda — triggered by SQS event source mappings
-  lambda_services = ["normalizer", "precedent", "ml_inference", "agent",
-    "resolution", "posting", "flywheel"]
+  # Only the agent runs on Lambda — triggered by SQS-agent event source mapping.
+  # Other pipeline stages run inside ECS workers (fast_path, normalization).
+  lambda_services = ["agent"]
 
   # ECS trust policy — allows the ECS service to assume roles on behalf of containers
   ecs_trust_policy = jsonencode({
@@ -122,10 +122,10 @@ resource "aws_iam_role_policy" "lambda_secrets" {
 }
 
 # =============================================================================
-# SERVICE-SPECIFIC POLICIES — S3, SageMaker, Bedrock
+# SERVICE-SPECIFIC POLICIES — S3, SQS, Bedrock
 # =============================================================================
 
-# --- S3 policies (api, normalizer, flywheel) ---
+# --- S3 (api only — uploads to the bucket) ---
 
 resource "aws_iam_role_policy" "api_s3" {
   name = "s3-upload"
@@ -141,86 +141,11 @@ resource "aws_iam_role_policy" "api_s3" {
   })
 }
 
-resource "aws_iam_role_policy" "normalizer_s3" {
-  name = "s3-read"
-  role = aws_iam_role.lambda["normalizer"].id
+# --- SQS ---
 
-  policy = jsonencode({
-    Version = "2012-10-17"
-    Statement = [{
-      Effect   = "Allow"
-      Action   = ["s3:GetObject", "s3:DeleteObject"]
-      Resource = "${var.s3_bucket_arn}/*"
-    }]
-  })
-}
-
-resource "aws_iam_role_policy" "flywheel_s3" {
-  name = "s3-training-data"
-  role = aws_iam_role.lambda["flywheel"].id
-
-  policy = jsonencode({
-    Version = "2012-10-17"
-    Statement = [{
-      Effect = "Allow"
-      Action = ["s3:GetObject", "s3:PutObject", "s3:ListBucket"]
-      Resource = [
-        var.s3_bucket_arn,
-        "${var.s3_bucket_arn}/*"
-      ]
-    }]
-  })
-}
-
-# --- SageMaker policies (ml_inference, flywheel) ---
-
-resource "aws_iam_role_policy" "ml_inference_sagemaker" {
-  name = "sagemaker-invoke"
-  role = aws_iam_role.lambda["ml_inference"].id
-
-  policy = jsonencode({
-    Version = "2012-10-17"
-    Statement = [{
-      Effect   = "Allow"
-      Action   = "sagemaker:InvokeEndpoint"
-      Resource = "arn:aws:sagemaker:${data.aws_region.current.region}:${data.aws_caller_identity.current.account_id}:endpoint/${local.name}-*"
-    }]
-  })
-}
-
-resource "aws_iam_role_policy" "flywheel_sagemaker" {
-  name = "sagemaker-training"
-  role = aws_iam_role.lambda["flywheel"].id
-
-  policy = jsonencode({
-    Version = "2012-10-17"
-    Statement = [
-      {
-        Effect = "Allow"
-        Action = [
-          "sagemaker:CreateTrainingJob",
-          "sagemaker:DescribeTrainingJob",
-          "sagemaker:StopTrainingJob"
-        ]
-        Resource = "arn:aws:sagemaker:${data.aws_region.current.region}:${data.aws_caller_identity.current.account_id}:training-job/${local.name}-*"
-      },
-      {
-        Effect   = "Allow"
-        Action   = "iam:PassRole"
-        Resource = "arn:aws:iam::${data.aws_caller_identity.current.account_id}:role/${local.name}-sagemaker-*"
-        Condition = {
-          StringEquals = { "iam:PassedToService" = "sagemaker.amazonaws.com" }
-        }
-      }
-    ]
-  })
-}
-
-# --- SQS policies ---
-
-# API: enqueue to normalizer
+# API: enqueue to the normalization queue (llm_interaction flow).
 resource "aws_iam_role_policy" "api_sqs" {
-  name = "sqs-send-normalizer"
+  name = "sqs-send-normalization"
   role = aws_iam_role.task["api"].id
 
   policy = jsonencode({
@@ -228,78 +153,12 @@ resource "aws_iam_role_policy" "api_sqs" {
     Statement = [{
       Effect   = "Allow"
       Action   = "sqs:SendMessage"
-      Resource = var.queue_arns["normalizer"]
+      Resource = var.queue_arns["normalization"]
     }]
   })
 }
 
-# Normalizer: receive from normalizer, send to precedent
-resource "aws_iam_role_policy" "normalizer_sqs" {
-  name = "sqs-normalizer-to-precedent"
-  role = aws_iam_role.lambda["normalizer"].id
-
-  policy = jsonencode({
-    Version = "2012-10-17"
-    Statement = [
-      {
-        Effect   = "Allow"
-        Action   = ["sqs:ReceiveMessage", "sqs:DeleteMessage", "sqs:GetQueueAttributes"]
-        Resource = var.queue_arns["normalizer"]
-      },
-      {
-        Effect   = "Allow"
-        Action   = "sqs:SendMessage"
-        Resource = var.queue_arns["precedent"]
-      }
-    ]
-  })
-}
-
-# Precedent (tier 1): receive from precedent, send to ml_inference or posting
-resource "aws_iam_role_policy" "precedent_sqs" {
-  name = "sqs-precedent-to-ml-inference-or-posting"
-  role = aws_iam_role.lambda["precedent"].id
-
-  policy = jsonencode({
-    Version = "2012-10-17"
-    Statement = [
-      {
-        Effect   = "Allow"
-        Action   = ["sqs:ReceiveMessage", "sqs:DeleteMessage", "sqs:GetQueueAttributes"]
-        Resource = var.queue_arns["precedent"]
-      },
-      {
-        Effect   = "Allow"
-        Action   = "sqs:SendMessage"
-        Resource = [var.queue_arns["ml_inference"], var.queue_arns["posting"]]
-      }
-    ]
-  })
-}
-
-# ML inference (tier 2): receive from ml_inference, send to agent or posting
-resource "aws_iam_role_policy" "ml_inference_sqs" {
-  name = "sqs-ml-inference-to-agent-or-posting"
-  role = aws_iam_role.lambda["ml_inference"].id
-
-  policy = jsonencode({
-    Version = "2012-10-17"
-    Statement = [
-      {
-        Effect   = "Allow"
-        Action   = ["sqs:ReceiveMessage", "sqs:DeleteMessage", "sqs:GetQueueAttributes"]
-        Resource = var.queue_arns["ml_inference"]
-      },
-      {
-        Effect   = "Allow"
-        Action   = "sqs:SendMessage"
-        Resource = [var.queue_arns["agent"], var.queue_arns["posting"]]
-      }
-    ]
-  })
-}
-
-# Agent (tier 3): receive from agent, send to resolution or posting
+# Agent: receive from SQS-agent, send to resolution or posting queues.
 resource "aws_iam_role_policy" "agent_sqs" {
   name = "sqs-agent-to-resolution-or-posting"
   role = aws_iam_role.lambda["agent"].id
@@ -318,65 +177,6 @@ resource "aws_iam_role_policy" "agent_sqs" {
         Resource = [var.queue_arns["resolution"], var.queue_arns["posting"]]
       }
     ]
-  })
-}
-
-# Resolution: receive from resolution, send to posting
-resource "aws_iam_role_policy" "resolution_sqs" {
-  name = "sqs-resolution-to-posting"
-  role = aws_iam_role.lambda["resolution"].id
-
-  policy = jsonencode({
-    Version = "2012-10-17"
-    Statement = [
-      {
-        Effect   = "Allow"
-        Action   = ["sqs:ReceiveMessage", "sqs:DeleteMessage", "sqs:GetQueueAttributes"]
-        Resource = var.queue_arns["resolution"]
-      },
-      {
-        Effect   = "Allow"
-        Action   = "sqs:SendMessage"
-        Resource = var.queue_arns["posting"]
-      }
-    ]
-  })
-}
-
-# Posting: receive from posting, send to flywheel
-resource "aws_iam_role_policy" "posting_sqs" {
-  name = "sqs-posting-to-flywheel"
-  role = aws_iam_role.lambda["posting"].id
-
-  policy = jsonencode({
-    Version = "2012-10-17"
-    Statement = [
-      {
-        Effect   = "Allow"
-        Action   = ["sqs:ReceiveMessage", "sqs:DeleteMessage", "sqs:GetQueueAttributes"]
-        Resource = var.queue_arns["posting"]
-      },
-      {
-        Effect   = "Allow"
-        Action   = "sqs:SendMessage"
-        Resource = var.queue_arns["flywheel"]
-      }
-    ]
-  })
-}
-
-# Flywheel: receive from flywheel (terminal — no next queue)
-resource "aws_iam_role_policy" "flywheel_sqs" {
-  name = "sqs-flywheel-receive"
-  role = aws_iam_role.lambda["flywheel"].id
-
-  policy = jsonencode({
-    Version = "2012-10-17"
-    Statement = [{
-      Effect   = "Allow"
-      Action   = ["sqs:ReceiveMessage", "sqs:DeleteMessage", "sqs:GetQueueAttributes"]
-      Resource = var.queue_arns["flywheel"]
-    }]
   })
 }
 

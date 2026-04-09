@@ -125,10 +125,9 @@ module "auth" {
 # =============================================================================
 # DATABASE — RDS PostgreSQL
 # =============================================================================
-# Creates the PostgreSQL database that stores all application data:
-#   9 tables (users, transactions, journal_entries, journal_lines,
-#   chart_of_accounts, clarification_tasks, pattern_store,
-#   model_training_data, confidence_calibration_data)
+# Creates the PostgreSQL database that stores all application data
+# (users, transactions, journal_entries, journal_lines,
+# chart_of_accounts, taxonomy, organizations, etc.)
 #
 # Depends on networking: placed in private subnets, secured by DB security group.
 module "database" {
@@ -248,6 +247,10 @@ module "compute" {
   # --- From secrets ---
   db_credentials_secret_arn = module.secrets.db_credentials_secret_arn # DB creds JSON ARN
 
+  # --- From vector-search ---
+  qdrant_url                = module.vector_search.qdrant_url                # Plain config — same in every env
+  qdrant_api_key_secret_arn = module.vector_search.qdrant_api_key_secret_arn # ECS injects via `secrets` block
+
   # --- From auth ---
   user_pool_id   = module.auth.user_pool_id   # Cognito pool ID (API validates tokens)
   client_id      = module.auth.client_id      # Cognito client ID (passed to frontend)
@@ -261,7 +264,7 @@ module "compute" {
 # LAMBDA WORKERS — 7 pipeline workers triggered by SQS
 # =============================================================================
 # Creates Lambda functions for the processing pipeline:
-#   normalizer → precedent → ml_inference → agent → resolution → posting → flywheel
+#   normalization → precedent → ml_inference → agent → resolution → posting → flywheel
 #
 # Each worker is triggered by its SQS queue via event source mapping.
 # Runs in VPC private subnets for DB/Redis access. Reads DB credentials
@@ -287,6 +290,10 @@ module "lambda_workers" {
 
   # --- From secrets ---
   db_credentials_secret_arn = module.secrets.db_credentials_secret_arn # DB creds via extension
+
+  # --- From vector-search ---
+  qdrant_url                = module.vector_search.qdrant_url                # Plain env var
+  qdrant_api_key_secret_arn = module.vector_search.qdrant_api_key_secret_arn # Lambda fetches via boto3 on cold start
 
   # --- From cache ---
   redis_endpoint = module.cache.redis_endpoint

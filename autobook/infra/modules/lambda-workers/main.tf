@@ -1,69 +1,33 @@
 # =============================================================================
-# LAMBDA WORKERS — 7 pipeline workers triggered by SQS (container images)
+# LAMBDA WORKERS — the agent worker (container image, SQS-triggered)
 # =============================================================================
-# Each worker:
-#   1. Is triggered by its SQS queue via event source mapping (no polling code)
-#   2. Runs in VPC private subnets (DB + Redis access)
-#   3. Sends results to the next queue in the pipeline
-#   4. Uses Docker container images from ECR (10GB limit, same images as local dev)
+# Only `agent` runs on Lambda. The normalization worker runs as an ECS
+# service, and the old stage-per-Lambda design (precedent, ml_inference,
+# resolution, posting, flywheel) has been collapsed — those stages now
+# run in-process inside the ECS workers.
 #
-# Pipeline: normalizer → precedent → ml_inference → agent → resolution → posting → flywheel
+# The agent worker:
+#   1. Is triggered by SQS-agent via an event source mapping (no polling code)
+#   2. Runs in VPC private subnets (DB + Redis + Qdrant access)
+#   3. Uses a Docker container image from ECR (10GB limit, same image as local dev)
 
 locals {
   name      = "${var.project}-${var.environment}" # e.g. "autobook-dev"
   redis_url = "rediss://${var.redis_endpoint}:${var.redis_port}/0"
 
-  worker_names = ["normalizer", "precedent", "ml_inference", "agent",
-    "resolution", "posting", "flywheel"]
+  worker_names = ["agent"]
 
   # Dockerfile target name for each worker (uses hyphens, not underscores)
   dockerfile_targets = {
-    normalizer   = "autobook-normalizer"
-    precedent    = "autobook-precedent"
-    ml_inference = "autobook-ml-inference"
-    agent        = "autobook-agent"
-    resolution   = "autobook-resolution"
-    posting      = "autobook-posting"
-    flywheel     = "autobook-flywheel"
+    agent = "autobook-agent"
   }
 
   # Per-worker SQS queue URL environment variables.
   sqs_env = {
-    normalizer = {
-      SQS_QUEUE_NORMALIZER = var.queue_urls["normalizer"]
-      SQS_QUEUE_PRECEDENT  = var.queue_urls["precedent"]
-    }
-    precedent = {
-      SQS_QUEUE_PRECEDENT    = var.queue_urls["precedent"]
-      SQS_QUEUE_ML_INFERENCE = var.queue_urls["ml_inference"]
-      SQS_QUEUE_POSTING      = var.queue_urls["posting"]
-    }
-    ml_inference = merge(
-      {
-        SQS_QUEUE_ML_INFERENCE = var.queue_urls["ml_inference"]
-        SQS_QUEUE_AGENT        = var.queue_urls["agent"]
-        SQS_QUEUE_POSTING      = var.queue_urls["posting"]
-      },
-      var.sagemaker_endpoint_name != null ? {
-        SAGEMAKER_ENDPOINT_NAME = var.sagemaker_endpoint_name
-        ML_INFERENCE_PROVIDER   = "sagemaker"
-      } : {}
-    )
     agent = {
       SQS_QUEUE_AGENT      = var.queue_urls["agent"]
       SQS_QUEUE_RESOLUTION = var.queue_urls["resolution"]
       SQS_QUEUE_POSTING    = var.queue_urls["posting"]
-    }
-    resolution = {
-      SQS_QUEUE_RESOLUTION = var.queue_urls["resolution"]
-      SQS_QUEUE_POSTING    = var.queue_urls["posting"]
-    }
-    posting = {
-      SQS_QUEUE_POSTING  = var.queue_urls["posting"]
-      SQS_QUEUE_FLYWHEEL = var.queue_urls["flywheel"]
-    }
-    flywheel = {
-      SQS_QUEUE_FLYWHEEL = var.queue_urls["flywheel"]
     }
   }
 }
@@ -78,6 +42,12 @@ resource "aws_ecr_repository" "worker" {
 
   name                 = "${local.name}-${each.key}"
   image_tag_mutability = "MUTABLE"
+
+  # Allow `terraform destroy` to wipe the repo even when images are present.
+  # Dev-only convenience so retiring a worker doesn't require manual ECR
+  # cleanup. For prod you would usually set this false and delete images
+  # explicitly before dropping the repo.
+  force_delete = true
 
   image_scanning_configuration {
     scan_on_push = true
@@ -144,10 +114,12 @@ resource "aws_lambda_function" "worker" {
   environment {
     variables = merge(
       {
-        ENVIRONMENT   = var.environment
-        DB_SECRET_ARN = var.db_credentials_secret_arn
-        REDIS_URL     = local.redis_url
-        S3_BUCKET     = var.s3_bucket_id
+        ENVIRONMENT               = var.environment
+        DB_SECRET_ARN             = var.db_credentials_secret_arn
+        REDIS_URL                 = local.redis_url
+        S3_BUCKET                 = var.s3_bucket_id
+        QDRANT_URL                = var.qdrant_url
+        QDRANT_API_KEY_SECRET_ARN = var.qdrant_api_key_secret_arn
       },
       local.sqs_env[each.key]
     )

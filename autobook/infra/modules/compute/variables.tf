@@ -98,6 +98,21 @@ variable "db_credentials_secret_arn" {
   description = "Secrets Manager ARN for DB credentials JSON"
 }
 
+# --- From vector-search module ---
+
+# Plain text — same in every environment, safe to put in env block
+variable "qdrant_url" {
+  type        = string
+  description = "Qdrant Cloud cluster URL — injected as QDRANT_URL env var"
+}
+
+# Secrets Manager ARN — referenced in the task definition's `secrets`
+# block so the ECS agent fetches and injects the value at task start.
+variable "qdrant_api_key_secret_arn" {
+  type        = string
+  description = "Secrets Manager ARN for the Qdrant API key — injected as QDRANT_API_KEY"
+}
+
 # --- From auth module ---
 
 # Only the API service needs these — used to validate user auth tokens
@@ -118,7 +133,7 @@ variable "cognito_domain" {
 
 # --- From queuing module ---
 
-# API only needs the normalizer queue URL to enqueue uploaded files.
+# API only needs the normalization queue URL to enqueue uploaded files.
 # Workers get their queue URLs from the lambda-workers module.
 variable "queue_urls" {
   type        = map(string)
