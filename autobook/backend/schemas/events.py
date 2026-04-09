@@ -19,29 +19,6 @@ class EntryPostedEvent(BaseModel):
     parse_time_ms: int | None = None
 
 
-class ClarificationCreatedEvent(BaseModel):
-    type: str = "clarification.created"
-    parse_id: str
-    user_id: str
-    input_text: str | None = None
-    occurred_at: str
-    confidence: dict | None = None
-    explanation: str | None = None
-    proposed_entry: dict | None = None
-
-
-class ClarificationResolvedEvent(BaseModel):
-    type: str = "clarification.resolved"
-    parse_id: str
-    user_id: str
-    input_text: str | None = None
-    occurred_at: str
-    status: str
-    confidence: dict | None = None
-    explanation: str | None = None
-    proposed_entry: dict | None = None
-
-
 class StageStartedEvent(BaseModel):
     type: str = "pipeline.stage_started"
     parse_id: str

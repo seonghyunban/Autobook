@@ -11,12 +11,13 @@ class Settings(BaseSettings):
     AWS_REGION: str | None = None
     AWS_DEFAULT_REGION: str = "ca-central-1"
     ENV: str = "local"
-    AUTH_DEMO_MODE: bool = False
+    # Cognito is required in every environment — no default pool id. The dev
+    # pool's values are supplied via env vars in both local docker-compose
+    # (from a gitignored .env) and deployed task/function configs.
     COGNITO_USER_POOL_ID: str = Field(
-        default="local-test-pool",
         validation_alias=AliasChoices("COGNITO_USER_POOL_ID", "COGNITO_POOL_ID"),
     )
-    COGNITO_CLIENT_ID: str = "local-test-client"
+    COGNITO_CLIENT_ID: str
     COGNITO_DOMAIN: str | None = None
     COGNITO_JWKS_JSON: str | None = None
     COGNITO_JWT_ALGORITHM: str = "RS256"
@@ -34,7 +35,7 @@ class Settings(BaseSettings):
     SAGEMAKER_ENDPOINT_NAME: str | None = None
     SQS_ENDPOINT_URL: str | None = None
     SQS_QUEUE_FAST_PATH: str = "http://elasticmq:9324/queue/fast-path"
-    SQS_QUEUE_NORMALIZER: str = "http://elasticmq:9324/queue/normalizer"
+    SQS_QUEUE_NORMALIZATION: str = "http://elasticmq:9324/queue/normalization"
     SQS_QUEUE_PRECEDENT: str = "http://elasticmq:9324/queue/precedent"
     SQS_QUEUE_ML_INFERENCE: str = "http://elasticmq:9324/queue/ml-inference"
     SQS_QUEUE_AGENT: str = "http://elasticmq:9324/queue/agent"

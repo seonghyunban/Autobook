@@ -32,62 +32,18 @@ class NormalizationTask(BaseModel):
     post_stages: list[str] = Field(default_factory=lambda: list(DEFAULT_POST_STAGES))
 
 
-class PrecedentTask(BaseModel):
-    model_config = ConfigDict(extra="allow")
-
-    parse_id: str
-    user_id: str
-    transaction_id: str
-    normalized_description: str
-
-
-class MLInferenceTask(BaseModel):
-    model_config = ConfigDict(extra="allow")
-
-    parse_id: str
-    user_id: str
-    transaction_id: str
-    precedent_match: dict
-
-
 class AgentTask(BaseModel):
     model_config = ConfigDict(extra="allow")
 
     parse_id: str
     user_id: str
+    entity_id: str | None = None
+    transaction_id: str | None = None
+    draft_id: str | None = None
+    graph_id: str | None = None
+    input_text: str | None = None
     intent_label: str | None = None
     entities: dict | None = None
     bank_category: str | None = None
     cca_class_match: str | None = None
     confidence: dict | None = None
-
-
-class ResolutionTask(BaseModel):
-    model_config = ConfigDict(extra="allow")
-
-    parse_id: str
-    user_id: str
-    confidence: dict
-    explanation: str
-    proposed_entry: dict | None = None
-    clarification: dict
-
-
-class PostingTask(BaseModel):
-    model_config = ConfigDict(extra="allow")
-
-    parse_id: str
-    user_id: str
-    confidence: dict
-    proposed_entry: dict | None = None
-
-
-class FlywheelTask(BaseModel):
-    model_config = ConfigDict(extra="allow")
-
-    parse_id: str
-    user_id: str
-    transaction_id: str
-    journal_entry_id: str
-    origin_tier: int | None = None
-    proposed_entry: dict | None = None
