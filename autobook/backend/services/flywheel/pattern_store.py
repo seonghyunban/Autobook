@@ -9,8 +9,8 @@ from decimal import Decimal
 
 from sqlalchemy.orm import Session
 
-from services.precedent_v2.dao import PrecedentDAO
-from services.precedent_v2.vendor import normalize_vendor
+from services.precedent.dao import PrecedentDAO
+from services.precedent.vendor import normalize_vendor
 
 logger = logging.getLogger(__name__)
 

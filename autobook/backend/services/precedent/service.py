@@ -1,114 +1,153 @@
+"""Precedent matcher v2 — orchestrator.
+
+Implements the full procedure:
+  1. Normalize vendor → query precedent DB
+  2. Check n_min
+  3. Cluster by amount (Ckmeans)
+  4. Assign transaction to cluster
+  5. Extract labels, find consensus
+  6. Check Jeffreys confidence
+  7. Bypass or abstain
+"""
+from __future__ import annotations
+
 import logging
 
-from sqlalchemy import select
-from sqlalchemy.orm import joinedload, selectinload
-
-from config import get_settings
 from db.connection import SessionLocal, set_current_user_context
-from db.models.journal import JournalEntry
-from local_identity import resolve_local_user
-from services.precedent.logic import PrecedentCandidate, find_precedent_match
+from services.shared.auth import resolve_user_from_message
+from services.precedent.amount_cluster import assign_to_cluster, cluster_amounts
+from services.precedent.candidates import N_MIN, filter_candidates
+from services.precedent.confidence import THRESHOLD, check_threshold, jeffreys_confidence
+from services.precedent.dao import PrecedentDAO
+from services.precedent.structure import extract_labels, find_most_common
+from services.precedent.vendor import normalize_vendor
+from services.precedent.applicator import apply_label
 
 logger = logging.getLogger(__name__)
-settings = get_settings()
+
+TIME_WINDOW_DAYS = 365
 
 
-def _build_precedent_match_payload(match) -> dict:
-    return {
-        "matched": match.matched,
-        "pattern_id": match.pattern_id,
-        "confidence": match.confidence,
-    }
-
-
-def _build_precedent_proposed_entry(message: dict, match) -> dict:
-    return {
-        "entry": {
-            "date": message.get("transaction_date"),
-            "description": message.get("input_text") or message.get("description") or message.get("normalized_description"),
-            "origin_tier": 1,
-            "confidence": match.confidence,
-            "transaction_id": message.get("transaction_id"),
-            "rationale": f"Matched precedent {match.pattern_id} ({match.reasoning}).",
-        },
-        "lines": [dict(line) for line in match.lines],
-    }
-
-
-def _load_candidates(message: dict) -> list[PrecedentCandidate]:  # pragma: no cover
-    db = SessionLocal()
-    try:
-        user = resolve_local_user(db, message.get("user_id"))
-        set_current_user_context(db, user.id)
-        stmt = (
-            select(JournalEntry)
-            .options(
-                selectinload(JournalEntry.lines),
-                joinedload(JournalEntry.transaction),
-            )
-            .where(
-                JournalEntry.user_id == user.id,
-                JournalEntry.status == "posted",
-                JournalEntry.transaction_id.is_not(None),
-            )
-            .order_by(JournalEntry.posted_at.desc(), JournalEntry.created_at.desc())
-            .limit(25)
-        )
-        entries = list(db.execute(stmt).scalars().unique().all())
-    finally:
-        db.close()
-
-    current_transaction_id = str(message.get("transaction_id") or "")
-    candidates: list[PrecedentCandidate] = []
-    for entry in entries:
-        if str(entry.transaction_id or "") == current_transaction_id:
-            continue
-        transaction = entry.transaction
-        if transaction is None:
-            continue
-        candidates.append(
-            PrecedentCandidate(
-                pattern_id=f"journal_entry:{entry.id}",
-                normalized_description=transaction.normalized_description,
-                amount=float(transaction.amount) if transaction.amount is not None else None,
-                counterparty=transaction.counterparty,
-                source=transaction.source,
-                lines=[
-                    {
-                        "account_code": line.account_code,
-                        "account_name": line.account_name,
-                        "type": line.type,
-                        "amount": float(line.amount),
-                        "line_order": line.line_order,
-                    }
-                    for line in entry.lines
-                ],
-            )
-        )
-    return candidates
-
-
-def execute(message: dict) -> dict:
-    logger.info("Processing: %s", message.get("parse_id"))
-    candidates = _load_candidates(message)
-    match = find_precedent_match(message, candidates)
-
+def _build_abstain_result(message: dict, reason: str) -> dict:
+    """Build result for abstain — no match, trigger next tier."""
     confidence = dict(message.get("confidence") or {})
-    confidence["precedent"] = match.confidence
-
-    result = {
+    confidence["precedent"] = None
+    return {
         **message,
-        "precedent_match": _build_precedent_match_payload(match),
+        "precedent_match": {
+            "matched": False,
+            "confidence": None,
+            "reason": reason,
+        },
         "confidence": confidence,
     }
 
-    if match.matched and (match.confidence or 0) >= settings.AUTO_POST_THRESHOLD:
-        result = {
-            **result,
-            "confidence": {**confidence, "overall": match.confidence},
-            "proposed_entry": _build_precedent_proposed_entry(message, match),
-            "explanation": f"Matched a prior posted journal entry via precedent ({match.reasoning}).",
-            "clarification": {"required": False, "clarification_id": None, "reason": None, "status": None},
-        }
 
-    return result
+def _build_bypass_result(
+    message: dict,
+    proposed_entry: dict,
+    p: float,
+    k: int,
+    n: int,
+    structure_hash: str,
+) -> dict:
+    """Build result for bypass — confident match, auto-post."""
+    confidence = dict(message.get("confidence") or {})
+    confidence["precedent"] = p
+    confidence["overall"] = p
+
+    entry = proposed_entry["entry"]
+    entry["date"] = message.get("transaction_date")
+    entry["description"] = (
+        message.get("input_text")
+        or message.get("description")
+        or message.get("normalized_description")
+    )
+    entry["transaction_id"] = message.get("transaction_id")
+    entry["confidence"] = p
+
+    return {
+        **message,
+        "precedent_match": {
+            "matched": True,
+            "confidence": p,
+            "k": k,
+            "n": n,
+            "structure_hash": structure_hash,
+            "reason": f"Consensus: {k}/{n} entries agree (p={p:.3f})",
+        },
+        "confidence": confidence,
+        "proposed_entry": proposed_entry,
+        "explanation": f"Matched {k}/{n} precedent entries with p={p:.3f} >= {THRESHOLD}.",
+        "clarification": {
+            "required": False,
+            "clarification_id": None,
+            "reason": None,
+            "status": None,
+        },
+    }
+
+
+def execute(message: dict) -> dict:
+    """Run the precedent matching procedure.
+
+    Returns enriched message with precedent_match result.
+    Either bypass (with proposed_entry) or abstain (no proposed_entry).
+    """
+    logger.info("Processing: %s", message.get("parse_id"))
+
+    # ── Normalize vendor ─────────────────────────────────────────
+    raw_vendor = message.get("counterparty") or message.get("vendor") or ""
+    vendor = normalize_vendor(raw_vendor)
+    if not vendor:
+        return _build_abstain_result(message, "no vendor")
+
+    # ── Query precedent DB ───────────────────────────────────────
+    db = SessionLocal()
+    try:
+        user = resolve_user_from_message(db, message)
+        set_current_user_context(db, user.id)
+        entries = PrecedentDAO.get_by_vendor(
+            db, user.id, vendor, time_window_days=TIME_WINDOW_DAYS
+        )
+    finally:
+        db.close()
+
+    # ── Step 1-2: Check minimum count ────────────────────────────
+    candidates = filter_candidates(entries)
+    if candidates is None:
+        return _build_abstain_result(message, f"only {len(entries)} entries for vendor (need {N_MIN})")
+
+    # ── Step 3-4: Cluster by amount ──────────────────────────────
+    clusters = cluster_amounts(candidates)
+    amount = float(message.get("amount") or 0)
+    if amount <= 0:
+        return _build_abstain_result(message, "no positive amount")
+
+    cluster = assign_to_cluster(amount, clusters)
+    if cluster is None:
+        return _build_abstain_result(message, "amount outside all cluster ranges")
+
+    # ── Step 7-8: Extract labels, find consensus ─────────────────
+    labels = extract_labels(cluster.entries)
+    result = find_most_common(labels)
+    if result is None:
+        return _build_abstain_result(message, "no labels in cluster")
+
+    winning_label, k, n = result
+
+    # ── Step 9-11: Jeffreys confidence ───────────────────────────
+    p = jeffreys_confidence(k, n)
+    if not check_threshold(p):
+        return _build_abstain_result(
+            message,
+            f"confidence {p:.3f} < threshold {THRESHOLD} ({k}/{n} agree)",
+        )
+
+    # ── Step 12: Bypass — apply winning label ────────────────────
+    province = (message.get("user_context") or {}).get("province", "ON")
+    proposed_entry = apply_label(winning_label, amount, province)
+
+    return _build_bypass_result(
+        message, proposed_entry, p, k, n, winning_label.structure_hash
+    )

@@ -1,8 +1,8 @@
 """LLM Interaction service — enqueues to the normalization worker.
 
-The API generates no LLM calls. It enqueues the raw input to the normalizer
-queue. The normalization worker normalizes (with SSE streaming), then enqueues
-to SQS-agent.
+The API generates no LLM calls. It enqueues the raw input to the
+normalization queue. The normalization worker normalizes (with SSE
+streaming), then enqueues to SQS-agent.
 """
 
 from __future__ import annotations
@@ -17,12 +17,22 @@ logger = logging.getLogger(__name__)
 settings = get_settings()
 
 
-def enqueue(parse_id: str, input_text: str, user_id: str, live_review: bool = False,
-            user_context: dict | None = None) -> dict:
+def enqueue(
+    *,
+    parse_id: str,
+    input_text: str,
+    user_id: str,
+    entity_id: str,
+    transaction_id: str,
+    live_review: bool = False,
+    user_context: dict | None = None,
+) -> dict:
     """Enqueue to normalization worker, return parse_id."""
     message = {
         "parse_id": parse_id,
         "user_id": user_id,
+        "entity_id": entity_id,
+        "transaction_id": transaction_id,
         "input_text": input_text,
         "user_context": user_context or {},
         "source": "llm_interaction",
@@ -30,7 +40,7 @@ def enqueue(parse_id: str, input_text: str, user_id: str, live_review: bool = Fa
         "live_review": live_review,
     }
 
-    send(settings.SQS_QUEUE_NORMALIZER, message)
+    send(settings.SQS_QUEUE_NORMALIZATION, message)
 
     return {
         "parse_id": parse_id,

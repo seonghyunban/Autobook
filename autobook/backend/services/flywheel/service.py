@@ -10,7 +10,7 @@ import logging
 
 from db.connection import SessionLocal, set_current_user_context
 from db.dao.training_data import TrainingDataDAO
-from local_identity import resolve_local_user
+from services.shared.auth import resolve_user_from_message
 from services.flywheel.calibration import write_calibration_pair
 from services.flywheel.pattern_store import write_pattern
 from services.flywheel.rag_indexer import index_correction_example, index_positive_example
@@ -32,7 +32,7 @@ def execute(message: dict) -> None:
 
     db = SessionLocal()
     try:
-        user = resolve_local_user(db, message.get("user_id"))
+        user = resolve_user_from_message(db, message)
         set_current_user_context(db, user.id)
 
         # T2+: pattern store
