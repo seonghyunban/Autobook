@@ -21,10 +21,14 @@ MAX_TOKENS: dict[str, int] = {
 def get_llm(agent_name: str, config: RunnableConfig | None = None) -> ChatBedrockConverse:
     """Return a configured ChatBedrockConverse client for the given agent.
 
+    If config["configurable"]["bedrock_client"] is set, uses it (avoids
+    re-creating the boto3 client per invocation). Otherwise creates one
+    from settings (backwards compatible).
+
     Args:
-        agent_name: One of the 8 agent names (e.g. "debit_classifier").
-        config: LangGraph RunnableConfig — experiment runner passes model/thinking
-                overrides via config["configurable"]. Production passes nothing.
+        agent_name: One of the agent names (e.g. "debit_classifier").
+        config: LangGraph RunnableConfig — carries injected clients and
+                experiment overrides.
 
     Returns:
         Configured ChatBedrockConverse instance.
@@ -45,13 +49,22 @@ def get_llm(agent_name: str, config: RunnableConfig | None = None) -> ChatBedroc
     )
     additional_fields = {"thinking": {"type": "adaptive", "effort": effort}} if effort else None
 
-    return ChatBedrockConverse(
+    # Client: injected from handler (reused across invocations) or created fresh
+    bedrock_client = configurable.get("bedrock_client")
+
+    kwargs = dict(
         model=model,
-        region_name=settings.AWS_DEFAULT_REGION,
         temperature=0,
         max_tokens=MAX_TOKENS[agent_name],
         additional_model_request_fields=additional_fields,
     )
+
+    if bedrock_client is not None:
+        kwargs["client"] = bedrock_client
+    else:
+        kwargs["region_name"] = settings.AWS_DEFAULT_REGION
+
+    return ChatBedrockConverse(**kwargs)
 
 
 def invoke_structured(llm: ChatBedrockConverse, schema: type[BaseModel], messages: list) -> dict:

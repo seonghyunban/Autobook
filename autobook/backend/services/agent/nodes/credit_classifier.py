@@ -94,7 +94,7 @@ def credit_classifier_node(state: PipelineState, config: RunnableConfig) -> dict
 
     _write_start(writer)
 
-    rag_examples = retrieve_transaction_examples(state, "rag_cache_credit_classifier")
+    rag_examples = retrieve_transaction_examples(state, "rag_cache_credit_classifier", config)
 
     messages = build_prompt(state, rag_examples)
     output = invoke_structured(get_llm(CREDIT_CLASSIFIER, config), CreditClassifierOutput, messages)

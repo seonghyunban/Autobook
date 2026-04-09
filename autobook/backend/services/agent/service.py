@@ -8,18 +8,12 @@ from services.agent.graph.graph import app
 
 logger = logging.getLogger(__name__)
 
-CURRENCY_SYMBOLS = {
-    "USD": "$", "CAD": "C$", "EUR": "€", "GBP": "£",
-    "JPY": "¥", "CNY": "¥", "KRW": "₩", "CHF": "Fr",
-    "AUD": "A$", "NZD": "NZ$", "HKD": "HK$", "SGD": "S$",
-    "SEK": "kr", "NOK": "kr", "DKK": "kr", "MXN": "$",
-    "BRL": "R$", "INR": "₹", "TWD": "NT$", "THB": "฿",
-    "ZAR": "R", "TRY": "₺", "PLN": "zł", "RUB": "₽",
-}
-
 
 def _build_initial_state(message: dict) -> dict:
-    """Build PipelineState from incoming queue message."""
+    """Build PipelineState from incoming queue message.
+
+    Expects message["graph"] to already be loaded (by the handler).
+    """
     return {
         "transaction_text": message.get("input_text") or message.get("description") or "",
         "transaction_graph": message.get("graph"),
@@ -35,15 +29,6 @@ def _build_initial_state(message: dict) -> dict:
         "clarification_questions": None,
         "stuck_reason": None,
     }
-
-
-def _add_currency_symbol(entry: dict | None) -> dict | None:
-    """Add currency_symbol to an entry dict by mapping its ISO currency code."""
-    if not entry:
-        return entry
-    currency = entry.get("currency", "USD")
-    entry["currency_symbol"] = CURRENCY_SYMBOLS.get(currency, currency)
-    return entry
 
 
 def _build_result(final_state: dict, message: dict) -> dict:
@@ -69,13 +54,13 @@ def _build_result(final_state: dict, message: dict) -> dict:
             "output_debit_classifier": final_state.get("output_debit_classifier"),
             "output_credit_classifier": final_state.get("output_credit_classifier"),
             "output_tax_specialist": final_state.get("output_tax_specialist"),
-            "output_entry_drafter": _add_currency_symbol(final_state.get("output_entry_drafter") or {}),
+            "output_entry_drafter": final_state.get("output_entry_drafter") or {},
         }
 
     if decision == "PROCEED":
         return {
             **base,
-            "entry": _add_currency_symbol(final_state.get("output_entry_drafter") or {}),
+            "entry": final_state.get("output_entry_drafter") or {},
             "proceed_reason": dm.get("proceed_reason"),
             "resolved_ambiguities": [
                 {
@@ -111,7 +96,7 @@ def _build_result(final_state: dict, message: dict) -> dict:
                     "cases": [
                         {
                             "case": c["case"],
-                            "possible_entry": _add_currency_symbol(c.get("possible_entry")),
+                            "possible_entry": c.get("possible_entry"),
                         }
                         for c in (a.get("cases") or [])
                     ],
@@ -129,7 +114,7 @@ def _build_result(final_state: dict, message: dict) -> dict:
             {
                 "aspect": f["aspect"],
                 "gap": f.get("gap"),
-                "best_attempt": _add_currency_symbol(f.get("best_attempt")),
+                "best_attempt": f.get("best_attempt"),
             }
             for f in dm.get("complexity_flags", [])
             if f.get("beyond_llm_capability")
@@ -137,23 +122,58 @@ def _build_result(final_state: dict, message: dict) -> dict:
     }
 
 
-def execute(message: dict) -> dict:
-    """Run the agent pipeline (sync — for SQS workers and sync callers)."""
+def handle_result(result: dict, message: dict) -> None:
+    """Route agent result based on decision. Business logic only — no side-effects.
+
+    For non-interactive sources:
+    - PROCEED: call posting service
+    - MISSING_INFO/STUCK: set clarification pending status
+    For llm_interaction: no routing (handler publishes via Redis).
+    """
+    if message.get("source") == "llm_interaction":
+        return
+
+    decision = result.get("decision", "PROCEED")
+
+    if decision == "PROCEED":
+        from services.posting.service import post as posting_post
+        posting_post(result)
+    elif decision in {"MISSING_INFO", "STUCK"}:
+        from services.shared.parse_status import set_status_sync
+        set_status_sync(
+            parse_id=result.get("parse_id") or message["parse_id"],
+            user_id=result.get("user_id") or message["user_id"],
+            status="processing",
+            stage="clarification_pending",
+            input_text=result.get("input_text"),
+        )
+
+
+def execute(message: dict, configurable: dict | None = None) -> dict:
+    """Run the agent pipeline (sync — for SQS workers and sync callers).
+
+    Args:
+        message: SQS message dict with input_text, graph, etc.
+        configurable: Extra keys merged into LangGraph config["configurable"].
+                      Use to inject bedrock_client, memory, etc.
+    """
     logger.info("Processing: %s", message.get("parse_id"))
     initial_state = _build_initial_state(message)
-    final_state = app.invoke(initial_state, {"configurable": {"streaming": False}})
+    cfg = {"streaming": False, **(configurable or {})}
+    final_state = app.invoke(initial_state, {"configurable": cfg})
     return _build_result(final_state, message)
 
 
-async def execute_stream(message: dict):
+async def execute_stream(message: dict, configurable: dict | None = None):
     """Run the agent pipeline with streaming.
 
     Yields stream chunks, then a final {"phase": "result", "result": ...} event.
     """
     logger.info("Processing (stream): %s", message.get("parse_id"))
     initial_state = _build_initial_state(message)
+    cfg = {"streaming": True, **(configurable or {})}
     final_state = None
-    async for event in app.astream(initial_state, {"configurable": {"streaming": True}}, stream_mode=["custom", "values"]):
+    async for event in app.astream(initial_state, {"configurable": cfg}, stream_mode=["custom", "values"]):
         mode, payload = event
         if mode == "custom":
             yield payload

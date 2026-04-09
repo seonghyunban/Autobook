@@ -94,7 +94,7 @@ def debit_classifier_node(state: PipelineState, config: RunnableConfig) -> dict:
 
     _write_start(writer)
 
-    rag_examples = retrieve_transaction_examples(state, "rag_cache_debit_classifier")
+    rag_examples = retrieve_transaction_examples(state, "rag_cache_debit_classifier", config)
 
     messages = build_prompt(state, rag_examples)
     output = invoke_structured(get_llm(DEBIT_CLASSIFIER, config), DebitClassifierOutput, messages)

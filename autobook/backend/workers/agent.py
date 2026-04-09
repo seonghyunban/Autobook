@@ -1,27 +1,80 @@
 """Agent worker — Lambda handler (SnapStart) for LLM processing.
 
-Flow:
-  LLM (agent service) → posting + flywheel (if PROCEED)
-                       → resolution (if MISSING_INFO or STUCK)
-
-Supports streaming: if message has "streaming": true, publishes
-per-chunk stream events to Redis for SSE delivery.
+Infrastructure-only entry point. Responsibilities:
+  - Receive SQS/Lambda event, deserialize
+  - Load graph from DB (data access)
+  - Call service (business logic)
+  - Publish side-effects (Redis, parse status)
+  - Error handling, SQS message deletion
 """
 
 import asyncio
 import json
 import logging
+from uuid import UUID
 
+import boto3
+from botocore.config import Config as BotoConfig
+
+from config import get_settings
+from db.connection import SessionLocal
+from db.dao.transaction_graphs import TransactionGraphDAO
 from queues.pubsub import pub
-from services.agent.service import execute as agent_execute, execute_stream
-from services.flywheel.service import execute as flywheel_execute
-from services.posting.service import execute as posting_execute
+from services.agent.persist import persist_attempt
+from services.agent.service import execute as agent_execute, execute_stream, handle_result
 from services.shared.parse_status import record_batch_result_sync, set_status_sync
 
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.INFO)
 
 STAGE = "llm"
+
+# Module-level: created once on cold start, reused across warm invocations.
+_settings = get_settings()
+_bedrock_client = boto3.client(
+    "bedrock-runtime",
+    region_name=_settings.AWS_DEFAULT_REGION,
+    config=BotoConfig(connect_timeout=5, read_timeout=120, retries={"max_attempts": 2}),
+)
+_configurable = {"bedrock_client": _bedrock_client}
+
+
+def _load_graph(graph_id: str) -> dict | None:
+    """Load graph from DB and convert to the dict shape the service expects."""
+    db = SessionLocal()
+    try:
+        row = TransactionGraphDAO.get_by_id(db, UUID(graph_id))
+        if row is None:
+            return None
+        node_names = {n.node_index: n.name for n in row.nodes}
+        return {
+            "nodes": [
+                {"index": n.node_index, "name": n.name, "role": n.role}
+                for n in row.nodes
+            ],
+            "edges": [
+                {
+                    "source": node_names.get(e.source_index, ""),
+                    "source_index": e.source_index,
+                    "target": node_names.get(e.target_index, ""),
+                    "target_index": e.target_index,
+                    "nature": e.nature,
+                    "kind": e.edge_kind,
+                    "amount": float(e.amount) if e.amount is not None else None,
+                    "currency": e.currency,
+                }
+                for e in row.edges
+            ],
+        }
+    finally:
+        db.close()
+
+
+def _enrich_message(message: dict) -> dict:
+    """Load graph from DB if graph_id is present but graph is not."""
+    if message.get("graph") is None and message.get("graph_id"):
+        message["graph"] = _load_graph(message["graph_id"])
+    return message
 
 
 def _run_streaming(message: dict) -> dict:
@@ -32,7 +85,7 @@ def _run_streaming(message: dict) -> dict:
 
     async def _stream():
         nonlocal result
-        async for chunk in execute_stream(message):
+        async for chunk in execute_stream(message, _configurable):
             if chunk.get("phase") == "result":
                 result = chunk["result"]
             else:
@@ -42,12 +95,12 @@ def _run_streaming(message: dict) -> dict:
     return result
 
 
-def _handle_result(result: dict, message: dict) -> None:
-    """Route agent result to posting/resolution or publish for LLM interaction."""
-    decision = result.get("decision", "PROCEED")
+def _publish_result(result: dict, message: dict) -> None:
+    """Publish side-effects after service has routed the result."""
     source = message.get("source")
 
     if source == "llm_interaction":
+        persist_attempt(message, result)
         pub.pipeline_result(
             parse_id=result.get("parse_id") or message["parse_id"],
             user_id=result.get("user_id") or message["user_id"],
@@ -56,23 +109,14 @@ def _handle_result(result: dict, message: dict) -> None:
         )
         return
 
+    # Non-interactive: service's handle_result already decided the action.
+    # We just publish the stage event.
+    decision = result.get("decision", "PROCEED")
     if decision == "PROCEED":
         pub.stage_started(
-            parse_id=result["parse_id"],
-            user_id=result["user_id"],
+            parse_id=result.get("parse_id") or message["parse_id"],
+            user_id=result.get("user_id") or message["user_id"],
             stage="post-llm",
-        )
-        posted = posting_execute(result)
-        if posted is not None:
-            flywheel_execute(posted)
-
-    elif decision in {"MISSING_INFO", "STUCK"}:
-        set_status_sync(
-            parse_id=result["parse_id"],
-            user_id=result["user_id"],
-            status="processing",
-            stage="clarification_pending",
-            input_text=result.get("input_text"),
         )
 
 
@@ -93,12 +137,15 @@ def handler(event, context):
                 stage=STAGE,
             )
 
+            _enrich_message(message)
+
             if message.get("streaming"):
                 result = _run_streaming(message)
             else:
-                result = agent_execute(message)
+                result = agent_execute(message, _configurable)
 
-            _handle_result(result, message)
+            handle_result(result, message)
+            _publish_result(result, message)
 
         except Exception as exc:
             logger.exception("Agent failed for %s", message.get("parse_id"))

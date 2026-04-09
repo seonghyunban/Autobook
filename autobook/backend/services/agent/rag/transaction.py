@@ -1,38 +1,50 @@
-"""Retriever for transaction_examples collection.
+"""Retriever for transaction examples.
 
-Queries by embed(transaction_text). Used by Agents 0-6 on first run.
-Returns full payload — each agent's prompt picks the fields it needs.
+Queries by transaction_text via an injected memory (config["configurable"]["memory"]).
+Falls back to direct Qdrant access if no memory is injected (backwards compatible).
 """
+from __future__ import annotations
+
+from typing import Any
+
 from services.agent.graph.state import PipelineState
-from vectordb.client import get_qdrant_client
-from vectordb.collections import TRANSACTION_EXAMPLES
-from vectordb.embeddings import embed_text
 
 _TOP_K = 5
 
 
-def retrieve_transaction_examples(state: PipelineState, cache_key: str) -> list[dict]:
-    """Retrieve similar past transactions from Qdrant.
+def retrieve_transaction_examples(
+    state: PipelineState,
+    cache_key: str,
+    config: dict[str, Any] | None = None,
+) -> list[dict]:
+    """Retrieve similar past transactions.
 
     Args:
-        state: Pipeline state — reads embedding_transaction (cached) or
-               transaction_text (embeds and should be cached by caller).
-        cache_key: Agent-specific cache key in state (e.g. "rag_cache_debit_classifier").
+        state: Pipeline state — checks cache first.
+        cache_key: Agent-specific cache key (e.g. "rag_cache_debit_classifier").
+        config: LangGraph RunnableConfig. If config["configurable"]["memory"]
+                exists, uses it. Otherwise falls back to direct Qdrant import.
 
     Returns:
-        List of payload dicts from top-k similar points. Empty list if
-        collection has no data.
+        List of payload dicts from top-k similar points.
     """
     cached = state.get(cache_key)
     if cached:
         return cached
 
     try:
-        vector = state.get("embedding_transaction")
-        if vector is None:
-            text = state["transaction_text"]
-            vector = embed_text(text)
+        text = state["transaction_text"]
+        memory = (config or {}).get("configurable", {}).get("memory")
 
+        if memory is not None:
+            return memory.read(text, _TOP_K)
+
+        # Fallback: direct Qdrant access (backwards compatible)
+        from vectordb.client import get_qdrant_client
+        from vectordb.collections import TRANSACTION_EXAMPLES
+        from vectordb.embeddings import embed_text
+
+        vector = embed_text(text)
         results = get_qdrant_client().query_points(
             collection_name=TRANSACTION_EXAMPLES,
             query=vector,
