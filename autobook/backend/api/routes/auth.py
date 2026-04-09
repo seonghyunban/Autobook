@@ -1,84 +1,86 @@
 from __future__ import annotations
 
+import logging
 from urllib.parse import urlencode
 
+import boto3
 import httpx
+from botocore.exceptions import ClientError
 from fastapi import APIRouter, Depends, HTTPException, Query, status
 
 from auth.deps import AuthContext, get_current_user
 from config import Settings, get_settings
 from schemas.auth import (
-    AuthHostedUiUrlResponse,
     AuthLogoutUrlResponse,
     AuthMeResponse,
     AuthRefreshRequest,
-    AuthTokenExchangeRequest,
     AuthTokenResponse,
     AuthValidateResponse,
+    PasswordLoginRequest,
 )
+
+logger = logging.getLogger(__name__)
 
 router = APIRouter(prefix="/api/v1")
 
 
-@router.get("/auth/login-url", response_model=AuthHostedUiUrlResponse)
-async def get_login_url(
-    redirect_uri: str = Query(...),
-    code_challenge: str = Query(...),
-    state: str | None = Query(default=None),
-):
-    return AuthHostedUiUrlResponse(
-        hosted_ui_url=_build_hosted_ui_url(
-            path="login",
-            redirect_uri=redirect_uri,
-            code_challenge=code_challenge,
-            state=state,
-        )
-    )
+@router.post("/auth/password-login", response_model=AuthTokenResponse)
+async def password_login(body: PasswordLoginRequest):
+    """Server-side email/password sign-in — the only live login path.
 
-
-@router.get("/auth/signup-url", response_model=AuthHostedUiUrlResponse)
-async def get_signup_url(
-    redirect_uri: str = Query(...),
-    code_challenge: str = Query(...),
-    state: str | None = Query(default=None),
-):
-    return AuthHostedUiUrlResponse(
-        hosted_ui_url=_build_hosted_ui_url(
-            path="signup",
-            redirect_uri=redirect_uri,
-            code_challenge=code_challenge,
-            state=state,
-        )
-    )
-
-
-@router.get("/auth/logout-url", response_model=AuthLogoutUrlResponse)
-async def get_logout_url(logout_uri: str = Query(...)):
+    Calls Cognito InitiateAuth with the USER_PASSWORD_AUTH flow on the
+    user's behalf and returns the JWT bundle. The frontend's custom
+    login page posts here. Errors collapse to a single 401 to avoid
+    leaking whether the email exists.
+    """
     settings = get_settings()
-    cognito_domain = _get_cognito_domain(settings)
-    params = {
-        "client_id": settings.COGNITO_CLIENT_ID,
-        "logout_uri": logout_uri,
-    }
-    return AuthLogoutUrlResponse(logout_url=f"{cognito_domain}/logout?{urlencode(params)}")
-
-
-@router.post("/auth/token", response_model=AuthTokenResponse)
-async def exchange_code_for_token(body: AuthTokenExchangeRequest):
-    payload = await _exchange_token(
-        {
-            "grant_type": "authorization_code",
-            "client_id": get_settings().COGNITO_CLIENT_ID,
-            "code": body.code,
-            "redirect_uri": body.redirect_uri,
-            "code_verifier": body.code_verifier,
-        }
+    client = boto3.client(
+        "cognito-idp",
+        region_name=settings.AWS_REGION or settings.AWS_DEFAULT_REGION,
     )
-    return AuthTokenResponse(**payload)
+    try:
+        response = client.initiate_auth(
+            ClientId=settings.COGNITO_CLIENT_ID,
+            AuthFlow="USER_PASSWORD_AUTH",
+            AuthParameters={
+                "USERNAME": body.email,
+                "PASSWORD": body.password,
+            },
+        )
+    except ClientError as exc:
+        code = exc.response.get("Error", {}).get("Code")
+        if code in {"NotAuthorizedException", "UserNotFoundException", "UserNotConfirmedException"}:
+            raise HTTPException(
+                status_code=status.HTTP_401_UNAUTHORIZED,
+                detail="Invalid email or password.",
+            ) from exc
+        logger.exception("Cognito password login failed: %s", code)
+        raise HTTPException(
+            status_code=status.HTTP_502_BAD_GATEWAY,
+            detail="Authentication service unavailable.",
+        ) from exc
+
+    auth_result = response.get("AuthenticationResult")
+    if not auth_result:
+        # ChallengeName means Cognito wants something extra (MFA, password reset, etc.).
+        # We don't support those flows in this minimal endpoint yet.
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Invalid email or password.",
+        )
+
+    return AuthTokenResponse(
+        access_token=auth_result["AccessToken"],
+        token_type=auth_result.get("TokenType", "Bearer"),
+        expires_in=auth_result.get("ExpiresIn", 3600),
+        id_token=auth_result.get("IdToken"),
+        refresh_token=auth_result.get("RefreshToken"),
+    )
 
 
 @router.post("/auth/refresh", response_model=AuthTokenResponse)
 async def refresh_token(body: AuthRefreshRequest):
+    """Exchange a refresh token for a new access token."""
     payload = await _exchange_token(
         {
             "grant_type": "refresh_token",
@@ -87,6 +89,20 @@ async def refresh_token(body: AuthRefreshRequest):
         }
     )
     return AuthTokenResponse(**payload)
+
+
+@router.get("/auth/logout-url", response_model=AuthLogoutUrlResponse)
+async def get_logout_url(logout_uri: str = Query(...)):
+    """Build the Cognito /logout URL that clears the server-side session
+    cookie, then redirects the browser back to ``logout_uri``. The
+    frontend's Logout button follows this URL to fully sign out."""
+    settings = get_settings()
+    cognito_domain = _get_cognito_domain(settings)
+    params = {
+        "client_id": settings.COGNITO_CLIENT_ID,
+        "logout_uri": logout_uri,
+    }
+    return AuthLogoutUrlResponse(logout_url=f"{cognito_domain}/logout?{urlencode(params)}")
 
 
 @router.get("/auth/validate", response_model=AuthValidateResponse)
@@ -100,6 +116,9 @@ async def validate_token(current_user: AuthContext = Depends(get_current_user)):
 @router.get("/auth/me", response_model=AuthMeResponse)
 async def get_me(current_user: AuthContext = Depends(get_current_user)):
     return _serialize_auth_me(current_user)
+
+
+# ── helpers ──────────────────────────────────────────────────────────────
 
 
 def _serialize_auth_me(current_user: AuthContext) -> AuthMeResponse:
@@ -117,33 +136,11 @@ def _get_cognito_domain(settings: Settings) -> str:
     if not settings.COGNITO_DOMAIN:
         raise HTTPException(
             status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
-            detail="Cognito hosted UI is not configured.",
+            detail="Cognito hosted domain is not configured.",
         )
     if settings.COGNITO_DOMAIN.startswith("http://") or settings.COGNITO_DOMAIN.startswith("https://"):
         return settings.COGNITO_DOMAIN.rstrip("/")
     return f"https://{settings.COGNITO_DOMAIN.rstrip('/')}"
-
-
-def _build_hosted_ui_url(
-    *,
-    path: str,
-    redirect_uri: str,
-    code_challenge: str,
-    state: str | None,
-) -> str:
-    settings = get_settings()
-    cognito_domain = _get_cognito_domain(settings)
-    params = {
-        "response_type": "code",
-        "client_id": settings.COGNITO_CLIENT_ID,
-        "redirect_uri": redirect_uri,
-        "scope": settings.COGNITO_SCOPES,
-        "code_challenge_method": "S256",
-        "code_challenge": code_challenge,
-    }
-    if state:
-        params["state"] = state
-    return f"{cognito_domain}/{path}?{urlencode(params)}"
 
 
 async def _exchange_token(form_data: dict[str, str]) -> dict[str, object]:  # pragma: no cover

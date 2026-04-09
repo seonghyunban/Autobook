@@ -37,22 +37,17 @@ class AuthMeResponse(BaseModel):
     token_use: str
 
 
-class AuthHostedUiUrlResponse(BaseModel):
-    hosted_ui_url: str
-
-
 class AuthLogoutUrlResponse(BaseModel):
     logout_url: str
 
 
-class AuthTokenExchangeRequest(BaseModel):
-    code: str
-    redirect_uri: str
-    code_verifier: str
-
-
 class AuthRefreshRequest(BaseModel):
     refresh_token: str
+
+
+class PasswordLoginRequest(BaseModel):
+    email: str
+    password: str
 
 
 class AuthTokenResponse(BaseModel):

@@ -2,17 +2,17 @@ from __future__ import annotations
 
 from collections.abc import Callable
 from dataclasses import dataclass
-from datetime import datetime, timedelta, timezone
+from uuid import UUID
 
-from fastapi import Depends, HTTPException, Request, status
+from fastapi import Depends, Header, HTTPException, Request, status
 from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
 from sqlalchemy.orm import Session
 
 from schemas.auth import TokenPayload, UserRole
 from auth.token_service import decode_access_token
 from config import get_settings
-from db.dao.auth_sessions import AuthSessionDAO
 from db.connection import get_db
+from db.dao.entity_memberships import EntityMembershipDAO
 from db.dao.users import UserDAO
 from db.models.user import User
 
@@ -43,30 +43,51 @@ def get_current_user(
     return resolve_auth_context(credentials.credentials, db)
 
 
+def get_current_entity(
+    x_entity_id: str | None = Header(default=None, alias="X-Entity-Id"),
+    current_user: AuthContext = Depends(get_current_user),
+    db: Session = Depends(get_db),
+) -> UUID:
+    """Resolve the entity context from the X-Entity-Id header.
+
+    Verifies the authenticated user has a membership row in the requested
+    entity. Raises 400 if the header is missing/malformed, 403 if the user
+    is not a member.
+    """
+    if not x_entity_id:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="X-Entity-Id header is required.",
+        )
+    try:
+        entity_id = UUID(x_entity_id)
+    except ValueError as exc:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="X-Entity-Id must be a valid UUID.",
+        ) from exc
+    if not EntityMembershipDAO.is_member(db, current_user.user.id, entity_id):
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="You are not a member of this entity.",
+        )
+    return entity_id
+
+
 def resolve_auth_context(token: str, db: Session) -> AuthContext:
     try:
-        claims = _decode_bearer_token(token)
+        claims = decode_access_token(token)
     except ValueError as exc:
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail=str(exc)) from exc
 
-    user = UserDAO.get_or_create_from_cognito_claims(
-        db,
-        cognito_sub=claims.sub,
-        email=claims.email or claims.username,
-    )
-    if hasattr(db, "execute"):
-        AuthSessionDAO.record_token(
+    user = UserDAO.get_by_cognito_sub(db, claims.sub)
+    if user is None:
+        user = UserDAO.create(
             db,
-            user=user,
+            email=claims.email or claims.username,
             cognito_sub=claims.sub,
-            token=token,
-            token_use=claims.token_use,
-            issued_at=_to_datetime(claims.iat),
-            expires_at=_to_datetime(claims.exp),
         )
-    if hasattr(db, "commit"):
         db.commit()
-    if hasattr(db, "refresh"):
         db.refresh(user)
     role, role_source = _resolve_role(claims)
     return AuthContext(user=user, claims=claims, role=role, role_source=role_source)
@@ -144,49 +165,3 @@ def _parse_single_role(value: str | None) -> UserRole | None:
         if normalized == role.value:
             return role
     return None
-
-
-def _to_datetime(epoch_seconds: int) -> object:
-    return datetime.fromtimestamp(epoch_seconds, tz=timezone.utc)
-
-
-def _decode_bearer_token(token: str) -> TokenPayload:
-    demo_claims = _decode_demo_token(token)
-    if demo_claims is not None:
-        return demo_claims
-    return decode_access_token(token)
-
-
-def _decode_demo_token(token: str) -> TokenPayload | None:
-    settings = get_settings()
-    if not settings.AUTH_DEMO_MODE:
-        return None
-    if not token.startswith("demo:"):
-        return None
-
-    email = token.removeprefix("demo:").strip().lower()
-    if not email:
-        raise ValueError("Invalid demo auth token.")
-
-    role = _resolve_demo_role(email)
-    now = datetime.now(timezone.utc)
-    return TokenPayload.model_validate(
-        {
-            "sub": f"demo:{email}",
-            "exp": int((now + timedelta(days=1)).timestamp()),
-            "iat": int(now.timestamp()),
-            "iss": "autobook-demo",
-            "token_use": "access",
-            "email": email,
-            "client_id": "autobook-demo-client",
-            "cognito:groups": [role.value],
-        }
-    )
-
-
-def _resolve_demo_role(email: str) -> UserRole:
-    if email.startswith("superuser@") or "+superuser@" in email:
-        return UserRole.SUPERUSER
-    if email.startswith("manager@") or "+manager@" in email:
-        return UserRole.MANAGER
-    return UserRole.REGULAR
