@@ -1,1 +1,0 @@
-export { getStatements } from "./client";
