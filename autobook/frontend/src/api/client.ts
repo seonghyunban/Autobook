@@ -1,6 +1,5 @@
-import { mockApi } from "../mocks/mockApi";
-import { isMockApiEnabled } from "../config/env";
-import { getAccessToken } from "./auth";
+import { clearAuthSession, getAccessToken } from "./auth";
+import { getActiveEntityId } from "./entityHeader";
 import type {
   ClarificationsResponse,
   LedgerResponse,
@@ -36,7 +35,24 @@ function buildHeaders(extraHeaders?: HeadersInit) {
   if (token) {
     headers.set("Authorization", `Bearer ${token}`);
   }
+  const entityId = getActiveEntityId();
+  if (entityId) {
+    headers.set("X-Entity-Id", entityId);
+  }
   return headers;
+}
+
+/**
+ * Redirect to the login page on 401 responses from the API. Clears any
+ * stale token before navigating. Called from `request()` and the file-
+ * upload path so every fetch into the backend honors the redirect.
+ */
+function handleUnauthorized() {
+  clearAuthSession();
+  if (typeof window !== "undefined" && window.location.pathname !== "/login") {
+    const from = window.location.pathname + window.location.search;
+    window.location.assign(`/login?from=${encodeURIComponent(from)}`);
+  }
 }
 
 async function request<T>(path: string, init?: RequestInit): Promise<T> {
@@ -44,6 +60,11 @@ async function request<T>(path: string, init?: RequestInit): Promise<T> {
     headers: buildHeaders(init?.headers),
     ...init,
   });
+
+  if (response.status === 401) {
+    handleUnauthorized();
+    throw new Error("Unauthorized");
+  }
 
   if (!response.ok) {
     throw new Error(await buildErrorMessage(response));
@@ -71,10 +92,6 @@ async function buildErrorMessage(response: Response): Promise<string> {
 }
 
 export async function parseTransaction(input: ParseRequest): Promise<ParseAccepted> {
-  if (isMockApiEnabled()) {
-    return mockApi.parseTransaction(input);
-  }
-
   return request<ParseAccepted>("/parse", {
     method: "POST",
     body: JSON.stringify(input),
@@ -85,10 +102,6 @@ export async function uploadTransactionFile(
   file: File,
   options?: Pick<ParseRequest, "stages" | "store" | "post_stages">,
 ): Promise<ParseAccepted> {
-  if (isMockApiEnabled()) {
-    return mockApi.uploadTransactionFile(file, options);
-  }
-
   const source = deriveUploadSource(file);
   const formData = new FormData();
   formData.append("file", file);
@@ -104,11 +117,20 @@ export async function uploadTransactionFile(
   }
 
   const token = getAccessToken();
+  const entityId = getActiveEntityId();
+  const uploadHeaders: Record<string, string> = {};
+  if (token) uploadHeaders["Authorization"] = `Bearer ${token}`;
+  if (entityId) uploadHeaders["X-Entity-Id"] = entityId;
   const response = await fetch(`${API_BASE_URL}/parse/upload`, {
     method: "POST",
-    headers: token ? { Authorization: `Bearer ${token}` } : undefined,
+    headers: uploadHeaders,
     body: formData,
   });
+
+  if (response.status === 401) {
+    handleUnauthorized();
+    throw new Error("Unauthorized");
+  }
 
   if (!response.ok) {
     throw new Error(await buildErrorMessage(response));
@@ -118,18 +140,10 @@ export async function uploadTransactionFile(
 }
 
 export async function getParseStatus(parseId: string): Promise<ParseStatus> {
-  if (isMockApiEnabled()) {
-    throw new Error("Parse status polling is unavailable in mock mode.");
-  }
-
   return request<ParseStatus>(`/parse/${parseId}`);
 }
 
 export async function getClarifications(): Promise<ClarificationsResponse> {
-  if (isMockApiEnabled()) {
-    return mockApi.getClarifications();
-  }
-
   return request<ClarificationsResponse>("/clarifications");
 }
 
@@ -137,10 +151,6 @@ export async function resolveClarification(
   clarificationId: string,
   input: ResolveClarificationRequest,
 ): Promise<ResolveClarificationResponse> {
-  if (isMockApiEnabled()) {
-    return mockApi.resolveClarification(clarificationId, input);
-  }
-
   return request<ResolveClarificationResponse>(`/clarifications/${clarificationId}/resolve`, {
     method: "POST",
     body: JSON.stringify(input),
@@ -148,18 +158,10 @@ export async function resolveClarification(
 }
 
 export async function getLedger(): Promise<LedgerResponse> {
-  if (isMockApiEnabled()) {
-    return mockApi.getLedger();
-  }
-
   return request<LedgerResponse>("/ledger");
 }
 
 export async function getStatements(statementType?: StatementType, asOf?: string): Promise<StatementsResponse> {
-  if (isMockApiEnabled()) {
-    return mockApi.getStatements(statementType, asOf);
-  }
-
   const params = new URLSearchParams();
   if (statementType) {
     params.set("statement_type", statementType);

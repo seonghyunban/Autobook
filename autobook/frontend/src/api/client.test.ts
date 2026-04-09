@@ -13,7 +13,6 @@ describe("api client auth contract", () => {
   });
 
   test("sends bearer auth on protected read APIs and resolve", async () => {
-    vi.stubEnv("VITE_USE_MOCK_API", "false");
     vi.stubEnv("VITE_API_BASE_URL", "http://localhost:8000/api/v1");
     localStorage.setItem("autobook_access_token", "token-123");
 
@@ -43,7 +42,6 @@ describe("api client auth contract", () => {
   });
 
   test("surfaces backend detail text for failed clarification requests", async () => {
-    vi.stubEnv("VITE_USE_MOCK_API", "false");
     vi.stubEnv("VITE_API_BASE_URL", "http://localhost:8000/api/v1");
     localStorage.setItem("autobook_access_token", "token-123");
 
@@ -63,7 +61,6 @@ describe("api client auth contract", () => {
   });
 
   test("includes upload source and bearer token in file upload requests", async () => {
-    vi.stubEnv("VITE_USE_MOCK_API", "false");
     vi.stubEnv("VITE_API_BASE_URL", "http://localhost:8000/api/v1");
     localStorage.setItem("autobook_access_token", "token-123");
 
@@ -100,7 +97,6 @@ describe("api client auth contract", () => {
   });
 
   test("sends manual text with the explicit manual_text source and auth header", async () => {
-    vi.stubEnv("VITE_USE_MOCK_API", "false");
     vi.stubEnv("VITE_API_BASE_URL", "http://localhost:8000/api/v1");
     localStorage.setItem("autobook_access_token", "token-123");
 

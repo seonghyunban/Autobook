@@ -1,5 +1,3 @@
-import { subscribeToRealtimeUpdates as subscribeToMockRealtimeUpdates } from "../mocks/mockApi";
-import { isMockApiEnabled } from "../config/env";
 import { getAccessToken } from "./auth";
 import type { RealtimeEvent, RealtimeListener } from "./types";
 
@@ -94,11 +92,7 @@ function connectEventSource(url: string): Promise<void> {
   return connectionReady;
 }
 
-export function ensureConnection(force = false): Promise<void> {
-  if (!force && isMockApiEnabled()) {
-    return Promise.resolve();
-  }
-
+export function ensureConnection(): Promise<void> {
   const sseUrl = deriveEventsUrl();
   if (!sseUrl) {
     disconnectRealtimeUpdates();
@@ -123,10 +117,6 @@ export async function waitForRealtimeConnection(timeoutMs = 1500) {
 }
 
 export function subscribeToRealtimeUpdates(listener: RealtimeListener) {
-  if (isMockApiEnabled()) {
-    return subscribeToMockRealtimeUpdates(listener);
-  }
-
   realtimeListeners.add(listener);
   void ensureConnection();
 

@@ -1,4 +1,5 @@
 import { getAccessToken } from "./auth";
+import { getActiveEntityId } from "./entityHeader";
 import type { LLMInteractionResponse } from "./types";
 
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL ?? "http://localhost:8000/api/v1";
@@ -10,6 +11,10 @@ export async function submitLLMInteraction(parseId: string, inputText: string): 
   const headers: Record<string, string> = { "Content-Type": "application/json" };
   if (token) {
     headers["Authorization"] = `Bearer ${token}`;
+  }
+  const entityId = getActiveEntityId();
+  if (entityId) {
+    headers["X-Entity-Id"] = entityId;
   }
 
   const response = await fetch(`${API_BASE_URL}/llm`, {

@@ -1,5 +1,4 @@
 import type { AuthTokenResponse, AuthUser } from "./types";
-import { isMockAuthEnabled } from "../config/env";
 
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL ?? "http://localhost:8000/api/v1";
 const ACCESS_TOKEN_KEY = "autobook_access_token";
@@ -7,7 +6,7 @@ const REFRESH_TOKEN_KEY = "autobook_refresh_token";
 const PKCE_VERIFIER_KEY = "autobook_pkce_verifier";
 const PKCE_STATE_KEY = "autobook_pkce_state";
 
-type HostedUiMode = "login" | "signup";
+type HostedUiMode = "login";
 type HostedUiUrlResponse = { hosted_ui_url?: string; login_url?: string };
 export type AuthCallbackErrorCode = "needs_sign_in" | "restart_sign_in" | "provider_error";
 
@@ -63,26 +62,38 @@ export async function fetchAuthMe(): Promise<AuthUser> {
   return (await response.json()) as AuthUser;
 }
 
-export async function beginHostedLogin(email?: string): Promise<void> {
-  await beginHostedAuth("login", email);
-}
-
-export async function beginHostedSignUp(email?: string): Promise<void> {
-  await beginHostedAuth("signup", email);
-}
-
-async function beginHostedAuth(mode: HostedUiMode, email?: string): Promise<void> {
-  if (isMockAuthEnabled()) {
-    persistTokenResponse({
-      access_token: buildDemoAccessToken(email),
-      token_type: "Bearer",
-      expires_in: 86400,
-      refresh_token: null,
-      id_token: null,
-    });
-    return;
+/**
+ * Custom email/password sign-in.
+ *
+ * Posts to the backend's /auth/password-login endpoint, which calls
+ * Cognito InitiateAuth on our behalf and returns the JWT bundle. On
+ * success, persists the tokens locally so the rest of the app can use
+ * them via getAccessToken(). On invalid credentials throws an
+ * AuthCallbackError with a single generic message — Cognito returns
+ * the same error for "user not found" and "wrong password" to avoid
+ * leaking which accounts exist.
+ */
+export async function passwordLogin(email: string, password: string): Promise<AuthUser> {
+  const response = await fetch(`${API_BASE_URL}/auth/password-login`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ email, password }),
+  });
+  if (response.status === 401) {
+    throw new AuthCallbackError("provider_error", "Invalid email or password.");
   }
+  if (!response.ok) {
+    throw new Error(`Sign-in failed: ${response.status}`);
+  }
+  const payload = (await response.json()) as AuthTokenResponse;
+  persistTokenResponse(payload);
+  return fetchAuthMe();
+}
 
+export async function beginHostedLogin(_email?: string): Promise<void> {
+  // Kick off the Cognito Hosted UI OAuth PKCE flow.
+  // `_email` is accepted for call-site compatibility but the hosted UI
+  // runs its own email/password form — we can't prefill it from here.
   const verifier = randomString(64);
   const state = randomString(32);
   const challenge = await createPkceChallenge(verifier);
@@ -90,21 +101,18 @@ async function beginHostedAuth(mode: HostedUiMode, email?: string): Promise<void
   sessionStorage.setItem(PKCE_VERIFIER_KEY, verifier);
   sessionStorage.setItem(PKCE_STATE_KEY, state);
 
-  const url = new URL(`${API_BASE_URL}/auth/${mode}-url`);
+  const url = new URL(`${API_BASE_URL}/auth/login-url`);
   url.searchParams.set("redirect_uri", redirectUri);
   url.searchParams.set("code_challenge", challenge);
   url.searchParams.set("state", state);
 
-  let response = await fetch(url.toString());
-  if (mode === "signup" && response.status === 404) {
-    response = await fetch(buildHostedAuthUrl("login", redirectUri, challenge, state));
-  }
+  const response = await fetch(url.toString());
   if (!response.ok) {
-    throw new Error(`Unable to start ${mode}: ${response.status}`);
+    throw new Error(`Unable to start login: ${response.status}`);
   }
 
   const payload = (await response.json()) as HostedUiUrlResponse;
-  window.location.assign(resolveHostedUiRedirectUrl(mode, payload));
+  window.location.assign(resolveHostedUiRedirectUrl("login", payload));
 }
 
 export async function completeHostedLogin(search: string): Promise<AuthUser> {
@@ -173,11 +181,6 @@ export async function refreshAuthSession(): Promise<AuthUser> {
 }
 
 export async function beginLogout(): Promise<void> {
-  if (isMockAuthEnabled()) {
-    clearAuthSession();
-    return;
-  }
-
   const response = await fetch(
     `${API_BASE_URL}/auth/logout-url?logout_uri=${encodeURIComponent(`${window.location.origin}/login`)}`,
   );
@@ -195,36 +198,12 @@ function persistTokenResponse(payload: AuthTokenResponse) {
   setRefreshToken(payload.refresh_token ?? null);
 }
 
-function buildDemoAccessToken(email?: string): string {
-  const normalizedEmail = (email ?? "demo@autobook.local").trim() || "demo@autobook.local";
-  return `demo:${normalizedEmail}`;
-}
-
-function buildHostedAuthUrl(
-  mode: HostedUiMode,
-  redirectUri: string,
-  challenge: string,
-  state: string,
-): string {
-  const url = new URL(`${API_BASE_URL}/auth/${mode}-url`);
-  url.searchParams.set("redirect_uri", redirectUri);
-  url.searchParams.set("code_challenge", challenge);
-  url.searchParams.set("state", state);
-  return url.toString();
-}
-
 export function resolveHostedUiRedirectUrl(mode: HostedUiMode, payload: HostedUiUrlResponse): string {
   const hostedUiUrl = payload.hosted_ui_url ?? payload.login_url;
   if (!hostedUiUrl) {
     throw new Error(`Unable to start ${mode}: invalid hosted UI response.`);
   }
-  return mode === "signup" ? toSignupUrl(hostedUiUrl) : hostedUiUrl;
-}
-
-function toSignupUrl(hostedUiUrl: string): string {
-  const url = new URL(hostedUiUrl);
-  url.pathname = url.pathname.replace(/\/login$/, "/signup");
-  return url.toString();
+  return hostedUiUrl;
 }
 
 function randomString(length: number): string {
