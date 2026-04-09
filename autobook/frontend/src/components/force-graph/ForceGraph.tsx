@@ -2,9 +2,9 @@ import { memo, useMemo, useRef, useState } from "react";
 import type { GraphData, GraphNode as GraphNodeType, GraphEdge as GraphEdgeType, NodeRole } from "./types";
 import { GraphNode } from "./GraphNode";
 import { GraphEdge } from "./GraphEdge";
-import { GraphTooltip, type TooltipData } from "./GraphTooltip";
 import { useContainerSize } from "./useContainerSize";
 import { useForceSimulation } from "./useForceSimulation";
+import { ROLE_COLORS } from "../panels/shared/tokens";
 
 // ── Connected IDs for highlighting ──────────────────────────
 
@@ -58,12 +58,9 @@ function computeEdgeCurvatures(edges: GraphEdgeType[]): number[] {
 }
 
 // ── Particle colors by source role ──────────────────────────
-
-const PARTICLE_COLORS: Record<NodeRole, string> = {
-  reporting_entity: "#FF8F00",
-  counterparty: "#004953",
-  indirect_party: "#403D39",
-};
+// Sourced from shared ROLE_COLORS so the graph particles match the
+// review panel's role-themed field backgrounds and value-flow boxes.
+const PARTICLE_COLORS: Record<NodeRole, string> = ROLE_COLORS as Record<NodeRole, string>;
 
 // ── Main component ──────────────────────────────────────────
 
@@ -76,7 +73,6 @@ export const ForceGraph = memo(function ForceGraph({ data, layoutVersion = 0, hi
 }) {
   const { ref, width, height } = useContainerSize();
   const { positions, labelPositions, stabilized } = useForceSimulation(data, width, height, layoutVersion);
-  const [tooltip, setTooltip] = useState<TooltipData | null>(null);
   const [hoveredNode, setHoveredNode] = useState<GraphNodeType | null>(null);
   const [hoveredEdgeIdx, setHoveredEdgeIdx] = useState<number | null>(null);
   const svgRef = useRef<SVGSVGElement>(null);
@@ -139,36 +135,12 @@ export const ForceGraph = memo(function ForceGraph({ data, layoutVersion = 0, hi
   function handleNodeHover(node: GraphNodeType | null) {
     setHoveredNode(node);
     onNodeHover?.(node?.index ?? null);
-    if (node && svgRef.current) {
-      const pos = positions.get(node.index);
-      if (pos) {
-        const rect = svgRef.current.getBoundingClientRect();
-        setTooltip({ type: "node", data: node, x: pos.x + rect.left, y: pos.y + rect.top });
-      }
-    } else {
-      setTooltip(null);
-    }
   }
 
   function handleEdgeHover(edge: GraphEdgeType | null) {
     const idx = edge ? data.edges.indexOf(edge) : null;
     setHoveredEdgeIdx(idx);
     onEdgeHover?.(idx);
-    if (edge && svgRef.current) {
-      const sp = positions.get(edge.sourceIndex);
-      const tp = positions.get(edge.targetIndex);
-      if (sp && tp) {
-        const rect = svgRef.current.getBoundingClientRect();
-        setTooltip({
-          type: "edge",
-          data: edge,
-          x: (sp.x + tp.x) / 2 + rect.left,
-          y: (sp.y + tp.y) / 2 + rect.top,
-        });
-      }
-    } else {
-      setTooltip(null);
-    }
   }
 
   if (width === 0 || height === 0 || data.nodes.length === 0) {
@@ -256,8 +228,6 @@ export const ForceGraph = memo(function ForceGraph({ data, layoutVersion = 0, hi
           );
         })}
       </svg>
-
-      {tooltip && <GraphTooltip tooltip={tooltip} />}
     </div>
   );
 });

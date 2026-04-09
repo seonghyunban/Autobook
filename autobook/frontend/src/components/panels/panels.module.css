@@ -1,0 +1,235 @@
+/* ── Motion Tokens ─────────────────────────────────────── */
+:root {
+  --motion-fast: 0.15s;     /* hover, button feedback */
+  --motion-normal: 0.2s;    /* content fade in/out */
+  --motion-expand: 0.4s;    /* resize, expand/collapse */
+  --motion-ease: ease;
+  --motion-pulse: 1.5s;     /* star pulse loop */
+}
+
+/* ── Star pulse (in-progress indicator) ──────────────── */
+@keyframes starPulse {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50% { opacity: 0.35; transform: scale(0.7); }
+}
+
+.starPulse {
+  animation: starPulse var(--motion-pulse) ease-in-out infinite;
+  display: inline-block;
+}
+
+/* ── Hover feedback (blocks, lines) ──────────────────── */
+.hoverableBlock {
+  transition: background var(--motion-fast) var(--motion-ease);
+}
+.hoverableBlock:hover {
+  background: rgba(229, 228, 226, 0.45) !important;
+}
+.hoverableLine {
+  transition: background var(--motion-fast) var(--motion-ease);
+}
+.hoverableLine:hover {
+  background: rgba(229, 228, 226, 0.5) !important;
+}
+
+/* ── Button hover ────────────────────────────────────── */
+.buttonTransition {
+  transition: all var(--motion-fast) var(--motion-ease);
+}
+
+/* ── Field opacity ────────────────────────────────────── */
+/* Interactive fields (corrected side, accept onChange): start at display
+   opacity 0.8 and bump to 1.0 on hover/focus. */
+.fieldHighlight {
+  opacity: 0.8;
+  transition: opacity var(--motion-fast) var(--motion-ease);
+}
+.fieldHighlight:hover,
+.fieldHighlight:focus,
+.fieldHighlight:focus-within {
+  opacity: 1;
+}
+.fieldHighlight.disabled {
+  opacity: 0.4;
+  pointer-events: none;
+}
+
+/* Read-only fields (attempted side, no onChange): static at 0.8, no
+   hover bump, no transition. Same idle opacity as interactive fields so
+   attempted and corrected align visually when neither is being touched. */
+.fieldDisplay {
+  opacity: 0.8;
+}
+
+
+/* ── Scrollbar (shared: entry table, reasoning) ──────── */
+.scrollable {
+  overflow-y: auto;
+  scrollbar-width: thin;
+  scrollbar-color: transparent transparent;
+  scrollbar-gutter: stable;
+  transition: scrollbar-color 0.3s;
+}
+.scrollable::-webkit-scrollbar {
+  width: 4px;
+}
+.scrollable::-webkit-scrollbar-track {
+  background: transparent;
+}
+.scrollable::-webkit-scrollbar-thumb {
+  background: transparent;
+  border-radius: 2px;
+  transition: background 0.3s;
+}
+.scrollable.scrolling,
+.scrollable:hover {
+  scrollbar-color: rgba(204, 197, 185, 0.5) transparent;
+}
+.scrollable.scrolling::-webkit-scrollbar-thumb,
+.scrollable:hover::-webkit-scrollbar-thumb {
+  background: rgba(204, 197, 185, 0.5);
+}
+
+
+/* ═══════════════════════════════════════════════════════
+   Reasoning panel: 2-phase show/hide
+   Show: panel expands → content fades in
+   Hide: content fades out → panel collapses
+   ═══════════════════════════════════════════════════════ */
+
+.reasoningShow {
+  transition:
+    width var(--motion-expand) var(--motion-ease),
+    padding var(--motion-expand) var(--motion-ease),
+    background var(--motion-expand) var(--motion-ease),
+    box-shadow var(--motion-expand) var(--motion-ease),
+    border var(--motion-expand) var(--motion-ease);
+}
+.reasoningHide {
+  transition:
+    width var(--motion-expand) var(--motion-ease) var(--motion-normal),
+    padding var(--motion-expand) var(--motion-ease) var(--motion-normal),
+    background var(--motion-expand) var(--motion-ease) var(--motion-normal),
+    box-shadow var(--motion-expand) var(--motion-ease) var(--motion-normal),
+    border var(--motion-expand) var(--motion-ease) var(--motion-normal);
+}
+.reasoningResizing {
+  transition:
+    padding var(--motion-normal) var(--motion-ease),
+    background var(--motion-normal) var(--motion-ease),
+    box-shadow var(--motion-normal) var(--motion-ease),
+    border var(--motion-normal) var(--motion-ease);
+}
+
+.reasoningContentShow {
+  opacity: 1;
+  transform: translateX(0);
+  transition:
+    opacity var(--motion-normal) var(--motion-ease) var(--motion-expand),
+    transform var(--motion-normal) var(--motion-ease) var(--motion-expand);
+}
+.reasoningContentHide {
+  opacity: 0;
+  transform: translateX(16px);
+  transition:
+    opacity var(--motion-normal) var(--motion-ease) 0s,
+    transform var(--motion-normal) var(--motion-ease) 0s;
+}
+
+/* ═══════════════════════════════════════════════════════
+   Collapsible block: 2-phase open/close
+   ═══════════════════════════════════════════════════════ */
+
+.collapsibleWrapper {
+  display: grid;
+  grid-template-rows: 0fr;
+  transition: grid-template-rows var(--motion-normal) var(--motion-ease);
+}
+.collapsibleWrapperOpen {
+  grid-template-rows: 1fr;
+}
+.collapsibleInner {
+  overflow: hidden;
+}
+.collapsibleFade {
+  opacity: 0;
+  transition: opacity var(--motion-normal) var(--motion-ease);
+}
+.collapsibleWrapperOpen .collapsibleFade {
+  opacity: 1;
+  transition: opacity var(--motion-normal) var(--motion-ease) var(--motion-normal);
+}
+
+/* ── Chunk/block/line appear animation ────────────────── */
+@keyframes slideDown {
+  from {
+    opacity: 0;
+    transform: translateY(-4px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.chunkAppear {
+  animation: slideDown var(--motion-normal) var(--motion-ease) both;
+}
+
+.blockAppear {
+  animation: slideDown var(--motion-normal) var(--motion-ease) both;
+}
+
+.lineAppear {
+  animation: slideDown var(--motion-fast) var(--motion-ease) both;
+}
+
+
+/* ── Cell expand on hover ─────────────────────────────── */
+.cellExpand {
+  position: relative;
+}
+.cellExpandOverlay {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  padding: 8px 10px;
+  border-radius: 4px;
+  white-space: nowrap;
+  box-sizing: border-box;
+  display: flex;
+  align-items: center;
+  z-index: 5;
+  width: fit-content;
+  min-width: 100%;
+  opacity: 0;
+  transition: opacity 0.1s ease;
+  pointer-events: none;
+}
+.cellExpand:hover .cellExpandOverlay,
+.cellExpandOverlay:focus-within {
+  opacity: 1;
+  pointer-events: auto;
+}
+.cellExpandRight {
+  left: 0;
+}
+.cellExpandLeft {
+  right: 0;
+}
+
+/* ── Accessibility: respect reduced motion ───────────── */
+@media (prefers-reduced-motion: reduce) {
+  :root {
+    --motion-fast: 0s;
+    --motion-normal: 0s;
+    --motion-expand: 0s;
+    --motion-pulse: 0s;
+  }
+  .starPulse,
+  .chunkAppear,
+  .blockAppear,
+  .lineAppear {
+    animation: none;
+  }
+}
