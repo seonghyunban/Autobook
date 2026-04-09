@@ -1,154 +1,133 @@
+"""Posting — write a proposed entry to the append-only ledger.
+
+Not a worker; called directly from `workers/agent.py` when the agent's
+decision is PROCEED. Three responsibilities, nothing else:
+
+  1. Call PostedEntryDAO.create_original (the one real DB op)
+  2. Commit the transaction
+  3. Publish an `entry_posted` event to Redis pub/sub (the frontend SSE
+     stream consumes this)
+
+Service-layer validation: `sum(debits) == sum(credits)`. The DB balance
+trigger is a backstop, not the primary check.
+
+No batch coordination, no parse-status tracking, no queue-worker glue.
+Those concerns belong to the caller (the agent worker).
+"""
+from __future__ import annotations
+
 import logging
-from datetime import datetime, timezone
+from decimal import Decimal
+from uuid import UUID
 
-from sqlalchemy.exc import IntegrityError
-
-from config import get_settings
 from db.connection import SessionLocal
-from db.dao.journal_entries import JournalEntryDAO
-from db.dao.transactions import TransactionDAO
+from db.dao.posted_entries import PostedEntryDAO
 from queues.pubsub import pub
-from services.shared.parse_status import record_batch_result_sync, set_status_sync
 
 logger = logging.getLogger(__name__)
 
-settings = get_settings()
 
+def post(message: dict) -> dict | None:
+    """Post the agent's proposed entry to the ledger.
 
-def _compute_parse_time_ms(message: dict) -> int | None:
-    submitted_at = message.get("submitted_at")
-    if not submitted_at:
-        return None
-    try:
-        start = datetime.fromisoformat(submitted_at)
-        return int((datetime.now(timezone.utc) - start).total_seconds() * 1000)
-    except (ValueError, TypeError):
-        return None
+    Expects `message` to contain:
+      - transaction_id: UUID of the Autobook transaction
+      - entity_id:      UUID of the owning entity
+      - user_id:        UUID of the human who triggered the parse
+                        (used as `posted_by` audit FK)
+      - proposed_entry: dict with `lines: [...]`, each line carrying
+                        `account_code`, `account_name`, `type`
+                        ('debit'|'credit'), `amount`, `currency`,
+                        `line_order`
 
-
-def _normalize_proposed_entry(message: dict) -> dict | None:
-    proposed_entry = message.get("proposed_entry")
+    Returns the message enriched with `posted_entry_id`, or None if
+    the posting fails validation (unbalanced) or is a no-op.
+    """
+    proposed_entry = _coerce_proposed_entry(message)
     if proposed_entry is None:
+        logger.warning("posting: no proposed_entry in message %s", message.get("parse_id"))
         return None
 
-    if isinstance(proposed_entry, dict) and "entry" in proposed_entry and "lines" in proposed_entry:
-        return proposed_entry
-
-    lines = list(proposed_entry.get("lines", [])) if isinstance(proposed_entry, dict) else []
-    return {
-        "entry": {
-            "date": message.get("transaction_date"),
-            "description": message.get("input_text"),
-            "origin_tier": 3,
-            "confidence": (message.get("confidence") or {}).get("overall"),
-            "transaction_id": message.get("transaction_id"),
-        },
-        "lines": lines,
-    }
-
-
-def _json_safe(value):
-    if hasattr(value, "isoformat"):
-        return value.isoformat()
-    return str(value) if hasattr(value, "hex") else value
-
-
-def _serialize_proposed_entry(proposed_entry: dict | None, journal_entry_id: str | None = None) -> dict | None:
-    if proposed_entry is None:
+    lines = list(proposed_entry.get("lines") or [])
+    if not lines:
+        logger.warning("posting: proposed_entry has no lines for %s", message.get("parse_id"))
         return None
 
-    entry = {
-        key: _json_safe(value)
-        for key, value in dict(proposed_entry.get("entry") or {}).items()
-    }
-    if journal_entry_id is not None:
-        entry["journal_entry_id"] = journal_entry_id
-    return {
-        "entry": entry,
-        "lines": list(proposed_entry.get("lines") or []),
-    }
+    _validate_balance(lines)
 
+    transaction_id = UUID(str(message["transaction_id"]))
+    entity_id = UUID(str(message["entity_id"]))
+    posted_by = UUID(str(message["user_id"]))
 
-def execute(message: dict) -> None:
-    logger.info("Processing: %s", message.get("parse_id"))
-    set_status_sync(
-        parse_id=message["parse_id"],
-        user_id=message["user_id"],
-        status="processing",
-        stage="posting",
-        input_text=message.get("input_text"),
-    )
-    parse_time_ms = _compute_parse_time_ms(message)
     db = SessionLocal()
     try:
-        transaction_id = message.get("transaction_id")
-        if not transaction_id:
-            raise ValueError("message is missing transaction_id — normalizer should have set it")
-        transaction = TransactionDAO.get_by_id(db, transaction_id)
-        if transaction is None:
-            raise ValueError(f"transaction {transaction_id} not found — normalizer should have created it")
-        proposed_entry = _normalize_proposed_entry({**message, "transaction_id": transaction.id})
-        if proposed_entry is None:
-            raise ValueError("auto-post path requires a proposed entry")
-
-        entry_payload = dict(proposed_entry.get("entry") or {})
-        line_payload = list(proposed_entry.get("lines") or [])
-        entry_payload.setdefault("transaction_id", transaction.id)
-        entry_payload.setdefault("status", "posted")
-
-        journal_entry = JournalEntryDAO.insert_with_lines(db, transaction.user_id, entry_payload, line_payload)
+        posted = PostedEntryDAO.create_original(
+            db,
+            entity_id=entity_id,
+            transaction_id=transaction_id,
+            posted_by=posted_by,
+            lines=lines,
+        )
         db.commit()
-    except IntegrityError:
-        db.rollback()
-        logger.info("Duplicate posting skipped for transaction_id=%s status=%s", transaction_id, entry_payload.get("status"))
-        return
     except Exception:
         db.rollback()
         raise
     finally:
         db.close()
 
-    journal_entry_id = str(journal_entry.id)
-    proposed_entry = _serialize_proposed_entry(proposed_entry, journal_entry_id=journal_entry_id)
+    posted_entry_id = str(posted.id)
 
     pub.entry_posted(
-        journal_entry_id=journal_entry_id,
+        journal_entry_id=posted_entry_id,  # kept as wire-level field name for now
         parse_id=message.get("parse_id"),
-        user_id=message.get("user_id"),
+        user_id=str(message["user_id"]),
         input_text=message.get("input_text"),
         confidence=message.get("confidence"),
         explanation=message.get("explanation"),
         proposed_entry=proposed_entry,
-        parse_time_ms=parse_time_ms,
     )
-    set_status_sync(
-        parse_id=message["parse_id"],
-        user_id=message["user_id"],
-        status="auto_posted",
-        stage="posting",
-        input_text=message.get("input_text"),
-        explanation=message.get("explanation"),
-        confidence=message.get("confidence"),
-        proposed_entry=proposed_entry,
-        journal_entry_id=journal_entry_id,
-    )
-    if message.get("parent_parse_id"):
-        record_batch_result_sync(
-            parent_parse_id=message["parent_parse_id"],
-            child_parse_id=message["parse_id"],
-            user_id=message["user_id"],
-            statement_index=int(message.get("statement_index") or 0),
-            total_statements=int(message.get("statement_total") or 1),
-            status="auto_posted",
-            input_text=message.get("input_text"),
-            journal_entry_id=journal_entry_id,
-        )
 
-    origin_tier = (proposed_entry or {}).get("entry", {}).get("origin_tier")
     return {
         **message,
-        "transaction_id": str(transaction.id),
-        "journal_entry_id": journal_entry_id,
-        "origin_tier": origin_tier,
-        "proposed_entry": proposed_entry,
+        "posted_entry_id": posted_entry_id,
     }
+
+
+# ── helpers ───────────────────────────────────────────────────────────
+
+
+def _coerce_proposed_entry(message: dict) -> dict | None:
+    """The agent's result may carry the proposed entry in either the
+    new `{lines: [...]}` shape or an older wrapped `{entry, lines}`
+    shape. Return a dict with at least a `lines` key, or None.
+    """
+    proposed = message.get("proposed_entry")
+    if proposed is None:
+        return None
+    if "lines" in proposed:
+        return proposed
+    return {"lines": []}
+
+
+def _validate_balance(lines: list[dict]) -> None:
+    """Enforce sum(debits) == sum(credits) at the service layer before
+    handing the lines to the DAO. The DB balance trigger is a backstop.
+    """
+    debit_total = Decimal("0")
+    credit_total = Decimal("0")
+    for line in lines:
+        amount = Decimal(str(line["amount"]))
+        if amount <= 0:
+            raise ValueError(f"line amount must be positive: {amount}")
+        side = str(line["type"]).lower()
+        if side == "debit":
+            debit_total += amount
+        elif side == "credit":
+            credit_total += amount
+        else:
+            raise ValueError(f"invalid line type: {side!r}")
+
+    if debit_total != credit_total:
+        raise ValueError(
+            f"posted entry is unbalanced: debits={debit_total} credits={credit_total}"
+        )
