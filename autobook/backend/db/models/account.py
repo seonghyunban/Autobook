@@ -19,56 +19,49 @@ from sqlalchemy.orm import Mapped, mapped_column, relationship
 from db.models.base import Base
 
 if TYPE_CHECKING:
-    from db.models.user import User
+    from db.models.entity import Entity
 
 
 class ChartOfAccounts(Base):
+    """Entity-scoped chart of accounts. Each entity has its own COA
+    with a unique (entity_id, account_code) constraint."""
+
     __tablename__ = "chart_of_accounts"
     __table_args__ = (
-        UniqueConstraint("user_id", "account_code", name="uq_chart_of_accounts_user_code"),
+        UniqueConstraint("entity_id", "account_code", name="uq_coa_entity_code"),
         CheckConstraint(
             "account_type IN ('asset', 'liability', 'equity', 'revenue', 'expense')",
-            name="ck_chart_of_accounts_account_type",
+            name="ck_coa_account_type",
         ),
     )
 
     id: Mapped[uuid.UUID] = mapped_column(
-        UUID(as_uuid=True), primary_key=True, default=uuid.uuid4
+        UUID(as_uuid=True), primary_key=True, server_default=func.uuidv7()
     )
-    user_id: Mapped[uuid.UUID] = mapped_column(
-        UUID(as_uuid=True), ForeignKey("users.id", ondelete="CASCADE"), index=True
+    entity_id: Mapped[uuid.UUID] = mapped_column(
+        UUID(as_uuid=True),
+        ForeignKey("entities.id", ondelete="CASCADE"),
+        index=True,
+        nullable=False,
     )
-    account_code: Mapped[str] = mapped_column(String(20))
-    account_name: Mapped[str] = mapped_column(String(255))
-    account_type: Mapped[str] = mapped_column(String(20))
+    account_code: Mapped[str] = mapped_column(String(20), nullable=False)
+    account_name: Mapped[str] = mapped_column(String(255), nullable=False)
+    account_type: Mapped[str] = mapped_column(String(20), nullable=False)
     is_active: Mapped[bool] = mapped_column(
-        Boolean, default=True, server_default="true"
+        Boolean, default=True, server_default="true", nullable=False
     )
     auto_created: Mapped[bool] = mapped_column(
-        Boolean, default=False, server_default="false"
+        Boolean, default=False, server_default="false", nullable=False
     )
     created_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True), server_default=func.now(), nullable=False
     )
+    updated_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True),
+        server_default=func.now(),
+        onupdate=func.now(),
+        nullable=False,
+    )
 
-    user: Mapped["User"] = relationship("User", back_populates="chart_of_accounts")
-
-    @property
-    def account_number(self) -> str:
-        return self.account_code
-
-    @account_number.setter
-    def account_number(self, value: str) -> None:
-        self.account_code = value
-
-    @property
-    def name(self) -> str:
-        return self.account_name
-
-    @name.setter
-    def name(self, value: str) -> None:
-        self.account_name = value
-
-    @property
-    def org_id(self) -> uuid.UUID:
-        return self.user_id
+    # ── relationships ──────────────────────────────────────────
+    entity: Mapped["Entity"] = relationship("Entity", back_populates="chart_of_accounts")
