@@ -6,7 +6,7 @@ import pytest
 os.environ.setdefault("DATABASE_URL", "sqlite:///:memory:")
 
 from auth import token_service
-from auth.mock_cognito import MockCognito, MockCognitoConfig
+from tests.auth.mock_cognito import MockCognito, MockCognitoConfig
 from config import get_settings
 
 MOCK = MockCognito(MockCognitoConfig(region="us-east-1", user_pool_id="us-east-1_test", client_id="test-client", key_id="test-key"))

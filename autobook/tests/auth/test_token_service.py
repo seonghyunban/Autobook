@@ -4,7 +4,7 @@ from datetime import timedelta
 
 import pytest
 
-from auth.mock_cognito import MockCognito
+from tests.auth.mock_cognito import MockCognito
 from auth.token_service import clear_caches, decode_access_token, _get_signing_key
 from config import get_settings
 

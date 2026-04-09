@@ -123,16 +123,16 @@ def test_record_batch_result_sync_tracks_child_results():
 
 
 def test_set_status_sync():
-    result = ps.set_status_sync(parse_id="p1", user_id="u1", status="processing", stage="normalizer")
+    result = ps.set_status_sync(parse_id="p1", user_id="u1", status="processing", stage="normalization")
     assert result["parse_id"] == "p1"
     assert result["status"] == "processing"
 
 
 def test_set_status_sync_updates():
     ps.set_status_sync(parse_id="p1", user_id="u1", status="accepted")
-    result = ps.set_status_sync(parse_id="p1", user_id="u1", status="processing", stage="normalizer")
+    result = ps.set_status_sync(parse_id="p1", user_id="u1", status="processing", stage="normalization")
     assert result["status"] == "processing"
-    assert result["stage"] == "normalizer"
+    assert result["stage"] == "normalization"
 
 
 def test_load_sync_miss():

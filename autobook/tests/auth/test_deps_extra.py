@@ -4,10 +4,12 @@ import os
 import pytest
 
 os.environ.setdefault("DATABASE_URL", "sqlite:///:memory:")
+os.environ.setdefault("COGNITO_USER_POOL_ID", "us-east-1_test")
+os.environ.setdefault("COGNITO_CLIENT_ID", "test-client")
 
-from auth.deps import _decode_bearer_token, _resolve_role
-from auth.schemas import TokenPayload, UserRole
-from auth.mock_cognito import MockCognito, MockCognitoConfig
+from auth.deps import _resolve_role
+from schemas.auth import TokenPayload, UserRole
+from tests.auth.mock_cognito import MockCognito, MockCognitoConfig
 from auth import token_service
 from config import get_settings
 
@@ -21,26 +23,6 @@ def setup_env(monkeypatch):
         monkeypatch.setenv(key, value)
     get_settings.cache_clear()
     token_service.clear_caches()
-
-
-def test_decode_demo_token_disabled():
-    with pytest.raises(ValueError):
-        _decode_bearer_token("demo:user@example.com")
-
-
-def test_decode_demo_token_enabled(monkeypatch):
-    monkeypatch.setenv("AUTH_DEMO_MODE", "true")
-    get_settings.cache_clear()
-    claims = _decode_bearer_token("demo:user@example.com")
-    assert claims.sub == "demo:user@example.com"
-    assert claims.email == "user@example.com"
-
-
-def test_decode_demo_manager(monkeypatch):
-    monkeypatch.setenv("AUTH_DEMO_MODE", "true")
-    get_settings.cache_clear()
-    claims = _decode_bearer_token("demo:manager@example.com")
-    assert claims.cognito_groups == ["manager"]
 
 
 def test_resolve_role_default():

@@ -30,21 +30,7 @@ def _compile_array_sqlite(element, compiler, **kw):
 @pytest.fixture
 def db_session():
     """Provide a fresh SQLite in-memory DB session for each test."""
-    import db.models.user
-    import db.models.account
-    import db.models.transaction
-    import db.models.journal
-    import db.models.clarification
-    import db.models.auth_session
-    import db.models.asset
-    import db.models.schedule
-    import db.models.document
-    import db.models.organization
-    import db.models.reconciliation
-    import db.models.tax
-    import db.models.integration
-    import db.models.shareholder_loan
-    import db.models.taxonomy
+    import db.models  # noqa: F401 — registers all models with Base
     from db.models.base import Base
 
     engine = create_engine(

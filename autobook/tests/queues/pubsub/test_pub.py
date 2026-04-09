@@ -22,27 +22,12 @@ def test_entry_posted():
     assert published[0][1]["journal_entry_id"] == "je-1"
 
 
-def test_clarification_created():
-    published, fake = _capture_publish()
-    with patch.object(pub, "publish_sync", fake):
-        pub.clarification_created(parse_id="p1", user_id="u1")
-    assert published[0][0] == "clarification.created"
-
-
-def test_clarification_resolved():
-    published, fake = _capture_publish()
-    with patch.object(pub, "publish_sync", fake):
-        pub.clarification_resolved(parse_id="p1", user_id="u1", status="resolved")
-    assert published[0][0] == "clarification.resolved"
-    assert published[0][1]["status"] == "resolved"
-
-
 def test_stage_started():
     published, fake = _capture_publish()
     with patch.object(pub, "publish_sync", fake):
-        pub.stage_started(parse_id="p1", user_id="u1", stage="normalizer")
+        pub.stage_started(parse_id="p1", user_id="u1", stage="normalization")
     assert published[0][0] == "pipeline.stage_started"
-    assert published[0][1]["stage"] == "normalizer"
+    assert published[0][1]["stage"] == "normalization"
 
 
 def test_stage_skipped():
