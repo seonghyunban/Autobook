@@ -37,6 +37,13 @@ output "cognito_role_groups" {
   value       = module.auth.role_group_names
 }
 
+# Cognito hosted UI domain — frontend redirects to this for the OAuth login flow
+# Example: "autobook-dev.auth.ca-central-1.amazoncognito.com"
+output "cognito_domain" {
+  description = "Cognito hosted UI domain — frontend uses for OAuth redirect"
+  value       = module.auth.cognito_domain
+}
+
 # --- CI/CD ---
 
 # ECR repository URLs — CI/CD pushes Docker images here
@@ -71,6 +78,13 @@ output "qdrant_api_key" {
   description = "Qdrant database API key (sensitive)"
   value       = module.vector_search.qdrant_api_key
   sensitive   = true
+}
+
+# Secrets Manager ARN holding the Qdrant API key — referenced by ECS
+# task definitions (`secrets` block) and Lambda functions (env var).
+output "qdrant_api_key_secret_arn" {
+  description = "Secrets Manager ARN of the Qdrant API key — ECS/Lambda inject from here"
+  value       = module.vector_search.qdrant_api_key_secret_arn
 }
 
 # --- ML ---

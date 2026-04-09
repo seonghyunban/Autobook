@@ -17,6 +17,15 @@ output "qdrant_api_key" {
   sensitive   = true # Prevents accidental exposure in logs/console output
 }
 
+# AWS Secrets Manager ARN holding the Qdrant API key
+# ECS task definitions reference this in their `secrets` block;
+# Lambda functions receive it as the QDRANT_API_KEY_SECRET_ARN env var
+# and fetch the value at cold start via boto3.
+output "qdrant_api_key_secret_arn" {
+  description = "ARN of the Secrets Manager secret holding the Qdrant API key"
+  value       = aws_secretsmanager_secret.qdrant_api_key.arn
+}
+
 # The cluster ID — useful for referencing in other Qdrant Cloud resources
 output "cluster_id" {
   description = "Qdrant Cloud cluster ID"

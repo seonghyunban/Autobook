@@ -52,6 +52,21 @@ variable "db_credentials_secret_arn" {
   description = "Secrets Manager ARN for DB credentials — read via Lambda Extension"
 }
 
+# --- From vector-search module ---
+
+# Plain text — same in every environment, safe to put in env block
+variable "qdrant_url" {
+  type        = string
+  description = "Qdrant Cloud cluster URL — injected as QDRANT_URL env var"
+}
+
+# Lambda reads this ARN at cold start and fetches the secret value via
+# boto3, mirroring the existing DB_SECRET_ARN pattern.
+variable "qdrant_api_key_secret_arn" {
+  type        = string
+  description = "Secrets Manager ARN for the Qdrant API key — read via boto3 on cold start"
+}
+
 # --- From cache module ---
 
 variable "redis_endpoint" {

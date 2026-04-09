@@ -31,6 +31,15 @@ resource "aws_cognito_user_pool" "main" {
   # Cognito automatically sends a verification email when a user signs up
   auto_verified_attributes = ["email"]
 
+  # --- Public signup disabled ---
+  # Only admins can create users, via `aws cognito-idp admin-create-user`.
+  # The public SignUp API returns NotAuthorizedException, and the frontend
+  # does not expose a signup button. See infra/scripts/bootstrap-admin.sh
+  # for the admin-create flow.
+  admin_create_user_config {
+    allow_admin_create_user_only = true
+  }
+
   # --- Password policy ---
   password_policy {
     minimum_length                   = var.password_min_length        # Default: 8
@@ -105,8 +114,9 @@ resource "aws_cognito_user_pool_client" "main" {
 
   # --- Auth flows: which login methods are allowed ---
   explicit_auth_flows = [
-    "ALLOW_USER_SRP_AUTH",     # Secure Remote Password — password never sent over the wire
-    "ALLOW_REFRESH_TOKEN_AUTH" # Allow refreshing expired access tokens without re-login
+    "ALLOW_USER_SRP_AUTH",      # Secure Remote Password — password never sent over the wire
+    "ALLOW_USER_PASSWORD_AUTH", # Plain email/password — used by the backend's /auth/password-login route
+    "ALLOW_REFRESH_TOKEN_AUTH"  # Allow refreshing expired access tokens without re-login
   ]
 
   # --- OAuth settings ---

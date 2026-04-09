@@ -91,3 +91,28 @@ resource "qdrant-cloud_accounts_database_api_key_v2" "main" {
   cluster_id = qdrant-cloud_accounts_cluster.main.id # Scoped to our cluster
   name       = "${local.name}-api-key"               # Descriptive name for the key
 }
+
+# =============================================================================
+# QDRANT API KEY — mirrored into AWS Secrets Manager
+# =============================================================================
+# Terraform reads the key value from the Qdrant Cloud resource above (the
+# value lives in TF state, never in source) and writes it into AWS Secrets
+# Manager. ECS task definitions reference the secret ARN in their `secrets`
+# block, and Lambda functions read the ARN from QDRANT_API_KEY_SECRET_ARN
+# and fetch via boto3 on cold start (mirroring the existing DB credentials
+# pattern).
+#
+# Naming: `${project}-${environment}-qdrant-api-key`. The IAM execution
+# roles already grant `secretsmanager:GetSecretValue` on the wildcard
+# `${project}-${environment}-*`, so no IAM changes are needed.
+resource "aws_secretsmanager_secret" "qdrant_api_key" {
+  name        = "${local.name}-qdrant-api-key"
+  description = "Qdrant Cloud API key for the ${local.name}-qdrant cluster"
+
+  tags = { Name = "${local.name}-qdrant-api-key" }
+}
+
+resource "aws_secretsmanager_secret_version" "qdrant_api_key" {
+  secret_id     = aws_secretsmanager_secret.qdrant_api_key.id
+  secret_string = qdrant-cloud_accounts_database_api_key_v2.main.key
+}

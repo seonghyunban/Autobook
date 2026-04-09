@@ -207,10 +207,14 @@ module "compute" {
   # --- From secrets ---
   db_credentials_secret_arn = module.secrets.db_credentials_secret_arn
 
+  # --- From vector-search ---
+  qdrant_url                = module.vector_search.qdrant_url
+  qdrant_api_key_secret_arn = module.vector_search.qdrant_api_key_secret_arn
+
   # --- From auth ---
-  user_pool_id    = module.auth.user_pool_id
-  client_id       = module.auth.client_id
-  cognito_domain  = module.auth.cognito_domain
+  user_pool_id   = module.auth.user_pool_id
+  client_id      = module.auth.client_id
+  cognito_domain = module.auth.cognito_domain
 }
 
 # =============================================================================
