@@ -1,115 +1,54 @@
 from __future__ import annotations
 
-from datetime import date
+from uuid import UUID
 
+from sqlalchemy import select
 from sqlalchemy.orm import Session
 
-from db.connection import set_current_user_context
 from db.models.transaction import Transaction
 
 
 class TransactionDAO:
+    """Dumb CRUD for transactions. The `transactions` table holds the
+    raw user submission (raw text + optional file). All ML / agent /
+    ledger data lives in the downstream tables, not here.
+    """
+
     @staticmethod
-    def insert(
+    def create(
         db: Session,
-        user_id,
-        description: str,
-        normalized_description: str | None,
-        amount,
-        currency: str,
-        date: date,
-        source: str,
-        counterparty: str | None,
-        amount_mentions: list[dict] | None = None,
-        date_mentions: list[dict] | None = None,
-        party_mentions: list[dict] | None = None,
-        quantity_mentions: list[dict] | None = None,
+        *,
+        entity_id: UUID,
+        submitted_by: UUID,
+        raw_text: str,
+        raw_file_s3_key: str | None = None,
     ) -> Transaction:
-        set_current_user_context(db, user_id)
         transaction = Transaction(
-            user_id=user_id,
-            description=description,
-            normalized_description=normalized_description,
-            amount=amount,
-            currency=currency,
-            date=date,
-            source=source,
-            counterparty=counterparty,
-            amount_mentions=amount_mentions,
-            date_mentions=date_mentions,
-            party_mentions=party_mentions,
-            quantity_mentions=quantity_mentions,
+            entity_id=entity_id,
+            submitted_by=submitted_by,
+            raw_text=raw_text,
+            raw_file_s3_key=raw_file_s3_key,
         )
         db.add(transaction)
         db.flush()
         return transaction
 
     @staticmethod
-    def update_normalized_fields(
-        db: Session,
-        transaction_id,
-        *,
-        description: str | None = None,
-        normalized_description: str | None = None,
-        amount=None,
-        currency: str | None = None,
-        date: date | None = None,
-        source: str | None = None,
-        counterparty: str | None = None,
-        amount_mentions: list[dict] | None = None,
-        date_mentions: list[dict] | None = None,
-        party_mentions: list[dict] | None = None,
-        quantity_mentions: list[dict] | None = None,
-    ) -> Transaction | None:
-        transaction = db.get(Transaction, transaction_id)
-        if transaction is None:
-            return None
-        set_current_user_context(db, transaction.user_id)
-        if description is not None:
-            transaction.description = description
-        if normalized_description is not None:
-            transaction.normalized_description = normalized_description
-        if amount is not None:
-            transaction.amount = amount
-        if currency is not None:
-            transaction.currency = currency
-        if date is not None:
-            transaction.date = date
-        if source is not None:
-            transaction.source = source
-        if counterparty is not None:
-            transaction.counterparty = counterparty
-        if amount_mentions is not None:
-            transaction.amount_mentions = amount_mentions
-        if date_mentions is not None:
-            transaction.date_mentions = date_mentions
-        if party_mentions is not None:
-            transaction.party_mentions = party_mentions
-        if quantity_mentions is not None:
-            transaction.quantity_mentions = quantity_mentions
-        db.flush()
-        return transaction
-
-    @staticmethod
-    def update_ml_enrichment(
-        db: Session,
-        transaction_id,
-        intent_label: str | None,
-        entities: dict | None,
-        bank_category: str | None,
-        cca_class_match: str | None,
-    ) -> Transaction | None:
-        transaction = db.get(Transaction, transaction_id)
-        if transaction is None:
-            return None
-        set_current_user_context(db, transaction.user_id)
-        transaction.intent_label = intent_label
-        transaction.entities = entities
-        transaction.bank_category = bank_category
-        transaction.cca_class_match = cca_class_match
-        db.flush()
-        return transaction
-
-    @staticmethod
-    def get_by_id(db: Session, transaction_id) -> Transaction | None:
+    def get_by_id(db: Session, transaction_id: UUID) -> Transaction | None:
         return db.get(Transaction, transaction_id)
+
+    @staticmethod
+    def list_by_entity(
+        db: Session,
+        entity_id: UUID,
+        *,
+        limit: int | None = None,
+    ) -> list[Transaction]:
+        stmt = (
+            select(Transaction)
+            .where(Transaction.entity_id == entity_id)
+            .order_by(Transaction.submitted_at.desc())
+        )
+        if limit is not None:
+            stmt = stmt.limit(limit)
+        return list(db.execute(stmt).scalars().all())

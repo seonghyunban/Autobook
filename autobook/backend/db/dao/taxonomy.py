@@ -1,6 +1,5 @@
 from __future__ import annotations
 
-import uuid
 from collections import defaultdict
 
 from sqlalchemy import select
@@ -10,8 +9,14 @@ from db.models.taxonomy import Taxonomy
 
 
 class TaxonomyDAO:
+    """Dumb read-only CRUD for the global IFRS taxonomy. The table is
+    seeded from init.sql with ~96 default categories and never mutated
+    at runtime — no ``create`` method.
+    """
+
     @staticmethod
     def list_grouped(db: Session) -> dict[str, list[str]]:
+        """Return taxonomy names grouped by account_type."""
         stmt = select(Taxonomy).order_by(Taxonomy.account_type, Taxonomy.name)
         rows = db.execute(stmt).scalars().all()
         grouped: dict[str, list[str]] = defaultdict(list)
@@ -28,17 +33,3 @@ class TaxonomyDAO:
             Taxonomy.account_type == account_type,
         )
         return db.execute(stmt).scalar_one_or_none()
-
-    @staticmethod
-    def create(
-        db: Session, name: str, account_type: str, user_id: uuid.UUID
-    ) -> Taxonomy:
-        entry = Taxonomy(
-            name=name,
-            account_type=account_type,
-            is_default=False,
-            user_id=user_id,
-        )
-        db.add(entry)
-        db.flush()
-        return entry
