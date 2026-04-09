@@ -2,7 +2,6 @@
 
 normalize(text, context) — core function, LLM only, returns graph.
 normalize_stream(text, context, writer) — same but streams SSE events.
-execute(message) — fast-path wrapper, extract → normalize → persist.
 """
 import logging
 
@@ -55,56 +54,3 @@ def normalize_stream(text: str, context: dict | None, publish) -> dict:
     publish({"action": "chunk.done", "section": SECTION, "label": "Transaction analyzed"})
 
     return graph
-
-
-def execute(message: dict) -> dict:
-    """Fast-path entry point: extract text → normalize → persist → return.
-
-    Args:
-        message: Queue message with input_text, user_id, parse_id, etc.
-
-    Returns:
-        Enriched message with transaction_id and graph.
-    """
-    from db.connection import SessionLocal
-    from db.dao.transactions import TransactionDAO
-    from local_identity import resolve_local_user
-    from services.normalization.extractors import extract
-    from services.shared.transaction_persistence import coerce_transaction_date
-
-    text = extract(message)
-
-    context = {
-        "company_name": message.get("company_name"),
-        "entity_type": message.get("entity_type"),
-        "location": message.get("location"),
-    }
-
-    graph = normalize(text, context)
-
-    # Persist transaction to DB
-    db = SessionLocal()
-    try:
-        user = resolve_local_user(db, message.get("user_id"))
-        transaction = TransactionDAO.insert(
-            db=db,
-            user_id=user.id,
-            description=text,
-            normalized_description=text.lower(),
-            amount=None,
-            currency="USD",
-            date=coerce_transaction_date(None),
-            source=message.get("source", "manual_text"),
-            counterparty=None,
-        )
-        db.commit()
-        return {
-            **message,
-            "transaction_id": str(transaction.id),
-            "graph": graph,
-        }
-    except Exception:
-        db.rollback()
-        raise
-    finally:
-        db.close()

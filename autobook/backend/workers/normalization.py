@@ -1,11 +1,10 @@
-"""Normalization worker — polls SQS-normalizer for LLM interaction messages.
+"""Normalization worker — polls SQS-normalization for LLM interaction messages.
 
 Flow:
-  1. Receive message from SQS-normalizer (source=llm_interaction)
+  1. Receive message from SQS-normalization (source=llm_interaction)
   2. Normalize transaction text → TransactionGraph (with SSE streaming)
-  3. Enqueue to SQS-agent
-
-For non-llm_interaction messages, delegates to the fast-path worker.
+  3. Persist Draft + TransactionGraph to DB
+  4. Enqueue draft_id + graph_id to SQS-agent
 """
 
 import json
@@ -13,8 +12,12 @@ import logging
 import signal
 import threading
 from concurrent.futures import ThreadPoolExecutor
+from uuid import UUID
 
 from config import get_settings
+from db.connection import SessionLocal
+from db.dao.drafts import DraftDAO
+from db.dao.transaction_graphs import TransactionGraphDAO
 from queues.pubsub import pub
 from queues.sqs import client as sqs_client
 from queues.sqs.enqueue import agent as enqueue_agent
@@ -24,7 +27,7 @@ logging.basicConfig(level=logging.INFO, format="%(asctime)s %(name)s %(levelname
 logger = logging.getLogger("normalization")
 
 settings = get_settings()
-QUEUE_URL = settings.SQS_QUEUE_NORMALIZER
+QUEUE_URL = settings.SQS_QUEUE_NORMALIZATION
 MAX_THREADS = 4
 
 _shutdown = threading.Event()
@@ -39,23 +42,56 @@ signal.signal(signal.SIGTERM, _handle_shutdown)
 signal.signal(signal.SIGINT, _handle_shutdown)
 
 
+def _persist_graph(entity_id: str, transaction_id: str, graph: dict) -> tuple[str, str]:
+    """Create Draft + TransactionGraph rows. Returns (draft_id, graph_id)."""
+    db = SessionLocal()
+    try:
+        eid = UUID(entity_id)
+        tid = UUID(transaction_id)
+
+        draft = DraftDAO.create(db, entity_id=eid, transaction_id=tid)
+
+        nodes = [
+            {"node_index": n["index"], "name": n["name"], "role": n["role"]}
+            for n in graph.get("nodes", [])
+        ]
+        edges = [
+            {
+                "source_index": e["source_index"],
+                "target_index": e["target_index"],
+                "nature": e["nature"],
+                "edge_kind": e.get("kind", e.get("edge_kind", "reciprocal_exchange")),
+                "amount": e.get("amount"),
+                "currency": e.get("currency"),
+            }
+            for e in graph.get("edges", [])
+        ]
+
+        graph_row = TransactionGraphDAO.create_with_nodes_and_edges(
+            db, entity_id=eid, transaction_id=tid, nodes=nodes, edges=edges,
+        )
+
+        db.commit()
+        return str(draft.id), str(graph_row.id)
+    except Exception:
+        db.rollback()
+        raise
+    finally:
+        db.close()
+
+
 def process_message(message: dict) -> None:
-    """Normalize and enqueue to agent."""
-    source = message.get("source")
-
-    # Only handle llm_interaction messages; others are for fast-path
-    if source != "llm_interaction":
-        logger.debug("Skipping non-llm_interaction message: %s", message.get("parse_id"))
-        return
-
+    """Normalize, persist, and enqueue to agent."""
     parse_id = message["parse_id"]
     user_id = message["user_id"]
+    entity_id = message["entity_id"]
+    transaction_id = message["transaction_id"]
     input_text = message["input_text"]
     context = message.get("user_context") or {}
     live_review = message.get("live_review", False)
 
     try:
-        pub.stage_started(parse_id=parse_id, user_id=user_id, stage="normalizer")
+        pub.stage_started(parse_id=parse_id, user_id=user_id, stage="normalization")
 
         if live_review:
             def publish(chunk: dict):
@@ -64,18 +100,23 @@ def process_message(message: dict) -> None:
         else:
             graph = normalize(input_text, context)
 
+        draft_id, graph_id = _persist_graph(entity_id, transaction_id, graph)
+
         enqueue_agent({
             "parse_id": parse_id,
             "user_id": user_id,
+            "entity_id": entity_id,
+            "transaction_id": transaction_id,
             "input_text": input_text,
-            "graph": graph,
+            "draft_id": draft_id,
+            "graph_id": graph_id,
             "user_context": context,
             "source": "llm_interaction",
             "streaming": message.get("streaming", True),
             "live_review": live_review,
         })
 
-        logger.info("Normalized and enqueued to agent: %s", parse_id)
+        logger.info("Normalized and enqueued to agent: %s (draft=%s)", parse_id, draft_id)
 
     except Exception:
         logger.exception("Normalization failed for %s", parse_id)

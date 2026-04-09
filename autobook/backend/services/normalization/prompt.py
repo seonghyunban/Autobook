@@ -244,6 +244,35 @@ nodes:
 edges:
   Tokyo Trading → Reporting entity | sold goods | 1000000 | JPY | reciprocal_exchange
   Reporting entity → Tokyo Trading | paid | 8500 | USD | reciprocal_exchange
+</example>
+
+<example>
+12. VAT bundled with a purchase — split by value-flow type, not by payment instrument:
+Input: "Bought equipment from B Corp for $10,000 plus 10% VAT, \
+paid by bank transfer"
+The cash and VAT travel together in one transfer, but they are \
+two different value flows: the cash is reciprocal (for goods), \
+the VAT is non_exchange (a tax with no return value).
+Split them into separate edges by kind, even though the payment \
+instrument is one transfer.
+
+The normalizer does NOT compute the VAT amount — tax base and \
+rate application are jurisdictional rules handled by the \
+downstream tax specialist. Use amount: null when the rate is \
+stated but the base is uncertain. Put the rate in the nature field.
+
+The cash flows to the seller (the seller will remit VAT to the \
+tax authority later, outside this transaction). source/target \
+describe where cash goes; non_exchange describes that no return \
+value flows back to the buyer.
+
+nodes:
+  0: Reporting entity (reporting_entity)
+  1: B Corp (counterparty)
+edges:
+  B Corp → Reporting entity | sold equipment | 10000 | USD | reciprocal_exchange
+  Reporting entity → B Corp | paid for equipment | 10000 | USD | reciprocal_exchange
+  Reporting entity → B Corp | VAT 10% |  | USD | non_exchange
 </example>"""
 
 
