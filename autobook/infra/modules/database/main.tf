@@ -23,11 +23,17 @@ resource "aws_db_subnet_group" "main" {
 resource "aws_db_instance" "main" {
   identifier = local.name # Unique name in AWS
 
-  # --- Engine: always PostgreSQL 16 ---
-  # Pinned to 16 (latest stable with full AWS RDS support as of 2026).
+  # --- Engine: PostgreSQL 18 ---
+  # Uses native uuidv7() (temporal-ordered UUIDs) as the default PK
+  # generator in the schema. uuidv7() is built into PG 18 and was NOT
+  # available in PG 17. Major version upgrades are performed by
+  # temporarily setting allow_major_version_upgrade=true, applying,
+  # and flipping back to false. Keeping the flag false by default
+  # prevents accidental major upgrades on apply.
   # Hardcoded intentionally — engine upgrades should be deliberate, not accidental.
-  engine         = "postgres"
-  engine_version = "16"
+  engine                      = "postgres"
+  engine_version              = "18"
+  allow_major_version_upgrade = true
 
   # --- Size: controlled by caller ---
   instance_class    = var.db_instance_class # Machine size

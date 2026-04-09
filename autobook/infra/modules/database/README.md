@@ -5,7 +5,7 @@ Creates the RDS PostgreSQL instance that stores all application data.
 ## What it creates
 
 - **DB subnet group** — places the database in private subnets (no internet access)
-- **RDS PostgreSQL 16 instance** — single instance, handles all 9 tables
+- **RDS PostgreSQL 18 instance** — single instance, handles all application tables
 
 ## Usage
 

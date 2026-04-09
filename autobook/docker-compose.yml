@@ -2,19 +2,25 @@ x-common-env: &common-env
   DATABASE_URL: postgresql://autobook:autobook@db:5432/autobook
   REDIS_URL: redis://redis:6379/0
   SQS_ENDPOINT_URL: http://elasticmq:9324
-  AWS_ACCESS_KEY_ID: test
-  AWS_SECRET_ACCESS_KEY: test
+  # Real AWS credentials — needed for Bedrock (embeddings) and Cognito
+  # (JWT validation against the dev pool's JWKS). Developers set these
+  # in a gitignored .env file at the repo root; docker-compose reads
+  # them via ${VAR} interpolation.
+  AWS_ACCESS_KEY_ID: ${AWS_ACCESS_KEY_ID}
+  AWS_SECRET_ACCESS_KEY: ${AWS_SECRET_ACCESS_KEY}
   AWS_DEFAULT_REGION: ca-central-1
   S3_ENDPOINT_URL: http://minio:9000
   S3_BUCKET: autobook-local
   QDRANT_URL: http://qdrant:6333
   QDRANT_API_KEY: ""
   SAGEMAKER_ENDPOINT_URL: http://localstack:4566
-  COGNITO_ENDPOINT_URL: http://localstack:4566
   SECRETS_MANAGER_ENDPOINT_URL: http://localstack:4566
   ENV: local
-  AUTH_ENABLED: "false"
-  AUTH_DEMO_MODE: "true"
+  # Cognito (dev pool) — required for real auth in local dev. Values come
+  # from .env; fetched from `terraform output` against the dev stack.
+  COGNITO_USER_POOL_ID: ${COGNITO_USER_POOL_ID}
+  COGNITO_CLIENT_ID: ${COGNITO_CLIENT_ID}
+  COGNITO_DOMAIN: ${COGNITO_DOMAIN}
 
 x-common: &common
   depends_on:
@@ -29,7 +35,7 @@ x-common: &common
 services:
   # ── Infrastructure ──────────────────────────────────────────
   db:
-    image: postgres:16
+    image: postgres:18
     ports:
       - "5433:5432"
     environment:
@@ -37,7 +43,7 @@ services:
       POSTGRES_PASSWORD: autobook
       POSTGRES_DB: autobook
     volumes:
-      - pgdata:/var/lib/postgresql/data
+      - pgdata:/var/lib/postgresql
       - ./backend/db/migrations:/docker-entrypoint-initdb.d:ro
 
   redis:
@@ -107,12 +113,6 @@ services:
     environment:
       <<: *common-env
 
-  fast-path:
-    build: { context: ., target: autobook-fast-path }
-    <<: *common
-    environment:
-      <<: *common-env
-
   normalization:
     build: { context: ., target: autobook-agent }
     <<: *common
@@ -126,8 +126,6 @@ services:
     entrypoint: ["python", "-c", "from workers.normalization import main; main()"]
     environment:
       <<: *common-env
-      AWS_ACCESS_KEY_ID: ${BEDROCK_AWS_ACCESS_KEY_ID}
-      AWS_SECRET_ACCESS_KEY: ${BEDROCK_AWS_SECRET_ACCESS_KEY}
 
   agent:
     build: { context: ., target: autobook-agent }
@@ -143,8 +141,6 @@ services:
     entrypoint: ["python", "-c", "from workers.agent import main; main()"]
     environment:
       <<: *common-env
-      AWS_ACCESS_KEY_ID: ${BEDROCK_AWS_ACCESS_KEY_ID}
-      AWS_SECRET_ACCESS_KEY: ${BEDROCK_AWS_SECRET_ACCESS_KEY}
 
 volumes:
   pgdata:
