@@ -57,9 +57,9 @@ resource "aws_ecr_repository" "worker" {
 }
 
 resource "aws_ecr_lifecycle_policy" "worker" {
-  for_each = aws_ecr_repository.worker
+  for_each = toset(local.worker_names)
 
-  repository = each.value.name
+  repository = aws_ecr_repository.worker[each.key].name
 
   policy = jsonencode({
     rules = [{
