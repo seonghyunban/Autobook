@@ -279,12 +279,19 @@ edges:
 CACHE_POINT = {"cachePoint": {"type": "default", "ttl": "1h"}}
 
 
-def build_prompt(text: str, context: dict | None = None) -> list:
+def build_prompt(
+    text: str,
+    context: dict | None = None,
+    local_hits: list[dict] | None = None,
+    pop_hits: list[dict] | None = None,
+) -> list:
     """Build Bedrock messages for the normalization agent.
 
     Args:
         text: Raw transaction text.
         context: Optional user context with company_name, entity_type, location.
+        local_hits: RAG hits from entity-specific corrections.
+        pop_hits: RAG hits from population-level corrections.
 
     Returns:
         Bedrock-format messages list: [system, user].
@@ -305,9 +312,62 @@ def build_prompt(text: str, context: dict | None = None) -> list:
     user_parts.append(f'Transaction: "{text}"')
     user_parts.append("Extract the transaction graph.")
 
+    # RAG corrections — placed after the input so the LLM reads them
+    # with context of what it's processing
+    corrections = _render_corrections(local_hits, pop_hits)
+    if corrections:
+        user_parts.append(corrections)
+
     system_blocks = [{"text": SYSTEM_PROMPT}, CACHE_POINT]
 
     return [
         {"role": "system", "content": system_blocks},
         {"role": "user", "content": [{"text": "\n\n".join(user_parts)}]},
     ]
+
+
+def _render_corrections(
+    local_hits: list[dict] | None,
+    pop_hits: list[dict] | None,
+) -> str:
+    """Render RAG correction hits as a <corrections> block for the user message."""
+    import json
+
+    sections = []
+
+    if local_hits:
+        lines = [
+            "<entity-specific>",
+            "Past corrections for your organization. Pay particular attention to avoid making similar mistakes.",
+        ]
+        for hit in local_hits:
+            lines.append("<example>")
+            lines.append(f"Input: {hit.get('raw_text', '')}")
+            lines.append(f"Attempted graph: {json.dumps(hit.get('attempted_graph', {}), indent=None)}")
+            lines.append(f"Corrected graph: {json.dumps(hit.get('corrected_graph', {}), indent=None)}")
+            if hit.get("note_tx_analysis"):
+                lines.append(f"Note: {hit['note_tx_analysis']}")
+            lines.append("</example>")
+        lines.append("</entity-specific>")
+        sections.append("\n".join(lines))
+
+    if pop_hits:
+        lines = [
+            "<general>",
+            "Past corrections from similar transactions. Avoid repeating these mistakes.",
+        ]
+        for hit in pop_hits:
+            lines.append("<example>")
+            lines.append(f"Input: {hit.get('raw_text', '')}")
+            lines.append(f"Attempted graph: {json.dumps(hit.get('attempted_graph', {}), indent=None)}")
+            lines.append(f"Corrected graph: {json.dumps(hit.get('corrected_graph', {}), indent=None)}")
+            if hit.get("note_tx_analysis"):
+                lines.append(f"Note: {hit['note_tx_analysis']}")
+            lines.append("</example>")
+        lines.append("</general>")
+        sections.append("\n".join(lines))
+
+    if not sections:
+        return ""
+
+    return "<corrections>\n" + "\n\n".join(sections) + "\n</corrections>"

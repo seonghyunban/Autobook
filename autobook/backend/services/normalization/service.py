@@ -15,17 +15,24 @@ logger = logging.getLogger(__name__)
 SECTION = "normalization"
 
 
-def normalize(text: str, context: dict | None = None) -> dict:
+def normalize(
+    text: str,
+    context: dict | None = None,
+    local_hits: list[dict] | None = None,
+    pop_hits: list[dict] | None = None,
+) -> dict:
     """Text → LLM → transaction graph. No side effects.
 
     Args:
         text: Raw transaction text.
         context: Optional dict with company_name, entity_type, location.
+        local_hits: RAG hits from entity-specific corrections.
+        pop_hits: RAG hits from population-level corrections.
 
     Returns:
         TransactionGraph as a dict.
     """
-    messages = build_prompt(text, context)
+    messages = build_prompt(text, context, local_hits=local_hits, pop_hits=pop_hits)
     llm = get_llm()
     graph = invoke_structured(llm, TransactionGraph, messages)
     graph["raw_text"] = text
@@ -33,20 +40,28 @@ def normalize(text: str, context: dict | None = None) -> dict:
     return graph
 
 
-def normalize_stream(text: str, context: dict | None, publish) -> dict:
+def normalize_stream(
+    text: str,
+    context: dict | None,
+    publish,
+    local_hits: list[dict] | None = None,
+    pop_hits: list[dict] | None = None,
+) -> dict:
     """Text → LLM → transaction graph, streaming SSE events via publish.
 
     Args:
         text: Raw transaction text.
         context: Optional dict with company_name, entity_type, location.
         publish: Callable that publishes an SSE chunk dict.
+        local_hits: RAG hits from entity-specific corrections.
+        pop_hits: RAG hits from population-level corrections.
 
     Returns:
         TransactionGraph as a dict.
     """
     publish({"action": "chunk.create", "section": SECTION, "label": "Analyzing transaction..."})
 
-    graph = normalize(text, context)
+    graph = normalize(text, context, local_hits=local_hits, pop_hits=pop_hits)
 
     # Emit full graph for the reasoning panel
     publish({"action": "block.graph", "section": SECTION, "tag": "Transaction structure", "data": graph})

@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { fetchDrafts, type DraftListItem } from "../api/drafts";
 import { panel, palette, T, PanelHeader } from "../components/panels/shared";
+import s from "../components/panels/panels.module.css";
 
 export function HistoryPage() {
   const [drafts, setDrafts] = useState<DraftListItem[]>([]);
@@ -28,7 +29,7 @@ export function HistoryPage() {
       }}
     >
       <div style={{ display: "flex", flexDirection: "column", gap: 20, height: "100%" }}>
-        <section style={{ ...panel }}>
+        <section style={{ ...panel, flex: 1, minHeight: 0, overflow: "hidden" }}>
           <PanelHeader title="Draft History" help="Past transactions processed by the agent." />
 
           {loading && <p style={{ fontSize: 13, color: T.textSecondary }}>Loading...</p>}
@@ -39,7 +40,7 @@ export function HistoryPage() {
           )}
 
           {!loading && drafts.length > 0 && (
-            <div style={{ display: "flex", flexDirection: "column", gap: 2 }}>
+            <div className={s.scrollable} style={{ display: "flex", flexDirection: "column", gap: 2, flex: 1, minHeight: 0 }}>
               {drafts.map((d) => (
                 <button
                   key={d.id}

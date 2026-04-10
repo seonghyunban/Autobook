@@ -61,7 +61,8 @@ export function DecisionOverlay({ data, visible, onClose }: { data: Record<strin
 
       {/* MISSING_INFO content */}
       {isMissing && (() => {
-        const ambiguities = (data.ambiguities as Array<Record<string, unknown>>) || [];
+        const dm = (data.output_decision_maker || data) as Record<string, unknown>;
+        const ambiguities = (dm.ambiguities as Array<Record<string, unknown>>) || [];
         return (
           <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
             {ambiguities.map((a, i) => (
@@ -194,7 +195,7 @@ export function EntryRow({ line, index, currencySymbol, colors, compact, disable
   return (
     <div style={{ display: "flex", gap: colGap, minWidth: 0, fontSize: fs }}>
       {/* Account */}
-      <div className={compact ? undefined : s.cellExpand} style={{ flex: 5, padding: pad, color: fontColor, borderRadius: cr, background: acctBg, position: "relative", transition: "background 0.15s ease, color 0.15s ease", overflow: "hidden" }}>
+      <div className={compact ? undefined : s.cellExpand} style={{ flex: 5, minWidth: 0, padding: pad, color: fontColor, borderRadius: cr, background: acctBg, position: "relative", transition: "background 0.15s ease, color 0.15s ease" }}>
         <span style={{ display: "flex", alignItems: "center", minHeight: compact ? undefined : 28 }}>
           <span style={{ fontSize: fs, opacity: disabled ? 0.5 : 0.8, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap", display: "block" }}>{line.account_name}</span>
         </span>
@@ -214,7 +215,7 @@ export function EntryRow({ line, index, currencySymbol, colors, compact, disable
         )}
       </div>
       {/* Debit */}
-      <div className={compact ? undefined : s.cellExpand} style={{ flex: 2.5, padding: pad, textAlign: "right", fontFamily: "monospace", color: fontColor, borderRadius: cr, background: drBg, transition: "background 0.15s ease, color 0.15s ease", overflow: "hidden" }}>
+      <div className={compact ? undefined : s.cellExpand} style={{ flex: 2.5, minWidth: 0, padding: pad, textAlign: "right", fontFamily: "monospace", color: fontColor, borderRadius: cr, background: drBg, transition: "background 0.15s ease, color 0.15s ease" }}>
         <span style={{ overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap", display: "block", minHeight: compact ? undefined : 28, lineHeight: compact ? undefined : "28px" }}>{debitVal}</span>
         {!compact && (
           <>
@@ -237,7 +238,7 @@ export function EntryRow({ line, index, currencySymbol, colors, compact, disable
         )}
       </div>
       {/* Credit */}
-      <div className={compact ? undefined : s.cellExpand} style={{ flex: 2.5, padding: pad, textAlign: "right", fontFamily: "monospace", color: fontColor, borderRadius: cr, background: crBg, transition: "background 0.15s ease, color 0.15s ease", overflow: "hidden" }}>
+      <div className={compact ? undefined : s.cellExpand} style={{ flex: 2.5, minWidth: 0, padding: pad, textAlign: "right", fontFamily: "monospace", color: fontColor, borderRadius: cr, background: crBg, transition: "background 0.15s ease, color 0.15s ease" }}>
         <span style={{ overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap", display: "block", minHeight: compact ? undefined : 28, lineHeight: compact ? undefined : "28px" }}>{creditVal}</span>
         {!compact && (
           <>
@@ -277,7 +278,7 @@ export function EntryTotalRow({ lines, currencySymbol, colors, compact }: { line
       <div style={{ flex: 5, padding: pad, borderRadius: cr, background: (totalDebit > 0 || totalCredit > 0) ? totalBgFilled[0] : totalBg[0], fontSize: fs, color: "rgba(37, 36, 34, 0.8)", textAlign: "right" }}>
         Total
       </div>
-      <div className={compact ? undefined : s.cellExpand} style={{ flex: 2.5, padding: pad, textAlign: "right", fontFamily: "monospace", color: "rgba(37, 36, 34, 0.8)", borderRadius: cr, background: totalDebit > 0 ? totalBgFilled[1] : totalBg[1], overflow: "hidden" }}>
+      <div className={compact ? undefined : s.cellExpand} style={{ flex: 2.5, minWidth: 0, padding: pad, textAlign: "right", fontFamily: "monospace", color: "rgba(37, 36, 34, 0.8)", borderRadius: cr, background: totalDebit > 0 ? totalBgFilled[1] : totalBg[1] }}>
         <span style={{ overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap", display: "block" }}>
           {totalDebit > 0 ? `${currencySymbol}${totalDebit.toLocaleString()}` : ""}
         </span>
@@ -287,7 +288,7 @@ export function EntryTotalRow({ lines, currencySymbol, colors, compact }: { line
           </span>
         )}
       </div>
-      <div className={compact ? undefined : s.cellExpand} style={{ flex: 2.5, padding: pad, textAlign: "right", fontFamily: "monospace", color: "rgba(37, 36, 34, 0.8)", borderRadius: cr, background: totalCredit > 0 ? totalBgFilled[2] : totalBg[2], overflow: "hidden" }}>
+      <div className={compact ? undefined : s.cellExpand} style={{ flex: 2.5, minWidth: 0, padding: pad, textAlign: "right", fontFamily: "monospace", color: "rgba(37, 36, 34, 0.8)", borderRadius: cr, background: totalCredit > 0 ? totalBgFilled[2] : totalBg[2] }}>
         <span style={{ overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap", display: "block" }}>
           {totalCredit > 0 ? `${currencySymbol}${totalCredit.toLocaleString()}` : ""}
         </span>
