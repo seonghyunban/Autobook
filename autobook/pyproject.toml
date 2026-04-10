@@ -31,6 +31,10 @@ api = [
     "httpx>=0.28,<1",
     "qdrant-client>=1.12,<2",
 ]
+fast-path = [  # normalization worker (Bedrock LLM + Qdrant RAG)
+    "langchain-aws>=0.2,<1",
+    "qdrant-client>=1.12,<2",
+]
 agent = [  # LangGraph LLM pipeline (tier 3)
     "langgraph>=0.2,<1",
     "langchain-aws>=0.2,<1",

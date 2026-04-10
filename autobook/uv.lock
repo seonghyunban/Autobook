@@ -85,6 +85,10 @@ api = [
     { name = "uvicorn" },
     { name = "websockets" },
 ]
+fast-path = [
+    { name = "langchain-aws" },
+    { name = "qdrant-client" },
+]
 flywheel = [
     { name = "qdrant-client" },
 ]
@@ -114,6 +118,7 @@ requires-dist = [
     { name = "fastapi", marker = "extra == 'api'", specifier = ">=0.115,<1" },
     { name = "httpx", marker = "extra == 'api'", specifier = ">=0.28,<1" },
     { name = "langchain-aws", marker = "extra == 'agent'", specifier = ">=0.2,<1" },
+    { name = "langchain-aws", marker = "extra == 'fast-path'", specifier = ">=0.2,<1" },
     { name = "langgraph", marker = "extra == 'agent'", specifier = ">=0.2,<1" },
     { name = "numpy", marker = "extra == 'accounting'", specifier = ">=1.26,<3" },
     { name = "psycopg2-binary", specifier = ">=2.9,<3" },
@@ -122,13 +127,14 @@ requires-dist = [
     { name = "python-multipart", marker = "extra == 'api'", specifier = ">=0.0.18,<1" },
     { name = "qdrant-client", marker = "extra == 'agent'", specifier = ">=1.12,<2" },
     { name = "qdrant-client", marker = "extra == 'api'", specifier = ">=1.12,<2" },
+    { name = "qdrant-client", marker = "extra == 'fast-path'", specifier = ">=1.12,<2" },
     { name = "qdrant-client", marker = "extra == 'flywheel'", specifier = ">=1.12,<2" },
     { name = "redis", specifier = ">=5.0,<6" },
     { name = "sqlalchemy", specifier = ">=2.0,<3" },
     { name = "uvicorn", marker = "extra == 'api'", specifier = ">=0.34,<1" },
     { name = "websockets", marker = "extra == 'api'", specifier = ">=12,<14" },
 ]
-provides-extras = ["accounting", "api", "agent", "flywheel"]
+provides-extras = ["accounting", "api", "fast-path", "agent", "flywheel"]
 
 [package.metadata.requires-dev]
 dev = [

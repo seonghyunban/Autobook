@@ -54,6 +54,16 @@ USER app
 EXPOSE 8000
 CMD ["uvicorn", "api.main:app", "--host", "0.0.0.0", "--port", "8000"]
 
+# ── Fast-Path Worker (ECS, normalization + SQS polling) ───────
+FROM autobook-base AS autobook-fast-path
+
+RUN --mount=type=cache,target=/root/.cache/uv \
+    uv sync --frozen --no-dev --no-install-project --extra fast-path
+
+COPY backend/services/normalization/ backend/services/normalization/
+USER app
+CMD ["python", "-c", "from workers.normalization import main; main()"]
+
 # ── Agent / LLM Worker (Lambda, SnapStart) ────────────────────
 # Local dev uses this image. Prod uses zip deploy for SnapStart.
 FROM autobook-accounting AS autobook-agent

@@ -3,7 +3,7 @@ locals {
   name = "${var.project}-${var.environment}" # e.g. "autobook-dev"
 
   # API runs on ECS Fargate — keeps the ECS trust policy
-  ecs_services = ["api"]
+  ecs_services = ["api", "fast-path"]
 
   # Only the agent runs on Lambda — triggered by SQS-agent event source mapping.
   # Other pipeline stages run inside ECS workers (fast_path, normalization).
@@ -158,6 +158,51 @@ resource "aws_iam_role_policy" "api_sqs" {
   })
 }
 
+# Fast-path: receive from SQS-normalization, send to SQS-agent.
+resource "aws_iam_role_policy" "fast_path_sqs" {
+  name = "sqs-normalization-to-agent"
+  role = aws_iam_role.task["fast-path"].id
+
+  policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [
+      {
+        Effect   = "Allow"
+        Action   = ["sqs:ReceiveMessage", "sqs:DeleteMessage", "sqs:GetQueueAttributes"]
+        Resource = var.queue_arns["normalization"]
+      },
+      {
+        Effect   = "Allow"
+        Action   = "sqs:SendMessage"
+        Resource = var.queue_arns["agent"]
+      }
+    ]
+  })
+}
+
+# Fast-path: Bedrock access for normalization LLM calls.
+resource "aws_iam_role_policy" "fast_path_bedrock" {
+  name = "bedrock-invoke"
+  role = aws_iam_role.task["fast-path"].id
+
+  policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [{
+      Effect = "Allow"
+      Action = [
+        "bedrock:InvokeModel",
+        "bedrock:InvokeModelWithResponseStream",
+        "bedrock:Converse",
+        "bedrock:ConverseStream"
+      ]
+      Resource = [
+        "arn:aws:bedrock:*::foundation-model/*",
+        "arn:aws:bedrock:*:${data.aws_caller_identity.current.account_id}:inference-profile/*"
+      ]
+    }]
+  })
+}
+
 # Agent: receive from SQS-agent, send to resolution or posting queues.
 resource "aws_iam_role_policy" "agent_sqs" {
   name = "sqs-agent-to-resolution-or-posting"
@@ -279,7 +324,8 @@ resource "aws_iam_role_policy" "github_actions_deploy" {
         Action = "iam:PassRole"
         Resource = [
           aws_iam_role.execution.arn,
-          aws_iam_role.task["api"].arn
+          aws_iam_role.task["api"].arn,
+          aws_iam_role.task["fast-path"].arn
         ]
         Condition = {
           StringEquals = { "iam:PassedToService" = "ecs-tasks.amazonaws.com" }

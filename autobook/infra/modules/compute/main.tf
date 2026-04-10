@@ -7,14 +7,17 @@ locals {
   # After Lambda migration, this only contains ["api"]
   service_names = keys(var.task_role_arns)
 
-  # The only ECS service — workers moved to Lambda
+  # API service name — used for ALB and Cognito conditionals
   api_service = "api"
 
-  # SQS queue URL environment variables.
-  # API enqueues to the normalization queue to kick off the pipeline.
+  # SQS queue URL environment variables per service.
   sqs_env = {
     api = [
       { name = "SQS_QUEUE_NORMALIZATION", value = var.queue_urls["normalization"] },
+    ]
+    fast-path = [
+      { name = "SQS_QUEUE_NORMALIZATION", value = var.queue_urls["normalization"] },
+      { name = "SQS_QUEUE_AGENT", value = var.queue_urls["agent"] },
     ]
   }
 }
