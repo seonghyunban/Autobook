@@ -22,7 +22,7 @@ class TaxSpecialistOutput(BaseModel):
     classification: Literal["taxable", "zero_rated", "exempt", "out_of_scope"] = Field(description="Tax classification of the supply: taxable (standard rate), zero_rated (0% but ITC claimable), exempt (no tax, no ITC), out_of_scope (not a taxable supply)")
     itc_eligible: bool = Field(description="True if the business can claim an Input Tax Credit on this tax")
     amount_tax_inclusive: bool = Field(description="True if the stated transaction amount already includes tax")
-    tax_rate: float | None = Field(default=None, description="Applicable tax rate, e.g. 0.13 for 13% HST Ontario")
+    tax_rate: float | None = Field(default=None, description="Applicable tax rate as decimal, e.g. 0.10 for 10%")
     tax_context: str | None = Field(default=None, description="Brief tax context for the entry drafter: what tax applies, which components are taxable, any special rules")
 
 
@@ -61,7 +61,27 @@ def tax_specialist_node(state: PipelineState, config: RunnableConfig) -> dict:
 
     _write_start(writer)
 
-    messages = build_prompt(state)
+    from services.agent.utils.prompt.corrections import render_corrections
+    corrections = render_corrections(
+        state.get("rag_local_hits", []),
+        state.get("rag_pop_hits", []),
+        attempted_key="attempted_tax",
+        corrected_key="corrected_tax",
+        note_key="note_tax",
+        label="tax treatment",
+    )
+
+    jc = config.get("configurable", {}).get("jurisdiction_config")
+
+    from services.agent.utils.prompt.tax_context import render_tax_jurisdiction
+    tax_jurisdiction = render_tax_jurisdiction(jc.tax_rules if jc else None)
+
+    messages = build_prompt(
+        state,
+        corrections=corrections or None,
+        jurisdiction_config=jc,
+        tax_jurisdiction=tax_jurisdiction or None,
+    )
     output = invoke_structured(get_llm(TAX_SPECIALIST, config), TaxSpecialistOutput, messages)
 
     _write_complete(writer, output)

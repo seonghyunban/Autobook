@@ -61,20 +61,31 @@ recognized for the stated amount.
 "distributed" → resolve as paid.
 - "loss", "written off", "destroyed" → resolve as expense.
 - "repurchased", "bought back" → resolve as treasury stock. \
-If text says "cancelled" or "retired", resolve as cancellation.
-- "converted X to Y" → resolve at book value using stated amounts.
+If text says "cancelled" or "retired", resolve as cancellation: \
+debit Share capital for par value. Allocation of excess above \
+par follows jurisdiction-specific rules.
+- "converted X to Y" → resolve at book value using stated amounts. \
+When converting shares between classes, if par values differ, \
+record the difference in Share premium.
 - "refinanced" → resolve as old obligation removed, new created.
 - "deposit received" → resolve as liability (unearned).
+- "issued a promissory note" to a seller/supplier → resolve as \
+Notes payable. Only use Short-term borrowings for notes issued \
+to financial institutions for cash financing.
 - "for research and development" → resolve as expense when \
-acquired (IAS 38.126). If text specifies development phase \
-only, resolve as capitalize.
+acquired if no alternative future use (IAS 38.126). If text \
+specifies development phase only, or materials have alternative \
+future use, resolve as capitalize.
 </conventional_terms>
 
 <ifrs_rules>
 IFRS rules — resolve by standard:
 - Advertising and promotional costs → resolve as expense \
 when incurred (IAS 38.69).
-- R&D materials → resolve as expense when acquired (IAS 38.126).
+- R&D materials → resolve as expense when acquired if no \
+alternative future use (IAS 38.126). If materials have \
+alternative future use, capitalize as inventory first and \
+expense when consumed.
 - Decommissioning and restoration costs → resolve by \
 capitalizing into the PP&E asset (IAS 16.16(c)). Separately \
 stated purchase price and obligation amount are additive.
@@ -97,10 +108,15 @@ not as expense. Only period costs (selling, admin) are expenses.
 employee portion = liability decrease, employer portion = expense. \
 Example: remit $4,000 pension = $2,000 employee withholding \
 (Dr liability) + $2,000 employer match (Dr expense), Cr Cash $4,000.
+- Consolidate employee statutory withholdings (pension, health \
+insurance, employment insurance, income tax) into a single \
+"Statutory withholdings payable" line unless the entity's COA \
+requires separate accounts.
 - Major overhaul on PP&E → resolve by capitalizing the \
 overhaul cost. Future depreciation changes are a separate entry.
 - Share repurchase and cancellation → resolve by debiting \
-share capital at par, excess to retained earnings.
+share capital at par. Allocation of excess follows \
+jurisdiction-specific rules.
 - Day-count convention → use 365-day year as default for \
 interest and discount calculations (e.g., $100,000 × 15% × 40/365). \
 Only use 360-day if the transaction text explicitly states it.

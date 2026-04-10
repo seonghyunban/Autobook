@@ -255,13 +255,39 @@ SYSTEM_INSTRUCTION = "\n".join([
     _PROCEDURE, _EXAMPLES,
 ])
 
+_dm_instruction_cache: dict[str, str] = {}
 
-def build_prompt(state: PipelineState) -> list:
+
+def _build_system_instruction(jurisdiction_config=None) -> str:
+    """Build system instruction with optional jurisdiction knowledge."""
+    if jurisdiction_config is None:
+        return SYSTEM_INSTRUCTION
+
+    key = jurisdiction_config.jurisdiction
+    if key in _dm_instruction_cache:
+        return _dm_instruction_cache[key]
+
+    rules = jurisdiction_config.jurisdiction_rules or {}
+    domain_text = rules.get("prompt_text", "")
+
+    parts = [_PREAMBLE, _ROLE, SHARED_BASE_DOMAIN]
+    if domain_text:
+        parts.append(f"\n<jurisdiction_knowledge>\n{domain_text}\n</jurisdiction_knowledge>")
+    parts.extend([_AGENT_KNOWLEDGE, _PROCEDURE, _EXAMPLES])
+
+    result = "\n".join(parts)
+    _dm_instruction_cache[key] = result
+    return result
+
+
+def build_prompt(state: PipelineState, corrections: str | None = None,
+                 jurisdiction_config=None) -> list:
     """Build the decision maker v4 prompt with one cache point."""
-    system_blocks = [{"text": SYSTEM_INSTRUCTION}, CACHE_POINT]
+    system_blocks = [{"text": _build_system_instruction(jurisdiction_config)}, CACHE_POINT]
     transaction = build_transaction(state=state)
     user_ctx = build_user_context(state=state)
     task = [{"text": _TASK_REMINDER}]
-    message_blocks = transaction + user_ctx + task
+    corrections_block = [{"text": corrections}] if corrections else []
+    message_blocks = transaction + user_ctx + corrections_block + task
 
     return to_bedrock_messages(system_blocks, message_blocks)

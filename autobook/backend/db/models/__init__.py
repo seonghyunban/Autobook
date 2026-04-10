@@ -4,6 +4,7 @@ from db.models.account import ChartOfAccounts
 from db.models.draft import Draft
 from db.models.drafted_entry import DraftedEntry, DraftedEntryLine
 from db.models.entity import Entity
+from db.models.jurisdiction_config import JurisdictionConfig
 from db.models.entity_membership import EntityMembership
 from db.models.posted_entry import PostedEntry
 from db.models.posted_entry_line import PostedEntryLine
@@ -25,6 +26,7 @@ __all__ = [
     "Entity",
     "EntityMembership",
     "ChartOfAccounts",
+    "JurisdictionConfig",
     "Taxonomy",
     "Transaction",
     "Draft",

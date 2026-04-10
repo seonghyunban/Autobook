@@ -4,7 +4,7 @@ Determines tax treatment from transaction text.
 Output: TaxSpecialistOutput {reasoning, tax_mentioned, classification, itc_eligible, amount_tax_inclusive, tax_rate, tax_context}
 """
 from services.agent.graph.state import PipelineState
-from services.agent.prompts.shared import SHARED_INSTRUCTION
+from services.agent.prompts.shared import SHARED_INSTRUCTION, build_shared_instruction
 from services.agent.utils.prompt import (
     CACHE_POINT, build_transaction, build_user_context,
     build_input_section, to_bedrock_messages,
@@ -48,7 +48,10 @@ _PROCEDURE = """
    - "plus 13% tax", "$500 + tax" → amount_tax_inclusive = false
    - If no tax is mentioned → amount_tax_inclusive = false
 
-5. Extract the tax rate if mentioned. Do not infer a rate that is not stated."""
+5. Extract the tax rate if mentioned. If the transaction text does not \
+state a rate, check the <tax_jurisdiction> block — if a default rate \
+is specified there, apply it for taxable supplies. Otherwise do not \
+infer a rate."""
 
 # ── Examples ─────────────────────────────────────────────────────────────
 
@@ -103,7 +106,7 @@ _TASK_REMINDER = """
 Determine the tax treatment for this transaction. \
 Classify the supply, determine ITC eligibility, and extract the rate if mentioned. \
 Do not compute the tax amount — the entry drafter will compute it from the correct base. \
-If tax is not mentioned, do not infer a tax rate.
+If tax is not mentioned and no jurisdiction default rate applies, do not infer a tax rate.
 
 Output all free-text fields in the same language as the transaction text."""
 
@@ -113,16 +116,21 @@ AGENT_INSTRUCTION = "\n".join([_ROLE, _PROCEDURE, _EXAMPLES, ])
 SYSTEM_INSTRUCTION = "\n".join([SHARED_INSTRUCTION, AGENT_INSTRUCTION])
 
 
-def build_prompt(state: PipelineState, rag_examples: list[dict] | None = None) -> dict:
+def build_prompt(state: PipelineState, rag_examples: list[dict] | None = None,
+                 corrections: str | None = None,
+                 jurisdiction_config=None,
+                 tax_jurisdiction: str | None = None) -> dict:
     """Build the tax specialist prompt."""
     system_blocks = [
-        {"text": SHARED_INSTRUCTION}, CACHE_POINT,
+        {"text": build_shared_instruction(jurisdiction_config)}, CACHE_POINT,
         {"text": AGENT_INSTRUCTION}, CACHE_POINT,
     ]
     transaction = build_transaction(state=state)
     user_ctx = build_user_context(state=state)
     input_section = build_input_section(transaction, user_ctx)
+    tax_jurisdiction_block = [{"text": tax_jurisdiction}] if tax_jurisdiction else []
+    corrections_block = [{"text": corrections}] if corrections else []
     task = [{"text": _TASK_REMINDER}]
-    message_blocks = input_section + task
+    message_blocks = input_section + tax_jurisdiction_block + corrections_block + task
 
     return to_bedrock_messages(system_blocks, message_blocks)

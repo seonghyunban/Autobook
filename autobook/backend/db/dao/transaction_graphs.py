@@ -70,6 +70,70 @@ class TransactionGraphDAO:
         return graph
 
     @staticmethod
+    def clone(db: Session, source_graph_id: UUID, entity_id: UUID) -> TransactionGraph:
+        """Deep-clone a graph (header + nodes + edges) with a new ID."""
+        source = TransactionGraphDAO.get_by_id(db, source_graph_id)
+        if source is None:
+            raise ValueError(f"Graph {source_graph_id} not found")
+        return TransactionGraphDAO.create_with_nodes_and_edges(
+            db,
+            entity_id=entity_id,
+            transaction_id=source.transaction_id,
+            nodes=[
+                {"node_index": n.node_index, "name": n.name, "role": n.role}
+                for n in source.nodes
+            ],
+            edges=[
+                {
+                    "source_index": e.source_index,
+                    "target_index": e.target_index,
+                    "nature": e.nature,
+                    "edge_kind": e.edge_kind,
+                    "amount": e.amount,
+                    "currency": e.currency,
+                }
+                for e in source.edges
+            ],
+        )
+
+    @staticmethod
+    def replace_nodes_and_edges(
+        db: Session,
+        graph_id: UUID,
+        entity_id: UUID,
+        nodes: Sequence[dict],
+        edges: Sequence[dict],
+    ) -> None:
+        """Delete existing nodes + edges and replace with new ones."""
+        # Delete old
+        old_nodes = db.execute(
+            select(TransactionGraphNode).where(TransactionGraphNode.graph_id == graph_id)
+        ).scalars().all()
+        for n in old_nodes:
+            db.delete(n)
+        old_edges = db.execute(
+            select(TransactionGraphEdge).where(TransactionGraphEdge.graph_id == graph_id)
+        ).scalars().all()
+        for e in old_edges:
+            db.delete(e)
+        db.flush()
+
+        # Insert new
+        for node in nodes:
+            db.add(TransactionGraphNode(
+                graph_id=graph_id, entity_id=entity_id,
+                node_index=node["node_index"], name=node["name"], role=node["role"],
+            ))
+        for edge in edges:
+            db.add(TransactionGraphEdge(
+                graph_id=graph_id, entity_id=entity_id,
+                source_index=edge["source_index"], target_index=edge["target_index"],
+                nature=edge["nature"], edge_kind=edge["edge_kind"],
+                amount=edge.get("amount"), currency=edge.get("currency"),
+            ))
+        db.flush()
+
+    @staticmethod
     def get_by_id(db: Session, graph_id: UUID) -> TransactionGraph | None:
         stmt = (
             select(TransactionGraph)

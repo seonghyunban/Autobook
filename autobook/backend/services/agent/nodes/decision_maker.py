@@ -140,7 +140,18 @@ def decision_maker_node(state: PipelineState, config: RunnableConfig) -> dict:
 
     _write_start(writer)
 
-    messages = build_prompt(state)
+    from services.agent.utils.prompt.corrections import render_corrections
+    corrections = render_corrections(
+        state.get("rag_local_hits", []),
+        state.get("rag_pop_hits", []),
+        attempted_key="attempted_ambiguities",
+        corrected_key="corrected_ambiguities",
+        note_key="note_ambiguity",
+        label="ambiguity analysis",
+    )
+
+    jc = config.get("configurable", {}).get("jurisdiction_config")
+    messages = build_prompt(state, corrections=corrections or None, jurisdiction_config=jc)
     output = invoke_structured(get_llm("decision_maker", config), DecisionMakerOutput, messages)
 
     _write_complete(writer, output)

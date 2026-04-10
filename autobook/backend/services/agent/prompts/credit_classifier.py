@@ -5,7 +5,7 @@ Each line gets a reason and an IFRS taxonomy category.
 Output: CreditClassifierOutput with list[ClassifiedLine] per slot.
 """
 from services.agent.graph.state import PipelineState
-from services.agent.prompts.shared import SHARED_INSTRUCTION
+from services.agent.prompts.shared import SHARED_INSTRUCTION, build_shared_instruction
 from services.agent.utils.prompt import (
     CACHE_POINT, build_transaction,
     build_fix_context, build_rag_examples,
@@ -111,7 +111,9 @@ SYSTEM_INSTRUCTION = "\n".join([SHARED_INSTRUCTION, AGENT_INSTRUCTION])
 
 
 def build_prompt(state: PipelineState, rag_examples: list[dict],
-                 fix_context: str | None = None) -> dict:
+                 fix_context: str | None = None,
+                 corrections: str | None = None,
+                 jurisdiction_config=None) -> dict:
     """Build the credit classifier prompt."""
     fix = build_fix_context(fix_context=fix_context)
     rag = build_rag_examples(rag_examples=rag_examples,
@@ -123,11 +125,12 @@ def build_prompt(state: PipelineState, rag_examples: list[dict],
     input_section = build_input_section(transaction)
 
     task = [{"text": _TASK_REMINDER}]
+    corrections_block = [{"text": corrections}] if corrections else []
 
     system_blocks = [
-        {"text": SHARED_INSTRUCTION}, CACHE_POINT,
+        {"text": build_shared_instruction(jurisdiction_config)}, CACHE_POINT,
         {"text": AGENT_INSTRUCTION}, CACHE_POINT,
     ]
-    message_blocks = context + input_section + task
+    message_blocks = context + input_section + corrections_block + task
 
     return to_bedrock_messages(system_blocks, message_blocks)

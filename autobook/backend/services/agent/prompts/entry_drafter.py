@@ -6,7 +6,7 @@ Output: EntryDrafterOutput {reason, lines: [...]}
 """
 import json
 from services.agent.graph.state import PipelineState
-from services.agent.prompts.shared import SHARED_INSTRUCTION
+from services.agent.prompts.shared import SHARED_INSTRUCTION, build_shared_instruction
 from services.agent.utils.prompt import (
     CACHE_POINT, build_transaction, build_user_context,
     build_input_section, to_bedrock_messages,
@@ -32,10 +32,23 @@ _PROCEDURE = """
 Each upstream agent is authoritative for its domain:
 - <debit_classification> and <credit_classification> are authoritative \
 for what happened: how many lines, which directional slots, and the \
-specificity of account classification. Your account name should be \
-equally or more specific than the classifier's category. You may use \
-the classifier's category directly when it is already the best \
-accounting practice name for the transaction.
+specificity of account classification. \
+For account names, follow this priority: \
+(1) If an entity chart of accounts is provided, use its exact names. \
+(2) Use the most specific widely-recognized account name that fits \
+the transaction's business substance. If there is a fit, prefer a \
+more precise account name than the subcategories provided in \
+<classification_subcategories>. \
+(3) If no standard name is more specific than the taxonomy \
+subcategory shown in <classification_subcategories>, use the \
+subcategory name as-is — it is a safe fallback default. \
+(4) Never invent descriptive compound names that are not widely \
+used in standard accounting practice, like "Prepaid Raw Materials" \
+or "Machinery Purchase Payable". \
+The <classification_subcategories> block lists taxonomy subcategories — \
+examples of classified categories and safe fallback defaults, not \
+account names. Prefer a more specific standard name when one exists \
+in common accounting practice.
 - <tax_context> is authoritative for tax treatment. \
 Only add tax lines if classification is "taxable" AND tax_rate is provided. \
 For zero_rated, exempt, or out_of_scope — never add tax lines.
@@ -46,9 +59,7 @@ and treatment decisions when available.
 ### Steps
 
 1. Map each classified detection to an account name based on the \
-transaction text and business purpose. Use the classifier's category \
-when it is already the appropriate account name. Refine to a more \
-specific name when the transaction context warrants it. Do not \
+transaction text and business purpose. Do not \
 generalize to a broader name than the classifier provided.
 2. Infer amounts from the transaction text. For calculations \
 (PV, interest, allocation), use the calculator tool.
@@ -105,12 +116,11 @@ Output: {"reason": "Bonds issued at discount — cash at PV of coupons plus prin
 <example>
 Transaction: "Paid $8,000 in cash and $12,000 by cheque for consulting services"
 Classifier: 2 credit asset_decrease, both category "Cash and cash equivalents"
-Note: Transaction specifies two distinct payment methods. Name each credit \
-line from the transaction text, not the classifier category.
+Note: Different payment methods sharing the same account may be \
+consolidated into one line where relevant.
 Output: {"reason": "Consulting services paid by cash and cheque", \
 "lines": [{"type": "debit", "account_name": "Consulting Expense", "amount": 20000.00}, \
-{"type": "credit", "account_name": "Cash", "amount": 8000.00}, \
-{"type": "credit", "account_name": "Cash — chequing", "amount": 12000.00}]}
+{"type": "credit", "account_name": "Cash", "amount": 20000.00}]}
 </example>
 
 <example>
@@ -222,7 +232,11 @@ def _extract_decision_maker_context(state: PipelineState) -> str | None:
     return "\n".join(parts) if parts else None
 
 
-def build_prompt(state: PipelineState, tax_output: dict | None = None) -> dict:
+def build_prompt(state: PipelineState, tax_output: dict | None = None,
+                 corrections: str | None = None,
+                 account_names: str | None = None,
+                 jurisdiction_config=None,
+                 tax_jurisdiction: str | None = None) -> dict:
     """Build the entry drafter prompt with classified detections and decision context."""
     if tax_output is None:
         tax_output = state.get("output_tax_specialist")
@@ -239,13 +253,16 @@ def build_prompt(state: PipelineState, tax_output: dict | None = None) -> dict:
         context += f"<decision_maker_context>\n{dm_context}\n</decision_maker_context>\n"
 
     system_blocks = [
-        {"text": SHARED_INSTRUCTION}, CACHE_POINT,
+        {"text": build_shared_instruction(jurisdiction_config)}, CACHE_POINT,
         {"text": AGENT_INSTRUCTION}, CACHE_POINT,
     ]
     transaction = build_transaction(state=state)
     user_ctx = build_user_context(state=state)
     context_block = [{"text": context}]
     task = [{"text": _TASK_REMINDER}]
-    message_blocks = transaction + user_ctx + context_block + task
+    tax_jurisdiction_block = [{"text": tax_jurisdiction}] if tax_jurisdiction else []
+    account_names_block = [{"text": account_names}] if account_names else []
+    corrections_block = [{"text": corrections}] if corrections else []
+    message_blocks = transaction + user_ctx + context_block + account_names_block + tax_jurisdiction_block + corrections_block + task
 
     return to_bedrock_messages(system_blocks, message_blocks)

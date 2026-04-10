@@ -75,7 +75,32 @@ def entry_drafter_node(state: PipelineState, config: RunnableConfig) -> dict:
 
     _write_start(writer)
 
-    messages = build_prompt(state)
+    from services.agent.utils.prompt.corrections import render_corrections
+    corrections = render_corrections(
+        state.get("rag_local_hits", []),
+        state.get("rag_pop_hits", []),
+        attempted_key="attempted_entry",
+        corrected_key="corrected_entry",
+        note_key="note_entry",
+        label="journal entry",
+    )
+
+    # Account name suggestions from jurisdiction taxonomy
+    from services.agent.utils.prompt.account_names import render_account_names
+    from services.agent.utils.prompt.tax_context import render_tax_jurisdiction
+    from services.agent.utils.taxonomy import extract_classified_categories
+    jc = config.get("configurable", {}).get("jurisdiction_config")
+    classified_cats = extract_classified_categories(state)
+    account_names = render_account_names(classified_cats, jc)
+    tax_jurisdiction = render_tax_jurisdiction(jc.tax_rules if jc else None)
+
+    messages = build_prompt(
+        state,
+        corrections=corrections or None,
+        account_names=account_names or None,
+        jurisdiction_config=jc,
+        tax_jurisdiction=tax_jurisdiction or None,
+    )
     llm = get_llm(ENTRY_DRAFTER, config)
 
     # Step 1: calculator — disabled for now

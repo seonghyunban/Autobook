@@ -8,7 +8,6 @@ from pydantic import BaseModel, Field
 
 from services.agent.graph.state import PipelineState, DEBIT_CLASSIFIER
 from services.agent.prompts.debit_classifier import build_prompt
-from services.agent.rag.transaction import retrieve_transaction_examples
 from services.agent.schemas.taxonomy import (
     ASSET_CATEGORIES, EXPENSE_CATEGORIES, LIABILITY_CATEGORIES,
     EQUITY_CATEGORIES, REVENUE_CATEGORIES,
@@ -94,14 +93,31 @@ def debit_classifier_node(state: PipelineState, config: RunnableConfig) -> dict:
 
     _write_start(writer)
 
-    rag_examples = retrieve_transaction_examples(state, "rag_cache_debit_classifier", config)
+    rag_examples = state.get("rag_local_hits", []) + state.get("rag_pop_hits", [])
 
-    messages = build_prompt(state, rag_examples)
-    output = invoke_structured(get_llm(DEBIT_CLASSIFIER, config), DebitClassifierOutput, messages)
+    from services.agent.utils.prompt.corrections import render_corrections
+    corrections = render_corrections(
+        state.get("rag_local_hits", []),
+        state.get("rag_pop_hits", []),
+        attempted_key="attempted_classifications",
+        corrected_key="corrected_classifications",
+        label="debit classifications",
+    )
+
+    jc = config.get("configurable", {}).get("jurisdiction_config")
+    messages = build_prompt(state, rag_examples, corrections=corrections or None, jurisdiction_config=jc)
+
+    # Use dynamic schema if jurisdiction config available, otherwise static
+    if jc:
+        from services.agent.schemas.dynamic import get_debit_schema
+        schema = get_debit_schema(jc)
+    else:
+        schema = DebitClassifierOutput
+
+    output = invoke_structured(get_llm(DEBIT_CLASSIFIER, config), schema, messages)
 
     _write_complete(writer, output)
 
     return {
         "output_debit_classifier": output,
-        "rag_cache_debit_classifier": rag_examples,
     }

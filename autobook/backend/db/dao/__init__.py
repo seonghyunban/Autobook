@@ -10,6 +10,7 @@ from db.dao.drafted_entries import DraftedEntryDAO
 from db.dao.drafted_entry_lines import DraftedEntryLineDAO
 from db.dao.drafts import DraftDAO
 from db.dao.entities import EntityDAO
+from db.dao.jurisdiction_configs import JurisdictionConfigDAO
 from db.dao.entity_memberships import EntityMembershipDAO
 from db.dao.posted_entries import PostedEntryDAO
 from db.dao.posted_entry_lines import PostedEntryLineDAO
@@ -28,6 +29,7 @@ __all__ = [
     "EntityMembershipDAO",
     "ChartOfAccountsDAO",
     "DEFAULT_COA",
+    "JurisdictionConfigDAO",
     "TaxonomyDAO",
     "TransactionDAO",
     "DraftDAO",
