@@ -310,7 +310,7 @@ jobs:
             exit 1
           fi
 
-  # ── Deploy Agent Lambda (zip deploy + SnapStart) ──────────────
+  # ── Deploy Agent Worker (Docker → ECR → ECS) ─────────────────
   deploy-agent:
     needs: changes
     if: needs.changes.outputs.agent == 'true'
@@ -325,8 +325,10 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Install uv
-        uses: astral-sh/setup-uv@v5
+      - name: Set deploy variables
+        run: |
+          echo "CLUSTER=autobook-${ENVIRONMENT}" >> $GITHUB_ENV
+          echo "SERVICE_NAME=autobook-${ENVIRONMENT}-agent" >> $GITHUB_ENV
 
       - name: Configure AWS credentials (OIDC)
         uses: aws-actions/configure-aws-credentials@v4
@@ -334,36 +336,72 @@ jobs:
           role-to-assume: arn:aws:iam::${{ secrets.AWS_ACCOUNT_ID }}:role/autobook-${{ env.ENVIRONMENT }}-github-actions
           aws-region: ${{ env.AWS_REGION }}
 
-      - name: Package Lambda zip
+      - name: Login to ECR
+        id: ecr-login
+        uses: aws-actions/amazon-ecr-login@v2
+
+      - name: Build and push
         run: |
-          cd autobook
-          uv sync --frozen --no-dev --extra agent --extra flywheel --extra accounting
-          SITE_PACKAGES=$(uv run python -c "import site; print(site.getsitepackages()[0])")
+          ECR_REPO="${{ steps.ecr-login.outputs.registry }}/${SERVICE_NAME}"
+          IMAGE_TAG="${{ github.sha }}"
 
-          mkdir -p /tmp/lambda-package
-          cp -r "$SITE_PACKAGES"/* /tmp/lambda-package/
-          cp -r backend/* /tmp/lambda-package/
+          docker build \
+            -f autobook/Dockerfile \
+            --target autobook-agent \
+            -t $ECR_REPO:$IMAGE_TAG \
+            -t $ECR_REPO:latest \
+            autobook/
 
-          cd /tmp/lambda-package
-          # Remove boto3/botocore (pre-installed in Lambda runtime)
-          rm -rf boto3 botocore s3transfer
-          zip -r /tmp/agent-lambda.zip . -x '*.pyc' '__pycache__/*'
+          docker push $ECR_REPO:$IMAGE_TAG
+          docker push $ECR_REPO:latest
 
-      - name: Deploy to Lambda
+          echo "ECR_REPO=$ECR_REPO" >> $GITHUB_ENV
+          echo "IMAGE_TAG=$IMAGE_TAG" >> $GITHUB_ENV
+
+      - name: Register new task definition revision
         run: |
-          FUNCTION_NAME="autobook-${ENVIRONMENT}-agent"
+          TASK_DEF=$(aws ecs describe-task-definition \
+            --task-definition $SERVICE_NAME \
+            --query 'taskDefinition')
 
-          aws lambda update-function-code \
-            --function-name $FUNCTION_NAME \
-            --zip-file fileb:///tmp/agent-lambda.zip
+          NEW_TASK_DEF=$(echo $TASK_DEF | jq \
+            --arg IMAGE "$ECR_REPO:$IMAGE_TAG" \
+            '.containerDefinitions[0].image = $IMAGE |
+             del(.taskDefinitionArn, .revision, .status,
+                 .requiresAttributes, .compatibilities,
+                 .registeredAt, .registeredBy)')
 
-          # Wait for update to complete
-          aws lambda wait function-updated --function-name $FUNCTION_NAME
+          NEW_ARN=$(aws ecs register-task-definition \
+            --cli-input-json "$NEW_TASK_DEF" \
+            --query 'taskDefinition.taskDefinitionArn' \
+            --output text)
 
-          # Publish version to trigger SnapStart snapshot
-          aws lambda publish-version \
-            --function-name $FUNCTION_NAME \
-            --description "Deploy ${{ github.sha }}"
+          echo "NEW_TASK_DEF_ARN=$NEW_ARN" >> $GITHUB_ENV
+
+      - name: Deploy to ECS
+        run: |
+          aws ecs update-service \
+            --cluster $CLUSTER \
+            --service $SERVICE_NAME \
+            --task-definition $NEW_TASK_DEF_ARN
+
+      - name: Wait for deployment
+        run: |
+          aws ecs wait services-stable \
+            --cluster $CLUSTER \
+            --services $SERVICE_NAME
+
+      - name: Verify deployment
+        run: |
+          DEPLOYED=$(aws ecs describe-services \
+            --cluster $CLUSTER \
+            --services $SERVICE_NAME \
+            --query 'services[0].deployments[?status==`PRIMARY`].taskDefinition' \
+            --output text)
+          if [[ "$DEPLOYED" != "$NEW_TASK_DEF_ARN" ]]; then
+            echo "::error::Deploy of agent rolled back by circuit breaker"
+            exit 1
+          fi
 
   # ── Tag successful deploy ──────────────────────────────────────
   tag-deployed:

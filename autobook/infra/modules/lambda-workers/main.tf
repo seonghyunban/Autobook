@@ -15,7 +15,7 @@ locals {
   name      = "${var.project}-${var.environment}" # e.g. "autobook-dev"
   redis_url = "rediss://${var.redis_endpoint}:${var.redis_port}/0"
 
-  worker_names = ["agent"]
+  worker_names = []
 
   # Dockerfile target name for each worker (uses hyphens, not underscores)
   dockerfile_targets = {

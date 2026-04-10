@@ -19,6 +19,11 @@ locals {
       { name = "SQS_QUEUE_NORMALIZATION", value = var.queue_urls["normalization"] },
       { name = "SQS_QUEUE_AGENT", value = var.queue_urls["agent"] },
     ]
+    agent = [
+      { name = "SQS_QUEUE_AGENT", value = var.queue_urls["agent"] },
+      { name = "SQS_QUEUE_RESOLUTION", value = var.queue_urls["resolution"] },
+      { name = "SQS_QUEUE_POSTING", value = var.queue_urls["posting"] },
+    ]
   }
 }
 

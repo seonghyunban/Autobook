@@ -64,8 +64,7 @@ COPY backend/services/normalization/ backend/services/normalization/
 USER app
 CMD ["python", "-c", "from workers.normalization import main; main()"]
 
-# ── Agent / LLM Worker (Lambda, SnapStart) ────────────────────
-# Local dev uses this image. Prod uses zip deploy for SnapStart.
+# ── Agent / LLM Worker (ECS, SQS polling) ─────────────────────
 FROM autobook-accounting AS autobook-agent
 
 RUN --mount=type=cache,target=/root/.cache/uv \
@@ -77,5 +76,5 @@ COPY backend/services/posting/ backend/services/posting/
 COPY backend/services/flywheel/ backend/services/flywheel/
 COPY backend/services/precedent/ backend/services/precedent/
 
-ENTRYPOINT ["python", "-m", "awslambdaric"]
-CMD ["workers.agent.handler"]
+USER app
+CMD ["python", "-c", "from workers.agent import main; main()"]

@@ -3,11 +3,10 @@ locals {
   name = "${var.project}-${var.environment}" # e.g. "autobook-dev"
 
   # API runs on ECS Fargate — keeps the ECS trust policy
-  ecs_services = ["api", "fast-path"]
+  ecs_services = ["api", "fast-path", "agent"]
 
-  # Only the agent runs on Lambda — triggered by SQS-agent event source mapping.
-  # Other pipeline stages run inside ECS workers (fast_path, normalization).
-  lambda_services = ["agent"]
+  # No Lambda services — all workers run on ECS.
+  lambda_services = []
 
   # ECS trust policy — allows the ECS service to assume roles on behalf of containers
   ecs_trust_policy = jsonencode({
@@ -206,7 +205,7 @@ resource "aws_iam_role_policy" "fast_path_bedrock" {
 # Agent: receive from SQS-agent, send to resolution or posting queues.
 resource "aws_iam_role_policy" "agent_sqs" {
   name = "sqs-agent-to-resolution-or-posting"
-  role = aws_iam_role.lambda["agent"].id
+  role = aws_iam_role.task["agent"].id
 
   policy = jsonencode({
     Version = "2012-10-17"
@@ -229,7 +228,7 @@ resource "aws_iam_role_policy" "agent_sqs" {
 
 resource "aws_iam_role_policy" "agent_bedrock" {
   name = "bedrock-invoke"
-  role = aws_iam_role.lambda["agent"].id
+  role = aws_iam_role.task["agent"].id
 
   policy = jsonencode({
     Version = "2012-10-17"
@@ -325,7 +324,8 @@ resource "aws_iam_role_policy" "github_actions_deploy" {
         Resource = [
           aws_iam_role.execution.arn,
           aws_iam_role.task["api"].arn,
-          aws_iam_role.task["fast-path"].arn
+          aws_iam_role.task["fast-path"].arn,
+          aws_iam_role.task["agent"].arn
         ]
         Condition = {
           StringEquals = { "iam:PassedToService" = "ecs-tasks.amazonaws.com" }
