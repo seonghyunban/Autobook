@@ -1,4 +1,5 @@
 import { useMemo, useState } from "react";
+import { motion, AnimatePresence } from "motion/react";
 import { RiArrowLeftSLine, RiArrowDownSLine } from "react-icons/ri";
 import { palette, T, CURRENCY_SYM, attemptedEntryColors } from "../shared/tokens";
 import { ForceGraph, toGraphData } from "../../../components/force-graph";
@@ -30,6 +31,8 @@ export type ReasoningChunk = {
   label: string;
   done: boolean;
   blocks: ReasoningBlock[];
+  seq?: number;
+  doneSeq?: number;
 };
 
 export type SectionId = "normalization" | "ambiguity" | "gap" | "proceed" | "debit" | "credit" | "tax" | "entry";
@@ -79,7 +82,7 @@ function Block({ children }: { children: React.ReactNode }) {
   return <div className={`${s.hoverableBlock} ${s.blockAppear}`} style={blockStyle}>{children}</div>;
 }
 
-function CollapsibleBlock({ header, children, defaultOpen = false }: {
+function CollapsibleBlock({ header, children, defaultOpen = true }: {
   header: string;
   children: React.ReactNode;
   defaultOpen?: boolean;
@@ -140,11 +143,11 @@ function EntryBlockLine({ tag, entry }: { tag: string; entry: EntryLineData["ent
   const sym = CURRENCY_SYM[entry.currency || ""] || "";
 
   return (
-    <div className={s.lineAppear} style={{ display: "flex", flexDirection: "column", gap: 4 }}>
+    <div className={s.lineAppear} style={{ display: "flex", flexDirection: "column", gap: 4, minWidth: 0 }}>
       {/* Entry table with dot and tag */}
-      <div className={s.hoverableLine} style={{ display: "flex", gap: 6, background: "rgba(229, 228, 226, 0.3)", borderRadius: 3, padding: "3px 6px" }}>
+      <div className={s.hoverableLine} style={{ display: "flex", gap: 6, background: "rgba(229, 228, 226, 0.3)", borderRadius: 3, padding: "3px 6px", minWidth: 0 }}>
         <span style={{ width: 12, flexShrink: 0, textAlign: "center", color: palette.charcoalBrown, fontSize: 8, lineHeight: "18px" }}>●</span>
-        <div style={{ flex: 1, display: "flex", flexDirection: "column", gap: 4 }}>
+        <div style={{ flex: 1, minWidth: 0, display: "flex", flexDirection: "column", gap: 4, overflow: "hidden" }}>
           <span style={{ fontSize: 10, fontWeight: 600, color: T.textSecondary, textTransform: "uppercase", letterSpacing: "0.04em" }}>{tag}</span>
           <EntryTable
             lines={lines as import("../../../api/types").JournalLine[]}
@@ -168,9 +171,9 @@ function EntryBlockLine({ tag, entry }: { tag: string; entry: EntryLineData["ent
 export function ReasoningSection({ chunks, graphLayoutVersion }: { chunks: ReasoningChunk[]; graphLayoutVersion?: number }) {
   if (chunks.length === 0) return null;
   return (
-    <div style={{ display: "flex", flexDirection: "column", gap: 14 }}>
+    <>
       {chunks.map((chunk, i) => (
-        <Chunk key={i} label={chunk.label} done={chunk.done}>
+        <Chunk key={chunk.seq ?? i} label={chunk.label} done={chunk.done}>
           {chunk.blocks.map((block, j) =>
             block.type === "text" ? (
               <Block key={j}><div>{block.content}</div></Block>
@@ -190,6 +193,68 @@ export function ReasoningSection({ chunks, graphLayoutVersion }: { chunks: Reaso
           )}
         </Chunk>
       ))}
+    </>
+  );
+}
+
+/**
+ * Flattened, sorted reasoning stream.
+ * Collects all chunks across sections, sorts by [done DESC, seq ASC],
+ * and animates reordering with layout transitions.
+ */
+export function ReasoningStream({
+  sections,
+  graphLayoutVersion,
+}: {
+  sections: Record<SectionId, ReasoningChunk[]>;
+  graphLayoutVersion?: number;
+}) {
+  const sorted = useMemo(() => {
+    const all: (ReasoningChunk & { key: string })[] = [];
+    for (const id of SECTION_ORDER) {
+      for (let i = 0; i < sections[id].length; i++) {
+        const chunk = sections[id][i];
+        all.push({ ...chunk, key: `${id}-${chunk.seq ?? i}` });
+      }
+    }
+    return all.sort((a, b) => {
+      if (a.done !== b.done) return a.done ? -1 : 1;
+      if (a.done) return (a.doneSeq ?? 0) - (b.doneSeq ?? 0);
+      return (a.seq ?? 0) - (b.seq ?? 0);
+    });
+  }, [sections]);
+
+  return (
+    <div style={{ display: "flex", flexDirection: "column", gap: 14 }}>
+      <AnimatePresence initial={false}>
+        {sorted.map((chunk) => (
+          <motion.div
+            key={chunk.key}
+            layout="position"
+            transition={{ type: "tween", duration: 0.3, ease: "easeInOut" }}
+          >
+            <Chunk label={chunk.label} done={chunk.done}>
+              {chunk.blocks.map((block, j) =>
+                block.type === "text" ? (
+                  <Block key={j}><div>{block.content}</div></Block>
+                ) : block.type === "entry" ? (
+                  <EntryBlockLine key={j} tag={block.tag} entry={block.entry} />
+                ) : block.type === "graph" ? (
+                  <GraphBlockLine key={j} tag={block.tag} graph={block.graph} layoutVersion={graphLayoutVersion} />
+                ) : (
+                  <CollapsibleBlock key={j} header={block.header}>
+                    {block.lines.map((line, k) =>
+                      line.kind === "entry"
+                        ? <EntryBlockLine key={k} tag={line.tag} entry={line.entry} />
+                        : <BulletLine key={k} tag={line.tag} text={line.text} />
+                    )}
+                  </CollapsibleBlock>
+                )
+              )}
+            </Chunk>
+          </motion.div>
+        ))}
+      </AnimatePresence>
     </div>
   );
 }
