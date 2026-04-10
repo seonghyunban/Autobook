@@ -1,17 +1,16 @@
 """Agent worker — Lambda handler (SnapStart) for LLM processing.
 
-Infrastructure-only entry point. Responsibilities:
+Infrastructure entry point. Responsibilities:
   - Receive SQS/Lambda event, deserialize
-  - Load graph from DB (data access)
-  - Call service (business logic)
-  - Publish side-effects (Redis, parse status)
+  - Module-level infra init (boto3, DB, settings)
+  - Call service with injected dependencies
+  - Publish side-effects (Redis, parse status, persist)
   - Error handling, SQS message deletion
 """
 
 import asyncio
 import json
 import logging
-from uuid import UUID
 
 import boto3
 from botocore.config import Config as BotoConfig
@@ -20,9 +19,12 @@ from config import get_settings
 from db.connection import SessionLocal
 from db.dao.transaction_graphs import TransactionGraphDAO
 from queues.pubsub import pub
-from services.agent.persist import persist_attempt
 from services.agent.service import execute as agent_execute, execute_stream, handle_result
 from services.shared.parse_status import record_batch_result_sync, set_status_sync
+from services.shared.persist import persist_attempt
+from vectordb.client import get_qdrant_client
+from vectordb.collections import AGENT_CORRECTIONS
+from vectordb.memory import QdrantMemory
 
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.INFO)
@@ -36,48 +38,13 @@ _bedrock_client = boto3.client(
     region_name=_settings.AWS_DEFAULT_REGION,
     config=BotoConfig(connect_timeout=5, read_timeout=120, retries={"max_attempts": 2}),
 )
-_configurable = {"bedrock_client": _bedrock_client}
+_qdrant = get_qdrant_client()
+_agent_pop = QdrantMemory(_qdrant, AGENT_CORRECTIONS, entity_id=None)
+_configurable = {"bedrock_client": _bedrock_client, "agent_pop_memory": _agent_pop, "qdrant_client": _qdrant}
+_graph_dao = TransactionGraphDAO
 
 
-def _load_graph(graph_id: str) -> dict | None:
-    """Load graph from DB and convert to the dict shape the service expects."""
-    db = SessionLocal()
-    try:
-        row = TransactionGraphDAO.get_by_id(db, UUID(graph_id))
-        if row is None:
-            return None
-        node_names = {n.node_index: n.name for n in row.nodes}
-        return {
-            "nodes": [
-                {"index": n.node_index, "name": n.name, "role": n.role}
-                for n in row.nodes
-            ],
-            "edges": [
-                {
-                    "source": node_names.get(e.source_index, ""),
-                    "source_index": e.source_index,
-                    "target": node_names.get(e.target_index, ""),
-                    "target_index": e.target_index,
-                    "nature": e.nature,
-                    "kind": e.edge_kind,
-                    "amount": float(e.amount) if e.amount is not None else None,
-                    "currency": e.currency,
-                }
-                for e in row.edges
-            ],
-        }
-    finally:
-        db.close()
-
-
-def _enrich_message(message: dict) -> dict:
-    """Load graph from DB if graph_id is present but graph is not."""
-    if message.get("graph") is None and message.get("graph_id"):
-        message["graph"] = _load_graph(message["graph_id"])
-    return message
-
-
-def _run_streaming(message: dict) -> dict:
+def _run_streaming(message: dict, db) -> dict:
     """Run agent with streaming, publish chunks to Redis. Returns final result."""
     parse_id = message["parse_id"]
     user_id = message["user_id"]
@@ -85,7 +52,7 @@ def _run_streaming(message: dict) -> dict:
 
     async def _stream():
         nonlocal result
-        async for chunk in execute_stream(message, _configurable):
+        async for chunk in execute_stream(message, _configurable, db=db, graph_dao=_graph_dao):
             if chunk.get("phase") == "result":
                 result = chunk["result"]
             else:
@@ -109,8 +76,6 @@ def _publish_result(result: dict, message: dict) -> None:
         )
         return
 
-    # Non-interactive: service's handle_result already decided the action.
-    # We just publish the stage event.
     decision = result.get("decision", "PROCEED")
     if decision == "PROCEED":
         pub.stage_started(
@@ -123,6 +88,7 @@ def _publish_result(result: dict, message: dict) -> None:
 def handler(event, context):
     for record in event["Records"]:
         message = json.loads(record["body"])
+        db = SessionLocal()
         try:
             set_status_sync(
                 parse_id=message["parse_id"],
@@ -137,12 +103,10 @@ def handler(event, context):
                 stage=STAGE,
             )
 
-            _enrich_message(message)
-
             if message.get("streaming"):
-                result = _run_streaming(message)
+                result = _run_streaming(message, db)
             else:
-                result = agent_execute(message, _configurable)
+                result = agent_execute(message, _configurable, db=db, graph_dao=_graph_dao)
 
             handle_result(result, message)
             _publish_result(result, message)
@@ -176,6 +140,8 @@ def handler(event, context):
                         error=str(exc),
                     )
                 raise
+        finally:
+            db.close()
 
 
 # ── Local dev polling mode ────────────────────────────────────

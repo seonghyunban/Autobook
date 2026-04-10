@@ -1,4 +1,5 @@
 import { create } from "zustand";
+import { persist, createJSONStorage } from "zustand/middleware";
 import { immer } from "zustand/middleware/immer";
 import type {
   AgentAttemptedTrace,
@@ -7,7 +8,7 @@ import type {
   HumanEditableTax,
   TraceBase,
 } from "../../api/types";
-import { DUMMY_ATTEMPTED_TRACE } from "./dummyData";
+import { EMPTY_ATTEMPTED_TRACE } from "./dummyData";
 
 /**
  * Single page-scoped store for the LLM Interaction page.
@@ -108,6 +109,39 @@ export function assignIds(trace: TraceBase): void {
   }
 }
 
+/**
+ * Copy ids from `source` onto `target` by index so the diff aligns
+ * corrected items with their attempted counterparts. Items beyond the
+ * source length keep their own ids (user additions).
+ */
+function alignIdsFrom(source: TraceBase, target: TraceBase): void {
+  // Edges
+  const sEdges = source.transaction_graph?.edges ?? [];
+  const tEdges = target.transaction_graph?.edges ?? [];
+  for (let i = 0; i < Math.min(sEdges.length, tEdges.length); i++) {
+    tEdges[i].id = sEdges[i].id;
+  }
+
+  // Ambiguities + cases
+  const sAmbs = source.output_decision_maker?.ambiguities ?? [];
+  const tAmbs = target.output_decision_maker?.ambiguities ?? [];
+  for (let i = 0; i < Math.min(sAmbs.length, tAmbs.length); i++) {
+    tAmbs[i].id = sAmbs[i].id;
+    const sCases = sAmbs[i].cases ?? [];
+    const tCases = tAmbs[i].cases ?? [];
+    for (let j = 0; j < Math.min(sCases.length, tCases.length); j++) {
+      tCases[j].id = sCases[j].id;
+    }
+  }
+
+  // Entry lines
+  const sLines = source.output_entry_drafter?.lines ?? [];
+  const tLines = target.output_entry_drafter?.lines ?? [];
+  for (let i = 0; i < Math.min(sLines.length, tLines.length); i++) {
+    tLines[i].id = sLines[i].id;
+  }
+}
+
 // ── Wire conversion ───────────────────────────────────────
 
 /**
@@ -125,12 +159,15 @@ export function wireToTrace(wire: AgentResultWire): AgentAttemptedTrace {
     transaction_graph: ps.transaction_graph ?? null,
     output_decision_maker: ps.output_decision_maker ?? null,
     output_tax_specialist: ps.output_tax_specialist ?? null,
+    output_debit_classifier: ps.output_debit_classifier ?? null,
+    output_credit_classifier: ps.output_credit_classifier ?? null,
     output_entry_drafter: ps.output_entry_drafter ?? null,
     decision: wire.decision ?? null,
     debit_relationship: {},
     credit_relationship: {},
-    rag_cache_debit_classifier: [],
-    rag_cache_credit_classifier: [],
+    rag_normalizer_hits: ps.rag_normalizer_hits ?? [],
+    rag_local_hits: ps.rag_local_hits ?? [],
+    rag_pop_hits: ps.rag_pop_hits ?? [],
   };
 }
 
@@ -147,7 +184,7 @@ function emptyNotes(): HumanCorrectedTrace["notes"] {
 
 /**
  * Build a HumanCorrectedTrace from an AgentAttemptedTrace by deep-copying
- * the shared TraceBase fields and initializing empty notes. The rag_cache
+ * the shared TraceBase fields and initializing empty notes. The rag_*_hits
  * fields are intentionally dropped — they're agent-internal state.
  */
 /**
@@ -188,34 +225,46 @@ function attemptedToCorrected(
 
 // ── Store ─────────────────────────────────────────────────
 
-const initialAttempted = structuredClone(DUMMY_ATTEMPTED_TRACE);
+const initialAttempted = structuredClone(EMPTY_ATTEMPTED_TRACE);
 assignIds(initialAttempted);
 
 export const useLLMInteractionStore = create<LLMInteractionStore>()(
-  immer((set) => ({
-    draftId: null,
-    attempted: initialAttempted,
-    corrected: attemptedToCorrected(initialAttempted),
+  persist(
+    immer((set) => ({
+      draftId: null,
+      attempted: initialAttempted,
+      corrected: attemptedToCorrected(initialAttempted),
 
-    resetAll: (newAttempted, draftId) =>
-      set((state) => {
-        const attempted = structuredClone(newAttempted);
-        assignIds(attempted);
-        state.draftId = draftId ?? null;
-        state.attempted = attempted;
-        state.corrected = attemptedToCorrected(attempted);
-      }),
+      resetAll: (newAttempted, draftId) =>
+        set((state) => {
+          const attempted = structuredClone(newAttempted);
+          assignIds(attempted);
+          state.draftId = draftId ?? null;
+          state.attempted = attempted;
+          state.corrected = attemptedToCorrected(attempted);
+        }),
 
-    hydrateCorrected: (saved) =>
-      set((state) => {
-        const merged = { ...state.corrected, ...saved } as HumanCorrectedTrace;
-        assignIds(merged);
-        state.corrected = merged;
-      }),
+      hydrateCorrected: (saved) =>
+        set((state) => {
+          const merged = { ...state.corrected, ...saved } as HumanCorrectedTrace;
+          assignIds(merged);
+          alignIdsFrom(state.attempted, merged);
+          state.corrected = merged;
+        }),
 
-    setCorrected: (updater) =>
-      set((state) => {
-        updater(state.corrected);
+      setCorrected: (updater) =>
+        set((state) => {
+          updater(state.corrected);
+        }),
+    })),
+    {
+      name: "autobook-drafter",
+      storage: createJSONStorage(() => sessionStorage),
+      partialize: (state) => ({
+        draftId: state.draftId,
+        attempted: state.attempted,
+        corrected: state.corrected,
       }),
-  }))
+    },
+  )
 );

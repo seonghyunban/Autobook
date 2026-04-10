@@ -9,12 +9,15 @@ export const EMPTY_ATTEMPTED_TRACE: AgentAttemptedTrace = {
   transaction_graph: null,
   output_decision_maker: null,
   output_tax_specialist: null,
+  output_debit_classifier: null,
+  output_credit_classifier: null,
   output_entry_drafter: null,
   decision: "PROCEED",
   debit_relationship: {},
   credit_relationship: {},
-  rag_cache_debit_classifier: [],
-  rag_cache_credit_classifier: [],
+  rag_normalizer_hits: [],
+  rag_local_hits: [],
+  rag_pop_hits: [],
 };
 
 /**
@@ -30,8 +33,9 @@ export const DUMMY_ATTEMPTED_TRACE: AgentAttemptedTrace = {
   decision: "PROCEED",
   debit_relationship: {},
   credit_relationship: {},
-  rag_cache_debit_classifier: [],
-  rag_cache_credit_classifier: [],
+  rag_normalizer_hits: [],
+  rag_local_hits: [],
+  rag_pop_hits: [],
   transaction_graph: {
     nodes: [
       // Reporting entity (1)
@@ -155,6 +159,8 @@ export const DUMMY_ATTEMPTED_TRACE: AgentAttemptedTrace = {
     tax_rate: 0.13,
     tax_context: "13% HST on the full purchase amount. ITC claimable as business expense.",
   },
+  output_debit_classifier: null,
+  output_credit_classifier: null,
   output_entry_drafter: {
     reason: "Standard laptop purchase for business use, paid by company credit card.",
     currency: "CAD",

@@ -402,7 +402,7 @@ export type TraceBase = {
 /**
  * What the agent produced. Includes:
  *   - Full TaxOutput (with `reasoning`, which the agent generates)
- *   - Internal RAG cache state for the classifier sub-agents
+ *   - RAG hits for debugging (normalizer + agent corrections)
  *
  * The two relationship maps live on TraceBase and are populated by the
  * agent's classifier sub-agents on the attempted side; the user edits
@@ -410,8 +410,11 @@ export type TraceBase = {
  */
 export type AgentAttemptedTrace = TraceBase & {
   output_tax_specialist: TaxOutput | null;
-  rag_cache_debit_classifier: unknown[];
-  rag_cache_credit_classifier: unknown[];
+  output_debit_classifier: Record<string, unknown[]> | null;
+  output_credit_classifier: Record<string, unknown[]> | null;
+  rag_normalizer_hits: unknown[];
+  rag_local_hits: unknown[];
+  rag_pop_hits: unknown[];
 };
 
 /**
@@ -422,7 +425,7 @@ export type AgentAttemptedTrace = TraceBase & {
  * Notably narrower than AgentAttemptedTrace:
  *   - `output_tax_specialist` uses HumanEditableTax (no `reasoning`)
  *   - No `output_debit_classifier` / `output_credit_classifier`
- *   - No `rag_cache_*`
+ *   - No `rag_*_hits`
  *   - Adds per-section `notes` (user-only)
  *
  * The summary panel iterates this type's fields, so anything in

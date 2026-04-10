@@ -58,9 +58,10 @@ class PipelineState(TypedDict):
     output_tax_specialist: dict | None
     output_entry_drafter: dict | None
 
-    # ── RAG cache (classifiers only) ────────────────────────────────────
-    rag_cache_debit_classifier: list
-    rag_cache_credit_classifier: list
+    # ── RAG hits (loaded once, used by all nodes) ──────────────────────
+    rag_normalizer_hits: list   # similar past transactions (from normalizer)
+    rag_local_hits: list        # entity-specific correction hits
+    rag_pop_hits: list          # population-level correction hits
 
     # ── Pipeline decision ───────────────────────────────────────────────
     decision: str | None                      # "PROCEED" | "MISSING_INFO" | "STUCK" | None

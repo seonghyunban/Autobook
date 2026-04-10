@@ -41,12 +41,12 @@ def retrieve_transaction_examples(
 
         # Fallback: direct Qdrant access (backwards compatible)
         from vectordb.client import get_qdrant_client
-        from vectordb.collections import TRANSACTION_EXAMPLES
+        from vectordb.collections import AGENT_CORRECTIONS
         from vectordb.embeddings import embed_text
 
-        vector = embed_text(text)
+        vector = embed_text(text, input_type="search_query")
         results = get_qdrant_client().query_points(
-            collection_name=TRANSACTION_EXAMPLES,
+            collection_name=AGENT_CORRECTIONS,
             query=vector,
             limit=_TOP_K,
         )

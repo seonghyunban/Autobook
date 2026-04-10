@@ -8,7 +8,7 @@ import s from "../components/panels/panels.module.css";
 import type { AgentAttemptedTrace, HumanCorrectedTrace } from "../api/types";
 
 import { MOTION, palette, T, panel, PanelHeader, HoverButton, PrimaryButton } from "../components/panels/shared";
-import { ReasoningSection, SECTION_ORDER } from "../components/panels/reasoning_panel";
+import { ReasoningStream, buildFromTrace } from "../components/panels/reasoning_panel";
 import type { ReasoningChunk, SectionId } from "../components/panels/reasoning_panel";
 import {
   TransactionAnalysisContainer,
@@ -21,6 +21,15 @@ import {
 } from "../components/panels/review_panel";
 import { TransactionDisplay } from "../components/panels/shared/TransactionDisplay";
 import { EntryTable, DecisionOverlay } from "../components/panels/entry_panel";
+
+const CURRENCY_SYMBOLS: Record<string, string> = {
+  CAD: "$", USD: "$", KRW: "₩", EUR: "€", GBP: "£", JPY: "¥", CNY: "¥",
+};
+
+function currencySymbol(entry: { currency?: string; currency_symbol?: string } | null | undefined): string {
+  if (!entry) return "";
+  return entry.currency_symbol || CURRENCY_SYMBOLS[entry.currency ?? ""] || "";
+}
 
 /**
  * Convert a DraftDetail (from DB) into an AgentAttemptedTrace shape
@@ -92,11 +101,14 @@ function detailToTrace(detail: DraftDetail): AgentAttemptedTrace {
           })),
         }
       : null,
+    output_debit_classifier: null,
+    output_credit_classifier: null,
     decision: (attempt?.decision_kind as "PROCEED" | "MISSING_INFO" | "STUCK") ?? null,
     debit_relationship: {},
     credit_relationship: {},
-    rag_cache_debit_classifier: [],
-    rag_cache_credit_classifier: [],
+    rag_normalizer_hits: [],
+    rag_local_hits: [],
+    rag_pop_hits: [],
   };
 }
 
@@ -170,12 +182,17 @@ export function EntryViewerPage() {
   const [error, setError] = useState<string | null>(null);
 
   const agentResult = useLLMInteractionStore((st) => st.attempted);
+  const visibleSections = agentResult.decision === "PROCEED" || !agentResult.decision
+    ? REVIEW_SECTIONS
+    : REVIEW_SECTIONS.filter((s) => s.key === "transaction_analysis" || s.key === "ambiguity" || s.key === "summary");
   const [overlayVisible, setOverlayVisible] = useState(false);
   const [showReviewModal, setShowReviewModal] = useState(false);
   const [reviewModalVisible, setReviewModalVisible] = useState(false);
   const [showReviewHelp, setShowReviewHelp] = useState(false);
   const [reviewStep, setReviewStep] = useState(0);
-  const [showReasoning, setShowReasoning] = useState(false);
+  const [submitting, setSubmitting] = useState(false);
+  const [submitted, setSubmitted] = useState(false);
+  const showReasoning = true;
   const [windowResizing, setWindowResizing] = useState(false);
   const [reasoningWidth, setReasoningWidth] = useState(320);
   const [reasoningFullscreen, setReasoningFullscreen] = useState(false);
@@ -189,31 +206,8 @@ export function EntryViewerPage() {
   const mainContentRef = useRef<HTMLDivElement>(null);
   const entryScrollRef = useRef<HTMLDivElement>(null);
 
-  // Build static reasoning from the loaded graph
-  const reasoningSections: Record<SectionId, ReasoningChunk[]> = {
-    normalization: detail?.graph ? [{
-      label: "Transaction analyzed",
-      done: true,
-      blocks: [{
-        type: "graph" as const,
-        tag: "Transaction structure",
-        graph: {
-          nodes: detail.graph.nodes.map((n) => ({ index: n.index, name: n.name, role: n.role })),
-          edges: detail.graph.edges.map((e) => ({
-            source: e.source,
-            source_index: e.source_index,
-            target: e.target,
-            target_index: e.target_index,
-            nature: e.nature,
-            kind: e.kind,
-            amount: e.amount,
-            currency: e.currency,
-          })),
-        },
-      }],
-    }] : [],
-    ambiguity: [], gap: [], proceed: [], debit: [], credit: [], tax: [], entry: [],
-  };
+  // Build full reasoning from the attempted trace in the store
+  const reasoningSections: Record<SectionId, ReasoningChunk[]> = buildFromTrace(agentResult);
 
   // Fetch detail and hydrate store
   useEffect(() => {
@@ -350,23 +344,11 @@ export function EntryViewerPage() {
                     >
                       Review & Correct
                     </HoverButton>
-                    <HoverButton
-                      type="button"
-                      bgHover={palette.silver}
-                      color={T.textSecondary}
-                      colorHover={palette.carbonBlack}
-                      borderColor={T.inputBorder}
-                      borderColorHover={palette.silver}
-                      onClick={() => setShowReasoning((v) => !v)}
-                      style={{ padding: "6px 14px", borderRadius: T.buttonRadius, fontSize: 12, fontWeight: 600 }}
-                    >
-                      {showReasoning ? "Hide Reasoning" : "Show Reasoning"}
-                    </HoverButton>
                   </div>
                 </div>
                 <div style={{ display: "flex", flexDirection: "column", gap: 16, flex: 1, minHeight: 0 }}>
                   <div style={{ flex: 1, minHeight: 0, display: "flex", flexDirection: "column" }}>
-                    <EntryTable lines={agentResult.output_entry_drafter?.lines || []} currencySymbol={agentResult.output_entry_drafter?.currency_symbol || ""} scrollable minRows={12} showAccountCode rowAppearAnimation scrollRef={entryScrollRef} />
+                    <EntryTable lines={agentResult.output_entry_drafter?.lines || []} currencySymbol={currencySymbol(agentResult.output_entry_drafter)} scrollable minRows={12} showAccountCode rowAppearAnimation scrollRef={entryScrollRef} />
                   </div>
                 </div>
                 {(agentResult.decision === "MISSING_INFO" || agentResult.decision === "STUCK") && (
@@ -470,13 +452,7 @@ export function EntryViewerPage() {
                   className={s.scrollable}
                   style={{ flex: 1, overflowY: "auto", fontSize: 13, lineHeight: 1.6, color: T.textSecondary, marginTop: T.panelGap, marginRight: -4, display: "flex", flexDirection: "column", gap: 24 }}
                 >
-                  {SECTION_ORDER.map((id) =>
-                    reasoningSections[id].length > 0 ? (
-                      <div key={id} data-section={id}>
-                        <ReasoningSection chunks={reasoningSections[id]} graphLayoutVersion={graphLayoutVersion} />
-                      </div>
-                    ) : null
-                  )}
+                  <ReasoningStream sections={reasoningSections} graphLayoutVersion={graphLayoutVersion} />
                 </div>
               </div>
             </section>
@@ -518,7 +494,7 @@ export function EntryViewerPage() {
                 <HoverButton onClick={closeReviewModal} bgHover="rgba(204, 197, 185, 0.3)" color={T.textSecondary} style={{ fontSize: 18, lineHeight: 1, padding: "2px 6px", borderRadius: 4 }}>✕</HoverButton>
               </div>
               <div style={{ display: "flex", justifyContent: "center", alignItems: "center", gap: 6 }}>
-                <h3 style={{ margin: 0, fontSize: 14, fontWeight: 600, color: T.textPrimary }}>{REVIEW_SECTIONS[reviewStep].title}</h3>
+                <h3 style={{ margin: 0, fontSize: 14, fontWeight: 600, color: T.textPrimary }}>{visibleSections[reviewStep].title}</h3>
                 <button
                   className={s.buttonTransition}
                   onClick={() => setShowReviewHelp((v) => !v)}
@@ -538,15 +514,13 @@ export function EntryViewerPage() {
             </div>
 
             {/* Body */}
-            {([
-              <TransactionAnalysisContainer key="0" />,
-              <AmbiguityReviewContainer key="1" />,
-              <TaxReviewContainer key="2" />,
-              <FinalEntryReviewContainer key="3" />,
-              <CorrectionSummaryContainer key="4" />,
-            ]).map((p, i) => (
-              <div key={i} className={s.scrollable} style={{ flex: 1, overflowY: "auto", scrollbarGutter: "auto", padding: "20px", display: reviewStep === i ? "flex" : "none", flexDirection: "column", gap: 24 }}>
-                {p}
+            {visibleSections.map((sec, i) => (
+              <div key={sec.key} className={s.scrollable} style={{ flex: 1, overflowY: "auto", scrollbarGutter: "auto", padding: "20px", display: reviewStep === i ? "flex" : "none", flexDirection: "column", gap: 24 }}>
+                {sec.key === "transaction_analysis" && <TransactionAnalysisContainer />}
+                {sec.key === "ambiguity" && <AmbiguityReviewContainer />}
+                {sec.key === "tax" && <TaxReviewContainer />}
+                {sec.key === "final_entry" && <FinalEntryReviewContainer />}
+                {sec.key === "summary" && <CorrectionSummaryContainer />}
               </div>
             ))}
 
@@ -554,7 +528,7 @@ export function EntryViewerPage() {
             <div style={{ padding: "12px 20px", flexShrink: 0, display: "flex", alignItems: "center", borderTop: "1px solid rgba(64, 61, 57, 0.15)" }}>
               <div style={{ width: 160 }} />
               <div style={{ flex: 1, display: "flex", justifyContent: "center", gap: 12 }}>
-                {REVIEW_SECTIONS.map((sec, i) => (
+                {visibleSections.map((sec, i) => (
                   <div
                     key={sec.key}
                     className={s.buttonTransition}
@@ -566,19 +540,26 @@ export function EntryViewerPage() {
               </div>
               <div style={{ display: "flex", gap: 8, width: 160, justifyContent: "flex-end" }}>
                 {reviewStep > 0 && <PrimaryButton size="sm" onClick={() => setReviewStep((s) => s - 1)}>Back</PrimaryButton>}
-                {reviewStep < REVIEW_SECTIONS.length - 1
+                {reviewStep < visibleSections.length - 1
                   ? <PrimaryButton size="sm" onClick={() => setReviewStep((s) => s + 1)}>Next</PrimaryButton>
-                  : <PrimaryButton size="sm" onClick={async () => {
+                  : <PrimaryButton size="sm" disabled={submitting || submitted} onClick={async () => {
                       const did = useLLMInteractionStore.getState().draftId;
                       if (did) {
+                        setSubmitting(true);
                         try {
                           await submitCorrection(did);
-                          closeReviewModal();
+                          setSubmitted(true);
+                          setTimeout(() => setSubmitted(false), 2000);
                         } catch (err) {
                           console.error("Submit correction failed:", err);
+                        } finally {
+                          setSubmitting(false);
                         }
                       }
-                    }}>Submit</PrimaryButton>
+                    }}>{(() => {
+                      const label = submitting ? "Submitting…" : submitted ? "Submitted" : "Submit";
+                      return <span key={label} style={{ display: "inline-block", animation: "jurisdictionIn 0.25s ease" }}>{label}</span>;
+                    })()}</PrimaryButton>
                 }
               </div>
             </div>
