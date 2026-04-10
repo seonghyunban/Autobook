@@ -454,6 +454,11 @@ export type AgentResultWire = {
     transaction_graph?: TransactionGraph | null;
     output_decision_maker?: DecisionOutput | null;
     output_tax_specialist?: TaxOutput | null;
+    output_debit_classifier?: Record<string, unknown[]> | null;
+    output_credit_classifier?: Record<string, unknown[]> | null;
     output_entry_drafter?: EntryOutput | null;
+    rag_normalizer_hits?: unknown[];
+    rag_local_hits?: unknown[];
+    rag_pop_hits?: unknown[];
   };
 };
