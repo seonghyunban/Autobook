@@ -29,7 +29,7 @@ export async function fetchEntities(): Promise<EntityItem[]> {
   return data.entities;
 }
 
-export async function createEntity(name: string): Promise<EntityItem> {
+export async function createEntity(name: string, jurisdiction?: string): Promise<EntityItem> {
   const token = getAccessToken();
   if (!token) {
     throw new Error("Missing access token.");
@@ -41,7 +41,7 @@ export async function createEntity(name: string): Promise<EntityItem> {
       "Content-Type": "application/json",
       Authorization: `Bearer ${token}`,
     },
-    body: JSON.stringify({ name }),
+    body: JSON.stringify({ name, ...(jurisdiction ? { jurisdiction } : {}) }),
   });
   if (!response.ok) {
     throw new Error(`Failed to create entity: ${response.status}`);

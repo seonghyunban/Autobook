@@ -13,6 +13,7 @@ import { useEntity } from "../entity/EntityProvider";
 export function OnboardingPage() {
   const { refetch } = useEntity();
   const [name, setName] = useState("");
+  const [jurisdiction, setJurisdiction] = useState<"CA" | "KR">("CA");
   const [error, setError] = useState<string | null>(null);
   const [submitting, setSubmitting] = useState(false);
 
@@ -22,7 +23,7 @@ export function OnboardingPage() {
     setError(null);
     setSubmitting(true);
     try {
-      await createEntity(name.trim());
+      await createEntity(name.trim(), jurisdiction);
       await refetch();
     } catch (err) {
       setError(err instanceof Error ? err.message : "Failed to create organization.");
@@ -64,6 +65,33 @@ export function OnboardingPage() {
               />
             </div>
           </label>
+
+          <div style={fieldLabelStyle}>
+            Jurisdiction
+            <div style={{ display: "flex", gap: 6 }}>
+              {(["CA", "KR"] as const).map((code) => (
+                <button
+                  key={code}
+                  type="button"
+                  onClick={() => setJurisdiction(code)}
+                  style={{
+                    flex: 1,
+                    padding: "8px 0",
+                    border: "none",
+                    borderRadius: ROUND,
+                    fontSize: 13,
+                    fontWeight: 600,
+                    cursor: "pointer",
+                    transition: "background 0.15s ease, color 0.15s ease",
+                    background: jurisdiction === code ? palette.charcoalBrown : "rgba(204, 197, 185, 0.25)",
+                    color: jurisdiction === code ? palette.floralWhite : T.textSecondary,
+                  }}
+                >
+                  {code}
+                </button>
+              ))}
+            </div>
+          </div>
 
           <div style={footerStyle}>
             <PrimaryButton type="submit" size="sm" disabled={submitting || !name.trim()}>

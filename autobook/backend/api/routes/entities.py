@@ -27,6 +27,7 @@ class EntitiesResponse(BaseModel):
 
 class CreateEntityRequest(BaseModel):
     name: str
+    jurisdiction: str = "CA"
 
 
 def _to_item(e) -> EntityItem:
@@ -62,7 +63,7 @@ def create_entity(
     entity = EntityDAO.create(
         db,
         name=name,
-        jurisdiction="CA",
+        jurisdiction=body.jurisdiction,
         fiscal_year_end=date(date.today().year, 12, 31),
     )
     EntityMembershipDAO.create(
