@@ -1682,4 +1682,18 @@ input[type="file"].text-input::file-selector-button {
   flex-shrink: 0;
 }
 
+/* ── Jurisdiction toggle animation ── */
+@keyframes jurisdictionIn {
+  0% {
+    opacity: 0;
+    transform: translateY(6px);
+    filter: blur(3px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+    filter: blur(0);
+  }
+}
+
 /* LLM Interaction page styles moved to LLMInteractionPage.module.css */

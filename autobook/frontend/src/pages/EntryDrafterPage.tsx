@@ -12,8 +12,9 @@ import { MOTION, palette, T, panel, PanelHeader, HoverButton, PrimaryButton } fr
 
 // ── Reasoning panel ──────────────────────────────────────
 import {
-  ReasoningSection,
+  ReasoningStream,
   SECTION_ORDER,
+  buildFromTrace,
 } from "../components/panels/reasoning_panel";
 import type {
   EntryLineData,
@@ -31,15 +32,24 @@ import {
   REVIEW_SECTIONS,
   CorrectionSummaryContainer,
 } from "../components/panels/review_panel";
-import { DUMMY_ATTEMPTED_TRACE, EMPTY_ATTEMPTED_TRACE } from "../components/panels/dummyData";
+import { EMPTY_ATTEMPTED_TRACE } from "../components/panels/dummyData";
 import { TransactionDisplay } from "../components/panels/shared/TransactionDisplay";
 
 // ── Entry panel ──────────────────────────────────────────
 import { EntryTable, DecisionOverlay } from "../components/panels/entry_panel";
 
+const CURRENCY_SYMBOLS: Record<string, string> = {
+  CAD: "$", USD: "$", KRW: "₩", EUR: "€", GBP: "£", JPY: "¥", CNY: "¥",
+};
+
+function currencySymbol(entry: { currency?: string; currency_symbol?: string } | null | undefined): string {
+  if (!entry) return "";
+  return entry.currency_symbol || CURRENCY_SYMBOLS[entry.currency ?? ""] || "";
+}
 
 export function EntryDrafterPage() {
   useAutoSave();
+  const [jurisdiction, setJurisdiction] = useState<"CA" | "KR">("KR");
   const [inputText, setInputText] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -48,13 +58,18 @@ export function EntryDrafterPage() {
   // leaf can read it via selectors without prop drilling. Also read here for the
   // entry panel and decision overlay which are outside the modal.
   const agentResult = useLLMInteractionStore((st) => st.attempted);
+  const visibleSections = agentResult.decision === "PROCEED" || !agentResult.decision
+    ? REVIEW_SECTIONS
+    : REVIEW_SECTIONS.filter((s) => s.key === "transaction_analysis" || s.key === "ambiguity" || s.key === "summary");
   const [overlayVisible, setOverlayVisible] = useState(false);
   const [showReviewModal, setShowReviewModal] = useState(false);
   const [reviewModalVisible, setReviewModalVisible] = useState(false);
   const [showReviewHelp, setShowReviewHelp] = useState(false);
   const [reviewStep, setReviewStep] = useState(0);
+  const [submitting, setSubmitting] = useState(false);
+  const [submitted, setSubmitted] = useState(false);
   const [windowResizing, setWindowResizing] = useState(false);
-  const [showReasoning, setShowReasoning] = useState(true);
+  const showReasoning = true;
   const [reasoningWidth, setReasoningWidth] = useState(320);
   const [reasoningFullscreen, setReasoningFullscreen] = useState(false);
   const [reasoningFullscreenAnimating, setReasoningFullscreenAnimating] = useState(false);
@@ -67,23 +82,14 @@ export function EntryDrafterPage() {
   const mainContentRef = useRef<HTMLDivElement>(null);
   const parseIdRef = useRef<string | null>(null);
   const unsubRef = useRef<(() => void) | null>(null);
-
-  const dummyGraph = DUMMY_ATTEMPTED_TRACE.transaction_graph;
-
-  const initialReasoning = (): Record<SectionId, ReasoningChunk[]> => ({
-    normalization: dummyGraph ? [{
-      label: "Transaction analyzed",
-      done: true,
-      blocks: [{ type: "graph" as const, tag: "Transaction structure", graph: dummyGraph as import("../components/panels/reasoning_panel").GraphBlockData }],
-    }] : [],
-    ambiguity: [], gap: [], proceed: [], debit: [], credit: [], tax: [], entry: [],
-  });
+  const seqRef = useRef(0);
+  const doneSeqRef = useRef(0);
 
   const emptyReasoning = (): Record<SectionId, ReasoningChunk[]> => ({
     normalization: [], ambiguity: [], gap: [], proceed: [], debit: [], credit: [], tax: [], entry: [],
   });
 
-  const [reasoningSections, setReasoningSections] = useState<Record<SectionId, ReasoningChunk[]>>(initialReasoning);
+  const [reasoningSections, setReasoningSections] = useState<Record<SectionId, ReasoningChunk[]>>(emptyReasoning);
   const scrollTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   const entryScrollRef = useRef<HTMLDivElement>(null);
@@ -118,7 +124,7 @@ export function EntryDrafterPage() {
       case "chunk.create":
         setReasoningSections((prev) => ({
           ...prev,
-          [sid]: [...prev[sid], { label: label || "", done: false, blocks: [] }],
+          [sid]: [...prev[sid], { label: label || "", done: false, blocks: [], seq: seqRef.current++ }],
         }));
         break;
 
@@ -127,7 +133,7 @@ export function EntryDrafterPage() {
         break;
 
       case "chunk.done":
-        updateLastChunk(sid, (c) => ({ ...c, done: true, ...(label ? { label } : {}) }));
+        updateLastChunk(sid, (c) => ({ ...c, done: true, doneSeq: doneSeqRef.current++, ...(label ? { label } : {}) }));
         break;
 
       case "block.collapsible":
@@ -255,6 +261,15 @@ export function EntryDrafterPage() {
     return () => { unsubRef.current?.(); };
   }, []);
 
+  // ── Rebuild reasoning from store if SSE data was lost (navigation) ──
+  useEffect(() => {
+    const allEmpty = SECTION_ORDER.every((id) => reasoningSections[id].length === 0);
+    const hasData = agentResult.output_entry_drafter?.lines?.length || agentResult.output_decision_maker;
+    if (allEmpty && hasData) {
+      setReasoningSections(buildFromTrace(agentResult));
+    }
+  }, [agentResult]);
+
   async function handleSubmit() {
     const trimmed = inputText.trim();
     if (!trimmed) return;
@@ -264,6 +279,8 @@ export function EntryDrafterPage() {
     // Wipe both attempted and corrected atomically via the store
     useLLMInteractionStore.getState().resetAll(EMPTY_ATTEMPTED_TRACE, null);
     setOverlayVisible(false);
+    seqRef.current = 0;
+    doneSeqRef.current = 0;
     setReasoningSections(emptyReasoning());
 
     // Unsubscribe previous
@@ -303,7 +320,7 @@ export function EntryDrafterPage() {
       });
 
       // Submit AFTER subscription is active
-      const response = await submitLLMInteraction(parseId, trimmed);
+      const response = await submitLLMInteraction(parseId, trimmed, jurisdiction);
       setResult(response);
     } catch (err) {
       setError(err instanceof Error ? err.message : "Request failed");
@@ -373,23 +390,11 @@ export function EntryDrafterPage() {
                   >
                     Review & Correct
                   </HoverButton>
-                  <HoverButton
-                    type="button"
-                    bgHover={palette.silver}
-                    color={T.textSecondary}
-                    colorHover={palette.carbonBlack}
-                    borderColor={T.inputBorder}
-                    borderColorHover={palette.silver}
-                    onClick={() => setShowReasoning((v) => !v)}
-                    style={{ padding: "6px 14px", borderRadius: T.buttonRadius, fontSize: 12, fontWeight: 600 }}
-                  >
-                    {showReasoning ? "Hide Reasoning" : "Show Reasoning"}
-                  </HoverButton>
                 </div>
               </div>
               <div style={{ display: "flex", flexDirection: "column", gap: 16, flex: 1, minHeight: 0 }}>
                 <div style={{ flex: 1, minHeight: 0, display: "flex", flexDirection: "column" }}>
-                  <EntryTable lines={agentResult.output_entry_drafter?.lines || []} currencySymbol={agentResult.output_entry_drafter?.currency_symbol || ""} scrollable minRows={12} showAccountCode rowAppearAnimation scrollRef={entryScrollRef} />
+                  <EntryTable lines={agentResult.output_entry_drafter?.lines || []} currencySymbol={currencySymbol(agentResult.output_entry_drafter)} scrollable minRows={12} showAccountCode rowAppearAnimation scrollRef={entryScrollRef} />
                 </div>
               </div>
               {(agentResult.decision === "MISSING_INFO" || agentResult.decision === "STUCK") && (
@@ -435,7 +440,47 @@ export function EntryDrafterPage() {
                     fontFamily: "inherit",
                   }}
                 />
-                <div style={{ display: "flex", justifyContent: "flex-end", gap: 8, padding: 12, height: 50, boxSizing: "border-box", alignItems: "center" }}>
+                <div style={{ display: "flex", justifyContent: "space-between", gap: 8, padding: 12, height: 50, boxSizing: "border-box", alignItems: "center" }}>
+                  <button
+                    type="button"
+                    onClick={() => setJurisdiction((j) => j === "CA" ? "KR" : "CA")}
+                    style={{
+                      display: "flex",
+                      alignItems: "flex-end",
+                      gap: 4,
+                      background: "none",
+                      border: "none",
+                      cursor: "pointer",
+                      padding: 0,
+                    }}
+                  >
+                    <span style={{
+                      position: "relative",
+                      display: "inline-flex",
+                      alignItems: "center",
+                      justifyContent: "center",
+                      width: 28,
+                      height: 20,
+                      fontSize: 11,
+                      fontWeight: 600,
+                      color: palette.floralWhite,
+                      background: palette.charcoalBrown,
+                      padding: "0 4px",
+                      borderRadius: 6,
+                      overflow: "hidden",
+                    }}>
+                      <span
+                        key={jurisdiction}
+                        style={{
+                          display: "inline-block",
+                          animation: "jurisdictionIn 0.25s ease",
+                        }}
+                      >
+                        {jurisdiction}
+                      </span>
+                    </span>
+                    <span style={{ fontSize: 10, color: T.textSecondary, opacity: 0.6 }}>Jurisdiction</span>
+                  </button>
                   <PrimaryButton
                     size="md"
                     disabled={loading || !inputText.trim()}
@@ -574,13 +619,7 @@ export function EntryDrafterPage() {
                 gap: 24,
               }}
             >
-              {SECTION_ORDER.map((id) =>
-                reasoningSections[id].length > 0 ? (
-                  <div key={id} data-section={id}>
-                    <ReasoningSection chunks={reasoningSections[id]} graphLayoutVersion={graphLayoutVersion} />
-                  </div>
-                ) : null
-              )}
+              <ReasoningStream sections={reasoningSections} graphLayoutVersion={graphLayoutVersion} />
             </div>
           </div>
         </section>
@@ -643,7 +682,7 @@ export function EntryDrafterPage() {
                 </HoverButton>
               </div>
               <div style={{ display: "flex", justifyContent: "center", alignItems: "center", gap: 6 }}>
-                <h3 style={{ margin: 0, fontSize: 14, fontWeight: 600, color: T.textPrimary }}>{REVIEW_SECTIONS[reviewStep].title}</h3>
+                <h3 style={{ margin: 0, fontSize: 14, fontWeight: 600, color: T.textPrimary }}>{visibleSections[reviewStep].title}</h3>
                 <button
                   className={s.buttonTransition}
                   onClick={() => setShowReviewHelp((v) => !v)}
@@ -701,15 +740,9 @@ export function EntryDrafterPage() {
                 so local state + scroll position persist across step changes. Each
                 panel has its own scrollable container so per-tab scrollTop is
                 retained natively by the browser. */}
-            {([
-              <TransactionAnalysisContainer key="0" />,
-              <AmbiguityReviewContainer key="1" />,
-              <TaxReviewContainer key="2" />,
-              <FinalEntryReviewContainer key="3" />,
-              <CorrectionSummaryContainer key="4" />,
-            ]).map((panel, i) => (
+            {visibleSections.map((sec, i) => (
               <div
-                key={i}
+                key={sec.key}
                 className={s.scrollable}
                 style={{
                   flex: 1,
@@ -721,7 +754,11 @@ export function EntryDrafterPage() {
                   gap: 24,
                 }}
               >
-                {panel}
+                {sec.key === "transaction_analysis" && <TransactionAnalysisContainer />}
+                {sec.key === "ambiguity" && <AmbiguityReviewContainer />}
+                {sec.key === "tax" && <TaxReviewContainer />}
+                {sec.key === "final_entry" && <FinalEntryReviewContainer />}
+                {sec.key === "summary" && <CorrectionSummaryContainer />}
               </div>
             ))}
 
@@ -736,7 +773,7 @@ export function EntryDrafterPage() {
               <div style={{ width: 160 }} />
               {/* Progress dots */}
               <div style={{ flex: 1, display: "flex", justifyContent: "center", gap: 12 }}>
-                {REVIEW_SECTIONS.map((sec, i) => (
+                {visibleSections.map((sec, i) => (
                   <div
                     key={sec.key}
                     className={s.buttonTransition}
@@ -765,23 +802,33 @@ export function EntryDrafterPage() {
                 )}
                 <PrimaryButton
                   size="sm"
+                  disabled={submitting || submitted}
                   onClick={async () => {
-                    if (reviewStep < REVIEW_SECTIONS.length - 1) {
+                    if (reviewStep < visibleSections.length - 1) {
                       setReviewStep((s) => s + 1);
                     } else {
                       const did = useLLMInteractionStore.getState().draftId;
                       if (did) {
+                        setSubmitting(true);
                         try {
                           await submitCorrection(did);
-                          closeReviewModal();
+                          setSubmitted(true);
+                          setTimeout(() => setSubmitted(false), 2000);
                         } catch (err) {
                           console.error("Submit correction failed:", err);
+                        } finally {
+                          setSubmitting(false);
                         }
                       }
                     }
                   }}
                 >
-                  {reviewStep === REVIEW_SECTIONS.length - 1 ? "Submit" : "Next"}
+                  {(() => {
+                    const label = reviewStep === visibleSections.length - 1
+                      ? (submitting ? "Submitting…" : submitted ? "Submitted" : "Submit")
+                      : "Next";
+                    return <span key={label} style={{ display: "inline-block", animation: "jurisdictionIn 0.25s ease" }}>{label}</span>;
+                  })()}
                 </PrimaryButton>
               </div>
             </div>

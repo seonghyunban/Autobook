@@ -43,6 +43,7 @@ def llm_interaction(
             entity_id=str(entity_id),
             transaction_id=str(transaction.id),
             live_review=True,
+            jurisdiction=body.jurisdiction,
         )
     except Exception:
         logger.exception("LLM interaction enqueue failed")

@@ -22,6 +22,9 @@ from queues.pubsub import pub
 from queues.sqs import client as sqs_client
 from queues.sqs.enqueue import agent as enqueue_agent
 from services.normalization.service import normalize, normalize_stream
+from vectordb.client import get_qdrant_client
+from vectordb.collections import NORMALIZER_CORRECTIONS
+from vectordb.memory import QdrantMemory
 
 logging.basicConfig(level=logging.INFO, format="%(asctime)s %(name)s %(levelname)s %(message)s")
 logger = logging.getLogger("normalization")
@@ -29,6 +32,10 @@ logger = logging.getLogger("normalization")
 settings = get_settings()
 QUEUE_URL = settings.SQS_QUEUE_NORMALIZATION
 MAX_THREADS = 4
+
+# Module-level: Qdrant client + population memory (created once on startup)
+_qdrant = get_qdrant_client()
+_normalizer_pop = QdrantMemory(_qdrant, NORMALIZER_CORRECTIONS, entity_id=None)
 
 _shutdown = threading.Event()
 
@@ -93,12 +100,33 @@ def process_message(message: dict) -> None:
     try:
         pub.stage_started(parse_id=parse_id, user_id=user_id, stage="normalization")
 
+        # RAG read: localized (per-entity) + population (all entities)
+        if live_review:
+            pub.agent_stream(parse_id=parse_id, user_id=user_id, chunk={
+                "action": "chunk.create", "section": "normalization",
+                "label": "Recalling past similar transactions",
+            })
+        local_mem = QdrantMemory(_qdrant, NORMALIZER_CORRECTIONS, entity_id=entity_id)
+        local_hits = local_mem.read(input_text)
+        _local_ids = {h.get("draft_id") for h in local_hits if h.get("draft_id")}
+        pop_hits = [h for h in _normalizer_pop.read(input_text) if h.get("draft_id") not in _local_ids]
+        if live_review:
+            n = len(local_hits) + len(pop_hits)
+            pub.agent_stream(parse_id=parse_id, user_id=user_id, chunk={
+                "action": "block.text", "section": "normalization",
+                "text": f"Found {n} similar transaction{'s' if n != 1 else ''}",
+            })
+            pub.agent_stream(parse_id=parse_id, user_id=user_id, chunk={
+                "action": "chunk.done", "section": "normalization",
+                "label": "Recalled past similar transactions" if n > 0 else "Novel transaction",
+            })
+
         if live_review:
             def publish(chunk: dict):
                 pub.agent_stream(parse_id=parse_id, user_id=user_id, chunk=chunk)
-            graph = normalize_stream(input_text, context, publish)
+            graph = normalize_stream(input_text, context, publish, local_hits=local_hits, pop_hits=pop_hits)
         else:
-            graph = normalize(input_text, context)
+            graph = normalize(input_text, context, local_hits=local_hits, pop_hits=pop_hits)
 
         draft_id, graph_id = _persist_graph(entity_id, transaction_id, graph)
 
@@ -114,6 +142,8 @@ def process_message(message: dict) -> None:
             "source": "llm_interaction",
             "streaming": message.get("streaming", True),
             "live_review": live_review,
+            "jurisdiction": message.get("jurisdiction"),
+            "rag_normalizer_hits": local_hits + pop_hits,
         })
 
         logger.info("Normalized and enqueued to agent: %s (draft=%s)", parse_id, draft_id)

@@ -26,6 +26,7 @@ def enqueue(
     transaction_id: str,
     live_review: bool = False,
     user_context: dict | None = None,
+    jurisdiction: str | None = None,
 ) -> dict:
     """Enqueue to normalization worker, return parse_id."""
     message = {
@@ -38,6 +39,7 @@ def enqueue(
         "source": "llm_interaction",
         "streaming": True,
         "live_review": live_review,
+        "jurisdiction": jurisdiction,
     }
 
     send(settings.SQS_QUEUE_NORMALIZATION, message)
