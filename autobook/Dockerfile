@@ -48,6 +48,8 @@ RUN --mount=type=cache,target=/root/.cache/uv \
 
 COPY backend/api/ backend/api/
 COPY backend/services/llm_interaction/ backend/services/llm_interaction/
+COPY backend/services/resolution/ backend/services/resolution/
+COPY backend/ripple_through/ backend/ripple_through/
 USER app
 EXPOSE 8000
 CMD ["uvicorn", "api.main:app", "--host", "0.0.0.0", "--port", "8000"]

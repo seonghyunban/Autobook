@@ -16,6 +16,22 @@ from queues.pubsub.client import get_redis
 async def lifespan(app: FastAPI):
     settings = get_settings()
     app.state.redis = await get_redis(settings.REDIS_URL)
+
+    # ── Qdrant + human tier for correction resolution ──
+    from ripple_through import Tier
+    from vectordb.client import get_qdrant_client
+    from vectordb.collections import NORMALIZER_CORRECTIONS, AGENT_CORRECTIONS
+    from vectordb.memory import QdrantMemory
+    from services.resolution.upstreams import NormalizerUpstream, AgentUpstream
+
+    qdrant = get_qdrant_client()
+    app.state.human_tier = Tier(
+        upstream=[
+            NormalizerUpstream(QdrantMemory(qdrant, NORMALIZER_CORRECTIONS)),
+            AgentUpstream(QdrantMemory(qdrant, AGENT_CORRECTIONS)),
+        ],
+    )
+
     yield
     await app.state.redis.aclose()
 

@@ -29,6 +29,7 @@ api = [
     "cognitojwt>=1.4,<2",
     "websockets>=12,<14",
     "httpx>=0.28,<1",
+    "qdrant-client>=1.12,<2",
 ]
 agent = [  # LangGraph LLM pipeline (tier 3)
     "langgraph>=0.2,<1",

@@ -8,7 +8,7 @@ _MODEL_ID = "global.cohere.embed-v4:0"
 _bedrock = boto3.client("bedrock-runtime", region_name=get_settings().AWS_DEFAULT_REGION)
 
 
-def embed_text(text: str, input_type: str = "search_query") -> list[float]:
+def embed_text(text: str, *, input_type: str) -> list[float]:
     """Embed a single text string via Cohere Embed v4 on Bedrock.
 
     Args:
@@ -22,7 +22,7 @@ def embed_text(text: str, input_type: str = "search_query") -> list[float]:
     return embed_texts([text], input_type=input_type)[0]
 
 
-def embed_texts(texts: list[str], input_type: str = "search_query") -> list[list[float]]:
+def embed_texts(texts: list[str], *, input_type: str) -> list[list[float]]:
     """Embed a batch of texts via Cohere Embed v4 on Bedrock.
 
     Args:

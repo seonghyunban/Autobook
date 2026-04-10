@@ -81,6 +81,7 @@ api = [
     { name = "fastapi" },
     { name = "httpx" },
     { name = "python-multipart" },
+    { name = "qdrant-client" },
     { name = "uvicorn" },
     { name = "websockets" },
 ]
@@ -120,6 +121,7 @@ requires-dist = [
     { name = "pydantic-settings", specifier = ">=2.0,<3" },
     { name = "python-multipart", marker = "extra == 'api'", specifier = ">=0.0.18,<1" },
     { name = "qdrant-client", marker = "extra == 'agent'", specifier = ">=1.12,<2" },
+    { name = "qdrant-client", marker = "extra == 'api'", specifier = ">=1.12,<2" },
     { name = "qdrant-client", marker = "extra == 'flywheel'", specifier = ">=1.12,<2" },
     { name = "redis", specifier = ">=5.0,<6" },
     { name = "sqlalchemy", specifier = ">=2.0,<3" },
