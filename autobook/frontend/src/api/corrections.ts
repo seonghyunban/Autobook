@@ -13,6 +13,7 @@ function headers(): Record<string, string> {
 }
 
 export type CorrectionPatch = {
+  // Trace fields
   decision_kind?: string | null;
   decision_rationale?: string | null;
   tax_classification?: string | null;
@@ -25,8 +26,30 @@ export type CorrectionPatch = {
   note_ambiguity?: string | null;
   note_tax?: string | null;
   note_entry?: string | null;
+  // Entry
   entry_reason?: string | null;
-  lines?: { account_code: string; account_name: string; type: string; amount: number; currency?: string }[] | null;
+  lines?: { account_code: string; account_name: string; type: string; amount: number; currency: string }[] | null;
+  // Graph
+  graph?: {
+    nodes: { index: number; name: string; role: string }[];
+    edges: { source_index: number; target_index: number; nature: string; kind: string; amount: number | null; currency: string | null }[];
+  } | null;
+  // Ambiguities
+  ambiguities?: {
+    aspect: string;
+    ambiguous: boolean;
+    conventional_default?: string | null;
+    ifrs_default?: string | null;
+    clarification_question?: string | null;
+    cases: { case_text: string; proposed_entry_json?: Record<string, unknown> | null }[];
+  }[] | null;
+  // Classifications
+  classifications?: {
+    account_name: string;
+    type: string;
+    direction: string;
+    taxonomy: string;
+  }[] | null;
 };
 
 export async function patchCorrection(draftId: string, patch: CorrectionPatch): Promise<void> {
