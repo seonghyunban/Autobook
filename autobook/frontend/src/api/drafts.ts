@@ -16,6 +16,7 @@ export type DraftDetail = {
   id: string;
   transaction_id: string;
   raw_text: string;
+  jurisdiction: string | null;
   created_at: string;
   graph: {
     nodes: { index: number; name: string; role: string }[];
@@ -75,6 +76,9 @@ export type DraftDetail = {
     note_ambiguity: string | null;
     note_tax: string | null;
     note_entry: string | null;
+    classifier_output: { debit: Record<string, unknown[]>; credit: Record<string, unknown[]> } | null;
+    complexity_flags: unknown[] | null;
+    rag_hits: { normalizer: unknown[]; local: unknown[]; pop: unknown[] } | null;
     ambiguities: {
       id: string;
       aspect: string;

@@ -76,6 +76,7 @@ function detailToTrace(detail: DraftDetail): AgentAttemptedTrace {
               possible_entry: c.proposed_entry_json ?? undefined,
             })),
           })),
+          complexity_flags: attempt.complexity_flags ?? [],
         }
       : null,
     output_tax_specialist: attempt
@@ -102,15 +103,15 @@ function detailToTrace(detail: DraftDetail): AgentAttemptedTrace {
           })),
         }
       : null,
-    output_debit_classifier: null,
-    output_credit_classifier: null,
+    output_debit_classifier: attempt?.classifier_output?.debit ?? null,
+    output_credit_classifier: attempt?.classifier_output?.credit ?? null,
     decision: (attempt?.decision_kind as "PROCEED" | "MISSING_INFO" | "STUCK") ?? null,
     debit_relationship: {},
     credit_relationship: {},
-    rag_normalizer_hits: [],
-    rag_local_hits: [],
-    rag_pop_hits: [],
-    jurisdiction: null,
+    rag_normalizer_hits: attempt?.rag_hits?.normalizer ?? [],
+    rag_local_hits: attempt?.rag_hits?.local ?? [],
+    rag_pop_hits: attempt?.rag_hits?.pop ?? [],
+    jurisdiction: detail.jurisdiction ?? null,
   };
 }
 

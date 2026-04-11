@@ -120,6 +120,7 @@ class DraftDetailResponse(BaseModel):
     id: str
     transaction_id: str
     raw_text: str
+    jurisdiction: str | None = None
     created_at: str
     graph: GraphOut | None
     entry: EntryOut | None
@@ -340,6 +341,7 @@ def get_draft(
         id=str(draft.id),
         transaction_id=str(draft.transaction_id),
         raw_text=transaction.raw_text if transaction else "",
+        jurisdiction=draft.jurisdiction,
         created_at=draft.created_at.isoformat(),
         graph=graph_out,
         entry=entry_out,

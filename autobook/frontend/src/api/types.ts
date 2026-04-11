@@ -314,6 +314,7 @@ export type DecisionOutput = {
   decision: DecisionKind;
   rationale: string;
   ambiguities?: AmbiguityOutput[];
+  complexity_flags?: unknown[];
 };
 
 // ── Tax specialist output ───────────────────────────────
