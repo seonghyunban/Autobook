@@ -108,10 +108,12 @@ function FanOutArrowOverlay({ bodyHeight, sourceY, targetYs }: {
             d={d}
             fill="none"
             stroke={palette.charcoalBrown}
-            strokeWidth={1.2}
+            strokeWidth={1.5}
             strokeDasharray="4 3"
-            opacity={0.5}
-          />
+            opacity={0.7}
+          >
+            <animate attributeName="stroke-dashoffset" from="7" to="0" dur="0.6s" repeatCount="indefinite" />
+          </path>
         );
       })}
     </svg>
@@ -287,7 +289,6 @@ export function ValueFlowRow({ nodeIndex }: { nodeIndex: number }) {
 
   return (
     <div style={{ display: "flex", flexDirection: "column", gap: 4 }}>
-      <SectionSubheader style={{ fontSize: 10 }}>{node.name}</SectionSubheader>
       <div style={{
         background: SILVER_BG, borderRadius: 4, padding: "8px 10px",
         display: "flex", flexDirection: "column", gap: 8,
@@ -303,7 +304,7 @@ export function ValueFlowRow({ nodeIndex }: { nodeIndex: number }) {
               width: ARROW_DIRECTION_WIDTH, flexShrink: 0,
               display: "flex", flexDirection: "column", gap: 4,
             }}>
-              <div style={valueHeaderStyle}>Source</div>
+              <div style={{ display: "flex", alignItems: "flex-end", height: 24 }}><span style={valueHeaderStyle}>Source</span></div>
               <div style={{ flex: 1, display: "flex", alignItems: "center" }}>
                 <div ref={sourceRef} style={{ width: "100%" }}>
                   <ReviewTextField value={node.name} bg={{ display: sourceBg, editing: sourceBgEditing }} />

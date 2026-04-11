@@ -1,22 +1,19 @@
 /**
- * Single ambiguity item view — copied from review_panel/ReviewPanel.tsx AmbiguityItemView.
- * Renders attempted vs corrected for one ambiguity (by id).
+ * Single ambiguity fields — non-collapsible, shown as subsections.
+ * Aspect, Default Interpretation, Clarification are each a subsection.
  */
-import { useState } from "react";
-import { IoChevronDownSharp, IoChevronUpSharp } from "react-icons/io5";
 import { useDraftStore } from "../../store";
 import { palette, T } from "../../shared/tokens";
 import { ReviewTextField } from "../../shared/ReviewTextField";
 import { DeleteButton } from "../../shared/DeleteButton";
 import { AddButton } from "../../shared/AddButton";
 import { AmbiguitySubRow } from "../shared/AmbiguitySubRow";
-import { STATUS_VISUAL, type DiffStatus } from "../../review_panel/diff";
+import { ReviewSubsection } from "../shared/ReviewSubsection";
 import type { AmbiguityOutput } from "../../../../api/types";
+import type { DiffStatus } from "../../review_panel/diff";
 import s from "../../panels.module.css";
 
 export function AmbiguityFields({ id }: { id: string }) {
-  const [open, setOpen] = useState(false);
-
   const attempted = useDraftStore((st) =>
     st.attempted.output_decision_maker?.ambiguities?.find((a) => a.id === id)
   );
@@ -99,139 +96,131 @@ export function AmbiguityFields({ id }: { id: string }) {
 
   const displayAmb = attempted ?? corrected!;
   const editAmb = corrected ?? displayAmb;
-  const visual = STATUS_VISUAL[status];
   const corrTextColor = T.textPrimary;
 
   return (
-    <div style={{ display: "flex", flexDirection: "column", gap: 4 }}>
-      <div
-        className={s.buttonTransition}
-        onClick={() => setOpen((v) => !v)}
-        style={{
-          display: "flex", alignItems: "center", justifyContent: "center", gap: 6,
-          padding: "6px 10px", borderRadius: 4, cursor: "pointer",
-          color: palette.carbonBlack, fontSize: 10, fontWeight: 600, textTransform: "uppercase", letterSpacing: "0.05em",
-          background: open ? "rgba(204, 197, 185, 0.3)" : "transparent",
-        }}
-        onMouseEnter={(e) => { e.currentTarget.style.background = "rgba(204, 197, 185, 0.3)"; }}
-        onMouseLeave={(e) => { if (!open) e.currentTarget.style.background = "transparent"; }}
-      >
-        <span style={{ flex: 1 }}>Ambiguous aspect: {displayAmb.aspect || "(empty)"}</span>
-        <span style={{
-          fontSize: 9, fontWeight: 600, padding: "2px 8px", borderRadius: 10,
-          background: visual.bg, color: palette.carbonBlack,
-          textTransform: "uppercase", letterSpacing: "0.05em", flexShrink: 0,
-        }}>{visual.arrowLabel}</span>
-        <span style={{ fontSize: 12, display: "flex", flexShrink: 0 }}>
-          {open ? <IoChevronUpSharp /> : <IoChevronDownSharp />}
-        </span>
-      </div>
-      <div className={`${s.collapsibleWrapper} ${open ? s.collapsibleWrapperOpen : ""}`}>
-        <div className={s.collapsibleInner}>
-          <div className={s.collapsibleFade} style={{ display: "flex", flexDirection: "column", gap: 16, paddingTop: 12, paddingBottom: 12, opacity: isDisabled ? 0.5 : 1, transition: "opacity 0.15s ease" }}>
+    <div style={{ display: "flex", flexDirection: "column", gap: 24, opacity: isDisabled ? 0.5 : 1, transition: "opacity 0.15s ease" }}>
 
-            <AmbiguitySubRow label="Aspect" changed={aspectChanged} added={status === "added"} onReset={resetAspect}
-              attemptedContent={
-                <div style={{ display: "flex", flexDirection: "column", gap: 4 }}>
-                  <span style={T.fieldLabel}>Ambiguous aspect</span>
-                  <ReviewTextField value={displayAmb.aspect} />
-                </div>
-              }
-              correctedContent={
-                <div style={{ display: "flex", flexDirection: "column", gap: 4 }}>
-                  <span style={{ ...T.fieldLabel, color: corrTextColor }}>Ambiguous aspect</span>
-                  <ReviewTextField value={editAmb.aspect} onChange={setAspect} disabled={isDisabled} />
-                </div>
-              }
-            />
+      <ReviewSubsection title="Aspect" explanation="The ambiguous aspect identified in this transaction.">
+        <AmbiguitySubRow label="Aspect" changed={aspectChanged} added={status === "added"} onReset={resetAspect}
+          attemptedContent={
+            <div style={{ display: "flex", flexDirection: "column", gap: 4 }}>
+              <span style={T.fieldLabel}>Ambiguous aspect</span>
+              <ReviewTextField value={displayAmb.aspect} />
+            </div>
+          }
+          correctedContent={
+            <div style={{ display: "flex", flexDirection: "column", gap: 4 }}>
+              <span style={{ ...T.fieldLabel, color: corrTextColor }}>Ambiguous aspect</span>
+              <ReviewTextField value={editAmb.aspect} onChange={setAspect} disabled={isDisabled} />
+            </div>
+          }
+        />
+      </ReviewSubsection>
 
-            <AmbiguitySubRow label="Default Interpretation" changed={defaultsChanged} added={status === "added"} onReset={resetDefaults}
-              attemptedContent={<>
-                {displayAmb.input_contextualized_conventional_default && (
-                  <div style={{ display: "flex", flexDirection: "column", gap: 4 }}>
-                    <span style={T.fieldLabel}>Conventional default interpretation</span>
-                    <ReviewTextField value={displayAmb.input_contextualized_conventional_default} />
-                  </div>
-                )}
-                {displayAmb.input_contextualized_ifrs_default && (
-                  <div style={{ display: "flex", flexDirection: "column", gap: 4 }}>
-                    <span style={T.fieldLabel}>IFRS default interpretation</span>
-                    <ReviewTextField value={displayAmb.input_contextualized_ifrs_default} />
-                  </div>
-                )}
-              </>}
-              correctedContent={<>
-                <div style={{ display: "flex", flexDirection: "column", gap: 4 }}>
-                  <span style={{ ...T.fieldLabel, color: corrTextColor }}>Conventional default interpretation</span>
-                  <ReviewTextField value={editAmb.input_contextualized_conventional_default ?? ""} onChange={setConventional} emptyText="—" disabled={isDisabled} />
-                </div>
-                <div style={{ display: "flex", flexDirection: "column", gap: 4 }}>
-                  <span style={{ ...T.fieldLabel, color: corrTextColor }}>IFRS default interpretation</span>
-                  <ReviewTextField value={editAmb.input_contextualized_ifrs_default ?? ""} onChange={setIfrs} emptyText="—" disabled={isDisabled} />
-                </div>
-              </>}
-            />
+      <ReviewSubsection title="Default Interpretation" explanation="The conventional and IFRS default interpretations for this ambiguity, if there is any.">
+        <AmbiguitySubRow label="Default Interpretation" changed={defaultsChanged} added={status === "added"} onReset={resetDefaults}
+          attemptedContent={<>
+            <div style={{ display: "flex", flexDirection: "column", gap: 4 }}>
+              <span style={T.fieldLabel}>Conventional default interpretation</span>
+              <ReviewTextField value={displayAmb.input_contextualized_conventional_default ?? ""} />
+            </div>
+            <div style={{ display: "flex", flexDirection: "column", gap: 4 }}>
+              <span style={T.fieldLabel}>IFRS default interpretation</span>
+              <ReviewTextField value={displayAmb.input_contextualized_ifrs_default ?? ""} />
+            </div>
+          </>}
+          correctedContent={<>
+            <div style={{ display: "flex", flexDirection: "column", gap: 4 }}>
+              <span style={{ ...T.fieldLabel, color: corrTextColor }}>Conventional default interpretation</span>
+              <ReviewTextField value={editAmb.input_contextualized_conventional_default ?? ""} onChange={setConventional} emptyText="—" disabled={isDisabled} />
+            </div>
+            <div style={{ display: "flex", flexDirection: "column", gap: 4 }}>
+              <span style={{ ...T.fieldLabel, color: corrTextColor }}>IFRS default interpretation</span>
+              <ReviewTextField value={editAmb.input_contextualized_ifrs_default ?? ""} onChange={setIfrs} emptyText="—" disabled={isDisabled} />
+            </div>
+          </>}
+        />
+      </ReviewSubsection>
 
-            <AmbiguitySubRow label="Clarification" changed={clarificationChanged} added={status === "added"} onReset={resetClarification}
-              attemptedContent={<>
-                {displayAmb.clarification_question && (
-                  <div style={{ display: "flex", flexDirection: "column", gap: 4 }}>
-                    <span style={T.fieldLabel}>Clarification question</span>
-                    <ReviewTextField value={displayAmb.clarification_question} />
-                  </div>
-                )}
-                {displayAmb.cases && displayAmb.cases.length > 0 && (
-                  <div style={{ display: "flex", flexDirection: "column", gap: 4 }}>
-                    <span style={T.fieldLabel}>Possible cases</span>
-                    {displayAmb.cases.map((c, i) => (
-                      <div key={c.id || i} style={{ display: "flex", gap: 6, alignItems: "center" }}>
-                        <span style={{ ...T.fieldLabel, whiteSpace: "nowrap" }}>Case {i + 1}:</span>
-                        <ReviewTextField value={c.case} flex={1} />
-                      </div>
-                    ))}
-                  </div>
-                )}
-              </>}
-              correctedContent={<>
-                <div style={{ display: "flex", flexDirection: "column", gap: 4 }}>
-                  <span style={{ ...T.fieldLabel, color: corrTextColor }}>Clarification question</span>
-                  <ReviewTextField value={editAmb.clarification_question ?? ""} onChange={setQuestion} emptyText="—" disabled={isDisabled} />
+      <ReviewSubsection title="Clarification" explanation="The clarification question that will eliminate this ambiguity and possible cases.">
+        <AmbiguitySubRow label="Clarification" changed={clarificationChanged} added={status === "added"} onReset={resetClarification}
+          attemptedContent={<>
+            <div style={{ display: "flex", flexDirection: "column", gap: 4 }}>
+              <span style={T.fieldLabel}>Clarification question</span>
+              <ReviewTextField value={displayAmb.clarification_question ?? ""} />
+            </div>
+            <div style={{ display: "flex", flexDirection: "column", gap: 4 }}>
+              <span style={T.fieldLabel}>Possible cases</span>
+              {(displayAmb.cases ?? []).length > 0 ? displayAmb.cases!.map((c, i) => (
+                <div key={c.id || i} style={{ display: "flex", gap: 6, alignItems: "center" }}>
+                  <span style={{ ...T.fieldLabel, whiteSpace: "nowrap" }}>Case {i + 1}:</span>
+                  <ReviewTextField value={c.case} flex={1} />
                 </div>
-                <div style={{ display: "flex", flexDirection: "column", gap: 4 }}>
-                  <span style={{ ...T.fieldLabel, color: corrTextColor }}>Possible cases</span>
-                  {(editAmb.cases ?? []).map((c, i) => (
-                    <div key={c.id || i} style={{ display: "flex", gap: 6, alignItems: "center" }}>
-                      <span style={{ ...T.fieldLabel, whiteSpace: "nowrap" }}>Case {i + 1}:</span>
-                      <ReviewTextField value={c.case} onChange={(v) => updateCaseAt(i, v)} flex={1} disabled={isDisabled} />
-                      <DeleteButton onClick={() => removeCaseAt(i)} />
-                    </div>
-                  ))}
-                  <div style={{ display: "flex", justifyContent: "flex-end", marginTop: 4 }}>
-                    <AddButton onClick={addCase} title="Add case" />
-                  </div>
+              )) : (
+                <ReviewTextField value="" />
+              )}
+            </div>
+          </>}
+          correctedContent={<>
+            <div style={{ display: "flex", flexDirection: "column", gap: 4 }}>
+              <span style={{ ...T.fieldLabel, color: corrTextColor }}>Clarification question</span>
+              <ReviewTextField value={editAmb.clarification_question ?? ""} onChange={setQuestion} emptyText="—" disabled={isDisabled} />
+            </div>
+            <div style={{ display: "flex", flexDirection: "column", gap: 4 }}>
+              <span style={{ ...T.fieldLabel, color: corrTextColor }}>Possible cases</span>
+              {(editAmb.cases ?? []).map((c, i) => (
+                <div key={c.id || i} style={{ display: "flex", gap: 6, alignItems: "center" }}>
+                  <span style={{ ...T.fieldLabel, whiteSpace: "nowrap" }}>Case {i + 1}:</span>
+                  <ReviewTextField value={c.case} onChange={(v) => updateCaseAt(i, v)} flex={1} disabled={isDisabled} />
+                  <DeleteButton onClick={() => removeCaseAt(i)} />
                 </div>
-              </>}
-            />
-
-            {attempted && (
-              <div style={{ display: "flex", justifyContent: "flex-end" }}>
-                <button
-                  className={s.buttonTransition}
-                  onClick={handleToggleDisable}
-                  title="This transaction does not have the stated ambiguity"
-                  style={{
-                    background: "rgba(204, 197, 185, 0.15)", border: "none", borderRadius: 3,
-                    padding: "2px 8px", fontSize: 10, fontWeight: 600, color: palette.carbonBlack, cursor: "pointer",
-                  }}
-                  onMouseEnter={(e) => { e.currentTarget.style.background = "rgba(204, 197, 185, 0.25)"; }}
-                  onMouseLeave={(e) => { e.currentTarget.style.background = "rgba(204, 197, 185, 0.15)"; }}
-                >
-                  {isDisabled ? "Flagged as unambiguous" : "Flag as unambiguous"}
-                </button>
+              ))}
+              <div style={{ display: "flex", justifyContent: "flex-end", marginTop: 4 }}>
+                <AddButton onClick={addCase} title="Add case" />
               </div>
-            )}
-          </div>
-        </div>
+            </div>
+          </>}
+        />
+      </ReviewSubsection>
+
+      <div style={{ display: "flex", justifyContent: "flex-end" }}>
+        {attempted ? (
+          <button
+            className={s.buttonTransition}
+            onClick={handleToggleDisable}
+            title="This transaction does not have the stated ambiguity"
+            style={{
+              background: "rgba(204, 197, 185, 0.15)", border: "none", borderRadius: 3,
+              padding: "2px 8px", fontSize: 10, fontWeight: 600, color: palette.carbonBlack, cursor: "pointer",
+            }}
+            onMouseEnter={(e) => { e.currentTarget.style.background = "rgba(204, 197, 185, 0.25)"; }}
+            onMouseLeave={(e) => { e.currentTarget.style.background = "rgba(204, 197, 185, 0.15)"; }}
+          >
+            {isDisabled ? "Flagged as unambiguous" : "Flag as unambiguous"}
+          </button>
+        ) : (
+          <button
+            className={s.buttonTransition}
+            onClick={() => {
+              setCorrected((draft) => {
+                const ambs = draft.output_decision_maker?.ambiguities;
+                if (!ambs) return;
+                const idx = ambs.findIndex((a) => a.id === id);
+                if (idx >= 0) ambs.splice(idx, 1);
+              });
+            }}
+            title="Remove this ambiguity"
+            style={{
+              background: "rgba(235, 94, 40, 0.15)", border: "none", borderRadius: 3,
+              padding: "2px 8px", fontSize: 10, fontWeight: 600, color: palette.spicyPaprika, cursor: "pointer",
+            }}
+            onMouseEnter={(e) => { e.currentTarget.style.background = "rgba(235, 94, 40, 0.25)"; }}
+            onMouseLeave={(e) => { e.currentTarget.style.background = "rgba(235, 94, 40, 0.15)"; }}
+          >
+            Remove
+          </button>
+        )}
       </div>
     </div>
   );

@@ -7,5 +7,7 @@ export type NotesSectionKey = keyof HumanCorrectedTrace["notes"];
 export type SectionDef = {
   key: string;
   title: string;
-  component: React.ComponentType;
+  component: React.ComponentType<Record<string, unknown>>;
+  /** Optional props passed to the component. */
+  props?: Record<string, unknown>;
 };

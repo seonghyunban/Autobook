@@ -50,6 +50,7 @@ export function ReportingEntity() {
         <div style={{ flex: 1, display: "flex", flexDirection: "column", gap: 10, padding: "8px 10px", background: SILVER_BG, borderRadius: 4, minWidth: 0 }}>
           <div style={{ display: "flex", flexDirection: "column", gap: 4 }}>
             <span style={T.fieldLabel}>Reporting Entity</span>
+            <span style={{ fontSize: 10, color: T.textSecondary, lineHeight: 1.4 }}>The business recording this transaction.</span>
             <ReviewTextField value={attemptedName} bg={{ display: REPORTING_FIELD_BG, editing: REPORTING_FIELD_BG_EDITING }} />
           </div>
           <div style={{ height: 18 }} />
@@ -57,10 +58,11 @@ export function ReportingEntity() {
         <DashedArrow label={changed ? "Update" : "Keep"} color={changed ? palette.fern : palette.charcoalBrown} />
         <div style={{
           flex: 1, display: "flex", flexDirection: "column", gap: 10,
-          padding: "8px 10px", background: changed ? T.correctedItem : SILVER_BG, borderRadius: 4, minWidth: 0,
+          padding: "8px 10px", background: SILVER_BG, borderRadius: 4, minWidth: 0,
         }}>
           <div style={{ display: "flex", flexDirection: "column", gap: 4 }}>
             <span style={T.fieldLabel}>Reporting Entity</span>
+            <span style={{ fontSize: 10, color: T.textSecondary, lineHeight: 1.4 }}>The business recording this transaction.</span>
             <ReviewTextField value={correctedName} onChange={handleChange} bg={{ display: REPORTING_FIELD_BG, editing: REPORTING_FIELD_BG_EDITING }} />
           </div>
           <CorrectedActionBar muted={!changed} variant={changed ? "corrected" : "attempted"} actions={[

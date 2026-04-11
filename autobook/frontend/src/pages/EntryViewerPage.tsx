@@ -563,10 +563,10 @@ export function EntryViewerPage() {
 
             {/* Body */}
             {visibleSections.map((sec, i) => {
-              const Section = sec.component;
+              const Section = sec.component as React.ComponentType<Record<string, unknown>>;
               return (
                 <div key={sec.key} className={s.scrollable} style={{ flex: 1, overflowY: "auto", scrollbarGutter: "auto", padding: "20px", display: reviewStep === i ? "flex" : "none", flexDirection: "column", gap: 24 }}>
-                  <Section />
+                  <Section {...(sec.props ?? {})} />
                 </div>
               );
             })}

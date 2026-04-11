@@ -17,14 +17,8 @@ export function CorrectedActionBar({ actions, muted, variant = "corrected" }: {
   muted?: boolean;
   variant?: "attempted" | "corrected";
 }) {
-  const colors = {
-    attempted: { bg: "rgba(255, 165, 0, 0.15)", bgHover: "rgba(255, 165, 0, 0.25)" },
-    corrected: { bg: "rgba(144, 169, 85, 0.15)", bgHover: "rgba(144, 169, 85, 0.25)" },
-    muted: { bg: "rgba(204, 197, 185, 0.15)", bgHover: "rgba(204, 197, 185, 0.25)" },
-  };
-  const c = muted ? colors.muted : colors[variant];
-  const bg = c.bg;
-  const bgHover = c.bgHover;
+  const bg = "rgba(204, 197, 185, 0.2)";
+  const bgHover = "rgba(204, 197, 185, 0.3)";
   return (
     <div style={{ display: "flex", justifyContent: "flex-end", gap: 6 }}>
       {actions.map((a) => (

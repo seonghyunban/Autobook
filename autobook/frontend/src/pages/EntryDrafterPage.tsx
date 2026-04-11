@@ -718,7 +718,7 @@ export function EntryDrafterPage() {
                 panel has its own scrollable container so per-tab scrollTop is
                 retained natively by the browser. */}
             {visibleSections.map((sec, i) => {
-              const Section = sec.component;
+              const Section = sec.component as React.ComponentType<Record<string, unknown>>;
               return (
                 <div
                   key={sec.key}
@@ -733,7 +733,7 @@ export function EntryDrafterPage() {
                     gap: 24,
                   }}
                 >
-                  <Section />
+                  <Section {...(sec.props ?? {})} />
                 </div>
               );
             })}

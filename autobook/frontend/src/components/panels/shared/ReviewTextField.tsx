@@ -67,12 +67,16 @@ export function ReviewTextField({
 
   // Read-only (no onChange) or disabled: static display.
   if (!onChange || disabled) {
+    const isEmpty = !value;
     const className = disabled
       ? `${s.fieldHighlight} ${s.disabled}`
       : s.fieldDisplay;
     return (
-      <div className={className} style={wrapperStyle}>
-        {value || emptyText || ""}
+      <div className={className} style={{
+        ...wrapperStyle,
+        ...(isEmpty ? { opacity: 0.4, fontStyle: "italic" } : {}),
+      }}>
+        {value || emptyText || "n/a"}
       </div>
     );
   }

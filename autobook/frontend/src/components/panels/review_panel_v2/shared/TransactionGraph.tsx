@@ -7,18 +7,18 @@ import { ReviewSubsection } from "./ReviewSubsection";
 
 /**
  * Read-only transaction graph visualization.
- * Reads from attempted.transaction_graph in the store.
- * Used as header in PartiesSection and ValueFlowSection.
+ * Reads from corrected.transaction_graph so it always reflects
+ * the user's edits (renamed nodes, deleted parties, etc.).
  */
 export function TransactionGraph() {
-  const graph = useDraftStore((st) => st.attempted.transaction_graph);
+  const graph = useDraftStore((st) => st.corrected.transaction_graph);
   const graphData: GraphData | null = useMemo(
     () => graph ? toGraphData(graph as Parameters<typeof toGraphData>[0]) : null,
     [graph],
   );
 
   return (
-    <ReviewSubsection title="Transaction Structure" gap={16}>
+    <ReviewSubsection title="Transaction Structure" explanation="Parties and value flows identified in this transaction." gap={16}>
       <div style={{ width: "100%", height: 350, borderRadius: 8, overflow: "hidden" }}>
         {graphData ? (
           <ForceGraph data={graphData} />

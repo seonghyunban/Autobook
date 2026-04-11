@@ -14,8 +14,9 @@ const SILVER_BG = "rgba(204, 197, 185, 0.2)";
 const DIRECT_FIELD_BG = roleFieldBg("counterparty");
 const DIRECT_FIELD_BG_EDITING = roleFieldBgEditing("counterparty");
 
-function PartyListSubsection({ label, parties, fieldBg, fieldBgEditing, onChange, onDelete, onAdd }: {
+function PartyListSubsection({ label, description, parties, fieldBg, fieldBgEditing, onChange, onDelete, onAdd }: {
   label: string;
+  description?: string;
   parties: string[];
   fieldBg: React.CSSProperties;
   fieldBgEditing: React.CSSProperties;
@@ -26,6 +27,7 @@ function PartyListSubsection({ label, parties, fieldBg, fieldBgEditing, onChange
   return (
     <div style={{ display: "flex", flexDirection: "column", gap: 4 }}>
       <span style={T.fieldLabel}>{label}</span>
+      {description && <span style={{ fontSize: 10, color: T.textSecondary, lineHeight: 1.4 }}>{description}</span>}
       {parties.map((name, i) => (
         <div key={i} style={{ display: "flex", gap: 6, alignItems: "center" }}>
           <ReviewTextField value={name} onChange={(v) => onChange(i, v)} bg={{ display: fieldBg, editing: fieldBgEditing }} flex={1} />
@@ -126,12 +128,12 @@ export function PartiesList() {
 
   return (
     <>
-      <AttemptedCorrectedLabels />
       {/* Direct Parties */}
       <div style={{ display: "flex", gap: 0, alignItems: "stretch" }}>
         <div style={{ flex: 1, display: "flex", flexDirection: "column", gap: 16, padding: "8px 10px", background: SILVER_BG, borderRadius: 4, minWidth: 0 }}>
           <div style={{ display: "flex", flexDirection: "column", gap: 4 }}>
             <span style={T.fieldLabel}>Direct Parties</span>
+            <span style={{ fontSize: 10, color: T.textSecondary, lineHeight: 1.4 }}>Counterparties directly exchanging value with the reporting entity.</span>
             {attemptedDirect.length > 0 ? attemptedDirect.map((n, i) => (
               <ReviewTextField key={i} value={n.name} bg={{ display: DIRECT_FIELD_BG, editing: DIRECT_FIELD_BG_EDITING }} />
             )) : (
@@ -143,10 +145,11 @@ export function PartiesList() {
         <DashedArrow label={directChanged ? "Update" : "Keep"} color={directChanged ? palette.fern : palette.charcoalBrown} />
         <div style={{
           flex: 1, display: "flex", flexDirection: "column", gap: 16,
-          padding: "8px 10px", background: directChanged ? T.correctedItem : SILVER_BG, borderRadius: 4, minWidth: 0,
+          padding: "8px 10px", background: SILVER_BG, borderRadius: 4, minWidth: 0,
         }}>
           <PartyListSubsection
             label="Direct Parties"
+            description="Counterparties directly exchanging value with the reporting entity."
             parties={correctedDirect}
             fieldBg={DIRECT_FIELD_BG}
             fieldBgEditing={DIRECT_FIELD_BG_EDITING}
@@ -165,6 +168,7 @@ export function PartiesList() {
         <div style={{ flex: 1, display: "flex", flexDirection: "column", gap: 16, padding: "8px 10px", background: SILVER_BG, borderRadius: 4, minWidth: 0 }}>
           <div style={{ display: "flex", flexDirection: "column", gap: 4 }}>
             <span style={T.fieldLabel}>Indirect Parties</span>
+            <span style={{ fontSize: 10, color: T.textSecondary, lineHeight: 1.4 }}>Third parties involved but not directly exchanging value.</span>
             {attemptedIndirect.length > 0 ? attemptedIndirect.map((n, i) => (
               <ReviewTextField key={i} value={n.name} />
             )) : (
@@ -176,10 +180,11 @@ export function PartiesList() {
         <DashedArrow label={indirectChanged ? "Update" : "Keep"} color={indirectChanged ? palette.fern : palette.charcoalBrown} />
         <div style={{
           flex: 1, display: "flex", flexDirection: "column", gap: 16,
-          padding: "8px 10px", background: indirectChanged ? T.correctedItem : SILVER_BG, borderRadius: 4, minWidth: 0,
+          padding: "8px 10px", background: SILVER_BG, borderRadius: 4, minWidth: 0,
         }}>
           <PartyListSubsection
             label="Indirect Parties"
+            description="Third parties involved but not directly exchanging value."
             parties={correctedIndirect}
             fieldBg={T.fieldBg}
             fieldBgEditing={T.fieldBgEditing}

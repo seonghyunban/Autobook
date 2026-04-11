@@ -19,13 +19,12 @@ export function AmbiguitySubRow({ label, attemptedContent, correctedContent, cha
 
   return (
     <div style={{ display: "flex", flexDirection: "column", gap: 4 }}>
-      <SectionSubheader style={{ fontSize: 10 }}>{label}</SectionSubheader>
       <AttemptedCorrectedLabels />
       <div style={{ display: "flex", gap: 0, alignItems: "stretch" }}>
         {added ? (
           <EmptyBox style={{ flex: 1 }} />
         ) : (
-          <div style={{ flex: 1, display: "flex", flexDirection: "column", gap: 10, padding: "8px 10px", background: T.attemptedItem, borderRadius: 4, minWidth: 0 }}>
+          <div style={{ flex: 1, display: "flex", flexDirection: "column", gap: 10, padding: "8px 10px", background: "rgba(204, 197, 185, 0.2)", borderRadius: 4, minWidth: 0 }}>
             {attemptedContent}
             <div style={{ height: 18 }} />
           </div>
@@ -33,8 +32,7 @@ export function AmbiguitySubRow({ label, attemptedContent, correctedContent, cha
         <DashedArrow label={visual.arrowLabel} color={visual.arrowColor} />
         <div style={{
           flex: 1, display: "flex", flexDirection: "column", gap: 10,
-          padding: "8px 10px", background: changed || added ? T.correctedItem : T.attemptedItem, borderRadius: 4, minWidth: 0,
-          transition: "background 0.15s ease",
+          padding: "8px 10px", background: "rgba(204, 197, 185, 0.2)", borderRadius: 4, minWidth: 0,
         }}>
           {correctedContent}
           <CorrectedActionBar variant={changed ? "corrected" : "attempted"} actions={[
