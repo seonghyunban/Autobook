@@ -27,6 +27,7 @@ class Settings(BaseSettings):
         "http://localhost:5173",
         "https://autobook.tech",
         "https://www.autobook.tech",
+        "https://autobooktech.netlify.app",
     ]
     AUTO_POST_THRESHOLD: float = 0.95  # confidence >= this → auto-post
     ML_INFERENCE_PROVIDER: str = "heuristic"
