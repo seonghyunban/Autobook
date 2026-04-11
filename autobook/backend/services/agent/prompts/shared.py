@@ -56,7 +56,7 @@ def build_shared_instruction(jurisdiction_config=None) -> str:
     domain_text = rules.get("prompt_text", "")
 
     # Jurisdiction-specific pipeline (dynamic taxonomy)
-    from services.agent.utils.taxonomy import extract_l4_by_category
+    from utils.taxonomy import extract_l4_by_category
     lang = jurisdiction_config.language_key
     taxonomy_text = _render_taxonomy(jurisdiction_config.taxonomy_tree, lang)
 

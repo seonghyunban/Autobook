@@ -88,7 +88,7 @@ def entry_drafter_node(state: PipelineState, config: RunnableConfig) -> dict:
     # Account name suggestions from jurisdiction taxonomy
     from services.agent.utils.prompt.account_names import render_account_names
     from services.agent.utils.prompt.tax_context import render_tax_jurisdiction
-    from services.agent.utils.taxonomy import extract_classified_categories
+    from utils.taxonomy import extract_classified_categories
     jc = config.get("configurable", {}).get("jurisdiction_config")
     classified_cats = extract_classified_categories(state)
     account_names = render_account_names(classified_cats, jc)

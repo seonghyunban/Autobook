@@ -9,7 +9,7 @@ from typing import Literal
 
 from pydantic import BaseModel, Field, create_model
 
-from services.agent.utils.taxonomy import extract_l4_by_category
+from utils.taxonomy import extract_l4_by_category
 
 # ── Cache ─────────────────────────────────────────────────
 
