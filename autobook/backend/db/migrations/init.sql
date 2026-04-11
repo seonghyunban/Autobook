@@ -222,6 +222,9 @@ CREATE TABLE traces (
     -- attempt-only
     origin_tier SMALLINT,
     tax_reasoning TEXT,
+    classifier_output JSONB,
+    complexity_flags JSONB,
+    rag_hits JSONB,
 
     -- correction-only
     corrected_by UUID REFERENCES users (id) ON DELETE RESTRICT,

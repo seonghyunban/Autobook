@@ -93,6 +93,13 @@ def persist_attempt(message: dict, result: dict) -> str | None:
             tax_itc_eligible=tax.get("itc_eligible"),
             tax_amount_inclusive=tax.get("amount_tax_inclusive"),
             tax_mentioned=tax.get("tax_mentioned"),
+            classifier_output={"debit": debit_cls, "credit": credit_cls} if debit_cls or credit_cls else None,
+            complexity_flags=dm.get("complexity_flags"),
+            rag_hits={
+                "normalizer": ps.get("rag_normalizer_hits") or [],
+                "local": ps.get("rag_local_hits") or [],
+                "pop": ps.get("rag_pop_hits") or [],
+            },
         )
 
         # 4. TraceClassifications (per-line)

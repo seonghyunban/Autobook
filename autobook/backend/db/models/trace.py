@@ -16,7 +16,7 @@ from sqlalchemy import (
     UniqueConstraint,
     func,
 )
-from sqlalchemy.dialects.postgresql import UUID
+from sqlalchemy.dialects.postgresql import JSONB, UUID
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from db.models.base import Base
@@ -98,6 +98,9 @@ class Trace(Base):
     # ── attempt-only columns ──────────────────────────────────
     origin_tier: Mapped[int | None] = mapped_column(SmallInteger)
     tax_reasoning: Mapped[str | None] = mapped_column(Text)
+    classifier_output: Mapped[dict | None] = mapped_column(JSONB)
+    complexity_flags: Mapped[list | None] = mapped_column(JSONB)
+    rag_hits: Mapped[dict | None] = mapped_column(JSONB)
 
     # ── correction-only columns ───────────────────────────────
     corrected_by: Mapped[uuid.UUID | None] = mapped_column(

@@ -8,7 +8,7 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING
 
-from services.agent.utils.taxonomy import extract_l4_to_l5
+from utils.taxonomy import extract_l4_to_l5
 
 if TYPE_CHECKING:
     from db.models.jurisdiction_config import JurisdictionConfig

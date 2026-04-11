@@ -106,6 +106,9 @@ class TraceOut(BaseModel):
     tax_itc_eligible: bool | None = None
     tax_amount_inclusive: bool | None = None
     tax_mentioned: bool | None = None
+    classifier_output: dict | None = None
+    complexity_flags: list | None = None
+    rag_hits: dict | None = None
     note_tx_analysis: str | None = None
     note_ambiguity: str | None = None
     note_tax: str | None = None
@@ -304,6 +307,9 @@ def get_draft(
                 tax_itc_eligible=t.tax_itc_eligible,
                 tax_amount_inclusive=t.tax_amount_inclusive,
                 tax_mentioned=t.tax_mentioned,
+                classifier_output=t.classifier_output,
+                complexity_flags=t.complexity_flags,
+                rag_hits=t.rag_hits,
                 note_tx_analysis=t.note_tx_analysis,
                 note_ambiguity=t.note_ambiguity,
                 note_tax=t.note_tax,

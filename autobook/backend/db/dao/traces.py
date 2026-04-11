@@ -33,6 +33,9 @@ class AttemptedTraceDAO:
         tax_itc_eligible: bool | None = None,
         tax_amount_inclusive: bool | None = None,
         tax_mentioned: bool | None = None,
+        classifier_output: dict | None = None,
+        complexity_flags: list | None = None,
+        rag_hits: dict | None = None,
     ) -> AttemptedTrace:
         trace = AttemptedTrace(
             entity_id=entity_id,
@@ -49,6 +52,9 @@ class AttemptedTraceDAO:
             tax_itc_eligible=tax_itc_eligible,
             tax_amount_inclusive=tax_amount_inclusive,
             tax_mentioned=tax_mentioned,
+            classifier_output=classifier_output,
+            complexity_flags=complexity_flags,
+            rag_hits=rag_hits,
         )
         db.add(trace)
         db.flush()
