@@ -1,5 +1,4 @@
 import { create } from "zustand";
-import { persist, createJSONStorage } from "zustand/middleware";
 import { immer } from "zustand/middleware/immer";
 import type {
   AgentAttemptedTrace,
@@ -9,75 +8,118 @@ import type {
   TraceBase,
 } from "../../api/types";
 import type { ReasoningChunk, SectionId } from "./reasoning_panel/ReasoningPanel";
-import { SECTION_ORDER } from "./reasoning_panel/ReasoningPanel";
 import type { ChunkManifest } from "./reasoning_panel/reconstructReasoning";
+import { captureManifest } from "./reasoning_panel/reconstructReasoning";
+import { patchCorrection } from "../../api/corrections";
 import { EMPTY_ATTEMPTED_TRACE } from "./dummyData";
 
 /**
- * Single page-scoped store for the LLM Interaction page.
+ * Draft state management store.
  *
- * Holds two parallel traces of the same transaction:
- *   - `attempted` (AgentAttemptedTrace): what the agent produced
- *   - `corrected` (HumanCorrectedTrace): what the agent should have
- *     produced, according to the user
+ * Three layers:
+ *   - Zustand: in-memory, powers React UI via selectors
+ *   - sessionStorage: per-draft backup (survives refresh)
+ *   - DB: persistent (survives tab close, synced via flushIfDirty)
  *
- * Both share the same `TraceBase` fields. The diff between them drives
- * every per-row "Keep / Update / Add / Disable" visual in the review
- * panel — see `review_panel/diff.ts`.
- *
- * List elements (graph edges, ambiguities, cases, entry lines) are
- * tagged with stable ids on ingest so the diff can align corrected
- * items with their attempted counterparts even after edits.
- *
- * Used by:
- *   - LLMInteractionPage (entry panel, decision overlay, submit flow)
- *   - Every leaf component in the review modal (via fine-grained selectors)
- *
- * Not used for:
- *   - Per-leaf UI flags (collapsible open/closed, hover, focus) → useState
- *   - Page-level UI flags (loading, error, modal visibility) → useState
- *   - Refs (parseIdRef, DOM refs, timer handles) → useRef
+ * Rules:
+ *   - SSE streaming writes to Zustand only (no sessionStorage until commitResult)
+ *   - dirty flag only set by saveCorrection, never by loadDraft or commitResult
+ *   - loadDraft prefers sessionStorage over DB (faster, may have unflushed edits)
  */
+
 type ReasoningSections = Record<SectionId, ReasoningChunk[]>;
 
 const emptyReasoning = (): ReasoningSections => ({
   normalization: [], ambiguity: [], gap: [], proceed: [], debit: [], credit: [], tax: [], entry: [],
 });
 
-type LLMInteractionStore = {
+// ── SessionStorage helpers (per-draft keying) ────────────
+
+const DRAFT_KEY_PREFIX = "autobook-draft-";
+
+function draftKey(draftId: string): string {
+  return `${DRAFT_KEY_PREFIX}${draftId}`;
+}
+
+type PersistedDraftState = {
+  draftId: string;
+  attempted: AgentAttemptedTrace;
+  corrected: HumanCorrectedTrace;
+  reasoningSections: ReasoningSections;
+  chunkManifest: ChunkManifest | null;
+};
+
+function readSessionDraft(draftId: string): PersistedDraftState | null {
+  try {
+    const raw = sessionStorage.getItem(draftKey(draftId));
+    if (!raw) return null;
+    return JSON.parse(raw) as PersistedDraftState;
+  } catch {
+    return null;
+  }
+}
+
+function writeSessionDraft(state: PersistedDraftState): void {
+  try {
+    sessionStorage.setItem(draftKey(state.draftId), JSON.stringify(state));
+  } catch {
+    // sessionStorage full or unavailable — silently ignore
+  }
+}
+
+// ── Store type ───────────────────────────────────────────
+
+type DraftStore = {
   draftId: string | null;
   inputText: string;
   attempted: AgentAttemptedTrace;
   corrected: HumanCorrectedTrace;
   reasoningSections: ReasoningSections;
   chunkManifest: ChunkManifest | null;
+  dirty: boolean;
 
   /**
-   * Atomic reset: sets both `attempted` and `corrected` to deep copies
-   * of `newAttempted`, assigning fresh ids to all list elements. The
-   * corrected copy starts with empty notes. Reasoning is cleared.
-   *
-   * Called at the two reset moments:
-   *   1. On submit — with EMPTY_ATTEMPTED_TRACE to wipe
-   *   2. On SSE pipeline.result — with the converted wire trace
+   * Load a draft into the store. Checks sessionStorage first (may have
+   * unflushed edits), falls back to the provided data (from DB).
+   * Does NOT set dirty — this is a programmatic load.
    */
-  resetAll: (newAttempted: AgentAttemptedTrace, draftId?: string | null) => void;
+  loadDraft: (opts: {
+    draftId: string;
+    attempted: AgentAttemptedTrace;
+    corrected: HumanCorrectedTrace;
+    reasoning: ReasoningSections;
+    manifest?: ChunkManifest | null;
+  }) => void;
 
   /**
-   * Merge saved correction fields into the corrected side.
-   * Called after resetAll when loading a draft that has a correction.
+   * Commit a completed pipeline result. Captures reasoning manifest,
+   * sets attempted + corrected, writes to sessionStorage.
+   * Does NOT set dirty.
    */
-  hydrateCorrected: (saved: Partial<HumanCorrectedTrace>) => void;
+  commitResult: (wire: AgentResultWire) => void;
 
   /**
-   * Mutate the corrected draft via an immer recipe.
+   * Reset store for a new submission. Clears everything.
+   * Does NOT set dirty.
    */
-  setCorrected: (updater: (draft: HumanCorrectedTrace) => void) => void;
+  resetForSubmit: () => void;
+
+  /**
+   * User edit — updates corrected, writes sessionStorage, sets dirty.
+   */
+  saveCorrection: (updater: (draft: HumanCorrectedTrace) => void) => void;
 
   /**
    * Update reasoning sections (called by SSE handler).
+   * Does NOT write to sessionStorage (streaming is in-progress).
+   * Does NOT set dirty.
    */
   setReasoning: (updater: (draft: ReasoningSections) => void) => void;
+
+  /**
+   * Alias for saveCorrection — used by review panel selectors.
+   */
+  setCorrected: (updater: (draft: HumanCorrectedTrace) => void) => void;
 
   /**
    * Update the input text field.
@@ -85,9 +127,15 @@ type LLMInteractionStore = {
   setInputText: (text: string) => void;
 
   /**
-   * Store the chunk manifest (captured after SSE completes).
+   * Flush dirty corrections to DB. Called on modal close, navigation,
+   * beforeunload. Returns a promise for await in navigation guards.
    */
-  setChunkManifest: (manifest: ChunkManifest) => void;
+  flushIfDirty: () => Promise<void>;
+
+  /**
+   * Clear dirty flag without flushing (used after explicit submit).
+   */
+  clearDirty: () => void;
 };
 
 // ── Id assignment helpers ─────────────────────────────────
@@ -101,12 +149,9 @@ function nextId(prefix: string): string {
 /**
  * Walk the trace and assign stable ids to every list element that
  * needs one for diff alignment. Mutates the trace in place.
- *
- * Idempotent: existing ids are preserved (so calling this on an already-
- * tagged trace is a no-op for those items).
+ * Idempotent: existing ids are preserved.
  */
 export function assignIds(trace: TraceBase): void {
-  // Graph edges
   const edges = trace.transaction_graph?.edges;
   if (edges) {
     for (const edge of edges) {
@@ -114,7 +159,6 @@ export function assignIds(trace: TraceBase): void {
     }
   }
 
-  // Ambiguities + their cases
   const ambiguities = trace.output_decision_maker?.ambiguities;
   if (ambiguities) {
     for (const amb of ambiguities) {
@@ -127,7 +171,6 @@ export function assignIds(trace: TraceBase): void {
     }
   }
 
-  // Entry lines
   const lines = trace.output_entry_drafter?.lines;
   if (lines) {
     for (const line of lines) {
@@ -137,19 +180,15 @@ export function assignIds(trace: TraceBase): void {
 }
 
 /**
- * Copy ids from `source` onto `target` by index so the diff aligns
- * corrected items with their attempted counterparts. Items beyond the
- * source length keep their own ids (user additions).
+ * Copy ids from source onto target by index for diff alignment.
  */
 function alignIdsFrom(source: TraceBase, target: TraceBase): void {
-  // Edges
   const sEdges = source.transaction_graph?.edges ?? [];
   const tEdges = target.transaction_graph?.edges ?? [];
   for (let i = 0; i < Math.min(sEdges.length, tEdges.length); i++) {
     tEdges[i].id = sEdges[i].id;
   }
 
-  // Ambiguities + cases
   const sAmbs = source.output_decision_maker?.ambiguities ?? [];
   const tAmbs = target.output_decision_maker?.ambiguities ?? [];
   for (let i = 0; i < Math.min(sAmbs.length, tAmbs.length); i++) {
@@ -161,7 +200,6 @@ function alignIdsFrom(source: TraceBase, target: TraceBase): void {
     }
   }
 
-  // Entry lines
   const sLines = source.output_entry_drafter?.lines ?? [];
   const tLines = target.output_entry_drafter?.lines ?? [];
   for (let i = 0; i < Math.min(sLines.length, tLines.length); i++) {
@@ -171,14 +209,6 @@ function alignIdsFrom(source: TraceBase, target: TraceBase): void {
 
 // ── Wire conversion ───────────────────────────────────────
 
-/**
- * Convert the loose SSE wire shape into a flat AgentAttemptedTrace.
- * The backend still nests fields under `pipeline_state` for historical
- * reasons; this lifts them to the top level.
- *
- * Does NOT assign ids — call `assignIds` after, or pass the result
- * through `resetAll` which handles both.
- */
 export function wireToTrace(wire: AgentResultWire): AgentAttemptedTrace {
   const ps = wire.pipeline_state ?? {};
   return {
@@ -202,42 +232,17 @@ export function wireToTrace(wire: AgentResultWire): AgentAttemptedTrace {
 // ── Notes scaffold ────────────────────────────────────────
 
 function emptyNotes(): HumanCorrectedTrace["notes"] {
-  return {
-    transactionAnalysis: "",
-    ambiguity: "",
-    tax: "",
-    finalEntry: "",
-  };
+  return { transactionAnalysis: "", ambiguity: "", tax: "", finalEntry: "" };
 }
 
-/**
- * Build a HumanCorrectedTrace from an AgentAttemptedTrace by deep-copying
- * the shared TraceBase fields and initializing empty notes. The rag_*_hits
- * fields are intentionally dropped — they're agent-internal state.
- */
-/**
- * Strip the agent-only `reasoning` field from a TaxOutput, leaving the
- * 6 fields the user can actually edit. Returns null if input is null.
- */
 function toEditableTax(tax: AgentAttemptedTrace["output_tax_specialist"]): HumanEditableTax | null {
   if (!tax) return null;
-  // Destructure off `reasoning` and keep the rest.
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const { reasoning: _reasoning, ...editable } = tax;
   return editable;
 }
 
-/**
- * Build a HumanCorrectedTrace from an AgentAttemptedTrace.
- *
- * Keeps the shared TraceBase fields (deep-cloned), narrows the tax
- * specialist output to its editable subset, drops the agent-only
- * classifier outputs, and initializes empty notes. The result contains
- * exactly the fields the user can edit in the review panel.
- */
-function attemptedToCorrected(
-  attempted: AgentAttemptedTrace
-): HumanCorrectedTrace {
+export function attemptedToCorrected(attempted: AgentAttemptedTrace): HumanCorrectedTrace {
   return {
     transaction_text: attempted.transaction_text,
     transaction_graph: structuredClone(attempted.transaction_graph),
@@ -251,69 +256,227 @@ function attemptedToCorrected(
   };
 }
 
+// ── Build patch for DB persistence ────────────────────────
+
+function buildPatch(c: HumanCorrectedTrace) {
+  const tax = c.output_tax_specialist;
+  const dm = c.output_decision_maker;
+  const entry = c.output_entry_drafter;
+  const graph = c.transaction_graph;
+
+  return {
+    decision_kind: c.decision,
+    decision_rationale: dm?.rationale ?? null,
+    tax_classification: tax?.classification ?? null,
+    tax_rate: tax?.tax_rate ?? null,
+    tax_context: tax?.tax_context ?? null,
+    tax_itc_eligible: tax?.itc_eligible ?? null,
+    tax_amount_inclusive: tax?.amount_tax_inclusive ?? null,
+    tax_mentioned: tax?.tax_mentioned ?? null,
+    note_tx_analysis: c.notes.transactionAnalysis || null,
+    note_ambiguity: c.notes.ambiguity || null,
+    note_tax: c.notes.tax || null,
+    note_entry: c.notes.finalEntry || null,
+    entry_reason: entry?.reason ?? null,
+    lines: entry?.lines?.map((l) => ({
+      account_code: l.account_code,
+      account_name: l.account_name,
+      type: l.type,
+      amount: l.amount,
+      currency: entry.currency || "CAD",
+    })) ?? null,
+    graph: graph
+      ? {
+          nodes: graph.nodes.map((n) => ({ index: n.index, name: n.name, role: n.role })),
+          edges: graph.edges.map((e) => ({
+            source_index: e.source_index,
+            target_index: e.target_index,
+            nature: e.nature,
+            kind: e.kind,
+            amount: e.amount,
+            currency: e.currency,
+          })),
+        }
+      : null,
+    ambiguities: dm?.ambiguities?.map((a) => ({
+      aspect: a.aspect,
+      ambiguous: a.ambiguous,
+      conventional_default: a.input_contextualized_conventional_default ?? null,
+      ifrs_default: a.input_contextualized_ifrs_default ?? null,
+      clarification_question: a.clarification_question ?? null,
+      cases: (a.cases ?? []).map((ca) => ({
+        case_text: ca.case,
+        proposed_entry_json: (ca.possible_entry as Record<string, unknown>) ?? null,
+      })),
+    })) ?? null,
+    classifications: entry?.lines
+      ? entry.lines
+          .map((l) => {
+            const cls = c.debit_relationship[l.id ?? ""] ?? c.credit_relationship[l.id ?? ""];
+            if (!cls || !cls.type) return null;
+            return {
+              account_name: l.account_name,
+              type: cls.type,
+              direction: cls.direction ?? "",
+              taxonomy: cls.taxonomy ?? "",
+            };
+          })
+          .filter((x): x is NonNullable<typeof x> => x !== null)
+      : null,
+  };
+}
+
 // ── Store ─────────────────────────────────────────────────
 
 const initialAttempted = structuredClone(EMPTY_ATTEMPTED_TRACE);
 assignIds(initialAttempted);
 
-export const useLLMInteractionStore = create<LLMInteractionStore>()(
-  persist(
-    immer((set) => ({
-      draftId: null,
-      inputText: "",
-      attempted: initialAttempted,
-      corrected: attemptedToCorrected(initialAttempted),
-      reasoningSections: emptyReasoning(),
-      chunkManifest: null,
+export const useDraftStore = create<DraftStore>()(
+  immer((set, get) => ({
+    draftId: null,
+    inputText: "",
+    attempted: initialAttempted,
+    corrected: attemptedToCorrected(initialAttempted),
+    reasoningSections: emptyReasoning(),
+    chunkManifest: null,
+    dirty: false,
 
-      resetAll: (newAttempted, draftId) =>
-        set((state) => {
-          const attempted = structuredClone(newAttempted);
+    loadDraft: (opts) =>
+      set((state) => {
+        // Check sessionStorage first (may have unflushed edits)
+        const cached = readSessionDraft(opts.draftId);
+        if (cached) {
+          const attempted = structuredClone(cached.attempted);
           assignIds(attempted);
-          state.draftId = draftId ?? null;
+          const corrected = structuredClone(cached.corrected);
+          assignIds(corrected);
+          alignIdsFrom(attempted, corrected);
+          state.draftId = opts.draftId;
           state.attempted = attempted;
-          state.corrected = attemptedToCorrected(attempted);
-        }),
-
-      hydrateCorrected: (saved) =>
-        set((state) => {
-          const merged = { ...state.corrected, ...saved } as HumanCorrectedTrace;
-          assignIds(merged);
-          alignIdsFrom(state.attempted, merged);
-          state.corrected = merged;
-        }),
-
-      setCorrected: (updater) =>
-        set((state) => {
-          updater(state.corrected);
-        }),
-
-      setReasoning: (updater) =>
-        set((state) => {
-          updater(state.reasoningSections);
-        }),
-
-      setInputText: (text) =>
-        set((state) => {
-          state.inputText = text;
-        }),
-
-      setChunkManifest: (manifest) =>
-        set((state) => {
-          state.chunkManifest = manifest;
-        }),
-    })),
-    {
-      name: "autobook-drafter",
-      storage: createJSONStorage(() => sessionStorage),
-      partialize: (state) => ({
-        draftId: state.draftId,
-        inputText: state.inputText,
-        attempted: state.attempted,
-        corrected: state.corrected,
-        reasoningSections: state.reasoningSections,
-        chunkManifest: state.chunkManifest,
+          state.corrected = corrected;
+          state.reasoningSections = cached.reasoningSections;
+          state.chunkManifest = cached.chunkManifest;
+        } else {
+          const attempted = structuredClone(opts.attempted);
+          assignIds(attempted);
+          const corrected = structuredClone(opts.corrected);
+          assignIds(corrected);
+          alignIdsFrom(attempted, corrected);
+          state.draftId = opts.draftId;
+          state.attempted = attempted;
+          state.corrected = corrected;
+          state.reasoningSections = opts.reasoning;
+          state.chunkManifest = opts.manifest ?? null;
+        }
+        state.dirty = false;
       }),
+
+    commitResult: (wire) =>
+      set((state) => {
+        // Capture manifest from current SSE reasoning before overwriting
+        const manifest = captureManifest(state.reasoningSections);
+        const reasoning = { ...state.reasoningSections };
+
+        const attempted = structuredClone(wireToTrace(wire));
+        assignIds(attempted);
+        const draftId = wire.draft_id ?? null;
+
+        state.draftId = draftId;
+        state.attempted = attempted;
+        state.corrected = attemptedToCorrected(attempted);
+        state.reasoningSections = reasoning;
+        state.chunkManifest = manifest;
+        state.dirty = false;
+
+        // Write to sessionStorage
+        if (draftId) {
+          writeSessionDraft({
+            draftId,
+            attempted: state.attempted,
+            corrected: state.corrected,
+            reasoningSections: state.reasoningSections,
+            chunkManifest: state.chunkManifest,
+          });
+        }
+      }),
+
+    resetForSubmit: () =>
+      set((state) => {
+        state.draftId = null;
+        state.attempted = structuredClone(EMPTY_ATTEMPTED_TRACE);
+        state.corrected = attemptedToCorrected(state.attempted);
+        state.reasoningSections = emptyReasoning();
+        state.chunkManifest = null;
+        state.dirty = false;
+      }),
+
+    saveCorrection: (updater) =>
+      set((state) => {
+        updater(state.corrected);
+        state.dirty = true;
+
+        // Write to sessionStorage immediately
+        if (state.draftId) {
+          writeSessionDraft({
+            draftId: state.draftId,
+            attempted: state.attempted,
+            corrected: state.corrected,
+            reasoningSections: state.reasoningSections,
+            chunkManifest: state.chunkManifest,
+          });
+        }
+      }),
+
+    // Alias for saveCorrection — review panel uses st.setCorrected
+    setCorrected: (updater) =>
+      set((state) => {
+        updater(state.corrected);
+        state.dirty = true;
+        if (state.draftId) {
+          writeSessionDraft({
+            draftId: state.draftId,
+            attempted: state.attempted,
+            corrected: state.corrected,
+            reasoningSections: state.reasoningSections,
+            chunkManifest: state.chunkManifest,
+          });
+        }
+      }),
+
+    setReasoning: (updater) =>
+      set((state) => {
+        updater(state.reasoningSections);
+        // No sessionStorage write — streaming in progress
+        // No dirty flag — not a user edit
+      }),
+
+    setInputText: (text) =>
+      set((state) => {
+        state.inputText = text;
+      }),
+
+    flushIfDirty: async () => {
+      const { dirty, draftId, corrected } = get();
+      if (!dirty || !draftId) return;
+      try {
+        await patchCorrection(draftId, buildPatch(corrected));
+        set((state) => { state.dirty = false; });
+      } catch (err) {
+        console.error("Flush to DB failed:", err);
+      }
     },
-  )
+
+    clearDirty: () =>
+      set((state) => {
+        state.dirty = false;
+      }),
+  }))
 );
+
+// Backwards compatibility aliases
+export const useLLMInteractionStore = useDraftStore;
+
+// The review panel accesses st.setCorrected via selectors.
+// saveCorrection IS setCorrected + sessionStorage + dirty flag.
+// This type assertion makes the store compatible with existing selectors.
+export type { DraftStore as LLMInteractionStore };

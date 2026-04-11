@@ -5,7 +5,7 @@ import { submitCorrection } from "../api/corrections";
 import { submitLLMInteraction } from "../api/llm";
 import { subscribeToRealtimeUpdates, ensureConnection } from "../api/realtime";
 import type { LLMInteractionResponse, RealtimeEvent, AgentResultWire } from "../api/types";
-import { useLLMInteractionStore, wireToTrace } from "../components/panels/store";
+import { useDraftStore } from "../components/panels/store";
 import s from "../components/panels/panels.module.css";
 
 // ── Shared tokens & components ───────────────────────────
@@ -15,7 +15,6 @@ import { MOTION, palette, T, panel, PanelHeader, HoverButton, PrimaryButton } fr
 import {
   ReasoningStream,
   SECTION_ORDER,
-  captureManifest,
 } from "../components/panels/reasoning_panel";
 import type {
   EntryLineData,
@@ -33,7 +32,6 @@ import {
   REVIEW_SECTIONS,
   CorrectionSummaryContainer,
 } from "../components/panels/review_panel";
-import { EMPTY_ATTEMPTED_TRACE } from "../components/panels/dummyData";
 import { TransactionDisplay } from "../components/panels/shared/TransactionDisplay";
 
 // ── Entry panel ──────────────────────────────────────────
@@ -51,15 +49,15 @@ function currencySymbol(entry: { currency?: string; currency_symbol?: string } |
 export function EntryDrafterPage() {
   useAutoSave();
   const [jurisdiction, setJurisdiction] = useState<"CA" | "KR">("KR");
-  const inputText = useLLMInteractionStore((st) => st.inputText);
-  const setInputText = useLLMInteractionStore((st) => st.setInputText);
+  const inputText = useDraftStore((st) => st.inputText);
+  const setInputText = useDraftStore((st) => st.setInputText);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [result, setResult] = useState<LLMInteractionResponse | null>(null);
   // `attempted` (agent's output) lives in the Zustand store so every review modal
   // leaf can read it via selectors without prop drilling. Also read here for the
   // entry panel and decision overlay which are outside the modal.
-  const agentResult = useLLMInteractionStore((st) => st.attempted);
+  const agentResult = useDraftStore((st) => st.attempted);
   const visibleSections = agentResult.decision === "PROCEED" || !agentResult.decision
     ? REVIEW_SECTIONS
     : REVIEW_SECTIONS.filter((s) => s.key === "transaction_analysis" || s.key === "ambiguity" || s.key === "summary");
@@ -72,12 +70,12 @@ export function EntryDrafterPage() {
   const [submitted, setSubmitted] = useState(false);
   const [windowResizing, setWindowResizing] = useState(false);
   const showReasoning = true;
-  const [reasoningWidth, setReasoningWidth] = useState(320);
+  const [reasoningWidth, setReasoningWidth] = useState(400);
   const [reasoningFullscreen, setReasoningFullscreen] = useState(false);
   const [reasoningFullscreenAnimating, setReasoningFullscreenAnimating] = useState(false);
   const [graphLayoutVersion, setGraphLayoutVersion] = useState(0);
   const [reasoningExiting, setReasoningExiting] = useState(false);
-  const savedReasoningWidth = useRef(320);
+  const savedReasoningWidth = useRef(400);
   const reasoningSectionRef = useRef<HTMLDivElement>(null);
   const [isResizing, setIsResizing] = useState(false);
   const resizing = useRef(false);
@@ -87,8 +85,8 @@ export function EntryDrafterPage() {
   const seqRef = useRef(0);
   const doneSeqRef = useRef(0);
 
-  const reasoningSections = useLLMInteractionStore((st) => st.reasoningSections);
-  const setReasoning = useLLMInteractionStore((st) => st.setReasoning);
+  const reasoningSections = useDraftStore((st) => st.reasoningSections);
+  const setReasoning = useDraftStore((st) => st.setReasoning);
   const scrollTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   const entryScrollRef = useRef<HTMLDivElement>(null);
@@ -192,6 +190,7 @@ export function EntryDrafterPage() {
   }
 
   function closeReviewModal() {
+    void useDraftStore.getState().flushIfDirty();
     setReviewModalVisible(false);
     setTimeout(() => setShowReviewModal(false), MOTION.normal);
   }
@@ -265,9 +264,8 @@ export function EntryDrafterPage() {
     setLoading(true);
     setError(null);
     setResult(null);
-    // Wipe both attempted and corrected atomically via the store
-    useLLMInteractionStore.getState().resetAll(EMPTY_ATTEMPTED_TRACE, null);
-    setReasoning((draft) => { Object.assign(draft, { normalization: [], ambiguity: [], gap: [], proceed: [], debit: [], credit: [], tax: [], entry: [] }); });
+    // Wipe store for new submission
+    useDraftStore.getState().resetForSubmit();
     setOverlayVisible(false);
     seqRef.current = 0;
     doneSeqRef.current = 0;
@@ -293,16 +291,9 @@ export function EntryDrafterPage() {
           const wire = ev.result as AgentResultWire | undefined;
           console.log("agentResult:", wire);
           if (wire) {
-            // Capture manifest from SSE-built reasoning before resetAll
-            const store = useLLMInteractionStore.getState();
-            const manifest = captureManifest(store.reasoningSections);
-            store.setChunkManifest(manifest);
-
-            // Convert wire shape → flat AgentAttemptedTrace, then populate both
-            // attempted and corrected atomically.
-            const trace = wireToTrace(wire);
-            useLLMInteractionStore.getState().resetAll(trace, wire.draft_id);
-            if (trace.decision === "MISSING_INFO" || trace.decision === "STUCK") {
+            useDraftStore.getState().commitResult(wire);
+            const decision = wire.decision;
+            if (decision === "MISSING_INFO" || decision === "STUCK") {
               requestAnimationFrame(() => setOverlayVisible(true));
             }
           }
@@ -818,10 +809,11 @@ export function EntryDrafterPage() {
                     if (reviewStep < visibleSections.length - 1) {
                       setReviewStep((s) => s + 1);
                     } else {
-                      const did = useLLMInteractionStore.getState().draftId;
+                      const did = useDraftStore.getState().draftId;
                       if (did) {
                         setSubmitting(true);
                         try {
+                          await useDraftStore.getState().flushIfDirty();
                           await submitCorrection(did);
                           setSubmitted(true);
                           setTimeout(() => setSubmitted(false), 2000);

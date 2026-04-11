@@ -3,7 +3,7 @@ import { useNavigate, useParams } from "react-router-dom";
 import { useAutoSave } from "../hooks/useAutoSave";
 import { submitCorrection } from "../api/corrections";
 import { fetchDraftDetail, type DraftDetail } from "../api/drafts";
-import { useLLMInteractionStore } from "../components/panels/store";
+import { useDraftStore, attemptedToCorrected } from "../components/panels/store";
 import s from "../components/panels/panels.module.css";
 import type { AgentAttemptedTrace, HumanCorrectedTrace } from "../api/types";
 
@@ -208,7 +208,7 @@ export function EntryViewerPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  const agentResult = useLLMInteractionStore((st) => st.attempted);
+  const agentResult = useDraftStore((st) => st.attempted);
   const visibleSections = agentResult.decision === "PROCEED" || !agentResult.decision
     ? REVIEW_SECTIONS
     : REVIEW_SECTIONS.filter((s) => s.key === "transaction_analysis" || s.key === "ambiguity" || s.key === "summary");
@@ -236,26 +236,37 @@ export function EntryViewerPage() {
   // Build full reasoning from the attempted trace using default pipeline order
   const reasoningSections: Record<SectionId, ReasoningChunk[]> = reconstructReasoning(agentResult, defaultManifest(agentResult));
 
-  // Fetch detail and hydrate store
+  // Flush previous draft's edits before loading a new one
+  // Then load draft: sessionStorage first, DB fallback
   useEffect(() => {
     if (!draftId) return;
     setLoading(true);
-    fetchDraftDetail(draftId)
-      .then((d) => {
-        setDetail(d);
-        const trace = detailToTrace(d);
-        useLLMInteractionStore.getState().resetAll(trace, d.id);
 
-        // Hydrate saved corrections if they exist
-        const corrected = detailToCorrected(d);
-        if (corrected) {
-          useLLMInteractionStore.getState().hydrateCorrected(corrected);
-        }
+    const load = async () => {
+      // Flush any dirty edits from the previous draft
+      await useDraftStore.getState().flushIfDirty();
 
-        if (trace.decision === "MISSING_INFO" || trace.decision === "STUCK") {
-          requestAnimationFrame(() => setOverlayVisible(true));
-        }
-      })
+      const d = await fetchDraftDetail(draftId);
+      setDetail(d);
+      const trace = detailToTrace(d);
+      const corrected = detailToCorrected(d);
+      const reasoning = reconstructReasoning(trace, defaultManifest(trace));
+
+      useDraftStore.getState().loadDraft({
+        draftId: d.id,
+        attempted: trace,
+        corrected: corrected
+          ? { ...attemptedToCorrected(trace), ...corrected }
+          : attemptedToCorrected(trace),
+        reasoning,
+      });
+
+      if (trace.decision === "MISSING_INFO" || trace.decision === "STUCK") {
+        requestAnimationFrame(() => setOverlayVisible(true));
+      }
+    };
+
+    load()
       .catch((err) => setError(err instanceof Error ? err.message : "Failed to load draft"))
       .finally(() => setLoading(false));
   }, [draftId]);
@@ -280,6 +291,7 @@ export function EntryViewerPage() {
   }, [reasoningFullscreen, reasoningExiting]);
 
   function closeReviewModal() {
+    void useDraftStore.getState().flushIfDirty();
     setReviewModalVisible(false);
     setTimeout(() => setShowReviewModal(false), MOTION.normal);
   }
@@ -589,10 +601,11 @@ export function EntryViewerPage() {
                 {reviewStep < visibleSections.length - 1
                   ? <PrimaryButton size="sm" onClick={() => setReviewStep((s) => s + 1)}>Next</PrimaryButton>
                   : <PrimaryButton size="sm" disabled={submitting || submitted} onClick={async () => {
-                      const did = useLLMInteractionStore.getState().draftId;
+                      const did = useDraftStore.getState().draftId;
                       if (did) {
                         setSubmitting(true);
                         try {
+                          await useDraftStore.getState().flushIfDirty();
                           await submitCorrection(did);
                           setSubmitted(true);
                           setTimeout(() => setSubmitted(false), 2000);
