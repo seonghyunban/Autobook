@@ -158,17 +158,14 @@ variable "container_port" {
 # lifecycle { ignore_changes = [task_definition] } prevents Terraform from reverting.
 variable "cpu" {
   type        = number
-  description = "CPU units per task (256 = 0.25 vCPU) — bootstrap default, CI/CD overrides per service"
-  default     = 256
+  description = "CPU units per task (1024 = 1 vCPU)"
+  default     = 1024
 }
 
-# Fargate memory allocation — must be compatible with CPU value
-# For 256 CPU: 512 or 1024 MB. For 512 CPU: 1024-4096 MB.
-# Same bootstrap-only reasoning as cpu above.
 variable "memory" {
   type        = number
-  description = "Memory in MB per task — bootstrap default, CI/CD overrides per service"
-  default     = 512
+  description = "Memory in MB per task"
+  default     = 2048
 }
 
 # How many copies of each service to run
