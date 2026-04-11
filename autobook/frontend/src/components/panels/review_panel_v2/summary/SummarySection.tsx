@@ -6,11 +6,10 @@
  */
 import { useMemo } from "react";
 import { useDraftStore } from "../../store";
-import { validateCorrected } from "../../review_panel/validation";
-import { REVIEW_SECTIONS } from "../../review_panel/ReviewPanel";
-import { ValidationBanner } from "../../review_panel/CorrectionSummary/ValidationBanner";
-import { SummaryBody } from "../../review_panel/CorrectionSummary/SummaryBody";
-import { summaryTokens } from "../../review_panel/CorrectionSummary/tokens";
+import { validateCorrected } from "../validation";
+import { ValidationBanner } from "./CorrectionSummary/ValidationBanner";
+import { SummaryBody } from "./CorrectionSummary/SummaryBody";
+import { summaryTokens } from "./CorrectionSummary/tokens";
 import { ReviewSectionLayout } from "../shared/ReviewSectionLayout";
 
 export function SummarySection() {
@@ -18,8 +17,8 @@ export function SummarySection() {
   const decision = useDraftStore((st) => st.attempted.decision);
   const activeSections = useMemo(
     () => decision === "PROCEED" || !decision
-      ? REVIEW_SECTIONS
-      : REVIEW_SECTIONS.filter((s) => s.key === "transaction_analysis" || s.key === "ambiguity"),
+      ? [{ key: "transaction_analysis" }, { key: "ambiguity" }, { key: "tax" }, { key: "final_entry" }]
+      : [{ key: "transaction_analysis" }, { key: "ambiguity" }],
     [decision],
   );
   const issues = useMemo(() => validateCorrected(corrected, activeSections), [corrected, activeSections]);

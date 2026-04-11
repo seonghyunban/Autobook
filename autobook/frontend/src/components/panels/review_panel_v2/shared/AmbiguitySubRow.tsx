@@ -4,7 +4,7 @@ import { DashedArrow } from "../../shared/DashedArrow";
 import { EmptyBox } from "../../shared/EmptyBox";
 import { CorrectedActionBar } from "./CorrectedActionBar";
 import { AttemptedCorrectedLabels } from "./AttemptedCorrectedLabels";
-import { STATUS_VISUAL, type DiffStatus } from "../../review_panel/diff";
+import { STATUS_VISUAL, type DiffStatus } from "./diff";
 
 export function AmbiguitySubRow({ label, attemptedContent, correctedContent, changed, added, onReset }: {
   label: string;

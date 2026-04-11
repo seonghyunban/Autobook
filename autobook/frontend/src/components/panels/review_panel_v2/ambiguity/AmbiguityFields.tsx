@@ -10,7 +10,7 @@ import { AddButton } from "../../shared/AddButton";
 import { AmbiguitySubRow } from "../shared/AmbiguitySubRow";
 import { ReviewSubsection } from "../shared/ReviewSubsection";
 import type { AmbiguityOutput } from "../../../../api/types";
-import type { DiffStatus } from "../../review_panel/diff";
+import type { DiffStatus } from "../shared/diff";
 import s from "../../panels.module.css";
 
 export function AmbiguityFields({ id }: { id: string }) {
@@ -99,9 +99,10 @@ export function AmbiguityFields({ id }: { id: string }) {
   const corrTextColor = T.textPrimary;
 
   return (
-    <div style={{ display: "flex", flexDirection: "column", gap: 24, opacity: isDisabled ? 0.5 : 1, transition: "opacity 0.15s ease" }}>
+    <div style={{ display: "flex", flexDirection: "column", gap: 24 }}>
 
       <ReviewSubsection title="Aspect" explanation="The ambiguous aspect identified in this transaction.">
+        <div style={{ opacity: isDisabled ? 0.5 : 1, transition: "opacity 0.15s ease" }}>
         <AmbiguitySubRow label="Aspect" changed={aspectChanged} added={status === "added"} onReset={resetAspect}
           attemptedContent={
             <div style={{ display: "flex", flexDirection: "column", gap: 4 }}>
@@ -116,9 +117,11 @@ export function AmbiguityFields({ id }: { id: string }) {
             </div>
           }
         />
+        </div>
       </ReviewSubsection>
 
       <ReviewSubsection title="Default Interpretation" explanation="The conventional and IFRS default interpretations for this ambiguity, if there is any.">
+        <div style={{ opacity: isDisabled ? 0.5 : 1, transition: "opacity 0.15s ease" }}>
         <AmbiguitySubRow label="Default Interpretation" changed={defaultsChanged} added={status === "added"} onReset={resetDefaults}
           attemptedContent={<>
             <div style={{ display: "flex", flexDirection: "column", gap: 4 }}>
@@ -141,9 +144,11 @@ export function AmbiguityFields({ id }: { id: string }) {
             </div>
           </>}
         />
+        </div>
       </ReviewSubsection>
 
       <ReviewSubsection title="Clarification" explanation="The clarification question that will eliminate this ambiguity and possible cases.">
+        <div style={{ opacity: isDisabled ? 0.5 : 1, transition: "opacity 0.15s ease" }}>
         <AmbiguitySubRow label="Clarification" changed={clarificationChanged} added={status === "added"} onReset={resetClarification}
           attemptedContent={<>
             <div style={{ display: "flex", flexDirection: "column", gap: 4 }}>
@@ -182,6 +187,7 @@ export function AmbiguityFields({ id }: { id: string }) {
             </div>
           </>}
         />
+        </div>
       </ReviewSubsection>
 
       <div style={{ display: "flex", justifyContent: "flex-end" }}>
@@ -197,7 +203,7 @@ export function AmbiguityFields({ id }: { id: string }) {
             onMouseEnter={(e) => { e.currentTarget.style.background = "rgba(204, 197, 185, 0.25)"; }}
             onMouseLeave={(e) => { e.currentTarget.style.background = "rgba(204, 197, 185, 0.15)"; }}
           >
-            {isDisabled ? "Flagged as unambiguous" : "Flag as unambiguous"}
+            {isDisabled ? "Flag as ambiguous" : "Flag as unambiguous"}
           </button>
         ) : (
           <button
