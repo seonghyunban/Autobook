@@ -74,16 +74,16 @@ function validateNodes(nodes: GraphNode[], issues: ValidationIssue[]): void {
 
 function validateEdges(nodes: GraphNode[], edges: GraphEdge[], issues: ValidationIssue[]): void {
   const nodeIndices = new Set(nodes.map((n) => n.index));
+  const partyNames = nodes.map((n) => n.name).join(", ");
+  const desc = (e: GraphEdge) => e.nature || `${e.source} → ${e.target}`;
 
-  edges.forEach((edge, i) => {
-    const label = `Edge ${i + 1}`;
-
+  edges.forEach((edge) => {
     // Reference integrity — source (by index)
     if (edge.source_index == null || !nodeIndices.has(edge.source_index)) {
       issues.push({
         section: "transaction",
         severity: "error",
-        message: `${label}: source index ${edge.source_index} doesn't match any party`,
+        message: `"${desc(edge)}": source "${edge.source}" does not match any of the existing parties in [${partyNames}]`,
       });
     }
 
@@ -92,7 +92,7 @@ function validateEdges(nodes: GraphNode[], edges: GraphEdge[], issues: Validatio
       issues.push({
         section: "transaction",
         severity: "error",
-        message: `${label}: target index ${edge.target_index} doesn't match any party`,
+        message: `"${desc(edge)}": target "${edge.target}" does not match any of the existing parties in [${partyNames}]`,
       });
     }
 
@@ -101,13 +101,13 @@ function validateEdges(nodes: GraphNode[], edges: GraphEdge[], issues: Validatio
       issues.push({
         section: "transaction",
         severity: "error",
-        message: `${label}: self-loop (source and target are both index ${edge.source_index})`,
+        message: `"${desc(edge)}": self-loop (source and target are both "${edge.source}")`,
       });
     }
 
     // Nature (verb phrase) — warning if missing
     if (isBlank(edge.nature)) {
-      issues.push({ section: "transaction", severity: "warning", message: `${label}: empty nature (verb phrase)` });
+      issues.push({ section: "transaction", severity: "warning", message: `"${desc(edge)}": empty nature (verb phrase)` });
     }
 
     // Kind — must be one of the four enum values
@@ -115,54 +115,50 @@ function validateEdges(nodes: GraphNode[], edges: GraphEdge[], issues: Validatio
       issues.push({
         section: "transaction",
         severity: "error",
-        message: `${label}: invalid kind "${edge.kind}"`,
+        message: `"${desc(edge)}": invalid kind "${edge.kind}"`,
       });
       return; // Downstream amount/currency checks depend on valid kind
     }
 
     // Amount + currency coherence
     if (STRICT_AMOUNT_KINDS.has(edge.kind)) {
-      // reciprocal_exchange / chained_exchange — must have a positive amount
       if (!isFiniteNumber(edge.amount) || edge.amount <= 0) {
         issues.push({
           section: "transaction",
           severity: "error",
-          message: `${label}: ${edge.kind} requires a positive amount`,
+          message: `"${desc(edge)}": ${edge.kind} requires a positive amount`,
         });
       }
       if (isFiniteNumber(edge.amount) && isBlank(edge.currency)) {
         issues.push({
           section: "transaction",
           severity: "error",
-          message: `${label}: amount ${edge.amount} has no currency`,
+          message: `"${desc(edge)}": amount ${edge.amount} has no currency`,
         });
       }
     } else if (edge.kind === "non_exchange") {
-      // non_exchange — amount may be null (e.g., VAT rate without certain base).
-      // If set, must be positive and have a currency.
       if (edge.amount != null) {
         if (!isFiniteNumber(edge.amount) || edge.amount <= 0) {
           issues.push({
             section: "transaction",
             severity: "error",
-            message: `${label}: non_exchange amount must be positive when set`,
+            message: `"${desc(edge)}": non_exchange amount must be positive when set`,
           });
         }
         if (isFiniteNumber(edge.amount) && isBlank(edge.currency)) {
           issues.push({
             section: "transaction",
             severity: "error",
-            message: `${label}: amount ${edge.amount} has no currency`,
+            message: `"${desc(edge)}": amount ${edge.amount} has no currency`,
           });
         }
       }
     } else {
-      // Relationship edges must not have an amount
       if (edge.amount != null) {
         issues.push({
           section: "transaction",
           severity: "warning",
-          message: `${label}: relationship edge has an amount (${edge.amount}); relationships are value-less`,
+          message: `"${desc(edge)}": relationship edge has an amount (${edge.amount}); relationships are value-less`,
         });
       }
     }
