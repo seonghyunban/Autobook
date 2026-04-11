@@ -14,11 +14,10 @@ class Settings(BaseSettings):
     # Cognito is required in every environment — no default pool id. The dev
     # pool's values are supplied via env vars in both local docker-compose
     # (from a gitignored .env) and deployed task/function configs.
-    COGNITO_USER_POOL_ID: str | None = Field(
-        default=None,
+    COGNITO_USER_POOL_ID: str = Field(
         validation_alias=AliasChoices("COGNITO_USER_POOL_ID", "COGNITO_POOL_ID"),
     )
-    COGNITO_CLIENT_ID: str | None = None
+    COGNITO_CLIENT_ID: str
     COGNITO_DOMAIN: str | None = None
     COGNITO_JWKS_JSON: str | None = None
     COGNITO_JWT_ALGORITHM: str = "RS256"

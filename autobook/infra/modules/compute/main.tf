@@ -235,12 +235,12 @@ resource "aws_ecs_task_definition" "main" {
         { name = "S3_BUCKET", value = var.s3_bucket_id },
         { name = "QDRANT_URL", value = var.qdrant_url },
       ],
-      # Only the API service needs Cognito config (to validate auth tokens)
-      each.key == local.api_service ? [
+      # Cognito config — all services need it (shared Settings model)
+      [
         { name = "COGNITO_USER_POOL_ID", value = var.user_pool_id },
         { name = "COGNITO_CLIENT_ID", value = var.client_id },
         { name = "COGNITO_DOMAIN", value = var.cognito_domain },
-      ] : [],
+      ],
       # Per-service SQS queue URLs — each service only gets the queues it uses
       lookup(local.sqs_env, each.key, [])
     )
