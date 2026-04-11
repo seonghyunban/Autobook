@@ -1641,11 +1641,12 @@ export function FinalEntryReviewContainer() {
 
   // The line.id field IS the React key now — no separate `lineKeys` state.
   const lineKeys = correctedLines.map((l) => l.id ?? "");
+  const jurisdiction = useLLMInteractionStore((st) => st.attempted.jurisdiction);
   const [taxonomyDict, setTaxonomyDict] = useState<TaxonomyDict>({});
 
   useEffect(() => {
-    getTaxonomy().then(setTaxonomyDict).catch(() => {});
-  }, []);
+    getTaxonomy(jurisdiction).then(setTaxonomyDict).catch(() => {});
+  }, [jurisdiction]);
 
   const sym = CURRENCY_SYM[attemptedData.currency] || "";
   const changed = correctedReason !== attemptedData.reason

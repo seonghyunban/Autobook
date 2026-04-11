@@ -10,6 +10,7 @@ import type {
 } from "../../api/types";
 import type { ReasoningChunk, SectionId } from "./reasoning_panel/ReasoningPanel";
 import { SECTION_ORDER } from "./reasoning_panel/ReasoningPanel";
+import type { ChunkManifest } from "./reasoning_panel/reconstructReasoning";
 import { EMPTY_ATTEMPTED_TRACE } from "./dummyData";
 
 /**
@@ -49,6 +50,7 @@ type LLMInteractionStore = {
   attempted: AgentAttemptedTrace;
   corrected: HumanCorrectedTrace;
   reasoningSections: ReasoningSections;
+  chunkManifest: ChunkManifest | null;
 
   /**
    * Atomic reset: sets both `attempted` and `corrected` to deep copies
@@ -81,6 +83,11 @@ type LLMInteractionStore = {
    * Update the input text field.
    */
   setInputText: (text: string) => void;
+
+  /**
+   * Store the chunk manifest (captured after SSE completes).
+   */
+  setChunkManifest: (manifest: ChunkManifest) => void;
 };
 
 // ── Id assignment helpers ─────────────────────────────────
@@ -257,6 +264,7 @@ export const useLLMInteractionStore = create<LLMInteractionStore>()(
       attempted: initialAttempted,
       corrected: attemptedToCorrected(initialAttempted),
       reasoningSections: emptyReasoning(),
+      chunkManifest: null,
 
       resetAll: (newAttempted, draftId) =>
         set((state) => {
@@ -289,6 +297,11 @@ export const useLLMInteractionStore = create<LLMInteractionStore>()(
         set((state) => {
           state.inputText = text;
         }),
+
+      setChunkManifest: (manifest) =>
+        set((state) => {
+          state.chunkManifest = manifest;
+        }),
     })),
     {
       name: "autobook-drafter",
@@ -299,6 +312,7 @@ export const useLLMInteractionStore = create<LLMInteractionStore>()(
         attempted: state.attempted,
         corrected: state.corrected,
         reasoningSections: state.reasoningSections,
+        chunkManifest: state.chunkManifest,
       }),
     },
   )

@@ -8,7 +8,7 @@ import s from "../components/panels/panels.module.css";
 import type { AgentAttemptedTrace, HumanCorrectedTrace } from "../api/types";
 
 import { MOTION, palette, T, panel, PanelHeader, HoverButton, PrimaryButton } from "../components/panels/shared";
-import { ReasoningStream, buildFromTrace } from "../components/panels/reasoning_panel";
+import { ReasoningStream, defaultManifest, reconstructReasoning } from "../components/panels/reasoning_panel";
 import type { ReasoningChunk, SectionId } from "../components/panels/reasoning_panel";
 import {
   TransactionAnalysisContainer,
@@ -208,8 +208,8 @@ export function EntryViewerPage() {
   const mainContentRef = useRef<HTMLDivElement>(null);
   const entryScrollRef = useRef<HTMLDivElement>(null);
 
-  // Build full reasoning from the attempted trace in the store
-  const reasoningSections: Record<SectionId, ReasoningChunk[]> = buildFromTrace(agentResult);
+  // Build full reasoning from the attempted trace using default pipeline order
+  const reasoningSections: Record<SectionId, ReasoningChunk[]> = reconstructReasoning(agentResult, defaultManifest(agentResult));
 
   // Fetch detail and hydrate store
   useEffect(() => {

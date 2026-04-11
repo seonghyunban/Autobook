@@ -15,6 +15,7 @@ import { MOTION, palette, T, panel, PanelHeader, HoverButton, PrimaryButton } fr
 import {
   ReasoningStream,
   SECTION_ORDER,
+  captureManifest,
 } from "../components/panels/reasoning_panel";
 import type {
   EntryLineData,
@@ -292,6 +293,11 @@ export function EntryDrafterPage() {
           const wire = ev.result as AgentResultWire | undefined;
           console.log("agentResult:", wire);
           if (wire) {
+            // Capture manifest from SSE-built reasoning before resetAll
+            const store = useLLMInteractionStore.getState();
+            const manifest = captureManifest(store.reasoningSections);
+            store.setChunkManifest(manifest);
+
             // Convert wire shape → flat AgentAttemptedTrace, then populate both
             // attempted and corrected atomically.
             const trace = wireToTrace(wire);

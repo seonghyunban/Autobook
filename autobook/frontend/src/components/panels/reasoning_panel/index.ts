@@ -7,6 +7,14 @@ export {
 
 export { buildFromTrace } from "./buildFromTrace";
 
+export {
+  captureManifest,
+  defaultManifest,
+  reconstructReasoning,
+} from "./reconstructReasoning";
+
+export type { ChunkManifest } from "./reconstructReasoning";
+
 export type {
   TaggedLine,
   EntryLineData,
