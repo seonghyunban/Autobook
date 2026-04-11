@@ -3,6 +3,7 @@ import type { AuthTokenResponse, AuthUser } from "./types";
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL ?? "http://localhost:8000/api/v1";
 const ACCESS_TOKEN_KEY = "autobook_access_token";
 const REFRESH_TOKEN_KEY = "autobook_refresh_token";
+const CACHED_USER_KEY = "autobook_cached_user";
 const PKCE_VERIFIER_KEY = "autobook_pkce_verifier";
 const PKCE_STATE_KEY = "autobook_pkce_state";
 
@@ -43,8 +44,26 @@ export function setRefreshToken(token: string | null) {
 export function clearAuthSession() {
   localStorage.removeItem(ACCESS_TOKEN_KEY);
   localStorage.removeItem(REFRESH_TOKEN_KEY);
+  localStorage.removeItem(CACHED_USER_KEY);
   sessionStorage.removeItem(PKCE_VERIFIER_KEY);
   sessionStorage.removeItem(PKCE_STATE_KEY);
+}
+
+export function getCachedUser(): AuthUser | null {
+  const raw = localStorage.getItem(CACHED_USER_KEY);
+  if (!raw) return null;
+  try { return JSON.parse(raw) as AuthUser; } catch { return null; }
+}
+
+export function setCachedUser(user: AuthUser) {
+  localStorage.setItem(CACHED_USER_KEY, JSON.stringify(user));
+}
+
+export function isTokenExpired(token: string): boolean {
+  try {
+    const payload = JSON.parse(atob(token.split(".")[1]));
+    return payload.exp * 1000 < Date.now();
+  } catch { return true; }
 }
 
 export async function fetchAuthMe(): Promise<AuthUser> {
@@ -59,7 +78,9 @@ export async function fetchAuthMe(): Promise<AuthUser> {
   if (!response.ok) {
     throw new Error(`Auth validation failed: ${response.status}`);
   }
-  return (await response.json()) as AuthUser;
+  const user = (await response.json()) as AuthUser;
+  setCachedUser(user);
+  return user;
 }
 
 /**

@@ -19,7 +19,7 @@ domain_name = "autobook.tech"
 db_instance_class = "db.t4g.micro" # 2 vCPUs, 1 GB RAM — cheapest option, fine for dev
 
 # --- CI/CD ---
-github_repo = "UofT-CSC490-W2026/AI-Accountant"
+github_repo = "seonghyunban/Autobook"
 
 # --- Monitoring ---
 alert_email        = "autobook@pm.me"

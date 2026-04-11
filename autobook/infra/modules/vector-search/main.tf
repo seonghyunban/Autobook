@@ -61,7 +61,10 @@ resource "qdrant-cloud_accounts_cluster" "main" {
 
   # Cluster configuration — node count, database settings, and package selection
   configuration {
-    number_of_nodes = var.number_of_nodes # 1 for dev, 3+ for prod (HA with replication)
+    number_of_nodes    = var.number_of_nodes # 1 for dev, 3+ for prod (HA with replication)
+    rebalance_strategy = "CLUSTER_CONFIGURATION_REBALANCE_STRATEGY_BY_COUNT_AND_SIZE"
+    restart_policy     = "CLUSTER_CONFIGURATION_RESTART_POLICY_AUTOMATIC"
+    service_type       = "CLUSTER_SERVICE_TYPE_CLUSTER_IP"
 
     # Database engine settings
     database_configuration {

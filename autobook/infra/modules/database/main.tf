@@ -34,6 +34,7 @@ resource "aws_db_instance" "main" {
   engine                      = "postgres"
   engine_version              = "18"
   allow_major_version_upgrade = true
+  apply_immediately           = true
 
   # --- Size: controlled by caller ---
   instance_class    = var.db_instance_class # Machine size

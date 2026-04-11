@@ -347,10 +347,10 @@ module "ml" {
   environment        = var.environment
   private_subnet_ids = module.networking.private_subnet_ids
   sagemaker_sg_id    = module.networking.sagemaker_sg_id
-  model_image        = "763104351884.dkr.ecr.ca-central-1.amazonaws.com/huggingface-pytorch-inference:2.6.0-transformers4.49.0-gpu-py312-cu124-ubuntu22.04-v2.0"
+  model_image        = null  # Endpoint deleted — set image URL to recreate
   model_data_url     = "s3://autobook-dev-data-609092547371/models/classifier/model.tar.gz"
-  serverless         = false          # GPU required for DeBERTa inference
-  instance_type      = "ml.g5.xlarge" # 1x A10G, 24 GB VRAM
+  serverless         = false
+  instance_type      = "ml.g5.xlarge"
   instance_count     = 1
 }
 

@@ -13,6 +13,8 @@ import {
   completeHostedLogin,
   fetchAuthMe,
   getAccessToken,
+  getCachedUser,
+  isTokenExpired,
   passwordLogin,
   refreshAuthSession,
 } from "../api/auth";
@@ -52,26 +54,32 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }, [status, user?.id]);
 
   async function bootstrapAuth() {
-    if (!getAccessToken()) {
+    const token = getAccessToken();
+    if (!token) {
       setUser(null);
       setStatus("anonymous");
       return;
     }
 
+    // Optimistic: if token isn't expired and we have a cached user,
+    // render immediately. Validate silently in the background.
+    const cached = getCachedUser();
+    if (cached && !isTokenExpired(token)) {
+      setUser(cached);
+      setStatus("authenticated");
+      // Silent background refresh — update cached user, don't block UI
+      fetchAuthMe().catch(() => {});
+      return;
+    }
+
+    // Token expired or no cache — try refresh
     try {
-      const me = await fetchAuthMe();
+      const me = await refreshAuthSession();
       setUser(me);
       setStatus("authenticated");
       return;
     } catch {
-      try {
-        const me = await refreshAuthSession();
-        setUser(me);
-        setStatus("authenticated");
-        return;
-      } catch {
-        clearAuthSession();
-      }
+      clearAuthSession();
     }
 
     setUser(null);
