@@ -36,12 +36,37 @@ type AuthContextValue = {
 
 const AuthContext = createContext<AuthContextValue | null>(null);
 
+/**
+ * Resolve auth state synchronously from localStorage.
+ * Called once as the useState initializer — no useEffect, no flash.
+ *
+ * Returns "authenticated" if we have a non-expired token + cached user,
+ * "anonymous" if no token at all, or "loading" only when a token exists
+ * but is expired (needs async refresh).
+ */
+function resolveInitialAuth(): { status: AuthStatus; user: AuthUser | null } {
+  const token = getAccessToken();
+  if (!token) return { status: "anonymous", user: null };
+  const cached = getCachedUser();
+  if (cached && !isTokenExpired(token)) return { status: "authenticated", user: cached };
+  // Token exists but expired or no cache — needs async work
+  return { status: "loading", user: null };
+}
+
 export function AuthProvider({ children }: { children: ReactNode }) {
-  const [status, setStatus] = useState<AuthStatus>("loading");
-  const [user, setUser] = useState<AuthUser | null>(null);
+  const [initial] = useState(resolveInitialAuth);
+  const [status, setStatus] = useState<AuthStatus>(initial.status);
+  const [user, setUser] = useState<AuthUser | null>(initial.user);
 
   useEffect(() => {
-    void bootstrapAuth();
+    if (initial.status === "authenticated") {
+      // Resolved from cache — validate silently in background
+      fetchAuthMe().catch(() => {});
+      return;
+    }
+    if (initial.status === "anonymous") return;
+    // "loading" — token expired, try refresh
+    void refreshExpiredToken();
   }, []);
 
   useEffect(() => {
@@ -53,37 +78,16 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     disconnectRealtimeUpdates();
   }, [status, user?.id]);
 
-  async function bootstrapAuth() {
-    const token = getAccessToken();
-    if (!token) {
-      setUser(null);
-      setStatus("anonymous");
-      return;
-    }
-
-    // Optimistic: if token isn't expired and we have a cached user,
-    // render immediately. Validate silently in the background.
-    const cached = getCachedUser();
-    if (cached && !isTokenExpired(token)) {
-      setUser(cached);
-      setStatus("authenticated");
-      // Silent background refresh — update cached user, don't block UI
-      fetchAuthMe().catch(() => {});
-      return;
-    }
-
-    // Token expired or no cache — try refresh
+  async function refreshExpiredToken() {
     try {
       const me = await refreshAuthSession();
       setUser(me);
       setStatus("authenticated");
-      return;
     } catch {
       clearAuthSession();
+      setUser(null);
+      setStatus("anonymous");
     }
-
-    setUser(null);
-    setStatus("anonymous");
   }
 
   const value = useMemo<AuthContextValue>(

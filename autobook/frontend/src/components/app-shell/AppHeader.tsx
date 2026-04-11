@@ -1,3 +1,4 @@
+import { useNavigate } from "react-router-dom";
 import { palette } from "../panels/shared/tokens";
 import { BrandIcon } from "../BrandIcon";
 import { EntitySwitcher } from "../../entity/EntitySwitcher";
@@ -22,6 +23,7 @@ const SIDEBAR_SLOT_WIDTH = 272;
  * gives the row a floor (~industry-standard compact desktop header).
  */
 export function AppHeader() {
+  const navigate = useNavigate();
   return (
     <header
       style={{
@@ -33,11 +35,12 @@ export function AppHeader() {
       }}
     >
       <div
+        onClick={() => navigate("/draft")}
         style={{
           width: SIDEBAR_SLOT_WIDTH,
           flexShrink: 0,
           marginTop: 16,
-          padding: "0 32px", // header padding (16) + AppSidebar slot padding (16) → aligns "Autobook" with the Sidebar panel's left edge
+          padding: "0 32px",
           display: "flex",
           alignItems: "center",
           gap: 10,
@@ -45,6 +48,7 @@ export function AppHeader() {
           fontWeight: 700,
           color: palette.carbonBlack,
           letterSpacing: "-0.01em",
+          cursor: "pointer",
         }}
       >
         <BrandIcon size={24} />

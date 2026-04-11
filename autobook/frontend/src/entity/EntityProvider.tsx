@@ -11,6 +11,18 @@ import { fetchEntities, type EntityItem } from "../api/entities";
 import { useAuth } from "../auth/AuthProvider";
 
 const STORAGE_KEY = "autobook.active_entity_id";
+const CACHED_ENTITIES_KEY = "autobook.cached_entities";
+
+function getCachedEntities(): EntityItem[] {
+  try {
+    const raw = localStorage.getItem(CACHED_ENTITIES_KEY);
+    return raw ? (JSON.parse(raw) as EntityItem[]) : [];
+  } catch { return []; }
+}
+
+function setCachedEntities(items: EntityItem[]) {
+  try { localStorage.setItem(CACHED_ENTITIES_KEY, JSON.stringify(items)); } catch { /* ignore */ }
+}
 
 type EntityContextValue = {
   entities: EntityItem[];
@@ -24,21 +36,23 @@ const EntityContext = createContext<EntityContextValue | null>(null);
 
 export function EntityProvider({ children }: { children: ReactNode }) {
   const { isAuthenticated } = useAuth();
-  const [entities, setEntities] = useState<EntityItem[]>([]);
-  const [activeId, setActiveId] = useState<string | null>(() => {
-    try {
-      return localStorage.getItem(STORAGE_KEY);
-    } catch {
-      return null;
-    }
+
+  // Resolve from cache synchronously — no flash
+  const [initial] = useState(() => {
+    const cached = getCachedEntities();
+    const storedId = localStorage.getItem(STORAGE_KEY);
+    return { cached, storedId };
   });
-  const [loading, setLoading] = useState(true);
+
+  const [entities, setEntities] = useState<EntityItem[]>(initial.cached);
+  const [activeId, setActiveId] = useState<string | null>(initial.storedId);
+  const [loading, setLoading] = useState(initial.cached.length === 0);
 
   const loadEntities = useCallback(async () => {
-    setLoading(true);
     try {
       const items = await fetchEntities();
       setEntities(items);
+      setCachedEntities(items);
       const storedId = localStorage.getItem(STORAGE_KEY);
       const match = items.find((e) => e.id === storedId);
       const selected = match ?? items[0] ?? null;
@@ -47,8 +61,11 @@ export function EntityProvider({ children }: { children: ReactNode }) {
         try { localStorage.setItem(STORAGE_KEY, selected.id); } catch { /* ignore */ }
       }
     } catch {
-      setEntities([]);
-      setActiveId(null);
+      // Only clear if we had no cache to begin with
+      if (getCachedEntities().length === 0) {
+        setEntities([]);
+        setActiveId(null);
+      }
     } finally {
       setLoading(false);
     }

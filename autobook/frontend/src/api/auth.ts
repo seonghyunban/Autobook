@@ -45,6 +45,8 @@ export function clearAuthSession() {
   localStorage.removeItem(ACCESS_TOKEN_KEY);
   localStorage.removeItem(REFRESH_TOKEN_KEY);
   localStorage.removeItem(CACHED_USER_KEY);
+  localStorage.removeItem("autobook.cached_entities");
+  localStorage.removeItem("autobook.active_entity_id");
   sessionStorage.removeItem(PKCE_VERIFIER_KEY);
   sessionStorage.removeItem(PKCE_STATE_KEY);
 }
