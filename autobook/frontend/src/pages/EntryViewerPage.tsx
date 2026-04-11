@@ -110,6 +110,7 @@ function detailToTrace(detail: DraftDetail): AgentAttemptedTrace {
     rag_normalizer_hits: [],
     rag_local_hits: [],
     rag_pop_hits: [],
+    jurisdiction: null,
   };
 }
 

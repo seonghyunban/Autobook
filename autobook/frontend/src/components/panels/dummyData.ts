@@ -18,6 +18,7 @@ export const EMPTY_ATTEMPTED_TRACE: AgentAttemptedTrace = {
   rag_normalizer_hits: [],
   rag_local_hits: [],
   rag_pop_hits: [],
+  jurisdiction: null,
 };
 
 /**
@@ -36,6 +37,7 @@ export const DUMMY_ATTEMPTED_TRACE: AgentAttemptedTrace = {
   rag_normalizer_hits: [],
   rag_local_hits: [],
   rag_pop_hits: [],
+  jurisdiction: null,
   transaction_graph: {
     nodes: [
       // Reporting entity (1)

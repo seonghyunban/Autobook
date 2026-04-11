@@ -17,8 +17,9 @@ class DraftDAO:
         *,
         entity_id: UUID,
         transaction_id: UUID,
+        jurisdiction: str | None = None,
     ) -> Draft:
-        draft = Draft(entity_id=entity_id, transaction_id=transaction_id)
+        draft = Draft(entity_id=entity_id, transaction_id=transaction_id, jurisdiction=jurisdiction)
         db.add(draft)
         db.flush()
         return draft

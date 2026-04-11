@@ -49,14 +49,14 @@ signal.signal(signal.SIGTERM, _handle_shutdown)
 signal.signal(signal.SIGINT, _handle_shutdown)
 
 
-def _persist_graph(entity_id: str, transaction_id: str, graph: dict) -> tuple[str, str]:
+def _persist_graph(entity_id: str, transaction_id: str, graph: dict, jurisdiction: str | None = None) -> tuple[str, str]:
     """Create Draft + TransactionGraph rows. Returns (draft_id, graph_id)."""
     db = SessionLocal()
     try:
         eid = UUID(entity_id)
         tid = UUID(transaction_id)
 
-        draft = DraftDAO.create(db, entity_id=eid, transaction_id=tid)
+        draft = DraftDAO.create(db, entity_id=eid, transaction_id=tid, jurisdiction=jurisdiction)
 
         nodes = [
             {"node_index": n["index"], "name": n["name"], "role": n["role"]}
@@ -128,7 +128,7 @@ def process_message(message: dict) -> None:
         else:
             graph = normalize(input_text, context, local_hits=local_hits, pop_hits=pop_hits)
 
-        draft_id, graph_id = _persist_graph(entity_id, transaction_id, graph)
+        draft_id, graph_id = _persist_graph(entity_id, transaction_id, graph, jurisdiction=message.get("jurisdiction"))
 
         enqueue_agent({
             "parse_id": parse_id,

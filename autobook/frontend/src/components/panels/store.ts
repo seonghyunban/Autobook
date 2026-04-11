@@ -188,6 +188,7 @@ export function wireToTrace(wire: AgentResultWire): AgentAttemptedTrace {
     rag_normalizer_hits: ps.rag_normalizer_hits ?? [],
     rag_local_hits: ps.rag_local_hits ?? [],
     rag_pop_hits: ps.rag_pop_hits ?? [],
+    jurisdiction: (wire as Record<string, unknown>).jurisdiction as string | null ?? null,
   };
 }
 

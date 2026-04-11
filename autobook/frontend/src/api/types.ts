@@ -415,6 +415,7 @@ export type AgentAttemptedTrace = TraceBase & {
   rag_normalizer_hits: unknown[];
   rag_local_hits: unknown[];
   rag_pop_hits: unknown[];
+  jurisdiction: string | null;
 };
 
 /**

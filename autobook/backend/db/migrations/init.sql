@@ -114,6 +114,7 @@ CREATE TABLE drafts (
     id UUID NOT NULL PRIMARY KEY DEFAULT uuidv7(),
     entity_id UUID NOT NULL REFERENCES entities (id) ON DELETE CASCADE,
     transaction_id UUID NOT NULL REFERENCES transactions (id) ON DELETE CASCADE,
+    jurisdiction VARCHAR(10),
     created_at TIMESTAMP WITH TIME ZONE DEFAULT now() NOT NULL
 );
 
