@@ -8,6 +8,8 @@ import type {
   HumanEditableTax,
   TraceBase,
 } from "../../api/types";
+import type { ReasoningChunk, SectionId } from "./reasoning_panel/ReasoningPanel";
+import { SECTION_ORDER } from "./reasoning_panel/ReasoningPanel";
 import { EMPTY_ATTEMPTED_TRACE } from "./dummyData";
 
 /**
@@ -35,15 +37,23 @@ import { EMPTY_ATTEMPTED_TRACE } from "./dummyData";
  *   - Page-level UI flags (loading, error, modal visibility) → useState
  *   - Refs (parseIdRef, DOM refs, timer handles) → useRef
  */
+type ReasoningSections = Record<SectionId, ReasoningChunk[]>;
+
+const emptyReasoning = (): ReasoningSections => ({
+  normalization: [], ambiguity: [], gap: [], proceed: [], debit: [], credit: [], tax: [], entry: [],
+});
+
 type LLMInteractionStore = {
   draftId: string | null;
+  inputText: string;
   attempted: AgentAttemptedTrace;
   corrected: HumanCorrectedTrace;
+  reasoningSections: ReasoningSections;
 
   /**
    * Atomic reset: sets both `attempted` and `corrected` to deep copies
    * of `newAttempted`, assigning fresh ids to all list elements. The
-   * corrected copy starts with empty notes.
+   * corrected copy starts with empty notes. Reasoning is cleared.
    *
    * Called at the two reset moments:
    *   1. On submit — with EMPTY_ATTEMPTED_TRACE to wipe
@@ -61,6 +71,16 @@ type LLMInteractionStore = {
    * Mutate the corrected draft via an immer recipe.
    */
   setCorrected: (updater: (draft: HumanCorrectedTrace) => void) => void;
+
+  /**
+   * Update reasoning sections (called by SSE handler).
+   */
+  setReasoning: (updater: (draft: ReasoningSections) => void) => void;
+
+  /**
+   * Update the input text field.
+   */
+  setInputText: (text: string) => void;
 };
 
 // ── Id assignment helpers ─────────────────────────────────
@@ -232,8 +252,10 @@ export const useLLMInteractionStore = create<LLMInteractionStore>()(
   persist(
     immer((set) => ({
       draftId: null,
+      inputText: "",
       attempted: initialAttempted,
       corrected: attemptedToCorrected(initialAttempted),
+      reasoningSections: emptyReasoning(),
 
       resetAll: (newAttempted, draftId) =>
         set((state) => {
@@ -256,14 +278,26 @@ export const useLLMInteractionStore = create<LLMInteractionStore>()(
         set((state) => {
           updater(state.corrected);
         }),
+
+      setReasoning: (updater) =>
+        set((state) => {
+          updater(state.reasoningSections);
+        }),
+
+      setInputText: (text) =>
+        set((state) => {
+          state.inputText = text;
+        }),
     })),
     {
       name: "autobook-drafter",
       storage: createJSONStorage(() => sessionStorage),
       partialize: (state) => ({
         draftId: state.draftId,
+        inputText: state.inputText,
         attempted: state.attempted,
         corrected: state.corrected,
+        reasoningSections: state.reasoningSections,
       }),
     },
   )

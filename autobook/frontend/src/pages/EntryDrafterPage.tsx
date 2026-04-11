@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useRef, useState } from "react";
+import { motion, AnimatePresence } from "motion/react";
 import { useAutoSave } from "../hooks/useAutoSave";
 import { submitCorrection } from "../api/corrections";
 import { submitLLMInteraction } from "../api/llm";
@@ -14,7 +15,6 @@ import { MOTION, palette, T, panel, PanelHeader, HoverButton, PrimaryButton } fr
 import {
   ReasoningStream,
   SECTION_ORDER,
-  buildFromTrace,
 } from "../components/panels/reasoning_panel";
 import type {
   EntryLineData,
@@ -36,7 +36,7 @@ import { EMPTY_ATTEMPTED_TRACE } from "../components/panels/dummyData";
 import { TransactionDisplay } from "../components/panels/shared/TransactionDisplay";
 
 // ── Entry panel ──────────────────────────────────────────
-import { EntryTable, DecisionOverlay } from "../components/panels/entry_panel";
+import { EntryTable, DecisionContent } from "../components/panels/entry_panel";
 
 const CURRENCY_SYMBOLS: Record<string, string> = {
   CAD: "$", USD: "$", KRW: "₩", EUR: "€", GBP: "£", JPY: "¥", CNY: "¥",
@@ -50,7 +50,8 @@ function currencySymbol(entry: { currency?: string; currency_symbol?: string } |
 export function EntryDrafterPage() {
   useAutoSave();
   const [jurisdiction, setJurisdiction] = useState<"CA" | "KR">("KR");
-  const [inputText, setInputText] = useState("");
+  const inputText = useLLMInteractionStore((st) => st.inputText);
+  const setInputText = useLLMInteractionStore((st) => st.setInputText);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [result, setResult] = useState<LLMInteractionResponse | null>(null);
@@ -85,11 +86,8 @@ export function EntryDrafterPage() {
   const seqRef = useRef(0);
   const doneSeqRef = useRef(0);
 
-  const emptyReasoning = (): Record<SectionId, ReasoningChunk[]> => ({
-    normalization: [], ambiguity: [], gap: [], proceed: [], debit: [], credit: [], tax: [], entry: [],
-  });
-
-  const [reasoningSections, setReasoningSections] = useState<Record<SectionId, ReasoningChunk[]>>(emptyReasoning);
+  const reasoningSections = useLLMInteractionStore((st) => st.reasoningSections);
+  const setReasoning = useLLMInteractionStore((st) => st.setReasoning);
   const scrollTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   const entryScrollRef = useRef<HTMLDivElement>(null);
@@ -104,11 +102,10 @@ export function EntryDrafterPage() {
 
   // ── Helper: update the last chunk in a section ─────────
   function updateLastChunk(section: SectionId, updater: (chunk: ReasoningChunk) => ReasoningChunk) {
-    setReasoningSections((prev) => {
-      const chunks = [...prev[section]];
-      if (chunks.length === 0) return prev;
+    setReasoning((draft) => {
+      const chunks = draft[section];
+      if (chunks.length === 0) return;
       chunks[chunks.length - 1] = updater(chunks[chunks.length - 1]);
-      return { ...prev, [section]: chunks };
     });
   }
 
@@ -122,10 +119,9 @@ export function EntryDrafterPage() {
 
     switch (action) {
       case "chunk.create":
-        setReasoningSections((prev) => ({
-          ...prev,
-          [sid]: [...prev[sid], { label: label || "", done: false, blocks: [], seq: seqRef.current++ }],
-        }));
+        setReasoning((draft) => {
+          draft[sid].push({ label: label || "", done: false, blocks: [], seq: seqRef.current++ });
+        });
         break;
 
       case "chunk.label":
@@ -261,14 +257,6 @@ export function EntryDrafterPage() {
     return () => { unsubRef.current?.(); };
   }, []);
 
-  // ── Rebuild reasoning from store if SSE data was lost (navigation) ──
-  useEffect(() => {
-    const allEmpty = SECTION_ORDER.every((id) => reasoningSections[id].length === 0);
-    const hasData = agentResult.output_entry_drafter?.lines?.length || agentResult.output_decision_maker;
-    if (allEmpty && hasData) {
-      setReasoningSections(buildFromTrace(agentResult));
-    }
-  }, [agentResult]);
 
   async function handleSubmit() {
     const trimmed = inputText.trim();
@@ -278,10 +266,10 @@ export function EntryDrafterPage() {
     setResult(null);
     // Wipe both attempted and corrected atomically via the store
     useLLMInteractionStore.getState().resetAll(EMPTY_ATTEMPTED_TRACE, null);
+    setReasoning((draft) => { Object.assign(draft, { normalization: [], ambiguity: [], gap: [], proceed: [], debit: [], credit: [], tax: [], entry: [] }); });
     setOverlayVisible(false);
     seqRef.current = 0;
     doneSeqRef.current = 0;
-    setReasoningSections(emptyReasoning());
 
     // Unsubscribe previous
     unsubRef.current?.();
@@ -392,16 +380,33 @@ export function EntryDrafterPage() {
                   </HoverButton>
                 </div>
               </div>
-              <div style={{ display: "flex", flexDirection: "column", gap: 16, flex: 1, minHeight: 0 }}>
-                <div style={{ flex: 1, minHeight: 0, display: "flex", flexDirection: "column" }}>
-                  <EntryTable lines={agentResult.output_entry_drafter?.lines || []} currencySymbol={currencySymbol(agentResult.output_entry_drafter)} scrollable minRows={12} showAccountCode rowAppearAnimation scrollRef={entryScrollRef} />
-                </div>
+              <div style={{ display: "flex", flexDirection: "column", flex: 1, minHeight: 0, position: "relative" }}>
+                <AnimatePresence mode="wait">
+                  {overlayVisible && (agentResult.decision === "MISSING_INFO" || agentResult.decision === "STUCK") ? (
+                    <motion.div
+                      key="decision"
+                      initial={{ opacity: 0 }}
+                      animate={{ opacity: 1 }}
+                      exit={{ opacity: 0 }}
+                      transition={{ duration: 0.25 }}
+                      style={{ flex: 1, minHeight: 0, display: "flex", flexDirection: "column" }}
+                    >
+                      <DecisionContent data={agentResult as unknown as Record<string, unknown>} />
+                    </motion.div>
+                  ) : (
+                    <motion.div
+                      key="entry"
+                      initial={{ opacity: 0 }}
+                      animate={{ opacity: 1 }}
+                      exit={{ opacity: 0 }}
+                      transition={{ duration: 0.25 }}
+                      style={{ flex: 1, minHeight: 0, display: "flex", flexDirection: "column" }}
+                    >
+                      <EntryTable lines={agentResult.output_entry_drafter?.lines || []} currencySymbol={currencySymbol(agentResult.output_entry_drafter)} scrollable minRows={12} showAccountCode rowAppearAnimation scrollRef={entryScrollRef} />
+                    </motion.div>
+                  )}
+                </AnimatePresence>
               </div>
-              {(agentResult.decision === "MISSING_INFO" || agentResult.decision === "STUCK") && (
-                <DecisionOverlay data={agentResult as unknown as Record<string, unknown>} visible={overlayVisible} onClose={() => {
-                  setOverlayVisible(false);
-                }} />
-              )}
             </section>
 
             {/* Input */}

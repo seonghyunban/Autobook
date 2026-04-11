@@ -138,6 +138,101 @@ export function DecisionOverlay({ data, visible, onClose }: { data: Record<strin
   );
 }
 
+// ── Decision Content (inline, no overlay) ────────────
+
+export function DecisionContent({ data }: { data: Record<string, unknown> }) {
+  const decision = data.decision as string;
+  const isMissing = decision === "MISSING_INFO";
+
+  return (
+    <div className={s.scrollable} style={{
+      flex: 1,
+      display: "flex",
+      flexDirection: "column",
+      gap: 12,
+      overflow: "auto",
+      minHeight: 0,
+    }}>
+      <h2 style={{ margin: 0, fontSize: 15, fontWeight: 600, color: isMissing ? palette.spicyPaprika : T.errorText }}>
+        {isMissing ? "Missing Information" : "Stuck"}
+      </h2>
+
+      {isMissing && (() => {
+        const dm = (data.output_decision_maker || data) as Record<string, unknown>;
+        const ambiguities = (dm.ambiguities as Array<Record<string, unknown>>) || [];
+        return (
+          <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
+            {ambiguities.map((a, i) => (
+              <div key={i} style={{ display: "flex", flexDirection: "column", gap: 18 }}>
+                <div>
+                  <div style={{ fontSize: 13, fontWeight: 600, color: T.textPrimary }}>
+                    {String(a.aspect)}
+                  </div>
+                  {!!a.clarification_question && (
+                    <div style={{ fontSize: 12, color: T.textSecondary, fontStyle: "italic", marginTop: 4 }}>
+                      {String(a.clarification_question)}
+                    </div>
+                  )}
+                </div>
+                {((a.cases as Array<Record<string, unknown>>) || []).map((c, j) => (
+                  <div key={j} style={{ paddingLeft: 12 }}>
+                    <div style={{ fontSize: 12, fontWeight: 500, color: T.textPrimary, marginBottom: 2 }}>
+                      If: {String(c.case)}
+                    </div>
+                    {(() => {
+                      const pe = c.possible_entry as OverlayEntry | undefined;
+                      return pe?.lines?.length
+                        ? <EntryTable lines={pe.lines as JournalLine[]} currencySymbol={pe.currency_symbol || ""} minRows={0} />
+                        : null;
+                    })()}
+                  </div>
+                ))}
+              </div>
+            ))}
+          </div>
+        );
+      })()}
+
+      {!isMissing && (() => {
+        const stuckReason = data.stuck_reason as string | undefined;
+        const gaps = (data.capability_gaps as Array<Record<string, unknown>>) || [];
+        return (
+          <div style={{ display: "flex", flexDirection: "column", gap: 18 }}>
+            {stuckReason && (
+              <div style={{ fontSize: 13, color: T.textSecondary }}>
+                {stuckReason}
+              </div>
+            )}
+            {gaps.map((g, i) => (
+              <div key={i} style={{ display: "flex", flexDirection: "column", gap: 18 }}>
+                <div>
+                  <div style={{ fontSize: 13, fontWeight: 600, color: T.textPrimary }}>
+                    {String(g.aspect)}
+                  </div>
+                  {!!g.gap && (
+                    <div style={{ fontSize: 12, color: T.textSecondary, marginTop: 4 }}>
+                      {String(g.gap)}
+                    </div>
+                  )}
+                </div>
+                {(() => {
+                  const ba = g.best_attempt as OverlayEntry | undefined;
+                  return ba?.lines?.length ? (
+                    <div style={{ paddingLeft: 12 }}>
+                      <div style={{ fontSize: 11, fontWeight: 500, color: T.textMuted, marginBottom: 2 }}>Best attempt:</div>
+                      <EntryTable lines={ba.lines as JournalLine[]} currencySymbol={ba.currency_symbol || ""} minRows={0} />
+                    </div>
+                  ) : null;
+                })()}
+              </div>
+            ))}
+          </div>
+        );
+      })()}
+    </div>
+  );
+}
+
 // ── Entry building blocks ────────────────────────────
 
 const editInputStyle: React.CSSProperties = {

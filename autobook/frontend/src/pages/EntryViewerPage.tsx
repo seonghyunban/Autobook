@@ -20,7 +20,8 @@ import {
   CorrectionSummaryContainer,
 } from "../components/panels/review_panel";
 import { TransactionDisplay } from "../components/panels/shared/TransactionDisplay";
-import { EntryTable, DecisionOverlay } from "../components/panels/entry_panel";
+import { motion, AnimatePresence } from "motion/react";
+import { EntryTable, DecisionContent } from "../components/panels/entry_panel";
 
 const CURRENCY_SYMBOLS: Record<string, string> = {
   CAD: "$", USD: "$", KRW: "₩", EUR: "€", GBP: "£", JPY: "¥", CNY: "¥",
@@ -346,14 +347,33 @@ export function EntryViewerPage() {
                     </HoverButton>
                   </div>
                 </div>
-                <div style={{ display: "flex", flexDirection: "column", gap: 16, flex: 1, minHeight: 0 }}>
-                  <div style={{ flex: 1, minHeight: 0, display: "flex", flexDirection: "column" }}>
-                    <EntryTable lines={agentResult.output_entry_drafter?.lines || []} currencySymbol={currencySymbol(agentResult.output_entry_drafter)} scrollable minRows={12} showAccountCode rowAppearAnimation scrollRef={entryScrollRef} />
-                  </div>
+                <div style={{ display: "flex", flexDirection: "column", flex: 1, minHeight: 0, position: "relative" }}>
+                  <AnimatePresence mode="wait">
+                    {overlayVisible && (agentResult.decision === "MISSING_INFO" || agentResult.decision === "STUCK") ? (
+                      <motion.div
+                        key="decision"
+                        initial={{ opacity: 0 }}
+                        animate={{ opacity: 1 }}
+                        exit={{ opacity: 0 }}
+                        transition={{ duration: 0.25 }}
+                        style={{ flex: 1, minHeight: 0, display: "flex", flexDirection: "column" }}
+                      >
+                        <DecisionContent data={agentResult as unknown as Record<string, unknown>} />
+                      </motion.div>
+                    ) : (
+                      <motion.div
+                        key="entry"
+                        initial={{ opacity: 0 }}
+                        animate={{ opacity: 1 }}
+                        exit={{ opacity: 0 }}
+                        transition={{ duration: 0.25 }}
+                        style={{ flex: 1, minHeight: 0, display: "flex", flexDirection: "column" }}
+                      >
+                        <EntryTable lines={agentResult.output_entry_drafter?.lines || []} currencySymbol={currencySymbol(agentResult.output_entry_drafter)} scrollable minRows={12} showAccountCode rowAppearAnimation scrollRef={entryScrollRef} />
+                      </motion.div>
+                    )}
+                  </AnimatePresence>
                 </div>
-                {(agentResult.decision === "MISSING_INFO" || agentResult.decision === "STUCK") && (
-                  <DecisionOverlay data={agentResult as unknown as Record<string, unknown>} visible={overlayVisible} onClose={() => setOverlayVisible(false)} />
-                )}
               </section>
 
               {/* Input (read-only) */}

@@ -1,1 +1,1 @@
-export { EntryTable, EntryHeader, EntryRow, EntryTotalRow, DecisionOverlay } from "./EntryPanel";
+export { EntryTable, EntryHeader, EntryRow, EntryTotalRow, DecisionOverlay, DecisionContent } from "./EntryPanel";
