@@ -179,6 +179,24 @@ function detailToCorrected(detail: DraftDetail): Partial<HumanCorrectedTrace> | 
     };
   }
 
+  if (detail.correction_graph) {
+    const g = detail.correction_graph;
+    result.transaction_graph = {
+      nodes: g.nodes.map((n) => ({ index: n.index, name: n.name, role: n.role as "reporting_entity" | "counterparty" | "indirect_party" })),
+      edges: g.edges.map((e) => ({
+        id: "",
+        source: e.source,
+        source_index: e.source_index,
+        target: e.target,
+        target_index: e.target_index,
+        nature: e.nature,
+        kind: e.kind as "reciprocal_exchange" | "chained_exchange" | "non_exchange" | "relationship",
+        amount: e.amount,
+        currency: e.currency,
+      })),
+    };
+  }
+
   return result;
 }
 

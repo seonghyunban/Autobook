@@ -123,6 +123,7 @@ class DraftDetailResponse(BaseModel):
     jurisdiction: str | None = None
     created_at: str
     graph: GraphOut | None
+    correction_graph: GraphOut | None
     entry: EntryOut | None
     correction_entry: EntryOut | None
     traces: list[TraceOut]
@@ -291,6 +292,43 @@ def get_draft(
     entry_out = _load_entry(attempt.drafted_entry_id) if attempt else None
     correction_entry_out = _load_entry(correction.drafted_entry_id) if correction else None
 
+    # Load correction graph if it differs from attempt graph
+    correction_graph_out = None
+    if correction and correction.graph_id != (attempt.graph_id if attempt else None):
+        corr_graph_row = db.get(TransactionGraph, correction.graph_id)
+        if corr_graph_row:
+            corr_graph_row = (
+                db.execute(
+                    select(TransactionGraph)
+                    .options(
+                        selectinload(TransactionGraph.nodes),
+                        selectinload(TransactionGraph.edges),
+                    )
+                    .where(TransactionGraph.id == corr_graph_row.id)
+                )
+                .scalar_one()
+            )
+            corr_node_names = {n.node_index: n.name for n in corr_graph_row.nodes}
+            correction_graph_out = GraphOut(
+                nodes=[
+                    GraphNodeOut(index=n.node_index, name=n.name, role=n.role)
+                    for n in corr_graph_row.nodes
+                ],
+                edges=[
+                    GraphEdgeOut(
+                        source_index=e.source_index,
+                        target_index=e.target_index,
+                        source=corr_node_names.get(e.source_index, ""),
+                        target=corr_node_names.get(e.target_index, ""),
+                        nature=e.nature,
+                        kind=e.edge_kind,
+                        amount=float(e.amount) if e.amount is not None else None,
+                        currency=e.currency,
+                    )
+                    for e in corr_graph_row.edges
+                ],
+            )
+
     # Build trace output
     trace_outs = []
     for t in traces:
@@ -344,6 +382,7 @@ def get_draft(
         jurisdiction=draft.jurisdiction,
         created_at=draft.created_at.isoformat(),
         graph=graph_out,
+        correction_graph=correction_graph_out,
         entry=entry_out,
         correction_entry=correction_entry_out,
         traces=trace_outs,

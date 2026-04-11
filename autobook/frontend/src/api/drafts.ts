@@ -31,6 +31,19 @@ export type DraftDetail = {
       currency: string | null;
     }[];
   } | null;
+  correction_graph: {
+    nodes: { index: number; name: string; role: string }[];
+    edges: {
+      source_index: number;
+      target_index: number;
+      source: string;
+      target: string;
+      nature: string;
+      kind: string;
+      amount: number | null;
+      currency: string | null;
+    }[];
+  } | null;
   correction_entry: {
     id: string;
     entry_reason: string | null;

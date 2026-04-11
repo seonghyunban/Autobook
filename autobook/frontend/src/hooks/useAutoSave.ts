@@ -15,8 +15,13 @@ const DEBOUNCE_MS = 2000;
 export function useAutoSave() {
   const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const prevRef = useRef<string>("");
+  const skipCount = useRef(0);
 
   useEffect(() => {
+    // Skip the first few store changes (rehydration + resetAll + hydrateCorrected)
+    // to prevent auto-save from overwriting DB corrections on page load.
+    skipCount.current = 3;
+
     const unsub = useLLMInteractionStore.subscribe((state) => {
       const draftId = state.draftId;
       if (!draftId) return;
@@ -24,6 +29,11 @@ export function useAutoSave() {
       const snapshot = JSON.stringify(state.corrected);
       if (snapshot === prevRef.current) return;
       prevRef.current = snapshot;
+
+      if (skipCount.current > 0) {
+        skipCount.current--;
+        return;
+      }
 
       if (timerRef.current) clearTimeout(timerRef.current);
       timerRef.current = setTimeout(() => {
