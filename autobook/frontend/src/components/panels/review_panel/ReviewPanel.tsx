@@ -570,6 +570,14 @@ function readGraphEdges(graph: { edges?: GraphEdgeData[] } | null | undefined): 
   return graph?.edges ?? [];
 }
 
+/** Update edge source/target name strings when a node is renamed. */
+function propagateNodeRename(graph: { edges?: GraphEdgeData[] } | null | undefined, nodeIndex: number, newName: string) {
+  for (const edge of readGraphEdges(graph)) {
+    if (edge.source_index === nodeIndex) edge.source = newName;
+    if (edge.target_index === nodeIndex) edge.target = newName;
+  }
+}
+
 function ReportingEntityView() {
   // Read both sides from the store. Fine-grained selectors: only re-render when
   // the reporting-entity node's name actually changes.
@@ -590,7 +598,10 @@ function ReportingEntityView() {
   const handleChange = (v: string) => {
     setCorrected((draft) => {
       const node = readGraphNodes(draft.transaction_graph).find((n) => n.role === "reporting_entity");
-      if (node) node.name = v;
+      if (node) {
+        node.name = v;
+        propagateNodeRename(draft.transaction_graph, node.index, v);
+      }
     });
   };
 
@@ -599,7 +610,10 @@ function ReportingEntityView() {
       const attempted = useLLMInteractionStore.getState().attempted;
       const sourceNode = readGraphNodes(attempted.transaction_graph).find((n) => n.role === "reporting_entity");
       const draftNode = readGraphNodes(draft.transaction_graph).find((n) => n.role === "reporting_entity");
-      if (draftNode && sourceNode) draftNode.name = sourceNode.name;
+      if (draftNode && sourceNode) {
+        draftNode.name = sourceNode.name;
+        propagateNodeRename(draft.transaction_graph, draftNode.index, sourceNode.name);
+      }
     });
   };
 
@@ -735,6 +749,7 @@ function PartiesInvolvedItemView() {
         if (node.role === role) {
           if (seen === filteredIdx) {
             node.name = value;
+            propagateNodeRename(draft.transaction_graph, node.index, value);
             return;
           }
           seen++;

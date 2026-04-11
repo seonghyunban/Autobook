@@ -73,39 +73,35 @@ function validateNodes(nodes: GraphNode[], issues: ValidationIssue[]): void {
 // ── Edge-level rules ──────────────────────────────────────
 
 function validateEdges(nodes: GraphNode[], edges: GraphEdge[], issues: ValidationIssue[]): void {
-  const nodeNames = new Set(nodes.map((n) => n.name));
+  const nodeIndices = new Set(nodes.map((n) => n.index));
 
   edges.forEach((edge, i) => {
     const label = `Edge ${i + 1}`;
 
-    // Reference integrity — source
-    if (isBlank(edge.source)) {
-      issues.push({ section: "transaction", severity: "error", message: `${label}: empty source party` });
-    } else if (!nodeNames.has(edge.source)) {
+    // Reference integrity — source (by index)
+    if (edge.source_index == null || !nodeIndices.has(edge.source_index)) {
       issues.push({
         section: "transaction",
         severity: "error",
-        message: `${label}: source "${edge.source}" doesn't match any party`,
+        message: `${label}: source index ${edge.source_index} doesn't match any party`,
       });
     }
 
-    // Reference integrity — target
-    if (isBlank(edge.target)) {
-      issues.push({ section: "transaction", severity: "error", message: `${label}: empty target party` });
-    } else if (!nodeNames.has(edge.target)) {
+    // Reference integrity — target (by index)
+    if (edge.target_index == null || !nodeIndices.has(edge.target_index)) {
       issues.push({
         section: "transaction",
         severity: "error",
-        message: `${label}: target "${edge.target}" doesn't match any party`,
+        message: `${label}: target index ${edge.target_index} doesn't match any party`,
       });
     }
 
     // Self-loop
-    if (!isBlank(edge.source) && edge.source === edge.target) {
+    if (edge.source_index != null && edge.source_index === edge.target_index) {
       issues.push({
         section: "transaction",
         severity: "error",
-        message: `${label}: self-loop (source and target are both "${edge.source}")`,
+        message: `${label}: self-loop (source and target are both index ${edge.source_index})`,
       });
     }
 
