@@ -5,8 +5,6 @@ export {
   SECTION_ORDER,
 } from "./ReasoningPanel";
 
-export { buildFromTrace } from "./buildFromTrace";
-
 export {
   captureManifest,
   defaultManifest,
