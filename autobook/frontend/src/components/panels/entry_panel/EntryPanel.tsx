@@ -1,3 +1,4 @@
+import { useState } from "react";
 import type { JournalLine } from "../../../api/types";
 import { RiCloseLine } from "react-icons/ri";
 import { motion, AnimatePresence } from "motion/react";
@@ -272,6 +273,8 @@ export function EntryHeader({ colors, compact }: { colors: EntryColorTheme; comp
 }
 
 export function EntryRow({ line, index, currencySymbol, colors, compact, disabled, showAccountCode, editable, onLineChange }: EntryRowProps) {
+  const [debitFocused, setDebitFocused] = useState(false);
+  const [creditFocused, setCreditFocused] = useState(false);
   const { cellBg, cellBgFilled, cellBgSolid } = colors;
   const pad = compact ? "4px 6px" : "8px 10px";
   const fs = compact ? 11 : 13;
@@ -311,18 +314,26 @@ export function EntryRow({ line, index, currencySymbol, colors, compact, disable
       </div>
       {/* Debit */}
       <div className={compact ? undefined : s.cellExpand} style={{ flex: 2.5, minWidth: 0, padding: pad, textAlign: "right", fontFamily: "monospace", color: fontColor, borderRadius: cr, background: drBg, transition: "background 0.15s ease, color 0.15s ease" }}>
-        <span style={{ overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap", display: "block", minHeight: compact ? undefined : 28, lineHeight: compact ? undefined : "28px" }}>{debitVal}</span>
+        <span style={{ overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap", display: "block", minHeight: compact ? undefined : 28, lineHeight: compact ? undefined : "28px", opacity: editable && !debitVal ? 0.4 : undefined }}>{debitVal || (editable ? "" : "")}</span>
         {!compact && (
           <>
             {editable ? (
               <span className={`${s.cellExpandOverlay} ${s.cellExpandLeft}`} style={{ background: cellBgSolid[1], color: "#fff", fontFamily: "monospace", justifyContent: "flex-end" }}>
-                <input
-                  value={isDebit ? (line.amount || "") : ""}
-                  onChange={(e) => { const v = Number(e.target.value) || 0; onLineChange?.(index, { ...line, type: v > 0 ? "debit" : line.type, amount: v }); }}
-                  disabled={hasCredit}
-                  style={{ ...editInputStyle, opacity: hasCredit ? 0.3 : 1, fontSize: fs }}
-                  placeholder={hasCredit ? "—" : ""}
-                />
+                {debitFocused ? (
+                  <input
+                    value={isDebit ? (line.amount || "") : ""}
+                    onChange={(e) => { const v = Number(e.target.value) || 0; onLineChange?.(index, { ...line, type: v > 0 ? "debit" : line.type, amount: v }); }}
+                    onBlur={() => setDebitFocused(false)}
+                    autoFocus
+                    disabled={hasCredit}
+                    style={{ ...editInputStyle, opacity: hasCredit ? 0.3 : 1, fontSize: fs }}
+                    placeholder={hasCredit ? "—" : ""}
+                  />
+                ) : (
+                  <span onClick={() => !hasCredit && setDebitFocused(true)} style={{ cursor: hasCredit ? "default" : "text", opacity: hasCredit ? 0.3 : 1 }}>
+                    {debitVal || (hasCredit ? "—" : "")}
+                  </span>
+                )}
               </span>
             ) : debitVal ? (
               <span className={`${s.cellExpandOverlay} ${s.cellExpandLeft}`} style={{ background: cellBgSolid[1], color: "#fff", fontFamily: "monospace", justifyContent: "flex-end" }}>
@@ -334,18 +345,26 @@ export function EntryRow({ line, index, currencySymbol, colors, compact, disable
       </div>
       {/* Credit */}
       <div className={compact ? undefined : s.cellExpand} style={{ flex: 2.5, minWidth: 0, padding: pad, textAlign: "right", fontFamily: "monospace", color: fontColor, borderRadius: cr, background: crBg, transition: "background 0.15s ease, color 0.15s ease" }}>
-        <span style={{ overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap", display: "block", minHeight: compact ? undefined : 28, lineHeight: compact ? undefined : "28px" }}>{creditVal}</span>
+        <span style={{ overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap", display: "block", minHeight: compact ? undefined : 28, lineHeight: compact ? undefined : "28px", opacity: editable && !creditVal ? 0.4 : undefined }}>{creditVal || (editable ? "" : "")}</span>
         {!compact && (
           <>
             {editable ? (
               <span className={`${s.cellExpandOverlay} ${s.cellExpandLeft}`} style={{ background: cellBgSolid[2], color: "#fff", fontFamily: "monospace", justifyContent: "flex-end" }}>
-                <input
-                  value={!isDebit ? (line.amount || "") : ""}
-                  onChange={(e) => { const v = Number(e.target.value) || 0; onLineChange?.(index, { ...line, type: v > 0 ? "credit" : line.type, amount: v }); }}
-                  disabled={hasDebit}
-                  style={{ ...editInputStyle, opacity: hasDebit ? 0.3 : 1, fontSize: fs }}
-                  placeholder={hasDebit ? "—" : ""}
-                />
+                {creditFocused ? (
+                  <input
+                    value={!isDebit ? (line.amount || "") : ""}
+                    onChange={(e) => { const v = Number(e.target.value) || 0; onLineChange?.(index, { ...line, type: v > 0 ? "credit" : line.type, amount: v }); }}
+                    onBlur={() => setCreditFocused(false)}
+                    autoFocus
+                    disabled={hasDebit}
+                    style={{ ...editInputStyle, opacity: hasDebit ? 0.3 : 1, fontSize: fs }}
+                    placeholder={hasDebit ? "—" : ""}
+                  />
+                ) : (
+                  <span onClick={() => !hasDebit && setCreditFocused(true)} style={{ cursor: hasDebit ? "default" : "text", opacity: hasDebit ? 0.3 : 1 }}>
+                    {creditVal || (hasDebit ? "—" : "")}
+                  </span>
+                )}
               </span>
             ) : creditVal ? (
               <span className={`${s.cellExpandOverlay} ${s.cellExpandLeft}`} style={{ background: cellBgSolid[2], color: "#fff", fontFamily: "monospace", justifyContent: "flex-end" }}>
@@ -464,7 +483,7 @@ export function EntryTable({
             {editable && (
               <div style={{ height: 0, position: "relative" }}>
                 <div style={{ position: "absolute", right: -20, top: -7 }}>
-                  <AddButton onClick={() => onAddLine?.(0)} title="Add line at top" />
+                  <AddButton onClick={() => onAddLine?.(0)} title="Add line at top" proximity />
                 </div>
               </div>
             )}
@@ -475,10 +494,10 @@ export function EntryTable({
                     <motion.div initial={innerInitial} animate={innerAnimate} exit={innerExit} style={{ position: "relative" }}>
                       <EntryRow line={line} index={i} currencySymbol={currencySymbol} colors={colors} compact={compact} disabled={disabledRows?.[i]} showAccountCode={showAccountCode} editable onLineChange={onLineChange} />
                       <div style={{ position: "absolute", right: -20, top: "50%", transform: "translateY(-50%)" }}>
-                        <DeleteButton onClick={() => onDeleteLine?.(i)} title="Delete line" />
+                        <DeleteButton onClick={() => onDeleteLine?.(i)} title="Delete line" proximity />
                       </div>
                       <div style={{ position: "absolute", right: -20, bottom: -8, zIndex: 1 }}>
-                        <AddButton onClick={() => onAddLine?.(i + 1)} title="Add line" />
+                        <AddButton onClick={() => onAddLine?.(i + 1)} title="Add line" proximity />
                       </div>
                     </motion.div>
                   </motion.div>
