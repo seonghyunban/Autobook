@@ -15,6 +15,7 @@ import type { TaxonomyDict } from "../../../../api/taxonomy";
 import { useDraftStore } from "../../store";
 import { useShallow } from "zustand/react/shallow";
 import { ReviewSectionLayout } from "../shared/ReviewSectionLayout";
+import { ReviewSubsection } from "../shared/ReviewSubsection";
 import type { EntryColorTheme } from "../../shared/tokens";
 
 // ── Constants ───────────────────────────────────────────
@@ -181,14 +182,16 @@ export function RelationshipSection() {
     || JSON.stringify(correctedLines) !== JSON.stringify(attemptedData.lines);
 
   return (
-    <ReviewSectionLayout>
-      <DebitCreditRelationshipView
-        lines={correctedLines}
-        lineKeys={lineKeys}
-        currencySymbol={sym}
-        colors={changed ? entryColors : attemptedEntryColors}
-        taxonomyDict={taxonomyDict}
-      />
+    <ReviewSectionLayout notesKey="relationship" notesPlaceholder="Any additional notes about the debit/credit classification.">
+      <ReviewSubsection title="D/C Relationship" explanation="Classify each journal line by account type, direction, and taxonomy category.">
+        <DebitCreditRelationshipView
+          lines={correctedLines}
+          lineKeys={lineKeys}
+          currencySymbol={sym}
+          colors={changed ? entryColors : attemptedEntryColors}
+          taxonomyDict={taxonomyDict}
+        />
+      </ReviewSubsection>
     </ReviewSectionLayout>
   );
 }

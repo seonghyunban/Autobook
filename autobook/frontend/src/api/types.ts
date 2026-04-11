@@ -435,12 +435,7 @@ export type AgentAttemptedTrace = TraceBase & {
  */
 export type HumanCorrectedTrace = TraceBase & {
   output_tax_specialist: HumanEditableTax | null;
-  notes: {
-    transactionAnalysis: string;
-    ambiguity: string;
-    tax: string;
-    finalEntry: string;
-  };
+  notes: Record<string, string>;
 };
 
 /**

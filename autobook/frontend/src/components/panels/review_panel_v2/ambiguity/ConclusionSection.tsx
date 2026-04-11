@@ -2,10 +2,13 @@ import { useDraftStore } from "../../store";
 import { palette, T } from "../../shared/tokens";
 import { ReviewTextField } from "../../shared/ReviewTextField";
 import { DropdownSelect } from "../../shared/DropdownSelect";
-import { DashedArrow } from "../../shared/DashedArrow";
 import { ReviewSectionLayout } from "../shared/ReviewSectionLayout";
+import { ReviewSubsection } from "../shared/ReviewSubsection";
 import { AttemptedCorrectedLabels } from "../shared/AttemptedCorrectedLabels";
 import { CorrectedActionBar } from "../shared/CorrectedActionBar";
+import { AttemptedCorrectedRow } from "../shared/AttemptedCorrectedRow";
+
+const SILVER_BG = "rgba(204, 197, 185, 0.2)";
 
 export function ConclusionSection() {
   const attemptedDecision = useDraftStore((st) => st.attempted.decision);
@@ -37,45 +40,49 @@ export function ConclusionSection() {
 
   return (
     <ReviewSectionLayout notesKey="ambiguity" notesPlaceholder="Any additional notes about ambiguities or the decision.">
-      <div style={{ display: "flex", flexDirection: "column", gap: 4 }}>
+      <ReviewSubsection title="Ambiguity Conclusion" explanation="Whether the transaction has sufficient information to draft a journal entry.">
         <AttemptedCorrectedLabels />
-        <div style={{ display: "flex", gap: 0, alignItems: "stretch" }}>
-          <div style={{ flex: 1, display: "flex", flexDirection: "column", gap: 16, padding: "8px 10px", background: T.attemptedItem, borderRadius: 4, minWidth: 0 }}>
-            <div style={{ display: "flex", flexDirection: "column", gap: 4 }}>
-              <span style={T.fieldLabel}>Ambiguity Conclusion</span>
-              <div style={{ fontSize: 12, color: T.textPrimary, lineHeight: 2.2 }}>
-                This transaction has{" "}
-                <DropdownSelect value={isComplete ? "Complete" : "Incomplete"} options={["Complete", "Incomplete"]} />
-                {" "}information to draft a journal entry.
+        <AttemptedCorrectedRow
+          changed={changed}
+          attempted={
+            <div style={{ display: "flex", flexDirection: "column", gap: 16, padding: "8px 10px", background: SILVER_BG, borderRadius: 4, height: "100%" }}>
+              <div style={{ display: "flex", flexDirection: "column", gap: 4 }}>
+                <span style={T.fieldLabel}>Ambiguity Conclusion</span>
+                <div style={{ fontSize: 12, color: T.textPrimary, lineHeight: 2.2 }}>
+                  This transaction has{" "}
+                  <DropdownSelect value={isComplete ? "Complete" : "Incomplete"} options={["Complete", "Incomplete"]} />
+                  {" "}information to draft a journal entry.
+                </div>
               </div>
-            </div>
-            <div style={{ display: "flex", flexDirection: "column", gap: 4 }}>
-              <span style={T.fieldLabel}>Rationale</span>
-              <ReviewTextField value={attemptedRationale} />
-            </div>
-            <div style={{ height: 18 }} />
-          </div>
-          <DashedArrow label={changed ? "Update" : "Keep"} color={changed ? palette.fern : palette.charcoalBrown} />
-          <div style={{ flex: 1, display: "flex", flexDirection: "column", gap: 16, padding: "8px 10px", background: changed ? T.correctedItem : T.attemptedItem, borderRadius: 4, minWidth: 0 }}>
-            <div style={{ display: "flex", flexDirection: "column", gap: 4 }}>
-              <span style={T.fieldLabel}>Ambiguity Conclusion</span>
-              <div style={{ fontSize: 12, color: T.textPrimary, lineHeight: 2.2 }}>
-                This transaction has{" "}
-                <DropdownSelect value={correctedComplete ? "Complete" : "Incomplete"} options={["Complete", "Incomplete"]}
-                  onChange={(v) => handleSetComplete(v === "Complete")} />
-                {" "}information to draft a journal entry.
+              <div style={{ display: "flex", flexDirection: "column", gap: 4 }}>
+                <span style={T.fieldLabel}>Rationale</span>
+                <ReviewTextField value={attemptedRationale} />
               </div>
+              <div style={{ height: 18 }} />
             </div>
-            <div style={{ display: "flex", flexDirection: "column", gap: 4 }}>
-              <span style={T.fieldLabel}>Rationale</span>
-              <ReviewTextField value={correctedRationale} onChange={handleSetRationale} />
+          }
+          corrected={
+            <div style={{ display: "flex", flexDirection: "column", gap: 16, padding: "8px 10px", background: SILVER_BG, borderRadius: 4 }}>
+              <div style={{ display: "flex", flexDirection: "column", gap: 4 }}>
+                <span style={T.fieldLabel}>Ambiguity Conclusion</span>
+                <div style={{ fontSize: 12, color: T.textPrimary, lineHeight: 2.2 }}>
+                  This transaction has{" "}
+                  <DropdownSelect value={correctedComplete ? "Complete" : "Incomplete"} options={["Complete", "Incomplete"]}
+                    onChange={(v) => handleSetComplete(v === "Complete")} />
+                  {" "}information to draft a journal entry.
+                </div>
+              </div>
+              <div style={{ display: "flex", flexDirection: "column", gap: 4 }}>
+                <span style={T.fieldLabel}>Rationale</span>
+                <ReviewTextField value={correctedRationale} onChange={handleSetRationale} />
+              </div>
+              <CorrectedActionBar variant={changed ? "corrected" : "attempted"} actions={[
+                { label: "Reset", onClick: handleReset },
+              ]} />
             </div>
-            <CorrectedActionBar variant={changed ? "corrected" : "attempted"} actions={[
-              { label: "Reset", onClick: handleReset },
-            ]} />
-          </div>
-        </div>
-      </div>
+          }
+        />
+      </ReviewSubsection>
     </ReviewSectionLayout>
   );
 }

@@ -16,7 +16,7 @@ export function ReviewSectionLayout({ header, children, notesKey, notesPlacehold
   notesKey?: NotesSectionKey;
   notesPlaceholder?: string;
 }) {
-  const notes = useDraftStore((st) => notesKey ? st.corrected.notes[notesKey] : "");
+  const notes = useDraftStore((st) => notesKey ? (st.corrected.notes[notesKey] ?? "") : "");
   const setCorrected = useDraftStore((st) => st.setCorrected);
 
   const handleNotesChange = (v: string) => {

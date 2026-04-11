@@ -232,7 +232,7 @@ export function wireToTrace(wire: AgentResultWire): AgentAttemptedTrace {
 // ── Notes scaffold ────────────────────────────────────────
 
 function emptyNotes(): HumanCorrectedTrace["notes"] {
-  return { transactionAnalysis: "", ambiguity: "", tax: "", finalEntry: "" };
+  return {} as Record<string, string>;
 }
 
 function toEditableTax(tax: AgentAttemptedTrace["output_tax_specialist"]): HumanEditableTax | null {

@@ -8,12 +8,13 @@ import { SectionSubheader } from "../../shared/SectionSubheader";
 import { palette, T } from "../../shared/tokens";
 import { ReviewTextField } from "../../shared/ReviewTextField";
 import { NumberField } from "../../shared/NumberField";
-import { DashedArrow } from "../../shared/DashedArrow";
 import type { HumanEditableTax } from "../../../../api/types";
 import { useDraftStore } from "../../store";
 import { ReviewSectionLayout } from "../shared/ReviewSectionLayout";
+import { ReviewSubsection } from "../shared/ReviewSubsection";
 import { AttemptedCorrectedLabels } from "../shared/AttemptedCorrectedLabels";
 import { CorrectedActionBar } from "../shared/CorrectedActionBar";
+import { AttemptedCorrectedRow } from "../shared/AttemptedCorrectedRow";
 
 // ── Constants ───────────────────────────────────────────
 
@@ -37,39 +38,30 @@ function TaxFieldItemView({ label, question, attemptedControl, correctedControl,
   changed: boolean;
   onReset: () => void;
 }) {
-  const itemBg = T.attemptedItem;
-  const corrBg = changed ? T.correctedItem : T.attemptedItem;
-  const arrowColor = changed ? palette.fern : palette.charcoalBrown;
-  const arrowLabel = changed ? "Update" : "Keep";
+  const SILVER_BG = "rgba(204, 197, 185, 0.2)";
 
   return (
     <div style={{ display: "flex", flexDirection: "column", gap: 4 }}>
-      <SectionSubheader>{label}</SectionSubheader>
       <AttemptedCorrectedLabels />
-      <div style={{ display: "flex", gap: 0, alignItems: "stretch" }}>
-        {/* Attempted */}
-        <div style={{
-          flex: 1, display: "flex", flexDirection: "column", gap: 10,
-          padding: "8px 10px", background: itemBg, borderRadius: 4, minWidth: 0,
-        }}>
-          <div style={T.fieldLabel}>{question}</div>
-          <div>{attemptedControl}</div>
-          <div style={{ height: 18 }} />
-        </div>
-        {/* Arrow */}
-        <DashedArrow label={arrowLabel} color={arrowColor} />
-        {/* Corrected */}
-        <div style={{
-          flex: 1, display: "flex", flexDirection: "column", gap: 10,
-          padding: "8px 10px", background: corrBg, borderRadius: 4, minWidth: 0,
-        }}>
-          <div style={T.fieldLabel}>{question}</div>
-          <div>{correctedControl}</div>
-          <CorrectedActionBar variant={changed ? "corrected" : "attempted"} actions={[
-            { label: "Reset", onClick: onReset },
-          ]} />
-        </div>
-      </div>
+      <AttemptedCorrectedRow
+        changed={changed}
+        attempted={
+          <div style={{ display: "flex", flexDirection: "column", gap: 10, padding: "8px 10px", background: SILVER_BG, borderRadius: 4, height: "100%" }}>
+            <div style={T.fieldLabel}>{question}</div>
+            <div>{attemptedControl}</div>
+            <div style={{ height: 18 }} />
+          </div>
+        }
+        corrected={
+          <div style={{ display: "flex", flexDirection: "column", gap: 10, padding: "8px 10px", background: SILVER_BG, borderRadius: 4 }}>
+            <div style={T.fieldLabel}>{question}</div>
+            <div>{correctedControl}</div>
+            <CorrectedActionBar variant={changed ? "corrected" : "attempted"} actions={[
+              { label: "Reset", onClick: onReset },
+            ]} />
+          </div>
+        }
+      />
     </div>
   );
 }
@@ -126,97 +118,53 @@ export function TaxSection() {
     <ReviewSectionLayout notesKey="tax"
       notesPlaceholder="Any additional notes about the tax treatment — such as special rules, mixed-use considerations, or jurisdiction-specific details."
     >
-      <div style={{ display: "flex", flexDirection: "column", gap: 40 }}>
-        <TaxFieldItemView
-          label="Tax mentioned"
-          question="Was tax mentioned in the transaction description?"
+      <ReviewSubsection title="Tax Mentioned" explanation="Was tax mentioned in the transaction description?">
+        <TaxFieldItemView label="Tax mentioned" question="Tax mentioned"
           attemptedControl={<SegmentedControl value={attemptedTaxMentioned ? "Yes" : "No"} options={BOOL_OPTIONS} />}
-          correctedControl={
-            <SegmentedControl value={corrTaxMentioned ? "Yes" : "No"} options={BOOL_OPTIONS}
-              onChange={(v) => mutateTax((tax) => { tax.tax_mentioned = v === "Yes"; })} />
-          }
-          changed={corrTaxMentioned !== attemptedTaxMentioned}
-          onReset={() => resetField("tax_mentioned")}
+          correctedControl={<SegmentedControl value={corrTaxMentioned ? "Yes" : "No"} options={BOOL_OPTIONS} onChange={(v) => mutateTax((tax) => { tax.tax_mentioned = v === "Yes"; })} />}
+          changed={corrTaxMentioned !== attemptedTaxMentioned} onReset={() => resetField("tax_mentioned")}
         />
+      </ReviewSubsection>
 
-        <TaxFieldItemView
-          label="Classification"
-          question="What is the tax classification of this supply?"
+      <ReviewSubsection title="Classification" explanation="What is the tax classification of this supply?">
+        <TaxFieldItemView label="Classification" question="Classification"
           attemptedControl={<SegmentedControl value={classificationToDisplay(attemptedClassification)} options={CLASSIFICATION_OPTIONS} />}
-          correctedControl={
-            <SegmentedControl value={classificationToDisplay(corrClassification)} options={CLASSIFICATION_OPTIONS}
-              onChange={(v) => mutateTax((tax) => { tax.classification = displayToClassification(v); })} />
-          }
-          changed={corrClassification !== attemptedClassification}
-          onReset={() => resetField("classification")}
+          correctedControl={<SegmentedControl value={classificationToDisplay(corrClassification)} options={CLASSIFICATION_OPTIONS} onChange={(v) => mutateTax((tax) => { tax.classification = displayToClassification(v); })} />}
+          changed={corrClassification !== attemptedClassification} onReset={() => resetField("classification")}
         />
+      </ReviewSubsection>
 
-        <TaxFieldItemView
-          label="ITC eligible"
-          question="Can the business claim an Input Tax Credit?"
+      <ReviewSubsection title="ITC Eligible" explanation="Can the business claim an Input Tax Credit?">
+        <TaxFieldItemView label="ITC eligible" question="ITC eligible"
           attemptedControl={<SegmentedControl value={attemptedItcEligible ? "Yes" : "No"} options={BOOL_OPTIONS} />}
-          correctedControl={
-            <SegmentedControl value={corrItcEligible ? "Yes" : "No"} options={BOOL_OPTIONS}
-              onChange={(v) => mutateTax((tax) => { tax.itc_eligible = v === "Yes"; })} />
-          }
-          changed={corrItcEligible !== attemptedItcEligible}
-          onReset={() => resetField("itc_eligible")}
+          correctedControl={<SegmentedControl value={corrItcEligible ? "Yes" : "No"} options={BOOL_OPTIONS} onChange={(v) => mutateTax((tax) => { tax.itc_eligible = v === "Yes"; })} />}
+          changed={corrItcEligible !== attemptedItcEligible} onReset={() => resetField("itc_eligible")}
         />
+      </ReviewSubsection>
 
-        <TaxFieldItemView
-          label="Amount tax-inclusive"
-          question="Does the stated amount already include tax?"
+      <ReviewSubsection title="Amount Tax-Inclusive" explanation="Does the stated amount already include tax?">
+        <TaxFieldItemView label="Amount tax-inclusive" question="Tax-inclusive"
           attemptedControl={<SegmentedControl value={attemptedAmountInclusive ? "Yes" : "No"} options={BOOL_OPTIONS} />}
-          correctedControl={
-            <SegmentedControl value={corrAmountInclusive ? "Yes" : "No"} options={BOOL_OPTIONS}
-              onChange={(v) => mutateTax((tax) => { tax.amount_tax_inclusive = v === "Yes"; })} />
-          }
-          changed={corrAmountInclusive !== attemptedAmountInclusive}
-          onReset={() => resetField("amount_tax_inclusive")}
+          correctedControl={<SegmentedControl value={corrAmountInclusive ? "Yes" : "No"} options={BOOL_OPTIONS} onChange={(v) => mutateTax((tax) => { tax.amount_tax_inclusive = v === "Yes"; })} />}
+          changed={corrAmountInclusive !== attemptedAmountInclusive} onReset={() => resetField("amount_tax_inclusive")}
         />
+      </ReviewSubsection>
 
-        <TaxFieldItemView
-          label="Tax rate"
-          question="What is the applicable tax rate?"
-          attemptedControl={
-            <NumberField
-              value={attemptedTaxRate}
-              formatDisplay={(v) => `${(v * 100).toFixed(0)}%`}
-              style={{ fontWeight: 600 }}
-            />
-          }
-          correctedControl={
-            <NumberField
-              value={corrTaxRate}
-              step="0.01"
-              min="0"
-              max="1"
-              formatDisplay={(v) => `${(v * 100).toFixed(0)}%`}
-              onChange={(v) => mutateTax((tax) => { tax.tax_rate = v; })}
-              style={{ fontWeight: 600 }}
-            />
-          }
-          changed={corrTaxRate !== attemptedTaxRate}
-          onReset={() => resetField("tax_rate")}
+      <ReviewSubsection title="Tax Rate" explanation="What is the applicable tax rate?">
+        <TaxFieldItemView label="Tax rate" question="Rate"
+          attemptedControl={<NumberField value={attemptedTaxRate} formatDisplay={(v) => `${(v * 100).toFixed(0)}%`} style={{ fontWeight: 600 }} />}
+          correctedControl={<NumberField value={corrTaxRate} step="0.01" min="0" max="1" formatDisplay={(v) => `${(v * 100).toFixed(0)}%`} onChange={(v) => mutateTax((tax) => { tax.tax_rate = v; })} style={{ fontWeight: 600 }} />}
+          changed={corrTaxRate !== attemptedTaxRate} onReset={() => resetField("tax_rate")}
         />
+      </ReviewSubsection>
 
-        <TaxFieldItemView
-          label="Tax context"
-          question="What tax context is relevant for the entry drafter?"
-          attemptedControl={
-            <ReviewTextField value={attemptedTaxContext} emptyText="—" />
-          }
-          correctedControl={
-            <ReviewTextField
-              value={corrTaxContext}
-              onChange={(v) => mutateTax((tax) => { tax.tax_context = v; })}
-              emptyText="—"
-            />
-          }
-          changed={corrTaxContext !== attemptedTaxContext}
-          onReset={() => resetField("tax_context")}
+      <ReviewSubsection title="Tax Context" explanation="What tax context is relevant for the entry drafter?">
+        <TaxFieldItemView label="Tax context" question="Context"
+          attemptedControl={<ReviewTextField value={attemptedTaxContext} emptyText="—" />}
+          correctedControl={<ReviewTextField value={corrTaxContext} onChange={(v) => mutateTax((tax) => { tax.tax_context = v; })} emptyText="—" />}
+          changed={corrTaxContext !== attemptedTaxContext} onReset={() => resetField("tax_context")}
         />
-      </div>
+      </ReviewSubsection>
     </ReviewSectionLayout>
   );
 }

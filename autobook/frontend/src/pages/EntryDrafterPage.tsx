@@ -1,7 +1,6 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { motion, AnimatePresence } from "motion/react";
 import { useAutoSave } from "../hooks/useAutoSave";
-import { submitCorrection } from "../api/corrections";
 import { submitLLMInteraction } from "../api/llm";
 import { subscribeToRealtimeUpdates, ensureConnection } from "../api/realtime";
 import type { LLMInteractionResponse, RealtimeEvent, AgentResultWire } from "../api/types";
@@ -23,8 +22,7 @@ import type {
 } from "../components/panels/reasoning_panel";
 
 // ── Review panel ─────────────────────────────────────────
-import { useReviewSections } from "../components/panels/review_panel_v2";
-import { TransactionDisplay } from "../components/panels/shared/TransactionDisplay";
+import { useReviewSections, ReviewModal } from "../components/panels/review_panel_v2";
 
 // ── Entry panel ──────────────────────────────────────────
 import { EntryTable, DecisionContent } from "../components/panels/entry_panel";
@@ -54,10 +52,6 @@ export function EntryDrafterPage() {
   const [overlayVisible, setOverlayVisible] = useState(false);
   const [showReviewModal, setShowReviewModal] = useState(false);
   const [reviewModalVisible, setReviewModalVisible] = useState(false);
-  const [showReviewHelp, setShowReviewHelp] = useState(false);
-  const [reviewStep, setReviewStep] = useState(0);
-  const [submitting, setSubmitting] = useState(false);
-  const [submitted, setSubmitted] = useState(false);
   const [windowResizing, setWindowResizing] = useState(false);
   const showReasoning = true;
   const [reasoningWidth, setReasoningWidth] = useState(400);
@@ -623,194 +617,13 @@ export function EntryDrafterPage() {
 
       {/* Review & Correct Modal */}
       {showReviewModal && (
-        <div
-          style={{
-            position: "fixed",
-            inset: 0,
-            zIndex: 100,
-            background: "transparent",
-            opacity: reviewModalVisible ? 1 : 0,
-            transition: `opacity ${MOTION.normal}ms ease`,
-          }}
-          onClick={(e) => { if (e.target === e.currentTarget) closeReviewModal(); }}
-        >
-          <div style={{
-            position: "absolute",
-            top: mainContentRef.current?.getBoundingClientRect().top ?? 0,
-            left: mainContentRef.current?.getBoundingClientRect().left ?? 0,
-            width: mainContentRef.current?.offsetWidth ?? "100%",
-            height: mainContentRef.current?.offsetHeight ?? "100%",
-            background: "rgba(204, 197, 185, 0.15)",
-            backdropFilter: "blur(16px)",
-            WebkitBackdropFilter: "blur(16px)",
-            borderRadius: T.panelRadius,
-            border: "1px solid rgba(204, 197, 185, 0.2)",
-            opacity: reviewModalVisible ? 1 : 0,
-            transform: reviewModalVisible ? "translateY(0)" : "translateY(8px)",
-            transition: `opacity ${MOTION.normal}ms ease, transform ${MOTION.normal}ms ease`,
-            boxShadow: T.panelShadow,
-            display: "flex",
-            flexDirection: "column",
-            overflow: "hidden",
-          }}>
-            {/* Header */}
-            <div style={{
-              padding: "16px 20px",
-              flexShrink: 0,
-              display: "flex",
-              flexDirection: "column",
-              gap: 4,
-              borderBottom: "1px solid rgba(64, 61, 57, 0.15)",
-            }}>
-              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-                <h2 style={{ margin: 0, fontSize: 16, fontWeight: 600, color: T.textPrimary }}>Review & Correct</h2>
-                <HoverButton
-                  onClick={() => closeReviewModal()}
-                  bgHover="rgba(204, 197, 185, 0.3)"
-                  color={T.textSecondary}
-                  style={{ fontSize: 18, lineHeight: 1, padding: "2px 6px", borderRadius: 4 }}
-                >
-                  ✕
-                </HoverButton>
-              </div>
-              <div style={{ display: "flex", justifyContent: "center", alignItems: "center", gap: 6 }}>
-                <h3 style={{ margin: 0, fontSize: 14, fontWeight: 600, color: T.textPrimary }}>{visibleSections[reviewStep].title}</h3>
-                <button
-                  className={s.buttonTransition}
-                  onClick={() => setShowReviewHelp((v) => !v)}
-                  style={{
-                    background: showReviewHelp ? "rgba(204, 197, 185, 0.3)" : "transparent",
-                    border: "none",
-                    borderRadius: "50%",
-                    width: 18,
-                    height: 18,
-                    fontSize: 11,
-                    fontWeight: 700,
-                    color: T.textSecondary,
-                    cursor: "pointer",
-                    lineHeight: 1,
-                    display: "flex",
-                    alignItems: "center",
-                    justifyContent: "center",
-                  }}
-                  onMouseEnter={(e) => { e.currentTarget.style.background = "rgba(204, 197, 185, 0.3)"; }}
-                  onMouseLeave={(e) => { if (!showReviewHelp) e.currentTarget.style.background = "transparent"; }}
-                >
-                  ?
-                </button>
-              </div>
-              {/* Collapsible explanation */}
-              <div className={`${s.collapsibleWrapper} ${showReviewHelp ? s.collapsibleWrapperOpen : ""}`}>
-                <div className={s.collapsibleInner}>
-                  <div style={{ margin: "0 auto", fontSize: 11, color: T.textSecondary, textAlign: "center", width: "55%", lineHeight: 1.6, paddingBottom: 12, borderBottom: "1px solid rgba(64, 61, 57, 0.15)" }}>
-                    <p style={{ margin: 0 }}>Review and correct the agent's output for this section.</p>
-                  </div>
-                </div>
-              </div>
-              {/* Transaction */}
-              <div style={{ marginTop: 16, paddingRight: 8 }}>
-                <TransactionDisplay text={agentResult.transaction_text || inputText || ""} />
-              </div>
-            </div>
-
-            {/* Body — all tab panels are kept mounted and hidden via display:none
-                so local state + scroll position persist across step changes. Each
-                panel has its own scrollable container so per-tab scrollTop is
-                retained natively by the browser. */}
-            {visibleSections.map((sec, i) => {
-              const Section = sec.component as React.ComponentType<Record<string, unknown>>;
-              return (
-                <div
-                  key={sec.key}
-                  className={s.scrollable}
-                  style={{
-                    flex: 1,
-                    overflowY: "auto",
-                    scrollbarGutter: "auto",
-                    padding: "20px",
-                    display: reviewStep === i ? "flex" : "none",
-                    flexDirection: "column",
-                    gap: 24,
-                  }}
-                >
-                  <Section {...(sec.props ?? {})} />
-                </div>
-              );
-            })}
-
-            {/* Footer */}
-            <div style={{
-              padding: "12px 20px",
-              flexShrink: 0,
-              display: "flex",
-              alignItems: "center",
-              borderTop: "1px solid rgba(64, 61, 57, 0.15)",
-            }}>
-              <div style={{ width: 160 }} />
-              {/* Progress dots */}
-              <div style={{ flex: 1, display: "flex", justifyContent: "center", gap: 12 }}>
-                {visibleSections.map((sec, i) => (
-                  <div
-                    key={sec.key}
-                    className={s.buttonTransition}
-                    onClick={() => setReviewStep(i)}
-                    title={sec.title}
-                    style={{
-                      width: 10,
-                      height: 10,
-                      borderRadius: "50%",
-                      background: i === reviewStep ? "rgba(235, 94, 40, 0.7)" : i < reviewStep ? "rgba(64, 61, 57, 0.7)" : "rgba(204, 197, 185, 0.7)",
-                      cursor: "pointer",
-                      transition: "background 0.15s ease",
-                    }}
-                  />
-                ))}
-              </div>
-              {/* Back + Next/Submit */}
-              <div style={{ display: "flex", gap: 8, width: 160, justifyContent: "flex-end" }}>
-                {reviewStep > 0 && (
-                  <PrimaryButton
-                    size="sm"
-                    onClick={() => setReviewStep((s) => s - 1)}
-                  >
-                    Back
-                  </PrimaryButton>
-                )}
-                <PrimaryButton
-                  size="sm"
-                  disabled={submitting || submitted}
-                  onClick={async () => {
-                    if (reviewStep < visibleSections.length - 1) {
-                      setReviewStep((s) => s + 1);
-                    } else {
-                      const did = useDraftStore.getState().draftId;
-                      if (did) {
-                        setSubmitting(true);
-                        try {
-                          await useDraftStore.getState().flushIfDirty();
-                          await submitCorrection(did);
-                          setSubmitted(true);
-                          setTimeout(() => setSubmitted(false), 2000);
-                        } catch (err) {
-                          console.error("Submit correction failed:", err);
-                        } finally {
-                          setSubmitting(false);
-                        }
-                      }
-                    }
-                  }}
-                >
-                  {(() => {
-                    const label = reviewStep === visibleSections.length - 1
-                      ? (submitting ? "Submitting…" : submitted ? "Submitted" : "Submit")
-                      : "Next";
-                    return <span key={label} style={{ display: "inline-block", animation: "jurisdictionIn 0.25s ease" }}>{label}</span>;
-                  })()}
-                </PrimaryButton>
-              </div>
-            </div>
-          </div>
-        </div>
+        <ReviewModal
+          sections={visibleSections}
+          transactionText={agentResult.transaction_text || inputText || ""}
+          visible={reviewModalVisible}
+          anchorRef={mainContentRef}
+          onClose={closeReviewModal}
+        />
       )}
     </div>
   );

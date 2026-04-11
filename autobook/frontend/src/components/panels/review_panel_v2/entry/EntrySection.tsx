@@ -9,8 +9,8 @@ import { useEffect, useState } from "react";
 import { SectionSubheader } from "../../shared/SectionSubheader";
 import { palette, T, entryColors, attemptedEntryColors, CURRENCY_SYM } from "../../shared/tokens";
 import { ReviewTextField } from "../../shared/ReviewTextField";
-import { DashedArrow } from "../../shared/DashedArrow";
 import { EntryTable } from "../../entry_panel/EntryPanel";
+import { AttemptedCorrectedRow } from "../shared/AttemptedCorrectedRow";
 import type { JournalLine } from "../../../../api/types";
 import { getTaxonomy } from "../../../../api/taxonomy";
 import type { TaxonomyDict } from "../../../../api/taxonomy";
@@ -19,6 +19,7 @@ import { ReviewSectionLayout } from "../shared/ReviewSectionLayout";
 import { AttemptedCorrectedLabels } from "../shared/AttemptedCorrectedLabels";
 import { CorrectedActionBar } from "../shared/CorrectedActionBar";
 import { ReviewSubsection } from "../shared/ReviewSubsection";
+import { ProximityProvider } from "../../shared/ProximityContext";
 
 // ── Types ───────────────────────────────────────────────
 
@@ -57,60 +58,48 @@ function FinalEntryItemView({ data, correctedLines, lineKeys, correctedReason, c
   const corrSubColor = T.textSecondary;
 
   return (
-    <div style={{ display: "flex", gap: 0, alignItems: "stretch" }}>
-      {/* Attempted */}
-      <div style={{ flex: 1, display: "flex", flexDirection: "column", gap: 8, padding: "8px 10px", minWidth: 0 }}>
-        <div style={{ display: "flex", flexDirection: "column", gap: 4 }}>
-          <SectionSubheader style={{ fontSize: 10 }}>Entry</SectionSubheader>
-          <EntryTable lines={data.lines} currencySymbol={sym} minRows={0} colors={attemptedEntryColors} />
+    <AttemptedCorrectedRow
+      changed={changed}
+      attempted={
+        <div style={{ display: "flex", flexDirection: "column", gap: 8, padding: 20, height: "100%" }}>
+          <div style={{ display: "flex", flexDirection: "column", gap: 4 }}>
+            <SectionSubheader style={{ fontSize: 10 }}>Entry</SectionSubheader>
+            <EntryTable lines={data.lines} currencySymbol={sym} minRows={0} colors={attemptedEntryColors} />
+          </div>
+          <div style={{ display: "flex", flexDirection: "column", gap: 4 }}>
+            <SectionSubheader style={{ fontSize: 10 }}>Reason</SectionSubheader>
+            <ReviewTextField value={data.reason} />
+          </div>
+          <div style={{ height: 18 }} />
         </div>
-        <div style={{ display: "flex", flexDirection: "column", gap: 4 }}>
-          <SectionSubheader style={{ fontSize: 10 }}>Reason</SectionSubheader>
-          <ReviewTextField
-            value={data.reason}
-            bg={{
-              display: { background: T.attemptedSupplement, borderRadius: 3 },
-              editing: { background: T.attemptedSupplement, borderRadius: 3 },
-            }}
-            style={{ fontSize: 11, color: T.textSecondary, fontStyle: "italic", padding: "4px 6px" }}
-          />
+      }
+      corrected={
+        <ProximityProvider>
+        <div style={{ display: "flex", flexDirection: "column", gap: 8, padding: 20, borderRadius: 4 }}>
+          <div style={{ display: "flex", flexDirection: "column", gap: 4 }}>
+            <SectionSubheader style={{ fontSize: 10 }}>Entry</SectionSubheader>
+            <EntryTable
+              lines={correctedLines}
+              currencySymbol={sym}
+              colors={entryColors}
+              editable
+              lineKeys={lineKeys}
+              onLineChange={onLineChange}
+              onAddLine={onAddLine}
+              onDeleteLine={onDeleteLine}
+            />
+          </div>
+          <div style={{ display: "flex", flexDirection: "column", gap: 4 }}>
+            <SectionSubheader style={{ fontSize: 10 }}>Reason</SectionSubheader>
+            <ReviewTextField value={correctedReason} onChange={onReasonChange} />
+          </div>
+          <CorrectedActionBar variant={changed ? "corrected" : "attempted"} actions={[
+            { label: "Reset", onClick: onReset },
+          ]} />
         </div>
-        <div style={{ height: 18 }} />
-      </div>
-      {/* Arrow */}
-      <DashedArrow label={arrowLabel} color={arrowColor} />
-      {/* Corrected */}
-      <div style={{ flex: 1, display: "flex", flexDirection: "column", gap: 8, minWidth: 0, padding: "8px 10px", borderRadius: 4 }}>
-        <div style={{ display: "flex", flexDirection: "column", gap: 4 }}>
-          <SectionSubheader style={{ fontSize: 10 }}>Entry</SectionSubheader>
-          <EntryTable
-            lines={correctedLines}
-            currencySymbol={sym}
-            colors={changed ? entryColors : attemptedEntryColors}
-            editable
-            lineKeys={lineKeys}
-            onLineChange={onLineChange}
-            onAddLine={onAddLine}
-            onDeleteLine={onDeleteLine}
-          />
-        </div>
-        <div style={{ display: "flex", flexDirection: "column", gap: 4 }}>
-          <SectionSubheader style={{ fontSize: 10 }}>Reason</SectionSubheader>
-          <ReviewTextField
-            value={correctedReason}
-            onChange={onReasonChange}
-            bg={{
-              display: { background: suppBgCorrected, borderRadius: 3 },
-              editing: { background: suppBgCorrected, borderRadius: 3 },
-            }}
-            style={{ fontSize: 11, color: corrSubColor, fontStyle: "italic", padding: "4px 6px" }}
-          />
-        </div>
-        <CorrectedActionBar variant={changed ? "corrected" : "attempted"} actions={[
-          { label: "Reset", onClick: onReset },
-        ]} />
-      </div>
-    </div>
+        </ProximityProvider>
+      }
+    />
   );
 }
 
@@ -144,12 +133,19 @@ export function EntrySection() {
   const changed = correctedReason !== attemptedData.reason
     || JSON.stringify(correctedLines) !== JSON.stringify(attemptedData.lines);
 
-  // Mutation helpers — write through the store
+  // Mutation helpers — write through the store.
+  // On first entry change (lines differ but reason still matches attempted),
+  // wipe the reason so the user writes a fresh one.
   function mutateEntry(updater: (entry: { reason: string; currency: string; lines: JournalLine[]; currency_symbol?: string }) => void) {
     setCorrected((draft) => {
       const target = draft.output_entry_drafter;
       if (!target) return;
+      const attemptedReason = useDraftStore.getState().attempted.output_entry_drafter?.reason ?? "";
+      const shouldWipeReason = target.reason === attemptedReason;
       updater(target);
+      if (shouldWipeReason) {
+        target.reason = "";
+      }
     });
   }
 
@@ -222,7 +218,7 @@ export function EntrySection() {
     <ReviewSectionLayout notesKey="finalEntry"
       notesPlaceholder="Any additional notes about the final entry — such as incorrect accounts, wrong amounts, or missing lines."
     >
-      <ReviewSubsection title="Final Entry">
+      <ReviewSubsection title="Final Entry" explanation="Review the journal entry and reason drafted by the agent. Edit accounts, amounts, or add/remove lines.">
         <AttemptedCorrectedLabels />
         <FinalEntryItemView
           data={attemptedData}

@@ -4,10 +4,10 @@ import { palette, T, roleFieldBg, roleFieldBgEditing } from "../../shared/tokens
 import { ReviewTextField } from "../../shared/ReviewTextField";
 import { DeleteButton } from "../../shared/DeleteButton";
 import { AddButton } from "../../shared/AddButton";
-import { DashedArrow } from "../../shared/DashedArrow";
 import { readGraphNodes, propagateNodeRename, type GraphNode } from "../shared/graphHelpers";
 import { AttemptedCorrectedLabels } from "../shared/AttemptedCorrectedLabels";
 import { CorrectedActionBar } from "../shared/CorrectedActionBar";
+import { AttemptedCorrectedRow } from "../shared/AttemptedCorrectedRow";
 import type { HumanCorrectedTrace } from "../../../../api/types";
 
 const SILVER_BG = "rgba(204, 197, 185, 0.2)";
@@ -129,74 +129,76 @@ export function PartiesList() {
   return (
     <>
       {/* Direct Parties */}
-      <div style={{ display: "flex", gap: 0, alignItems: "stretch" }}>
-        <div style={{ flex: 1, display: "flex", flexDirection: "column", gap: 16, padding: "8px 10px", background: SILVER_BG, borderRadius: 4, minWidth: 0 }}>
-          <div style={{ display: "flex", flexDirection: "column", gap: 4 }}>
-            <span style={T.fieldLabel}>Direct Parties</span>
-            <span style={{ fontSize: 10, color: T.textSecondary, lineHeight: 1.4 }}>Counterparties directly exchanging value with the reporting entity.</span>
-            {attemptedDirect.length > 0 ? attemptedDirect.map((n, i) => (
-              <ReviewTextField key={i} value={n.name} bg={{ display: DIRECT_FIELD_BG, editing: DIRECT_FIELD_BG_EDITING }} />
-            )) : (
-              <ReviewTextField value="" emptyText="—" bg={{ display: DIRECT_FIELD_BG, editing: DIRECT_FIELD_BG_EDITING }} />
-            )}
+      <AttemptedCorrectedRow
+        changed={directChanged}
+        attempted={
+          <div style={{ display: "flex", flexDirection: "column", gap: 16, padding: "8px 10px", background: SILVER_BG, borderRadius: 4 }}>
+            <div style={{ display: "flex", flexDirection: "column", gap: 4 }}>
+              <span style={T.fieldLabel}>Direct Parties</span>
+              <span style={{ fontSize: 10, color: T.textSecondary, lineHeight: 1.4 }}>Counterparties directly exchanging value with the reporting entity.</span>
+              {attemptedDirect.length > 0 ? attemptedDirect.map((n, i) => (
+                <ReviewTextField key={i} value={n.name} bg={{ display: DIRECT_FIELD_BG, editing: DIRECT_FIELD_BG_EDITING }} />
+              )) : (
+                <ReviewTextField value="" emptyText="—" bg={{ display: DIRECT_FIELD_BG, editing: DIRECT_FIELD_BG_EDITING }} />
+              )}
+            </div>
+            <div style={{ height: 18 }} />
           </div>
-          <div style={{ height: 18 }} />
-        </div>
-        <DashedArrow label={directChanged ? "Update" : "Keep"} color={directChanged ? palette.fern : palette.charcoalBrown} />
-        <div style={{
-          flex: 1, display: "flex", flexDirection: "column", gap: 16,
-          padding: "8px 10px", background: SILVER_BG, borderRadius: 4, minWidth: 0,
-        }}>
-          <PartyListSubsection
-            label="Direct Parties"
-            description="Counterparties directly exchanging value with the reporting entity."
-            parties={correctedDirect}
-            fieldBg={DIRECT_FIELD_BG}
-            fieldBgEditing={DIRECT_FIELD_BG_EDITING}
-            onChange={(i, v) => changePartyName("counterparty", i, v)}
-            onDelete={(i) => deleteParty("counterparty", i)}
-            onAdd={() => addParty("counterparty")}
-          />
-          <CorrectedActionBar muted={!directChanged} variant={directChanged ? "corrected" : "attempted"} actions={[
-            { label: "Reset", onClick: () => resetNodesByRole(setCorrected, "counterparty") },
-          ]} />
-        </div>
-      </div>
+        }
+        corrected={
+          <div style={{ display: "flex", flexDirection: "column", gap: 16, padding: "8px 10px", background: SILVER_BG, borderRadius: 4 }}>
+            <PartyListSubsection
+              label="Direct Parties"
+              description="Counterparties directly exchanging value with the reporting entity."
+              parties={correctedDirect}
+              fieldBg={DIRECT_FIELD_BG}
+              fieldBgEditing={DIRECT_FIELD_BG_EDITING}
+              onChange={(i, v) => changePartyName("counterparty", i, v)}
+              onDelete={(i) => deleteParty("counterparty", i)}
+              onAdd={() => addParty("counterparty")}
+            />
+            <CorrectedActionBar muted={!directChanged} variant={directChanged ? "corrected" : "attempted"} actions={[
+              { label: "Reset", onClick: () => resetNodesByRole(setCorrected, "counterparty") },
+            ]} />
+          </div>
+        }
+      />
 
       {/* Indirect Parties */}
-      <div style={{ display: "flex", gap: 0, alignItems: "stretch" }}>
-        <div style={{ flex: 1, display: "flex", flexDirection: "column", gap: 16, padding: "8px 10px", background: SILVER_BG, borderRadius: 4, minWidth: 0 }}>
-          <div style={{ display: "flex", flexDirection: "column", gap: 4 }}>
-            <span style={T.fieldLabel}>Indirect Parties</span>
-            <span style={{ fontSize: 10, color: T.textSecondary, lineHeight: 1.4 }}>Third parties involved but not directly exchanging value.</span>
-            {attemptedIndirect.length > 0 ? attemptedIndirect.map((n, i) => (
-              <ReviewTextField key={i} value={n.name} />
-            )) : (
-              <ReviewTextField value="" emptyText="—" />
-            )}
+      <AttemptedCorrectedRow
+        changed={indirectChanged}
+        attempted={
+          <div style={{ display: "flex", flexDirection: "column", gap: 16, padding: "8px 10px", background: SILVER_BG, borderRadius: 4 }}>
+            <div style={{ display: "flex", flexDirection: "column", gap: 4 }}>
+              <span style={T.fieldLabel}>Indirect Parties</span>
+              <span style={{ fontSize: 10, color: T.textSecondary, lineHeight: 1.4 }}>Third parties involved but not directly exchanging value.</span>
+              {attemptedIndirect.length > 0 ? attemptedIndirect.map((n, i) => (
+                <ReviewTextField key={i} value={n.name} />
+              )) : (
+                <ReviewTextField value="" emptyText="—" />
+              )}
+            </div>
+            <div style={{ height: 18 }} />
           </div>
-          <div style={{ height: 18 }} />
-        </div>
-        <DashedArrow label={indirectChanged ? "Update" : "Keep"} color={indirectChanged ? palette.fern : palette.charcoalBrown} />
-        <div style={{
-          flex: 1, display: "flex", flexDirection: "column", gap: 16,
-          padding: "8px 10px", background: SILVER_BG, borderRadius: 4, minWidth: 0,
-        }}>
-          <PartyListSubsection
-            label="Indirect Parties"
-            description="Third parties involved but not directly exchanging value."
-            parties={correctedIndirect}
-            fieldBg={T.fieldBg}
-            fieldBgEditing={T.fieldBgEditing}
-            onChange={(i, v) => changePartyName("indirect_party", i, v)}
-            onDelete={(i) => deleteParty("indirect_party", i)}
-            onAdd={() => addParty("indirect_party")}
-          />
-          <CorrectedActionBar muted={!indirectChanged} variant={indirectChanged ? "corrected" : "attempted"} actions={[
-            { label: "Reset", onClick: () => resetNodesByRole(setCorrected, "indirect_party") },
-          ]} />
-        </div>
-      </div>
+        }
+        corrected={
+          <div style={{ display: "flex", flexDirection: "column", gap: 16, padding: "8px 10px", background: SILVER_BG, borderRadius: 4 }}>
+            <PartyListSubsection
+              label="Indirect Parties"
+              description="Third parties involved but not directly exchanging value."
+              parties={correctedIndirect}
+              fieldBg={T.fieldBg}
+              fieldBgEditing={T.fieldBgEditing}
+              onChange={(i, v) => changePartyName("indirect_party", i, v)}
+              onDelete={(i) => deleteParty("indirect_party", i)}
+              onAdd={() => addParty("indirect_party")}
+            />
+            <CorrectedActionBar muted={!indirectChanged} variant={indirectChanged ? "corrected" : "attempted"} actions={[
+              { label: "Reset", onClick: () => resetNodesByRole(setCorrected, "indirect_party") },
+            ]} />
+          </div>
+        }
+      />
     </>
   );
 }
