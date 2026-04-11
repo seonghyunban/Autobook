@@ -10,15 +10,7 @@ import type { AgentAttemptedTrace, HumanCorrectedTrace } from "../api/types";
 import { MOTION, palette, T, panel, PanelHeader, HoverButton, PrimaryButton } from "../components/panels/shared";
 import { ReasoningStream, defaultManifest, reconstructReasoning } from "../components/panels/reasoning_panel";
 import type { ReasoningChunk, SectionId } from "../components/panels/reasoning_panel";
-import {
-  TransactionAnalysisContainer,
-  AmbiguityReviewContainer,
-  TaxReviewContainer,
-  FinalEntryReviewContainer,
-  ReviewSectionContainer,
-  REVIEW_SECTIONS,
-  CorrectionSummaryContainer,
-} from "../components/panels/review_panel";
+import { useReviewSections } from "../components/panels/review_panel_v2";
 import { TransactionDisplay } from "../components/panels/shared/TransactionDisplay";
 import { motion, AnimatePresence } from "motion/react";
 import { EntryTable, DecisionContent } from "../components/panels/entry_panel";
@@ -209,9 +201,7 @@ export function EntryViewerPage() {
   const [error, setError] = useState<string | null>(null);
 
   const agentResult = useDraftStore((st) => st.attempted);
-  const visibleSections = agentResult.decision === "PROCEED" || !agentResult.decision
-    ? REVIEW_SECTIONS
-    : REVIEW_SECTIONS.filter((s) => s.key === "transaction_analysis" || s.key === "ambiguity" || s.key === "summary");
+  const visibleSections = useReviewSections();
   const [overlayVisible, setOverlayVisible] = useState(false);
   const [showReviewModal, setShowReviewModal] = useState(false);
   const [reviewModalVisible, setReviewModalVisible] = useState(false);
@@ -572,15 +562,14 @@ export function EntryViewerPage() {
             </div>
 
             {/* Body */}
-            {visibleSections.map((sec, i) => (
-              <div key={sec.key} className={s.scrollable} style={{ flex: 1, overflowY: "auto", scrollbarGutter: "auto", padding: "20px", display: reviewStep === i ? "flex" : "none", flexDirection: "column", gap: 24 }}>
-                {sec.key === "transaction_analysis" && <TransactionAnalysisContainer />}
-                {sec.key === "ambiguity" && <AmbiguityReviewContainer />}
-                {sec.key === "tax" && <TaxReviewContainer />}
-                {sec.key === "final_entry" && <FinalEntryReviewContainer />}
-                {sec.key === "summary" && <CorrectionSummaryContainer />}
-              </div>
-            ))}
+            {visibleSections.map((sec, i) => {
+              const Section = sec.component;
+              return (
+                <div key={sec.key} className={s.scrollable} style={{ flex: 1, overflowY: "auto", scrollbarGutter: "auto", padding: "20px", display: reviewStep === i ? "flex" : "none", flexDirection: "column", gap: 24 }}>
+                  <Section />
+                </div>
+              );
+            })}
 
             {/* Footer */}
             <div style={{ padding: "12px 20px", flexShrink: 0, display: "flex", alignItems: "center", borderTop: "1px solid rgba(64, 61, 57, 0.15)" }}>

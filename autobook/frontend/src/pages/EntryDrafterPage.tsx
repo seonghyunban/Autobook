@@ -23,15 +23,7 @@ import type {
 } from "../components/panels/reasoning_panel";
 
 // ── Review panel ─────────────────────────────────────────
-import {
-  TransactionAnalysisContainer,
-  AmbiguityReviewContainer,
-  TaxReviewContainer,
-  FinalEntryReviewContainer,
-  ReviewSectionContainer,
-  REVIEW_SECTIONS,
-  CorrectionSummaryContainer,
-} from "../components/panels/review_panel";
+import { useReviewSections } from "../components/panels/review_panel_v2";
 import { TransactionDisplay } from "../components/panels/shared/TransactionDisplay";
 
 // ── Entry panel ──────────────────────────────────────────
@@ -58,9 +50,7 @@ export function EntryDrafterPage() {
   // leaf can read it via selectors without prop drilling. Also read here for the
   // entry panel and decision overlay which are outside the modal.
   const agentResult = useDraftStore((st) => st.attempted);
-  const visibleSections = agentResult.decision === "PROCEED" || !agentResult.decision
-    ? REVIEW_SECTIONS
-    : REVIEW_SECTIONS.filter((s) => s.key === "transaction_analysis" || s.key === "ambiguity" || s.key === "summary");
+  const visibleSections = useReviewSections();
   const [overlayVisible, setOverlayVisible] = useState(false);
   const [showReviewModal, setShowReviewModal] = useState(false);
   const [reviewModalVisible, setReviewModalVisible] = useState(false);
@@ -713,22 +703,7 @@ export function EntryDrafterPage() {
               <div className={`${s.collapsibleWrapper} ${showReviewHelp ? s.collapsibleWrapperOpen : ""}`}>
                 <div className={s.collapsibleInner}>
                   <div style={{ margin: "0 auto", fontSize: 11, color: T.textSecondary, textAlign: "center", width: "55%", lineHeight: 1.6, paddingBottom: 12, borderBottom: "1px solid rgba(64, 61, 57, 0.15)" }}>
-                    {reviewStep === 0 && <>
-                      <p style={{ margin: 0 }}>Review how the agent interpreted the transaction structure.</p>
-                      <p style={{ margin: "4px 0 0" }}>The graph shows parties involved and value flows between them.</p>
-                    </>}
-                    {reviewStep === 1 && <>
-                      <p style={{ margin: 0 }}>The agent identified these ambiguities in your transaction.</p>
-                      <p style={{ margin: "4px 0 0" }}>You can correct the agent's attempt by editing, disabling, or adding ambiguities.</p>
-                    </>}
-                    {reviewStep === 2 && <>
-                      <p style={{ margin: 0 }}>Review the tax treatment determined by the agent.</p>
-                      <p style={{ margin: "4px 0 0" }}>You can correct individual fields by clicking Edit.</p>
-                    </>}
-                    {reviewStep === 3 && <>
-                      <p style={{ margin: 0 }}>Review the journal entry drafted by the agent.</p>
-                      <p style={{ margin: "4px 0 0" }}>You can edit account names, amounts, add/delete lines, and correct the rationale.</p>
-                    </>}
+                    <p style={{ margin: 0 }}>Review and correct the agent's output for this section.</p>
                   </div>
                 </div>
               </div>
@@ -742,27 +717,26 @@ export function EntryDrafterPage() {
                 so local state + scroll position persist across step changes. Each
                 panel has its own scrollable container so per-tab scrollTop is
                 retained natively by the browser. */}
-            {visibleSections.map((sec, i) => (
-              <div
-                key={sec.key}
-                className={s.scrollable}
-                style={{
-                  flex: 1,
-                  overflowY: "auto",
-                  scrollbarGutter: "auto",
-                  padding: "20px",
-                  display: reviewStep === i ? "flex" : "none",
-                  flexDirection: "column",
-                  gap: 24,
-                }}
-              >
-                {sec.key === "transaction_analysis" && <TransactionAnalysisContainer />}
-                {sec.key === "ambiguity" && <AmbiguityReviewContainer />}
-                {sec.key === "tax" && <TaxReviewContainer />}
-                {sec.key === "final_entry" && <FinalEntryReviewContainer />}
-                {sec.key === "summary" && <CorrectionSummaryContainer />}
-              </div>
-            ))}
+            {visibleSections.map((sec, i) => {
+              const Section = sec.component;
+              return (
+                <div
+                  key={sec.key}
+                  className={s.scrollable}
+                  style={{
+                    flex: 1,
+                    overflowY: "auto",
+                    scrollbarGutter: "auto",
+                    padding: "20px",
+                    display: reviewStep === i ? "flex" : "none",
+                    flexDirection: "column",
+                    gap: 24,
+                  }}
+                >
+                  <Section />
+                </div>
+              );
+            })}
 
             {/* Footer */}
             <div style={{
