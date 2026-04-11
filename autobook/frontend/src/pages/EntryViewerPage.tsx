@@ -125,27 +125,10 @@ function detailToCorrected(detail: DraftDetail): Partial<HumanCorrectedTrace> | 
 
   const correctionEntry = detail.correction_entry;
 
-  return {
-    decision: (correction.decision_kind as "PROCEED" | "MISSING_INFO" | "STUCK") ?? null,
-    output_decision_maker: correction.ambiguities.length > 0
-      ? {
-          decision: (correction.decision_kind as "PROCEED" | "MISSING_INFO" | "STUCK") ?? "PROCEED",
-          rationale: correction.decision_rationale ?? "",
-          ambiguities: correction.ambiguities.map((a) => ({
-            id: "",
-            aspect: a.aspect,
-            ambiguous: a.ambiguous,
-            input_contextualized_conventional_default: a.conventional_default,
-            input_contextualized_ifrs_default: a.ifrs_default,
-            clarification_question: a.clarification_question,
-            cases: a.cases.map((c) => ({
-              id: "",
-              case: c.case_text,
-              possible_entry: c.proposed_entry_json ?? undefined,
-            })),
-          })),
-        }
-      : null,
+  // Only include fields that have actual correction data.
+  // Omitting a field means hydrateCorrected keeps the attempted value.
+  const result: Partial<HumanCorrectedTrace> = {
+    decision: (correction.decision_kind as "PROCEED" | "MISSING_INFO" | "STUCK") ?? undefined,
     output_tax_specialist: {
       tax_mentioned: correction.tax_mentioned ?? false,
       classification: (correction.tax_classification as "taxable" | "zero_rated" | "exempt" | "out_of_scope") ?? "out_of_scope",
@@ -154,19 +137,6 @@ function detailToCorrected(detail: DraftDetail): Partial<HumanCorrectedTrace> | 
       tax_rate: correction.tax_rate,
       tax_context: correction.tax_context,
     },
-    output_entry_drafter: correctionEntry
-      ? {
-          reason: correctionEntry.entry_reason ?? "",
-          currency: correctionEntry.lines[0]?.currency ?? "CAD",
-          lines: correctionEntry.lines.map((l) => ({
-            id: l.id,
-            account_code: l.account_code,
-            account_name: l.account_name,
-            type: l.type as "debit" | "credit",
-            amount: l.amount,
-          })),
-        }
-      : null,
     notes: {
       transactionAnalysis: correction.note_tx_analysis ?? "",
       ambiguity: correction.note_ambiguity ?? "",
@@ -174,6 +144,42 @@ function detailToCorrected(detail: DraftDetail): Partial<HumanCorrectedTrace> | 
       finalEntry: correction.note_entry ?? "",
     },
   };
+
+  if (correction.ambiguities.length > 0) {
+    result.output_decision_maker = {
+      decision: (correction.decision_kind as "PROCEED" | "MISSING_INFO" | "STUCK") ?? "PROCEED",
+      rationale: correction.decision_rationale ?? "",
+      ambiguities: correction.ambiguities.map((a) => ({
+        id: "",
+        aspect: a.aspect,
+        ambiguous: a.ambiguous,
+        input_contextualized_conventional_default: a.conventional_default,
+        input_contextualized_ifrs_default: a.ifrs_default,
+        clarification_question: a.clarification_question,
+        cases: a.cases.map((c) => ({
+          id: "",
+          case: c.case_text,
+          possible_entry: c.proposed_entry_json ?? undefined,
+        })),
+      })),
+    };
+  }
+
+  if (correctionEntry) {
+    result.output_entry_drafter = {
+      reason: correctionEntry.entry_reason ?? "",
+      currency: correctionEntry.lines[0]?.currency ?? "CAD",
+      lines: correctionEntry.lines.map((l) => ({
+        id: l.id,
+        account_code: l.account_code,
+        account_name: l.account_name,
+        type: l.type as "debit" | "credit",
+        amount: l.amount,
+      })),
+    };
+  }
+
+  return result;
 }
 
 export function EntryViewerPage() {
