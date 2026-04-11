@@ -1,76 +1,14 @@
-/**
- * Reporting Entity subsection — attempted vs corrected entity name.
- * Copied from review_panel/ReviewPanel.tsx ReportingEntityView.
- */
 import { useDraftStore } from "../../store";
 import { palette, T, roleFieldBg, roleFieldBgEditing } from "../../shared/tokens";
 import { ReviewTextField } from "../../shared/ReviewTextField";
 import { DashedArrow } from "../../shared/DashedArrow";
-import type { TransactionGraphNode, TransactionGraphEdge, HumanCorrectedTrace } from "../../../../api/types";
-
-type GraphNode = TransactionGraphNode;
-type GraphEdgeData = TransactionGraphEdge;
+import { readGraphNodes, propagateNodeRename } from "../shared/graphHelpers";
+import { AttemptedCorrectedLabels } from "../shared/AttemptedCorrectedLabels";
+import { CorrectedActionBar } from "../shared/CorrectedActionBar";
 
 const SILVER_BG = "rgba(204, 197, 185, 0.2)";
 const REPORTING_FIELD_BG = roleFieldBg("reporting_entity");
 const REPORTING_FIELD_BG_EDITING = roleFieldBgEditing("reporting_entity");
-
-function readGraphNodes(graph: { nodes?: GraphNode[] } | null | undefined): GraphNode[] {
-  return graph?.nodes ?? [];
-}
-function readGraphEdges(graph: { edges?: GraphEdgeData[] } | null | undefined): GraphEdgeData[] {
-  return graph?.edges ?? [];
-}
-function propagateNodeRename(graph: { edges?: GraphEdgeData[] } | null | undefined, nodeIndex: number, newName: string) {
-  for (const edge of readGraphEdges(graph)) {
-    if (edge.source_index === nodeIndex) edge.source = newName;
-    if (edge.target_index === nodeIndex) edge.target = newName;
-  }
-}
-
-// Imported from ReviewPanel — labels row
-function AttemptedCorrectedLabels() {
-  return (
-    <div style={{ display: "flex", gap: 0 }}>
-      <div style={{ flex: 1, textAlign: "center" }}>
-        <span style={{ fontSize: 10, fontWeight: 600, color: T.textSecondary, textTransform: "uppercase", letterSpacing: "0.05em" }}>Attempted</span>
-      </div>
-      <div style={{ width: 80 }} />
-      <div style={{ flex: 1, textAlign: "center" }}>
-        <span style={{ fontSize: 10, fontWeight: 600, color: T.textSecondary, textTransform: "uppercase", letterSpacing: "0.05em" }}>Corrected</span>
-      </div>
-    </div>
-  );
-}
-
-// Imported from ReviewPanel — action bar
-function CorrectedActionBar({ muted, variant, actions }: {
-  muted: boolean;
-  variant: "attempted" | "corrected";
-  actions: { label: string; onClick: () => void }[];
-}) {
-  return (
-    <div style={{ display: "flex", justifyContent: "flex-end", gap: 8, opacity: muted ? 0.4 : 1 }}>
-      {actions.map((a) => (
-        <button
-          key={a.label}
-          onClick={a.onClick}
-          style={{
-            fontSize: 11,
-            fontWeight: 500,
-            color: variant === "corrected" ? palette.fern : T.textSecondary,
-            background: "none",
-            border: "none",
-            cursor: "pointer",
-            padding: 0,
-          }}
-        >
-          {a.label}
-        </button>
-      ))}
-    </div>
-  );
-}
 
 export function ReportingEntity() {
   const attemptedName = useDraftStore((st) =>

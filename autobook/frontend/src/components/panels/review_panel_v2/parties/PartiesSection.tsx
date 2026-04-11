@@ -1,15 +1,8 @@
-/**
- * Parties Involved section.
- * Header: Transaction graph
- * Body: Reporting Entity + Direct Parties + Indirect Parties
- * Footer: Notes (transactionAnalysis)
- */
 import { ReviewSectionLayout } from "../shared/ReviewSectionLayout";
 import { ReviewSubsection } from "../shared/ReviewSubsection";
 import { TransactionGraph } from "../shared/TransactionGraph";
 import { ReportingEntity } from "./ReportingEntity";
-// TODO: import DirectParties and IndirectParties once extracted
-// For now, reuse the existing PartiesInvolvedItemView from review_panel
+import { PartiesList } from "./PartiesList";
 
 export function PartiesSection() {
   return (
@@ -21,7 +14,9 @@ export function PartiesSection() {
       <ReviewSubsection title="Reporting Entity">
         <ReportingEntity />
       </ReviewSubsection>
-      {/* TODO: split DirectParties + IndirectParties from PartiesInvolvedItemView */}
+      <ReviewSubsection title="Parties Involved">
+        <PartiesList />
+      </ReviewSubsection>
     </ReviewSectionLayout>
   );
 }
