@@ -2,8 +2,6 @@ import type { HumanCorrectedTrace } from "../../../../../api/types";
 import type { ValidationIssue } from "../types";
 import { isFiniteNumber } from "../helpers";
 
-const VALID_CLASSIFICATIONS = new Set(["taxable", "zero_rated", "exempt", "out_of_scope"]);
-
 /**
  * Validates the tax specialist output: field types, rate range,
  * and classification/rate/ITC coherence.
@@ -16,7 +14,6 @@ export function validateTax(corrected: HumanCorrectedTrace, issues: ValidationIs
   const tax = corrected.output_tax_specialist;
   if (!tax) return; // Silently skip if no tax data (warning handled elsewhere if desired)
 
-  validateTypes(tax, issues);
   validateRate(tax, issues);
   validateCoherence(tax, issues);
 }
@@ -30,35 +27,10 @@ type TaxLike = {
   tax_context?: string | null;
 };
 
-// ── Type + enum checks ────────────────────────────────────
-
-function validateTypes(tax: TaxLike, issues: ValidationIssue[]): void {
-  if (typeof tax.tax_mentioned !== "boolean") {
-    issues.push({ section: "tax", severity: "error", message: "tax_mentioned must be a boolean" });
-  }
-  if (!tax.classification || !VALID_CLASSIFICATIONS.has(tax.classification)) {
-    issues.push({
-      section: "tax",
-      severity: "error",
-      message: `Invalid classification "${tax.classification}"`,
-    });
-  }
-  if (typeof tax.itc_eligible !== "boolean") {
-    issues.push({ section: "tax", severity: "error", message: "itc_eligible must be a boolean" });
-  }
-  if (typeof tax.amount_tax_inclusive !== "boolean") {
-    issues.push({ section: "tax", severity: "error", message: "amount_tax_inclusive must be a boolean" });
-  }
-}
-
 // ── Tax rate range ────────────────────────────────────────
 
 function validateRate(tax: TaxLike, issues: ValidationIssue[]): void {
   if (tax.tax_rate == null) return;
-  if (!isFiniteNumber(tax.tax_rate)) {
-    issues.push({ section: "tax", severity: "error", message: `Tax rate must be a number` });
-    return;
-  }
   if (tax.tax_rate < 0 || tax.tax_rate > 1) {
     issues.push({
       section: "tax",
@@ -79,7 +51,7 @@ function validateCoherence(tax: TaxLike, issues: ValidationIssue[]): void {
     issues.push({
       section: "tax",
       severity: "warning",
-      message: "Classification is taxable but tax_rate is not set",
+      message: "Classified as taxable but no tax rate is provided",
     });
   }
 
@@ -88,7 +60,7 @@ function validateCoherence(tax: TaxLike, issues: ValidationIssue[]): void {
     issues.push({
       section: "tax",
       severity: "warning",
-      message: `Classification is zero_rated but tax_rate is ${rate} (expected 0)`,
+      message: `Classified as zero-rated but tax rate is ${rate} (expected 0)`,
     });
   }
 
@@ -97,7 +69,7 @@ function validateCoherence(tax: TaxLike, issues: ValidationIssue[]): void {
     issues.push({
       section: "tax",
       severity: "warning",
-      message: `Classification is ${cls} but tax_rate is set (expected null)`,
+      message: `Classified as ${cls === "out_of_scope" ? "out of scope" : cls} — tax rate should be empty`,
     });
   }
 
@@ -106,7 +78,7 @@ function validateCoherence(tax: TaxLike, issues: ValidationIssue[]): void {
     issues.push({
       section: "tax",
       severity: "warning",
-      message: `ITC eligible but classification is ${cls} (ITC usually requires taxable/zero_rated)`,
+      message: `ITC eligible but classified as ${cls === "out_of_scope" ? "out of scope" : cls} — ITC typically requires taxable or zero-rated`,
     });
   }
 
@@ -115,7 +87,7 @@ function validateCoherence(tax: TaxLike, issues: ValidationIssue[]): void {
     issues.push({
       section: "tax",
       severity: "warning",
-      message: "Amount is marked tax-inclusive but tax_rate is not set",
+      message: "Marked as tax-inclusive but no tax rate is provided",
     });
   }
 }

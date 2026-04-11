@@ -10,8 +10,6 @@ import {
   type GraphEdge,
 } from "../helpers";
 
-const VALID_ROLES = new Set(["reporting_entity", "counterparty", "indirect_party"]);
-const VALID_KINDS = new Set(["reciprocal_exchange", "chained_exchange", "non_exchange", "relationship"]);
 // Reciprocal/chained must have a positive amount.
 // non_exchange may have null amount (e.g., VAT where rate is given but base is uncertain — left for tax_specialist).
 const STRICT_AMOUNT_KINDS = new Set(["reciprocal_exchange", "chained_exchange"]);
@@ -33,8 +31,6 @@ export function validateTransactionGraph(corrected: HumanCorrectedTrace, issues:
 // ── Node-level rules ──────────────────────────────────────
 
 function validateNodes(nodes: GraphNode[], issues: ValidationIssue[]): void {
-  const seenIndices = new Set<number>();
-
   nodes.forEach((node, i) => {
     if (isBlank(node.name)) {
       issues.push({
@@ -42,30 +38,6 @@ function validateNodes(nodes: GraphNode[], issues: ValidationIssue[]): void {
         severity: "error",
         message: `Node ${i + 1}: empty name`,
       });
-    }
-
-    if (isBlank(node.role) || !VALID_ROLES.has(node.role)) {
-      issues.push({
-        section: "transaction",
-        severity: "error",
-        message: `Node "${node.name || i + 1}": invalid role "${node.role}"`,
-      });
-    }
-
-    if (!isFiniteNumber(node.index)) {
-      issues.push({
-        section: "transaction",
-        severity: "error",
-        message: `Node "${node.name || i + 1}": missing or invalid index`,
-      });
-    } else if (seenIndices.has(node.index)) {
-      issues.push({
-        section: "transaction",
-        severity: "error",
-        message: `Duplicate node index ${node.index}`,
-      });
-    } else {
-      seenIndices.add(node.index);
     }
   });
 }
@@ -101,23 +73,13 @@ function validateEdges(nodes: GraphNode[], edges: GraphEdge[], issues: Validatio
       issues.push({
         section: "transaction",
         severity: "error",
-        message: `"${desc(edge)}": self-loop (source and target are both "${edge.source}")`,
+        message: `"${desc(edge)}": source and target are the same party — a flow must be between two different parties`,
       });
     }
 
-    // Nature (verb phrase) — warning if missing
+    // Nature — warning if missing
     if (isBlank(edge.nature)) {
-      issues.push({ section: "transaction", severity: "warning", message: `"${desc(edge)}": empty nature (verb phrase)` });
-    }
-
-    // Kind — must be one of the four enum values
-    if (isBlank(edge.kind) || !VALID_KINDS.has(edge.kind)) {
-      issues.push({
-        section: "transaction",
-        severity: "error",
-        message: `"${desc(edge)}": invalid kind "${edge.kind}"`,
-      });
-      return; // Downstream amount/currency checks depend on valid kind
+      issues.push({ section: "transaction", severity: "warning", message: `A value flow between ${edge.source} and ${edge.target} has no description` });
     }
 
     // Amount + currency coherence
@@ -126,14 +88,14 @@ function validateEdges(nodes: GraphNode[], edges: GraphEdge[], issues: Validatio
         issues.push({
           section: "transaction",
           severity: "error",
-          message: `"${desc(edge)}": ${edge.kind} requires a positive amount`,
+          message: `"${desc(edge)}": a direct exchange must have a positive amount`,
         });
       }
       if (isFiniteNumber(edge.amount) && isBlank(edge.currency)) {
         issues.push({
           section: "transaction",
           severity: "error",
-          message: `"${desc(edge)}": amount ${edge.amount} has no currency`,
+          message: `"${desc(edge)}": amount is set but no currency is specified`,
         });
       }
     } else if (edge.kind === "non_exchange") {
@@ -142,14 +104,14 @@ function validateEdges(nodes: GraphNode[], edges: GraphEdge[], issues: Validatio
           issues.push({
             section: "transaction",
             severity: "error",
-            message: `"${desc(edge)}": non_exchange amount must be positive when set`,
+            message: `"${desc(edge)}": amount must be positive if specified`,
           });
         }
         if (isFiniteNumber(edge.amount) && isBlank(edge.currency)) {
           issues.push({
             section: "transaction",
             severity: "error",
-            message: `"${desc(edge)}": amount ${edge.amount} has no currency`,
+            message: `"${desc(edge)}": amount is set but no currency is specified`,
           });
         }
       }
@@ -158,7 +120,7 @@ function validateEdges(nodes: GraphNode[], edges: GraphEdge[], issues: Validatio
         issues.push({
           section: "transaction",
           severity: "warning",
-          message: `"${desc(edge)}": relationship edge has an amount (${edge.amount}); relationships are value-less`,
+          message: `"${desc(edge)}": this is a relationship — remove the amount or change the type`,
         });
       }
     }
@@ -191,7 +153,7 @@ function validateCardinality(nodes: GraphNode[], edges: GraphEdge[], issues: Val
       issues.push({
         section: "transaction",
         severity: "warning",
-        message: "No edge involves the reporting entity",
+        message: "No value flow involves the reporting entity",
       });
     }
   }
@@ -216,10 +178,11 @@ function validateConservation(edges: GraphEdge[], issues: ValidationIssue[]): vo
     if (flows.size === 2) {
       const amounts = Array.from(flows.values());
       if (!approxEqual(amounts[0], amounts[1])) {
+        const [a, b] = pairKey.split("↔");
         issues.push({
           section: "transaction",
           severity: "warning",
-          message: `Reciprocal exchange imbalance (${pairKey}): ${amounts[0].toFixed(2)} vs ${amounts[1].toFixed(2)}`,
+          message: `Value exchanged between ${a} and ${b} doesn't match: ${amounts[0].toFixed(2)} given vs ${amounts[1].toFixed(2)} received`,
         });
       }
     }
@@ -244,7 +207,7 @@ function validateConservation(edges: GraphEdge[], issues: ValidationIssue[]): vo
         issues.push({
           section: "transaction",
           severity: "warning",
-          message: `Chained exchange imbalance at "${name}": inflow ${inn.toFixed(2)}, outflow ${out.toFixed(2)}`,
+          message: `Amounts passing through "${name}" don't balance: ${inn.toFixed(2)} in vs ${out.toFixed(2)} out`,
         });
       }
     }

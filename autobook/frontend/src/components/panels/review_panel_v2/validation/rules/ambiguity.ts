@@ -2,8 +2,6 @@ import type { HumanCorrectedTrace, AmbiguityOutput } from "../../../../../api/ty
 import type { ValidationIssue } from "../types";
 import { isBlank } from "../helpers";
 
-const VALID_DECISIONS = new Set(["PROCEED", "MISSING_INFO", "STUCK"]);
-
 /**
  * Validates ambiguities, the decision rationale, and decision/ambiguity coherence.
  */
@@ -73,14 +71,6 @@ function validateEachAmbiguity(ambiguities: AmbiguityOutput[], issues: Validatio
 // ── Decision rules ────────────────────────────────────────
 
 function validateDecision(corrected: HumanCorrectedTrace, issues: ValidationIssue[]): void {
-  if (corrected.decision == null || !VALID_DECISIONS.has(corrected.decision)) {
-    issues.push({
-      section: "ambiguity",
-      severity: "error",
-      message: `Invalid decision "${corrected.decision}" (must be PROCEED, MISSING_INFO, or STUCK)`,
-    });
-  }
-
   const rationale = corrected.output_decision_maker?.rationale ?? "";
   if (isBlank(rationale)) {
     issues.push({ section: "ambiguity", severity: "warning", message: "Decision rationale is empty" });

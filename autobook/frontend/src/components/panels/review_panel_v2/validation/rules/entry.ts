@@ -71,17 +71,7 @@ function validateLines(lines: JournalLine[], issues: ValidationIssue[]): void {
       issues.push({ section: "entry", severity: "error", message: `${label}: empty account name` });
     }
 
-    if (line.type !== "debit" && line.type !== "credit") {
-      issues.push({
-        section: "entry",
-        severity: "error",
-        message: `${label}: invalid type "${line.type}" (must be "debit" or "credit")`,
-      });
-    }
-
-    if (!isFiniteNumber(line.amount)) {
-      issues.push({ section: "entry", severity: "error", message: `${label}: amount is not a number` });
-    } else if (line.amount <= 0) {
+    if (line.amount <= 0) {
       issues.push({
         section: "entry",
         severity: "error",
