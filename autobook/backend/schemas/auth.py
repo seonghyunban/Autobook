@@ -32,6 +32,7 @@ class AuthMeResponse(BaseModel):
     id: str
     cognito_sub: str
     email: str
+    username: str | None = None
     role: str
     role_source: str
     token_use: str

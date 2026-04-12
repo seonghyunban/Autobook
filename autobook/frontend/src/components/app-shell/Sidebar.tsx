@@ -1,8 +1,11 @@
+import { useEffect, useRef, useState } from "react";
 import { NavLink } from "react-router-dom";
 import { GoSidebarCollapse, GoSidebarExpand } from "react-icons/go";
+import { RiAccountCircleLine, RiLogoutBoxRLine } from "react-icons/ri";
 import { useSidebar } from "./SidebarContext";
 import { NAV_ITEMS } from "./nav-config";
 import { panel, palette, T } from "../panels/shared/tokens";
+import { useAuth } from "../../auth/AuthProvider";
 
 const EXPANDED_WIDTH = 240;
 const COLLAPSED_WIDTH = 56;
@@ -20,6 +23,20 @@ const COLLAPSED_WIDTH = 56;
  */
 export function Sidebar() {
   const { collapsed, toggle } = useSidebar();
+  const { logout, user } = useAuth();
+  const [menuOpen, setMenuOpen] = useState(false);
+  const menuRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (!menuOpen) return;
+    function handleClick(e: MouseEvent) {
+      if (menuRef.current && !menuRef.current.contains(e.target as Node)) {
+        setMenuOpen(false);
+      }
+    }
+    document.addEventListener("mousedown", handleClick);
+    return () => document.removeEventListener("mousedown", handleClick);
+  }, [menuOpen]);
 
   return (
     <div
@@ -90,6 +107,75 @@ export function Sidebar() {
           </NavLink>
         ))}
       </nav>
+
+      {/* Account button — pushed to bottom */}
+      <div ref={menuRef} style={{ marginTop: "auto", position: "relative" }}>
+        {menuOpen && (
+          <div style={{
+            position: "absolute",
+            bottom: "100%",
+            left: 0,
+            right: collapsed ? "auto" : 0,
+            marginBottom: 4,
+            background: palette.floralWhite,
+            border: "1px solid rgba(204, 197, 185, 0.4)",
+            borderRadius: 6,
+            boxShadow: "0 4px 12px rgba(0,0,0,0.1)",
+            padding: 4,
+            minWidth: collapsed ? 140 : undefined,
+            zIndex: 10,
+          }}>
+            <button
+              type="button"
+              onClick={async () => { setMenuOpen(false); await logout(); }}
+              style={{
+                display: "flex",
+                alignItems: "center",
+                gap: 8,
+                width: "100%",
+                padding: "8px 10px",
+                background: "none",
+                border: "none",
+                borderRadius: 4,
+                cursor: "pointer",
+                fontSize: 12,
+                color: T.textPrimary,
+                whiteSpace: "nowrap",
+              }}
+              onMouseEnter={(e) => { e.currentTarget.style.background = "rgba(204, 197, 185, 0.3)"; }}
+              onMouseLeave={(e) => { e.currentTarget.style.background = "none"; }}
+            >
+              <RiLogoutBoxRLine size={14} />
+              Log out
+            </button>
+          </div>
+        )}
+        <button
+          type="button"
+          onClick={() => setMenuOpen((v) => !v)}
+          title={collapsed ? (user?.username ?? user?.email ?? "Account") : undefined}
+          style={{
+            display: "flex",
+            alignItems: "center",
+            gap: 10,
+            width: "100%",
+            padding: "8px 10px",
+            background: menuOpen ? "rgba(204, 197, 185, 0.3)" : "none",
+            border: "none",
+            borderRadius: 6,
+            cursor: "pointer",
+            fontSize: 13,
+            color: T.textSecondary,
+            justifyContent: collapsed ? "center" : "flex-start",
+            transition: "background 0.15s ease, color 0.15s ease",
+          }}
+          onMouseEnter={(e) => { e.currentTarget.style.color = palette.carbonBlack; e.currentTarget.style.background = "rgba(204, 197, 185, 0.3)"; }}
+          onMouseLeave={(e) => { if (!menuOpen) { e.currentTarget.style.color = T.textSecondary; e.currentTarget.style.background = "none"; } }}
+        >
+          <RiAccountCircleLine size={18} style={{ flexShrink: 0 }} />
+          {!collapsed && <span style={{ overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap", fontSize: 12 }}>{user?.username ?? user?.email ?? "Account"}</span>}
+        </button>
+      </div>
     </div>
   );
 }

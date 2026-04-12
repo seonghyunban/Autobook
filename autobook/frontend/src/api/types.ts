@@ -6,6 +6,7 @@ export type AuthUser = {
   id: string;
   cognito_sub: string;
   email: string;
+  username: string | null;
   role: string;
   role_source: string;
   token_use: string;

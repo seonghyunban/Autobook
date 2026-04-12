@@ -126,6 +126,7 @@ def _serialize_auth_me(current_user: AuthContext) -> AuthMeResponse:
         id=str(current_user.user.id),
         cognito_sub=current_user.user.cognito_sub,
         email=current_user.user.email,
+        username=current_user.user.username,
         role=current_user.role.value,
         role_source=current_user.role_source,
         token_use=current_user.claims.token_use,

@@ -28,6 +28,7 @@ BEGIN;
 CREATE TABLE users (
     id UUID NOT NULL PRIMARY KEY DEFAULT uuidv7(),
     email VARCHAR(320) NOT NULL UNIQUE,
+    username VARCHAR(100),
     cognito_sub VARCHAR(255) NOT NULL UNIQUE,
     created_at TIMESTAMP WITH TIME ZONE DEFAULT now() NOT NULL,
     last_authenticated_at TIMESTAMP WITH TIME ZONE
