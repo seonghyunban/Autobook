@@ -191,9 +191,9 @@ export function DropdownSelect({
           pointerEvents: open ? "auto" : "none",
         }}
       >
-        {filtered.map((opt) => (
+        {filtered.map((opt, i) => (
           <div
-            key={opt}
+            key={`${i}-${opt}`}
             className={s.buttonTransition}
             onClick={() => handleSelect(opt)}
             style={{

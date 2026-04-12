@@ -330,8 +330,8 @@ export function EntryRow({ line, index, currencySymbol, colors, compact, disable
                     placeholder={hasCredit ? "—" : ""}
                   />
                 ) : (
-                  <span onClick={() => !hasCredit && setDebitFocused(true)} style={{ cursor: hasCredit ? "default" : "text", opacity: hasCredit ? 0.3 : 1 }}>
-                    {debitVal || (hasCredit ? "—" : "")}
+                  <span onClick={() => !hasCredit && setDebitFocused(true)} style={{ cursor: hasCredit ? "default" : "text", opacity: hasCredit ? 0.3 : 1, minWidth: "100%", display: "inline-block" }}>
+                    {debitVal || (hasCredit ? "—" : "\u00A0")}
                   </span>
                 )}
               </span>
@@ -361,8 +361,8 @@ export function EntryRow({ line, index, currencySymbol, colors, compact, disable
                     placeholder={hasDebit ? "—" : ""}
                   />
                 ) : (
-                  <span onClick={() => !hasDebit && setCreditFocused(true)} style={{ cursor: hasDebit ? "default" : "text", opacity: hasDebit ? 0.3 : 1 }}>
-                    {creditVal || (hasDebit ? "—" : "")}
+                  <span onClick={() => !hasDebit && setCreditFocused(true)} style={{ cursor: hasDebit ? "default" : "text", opacity: hasDebit ? 0.3 : 1, minWidth: "100%", display: "inline-block" }}>
+                    {creditVal || (hasDebit ? "—" : "\u00A0")}
                   </span>
                 )}
               </span>

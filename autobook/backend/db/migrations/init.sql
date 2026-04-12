@@ -398,6 +398,19 @@ COMMENT ON TABLE precedent_entries IS
     'deliberate — these are variable-shape bags the matcher reads as a whole.';
 
 -- ─────────────────────────────────────────────────────────────────────────────
+-- JURISDICTION CONFIG
+-- ─────────────────────────────────────────────────────────────────────────────
+
+CREATE TABLE jurisdiction_configs (
+    jurisdiction VARCHAR(10) NOT NULL PRIMARY KEY,
+    language_key VARCHAR(5) NOT NULL DEFAULT 'en',
+    taxonomy_tree JSONB NOT NULL,
+    tax_rules JSONB NOT NULL DEFAULT '{}',
+    jurisdiction_rules JSONB NOT NULL DEFAULT '{}',
+    updated_at TIMESTAMP WITH TIME ZONE DEFAULT now() NOT NULL
+);
+
+-- ─────────────────────────────────────────────────────────────────────────────
 -- updated_at TRIGGER — auto-bump on UPDATE for mutable tables
 -- ─────────────────────────────────────────────────────────────────────────────
 -- Note: posted_entries and posted_entry_lines do NOT get an updated_at
@@ -429,6 +442,10 @@ CREATE TRIGGER trg_drafted_entries_updated_at
 
 CREATE TRIGGER trg_traces_updated_at
     BEFORE UPDATE ON traces
+    FOR EACH ROW EXECUTE FUNCTION set_updated_at();
+
+CREATE TRIGGER trg_jurisdiction_configs_updated_at
+    BEFORE UPDATE ON jurisdiction_configs
     FOR EACH ROW EXECUTE FUNCTION set_updated_at();
 
 -- ─────────────────────────────────────────────────────────────────────────────
