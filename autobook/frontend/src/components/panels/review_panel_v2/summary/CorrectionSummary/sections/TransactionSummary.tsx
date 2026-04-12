@@ -26,7 +26,7 @@ export function TransactionSummary() {
   const edges = useLLMInteractionStore(
     useShallow((st) => readGraphEdges(st.corrected.transaction_graph))
   );
-  const notes = useLLMInteractionStore((st) => st.corrected.notes.transactionAnalysis);
+  const notes = useLLMInteractionStore((st) => st.corrected.notes.parties);
 
   const reportingEntity = nodes.find((n) => n.role === "reporting_entity");
   const directParties = nodes.filter((n) => n.role === "counterparty").map((n) => n.name);

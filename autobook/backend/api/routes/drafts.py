@@ -109,10 +109,7 @@ class TraceOut(BaseModel):
     classifier_output: dict | None = None
     complexity_flags: list | None = None
     rag_hits: dict | None = None
-    note_tx_analysis: str | None = None
-    note_ambiguity: str | None = None
-    note_tax: str | None = None
-    note_entry: str | None = None
+    notes: dict[str, str] | None = None
     ambiguities: list[AmbiguityOut]
 
 
@@ -349,10 +346,7 @@ def get_draft(
                 classifier_output=t.classifier_output,
                 complexity_flags=t.complexity_flags,
                 rag_hits=t.rag_hits,
-                note_tx_analysis=t.note_tx_analysis,
-                note_ambiguity=t.note_ambiguity,
-                note_tax=t.note_tax,
-                note_entry=t.note_entry,
+                notes=t.notes,
                 ambiguities=[
                     AmbiguityOut(
                         id=str(amb.id),

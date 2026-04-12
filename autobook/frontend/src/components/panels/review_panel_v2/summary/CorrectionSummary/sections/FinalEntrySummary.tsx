@@ -20,7 +20,7 @@ export function FinalEntrySummary() {
   const creditRel = useLLMInteractionStore(
     useShallow((st) => st.corrected.credit_relationship)
   );
-  const notes = useLLMInteractionStore((st) => st.corrected.notes.finalEntry);
+  const notes = useLLMInteractionStore((st) => st.corrected.notes.entry);
 
   if (!entry) {
     return (

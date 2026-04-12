@@ -14,7 +14,8 @@ def build_normalizer_payload(
     raw_text: str,
     attempted_graph: dict | None,
     corrected_graph: dict | None,
-    note_tx_analysis: str | None,
+    note_parties: str | None,
+    note_value_flow: str | None,
     entity_id: str,
     draft_id: str,
 ) -> dict[str, Any]:
@@ -26,7 +27,8 @@ def build_normalizer_payload(
         "raw_text": raw_text,
         "attempted_graph": _strip_graph(attempted_graph),
         "corrected_graph": _strip_graph(corrected_graph),
-        "note_tx_analysis": note_tx_analysis or "",
+        "note_parties": note_parties or "",
+        "note_value_flow": note_value_flow or "",
         "entity_id": entity_id,
         "draft_id": draft_id,
     }
@@ -37,7 +39,8 @@ def build_agent_payload(
     templated_text: str,
     attempted_ambiguities: list[dict] | None,
     corrected_ambiguities: list[dict] | None,
-    note_ambiguity: str | None,
+    note_conclusion: str | None,
+    note_ambiguities: dict[str, str] | None,
     attempted_decision: str | None,
     corrected_decision: str | None,
     attempted_rationale: str | None,
@@ -50,6 +53,7 @@ def build_agent_payload(
     attempted_entry: dict | None,
     corrected_entry: dict | None,
     note_entry: str | None,
+    note_relationship: str | None,
     entity_id: str,
     draft_id: str,
 ) -> dict[str, Any]:
@@ -62,7 +66,8 @@ def build_agent_payload(
 
         "attempted_ambiguities": attempted_ambiguities or [],
         "corrected_ambiguities": corrected_ambiguities or [],
-        "note_ambiguity": note_ambiguity or "",
+        "note_conclusion": note_conclusion or "",
+        "note_ambiguities": note_ambiguities or {},
 
         "attempted_decision": attempted_decision or "",
         "corrected_decision": corrected_decision or "",
@@ -79,6 +84,7 @@ def build_agent_payload(
         "attempted_entry": attempted_entry or {},
         "corrected_entry": corrected_entry or {},
         "note_entry": note_entry or "",
+        "note_relationship": note_relationship or "",
 
         "entity_id": entity_id,
         "draft_id": draft_id,

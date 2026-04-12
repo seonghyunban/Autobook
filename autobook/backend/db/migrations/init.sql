@@ -229,10 +229,7 @@ CREATE TABLE traces (
     -- correction-only
     corrected_by UUID REFERENCES users (id) ON DELETE RESTRICT,
     submitted_at TIMESTAMP WITH TIME ZONE,
-    note_tx_analysis TEXT,
-    note_ambiguity TEXT,
-    note_tax TEXT,
-    note_entry TEXT,
+    notes JSONB,
 
     -- shared reasoning
     decision_kind VARCHAR(20),

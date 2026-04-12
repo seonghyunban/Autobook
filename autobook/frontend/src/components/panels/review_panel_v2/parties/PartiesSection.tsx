@@ -8,7 +8,7 @@ export function PartiesSection() {
   return (
     <ReviewSectionLayout
       header={<TransactionGraph />}
-      notesKey="transactionAnalysis"
+      notesKey="parties"
       notesPlaceholder="Any additional notes about the transaction structure — such as missing parties, incorrect relationships, or value flow errors."
     >
       <ReviewSubsection title="Parties Involved" explanation="Rename, add, or remove parties involved in this transaction.">

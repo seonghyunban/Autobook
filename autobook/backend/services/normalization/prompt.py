@@ -345,8 +345,10 @@ def _render_corrections(
             lines.append(f"Input: {hit.get('raw_text', '')}")
             lines.append(f"Attempted graph: {json.dumps(hit.get('attempted_graph', {}), indent=None)}")
             lines.append(f"Corrected graph: {json.dumps(hit.get('corrected_graph', {}), indent=None)}")
-            if hit.get("note_tx_analysis"):
-                lines.append(f"Note: {hit['note_tx_analysis']}")
+            if hit.get("note_parties"):
+                lines.append(f"Note (parties): {hit['note_parties']}")
+            if hit.get("note_value_flow"):
+                lines.append(f"Note (value flow): {hit['note_value_flow']}")
             lines.append("</example>")
         lines.append("</entity-specific>")
         sections.append("\n".join(lines))
@@ -361,8 +363,10 @@ def _render_corrections(
             lines.append(f"Input: {hit.get('raw_text', '')}")
             lines.append(f"Attempted graph: {json.dumps(hit.get('attempted_graph', {}), indent=None)}")
             lines.append(f"Corrected graph: {json.dumps(hit.get('corrected_graph', {}), indent=None)}")
-            if hit.get("note_tx_analysis"):
-                lines.append(f"Note: {hit['note_tx_analysis']}")
+            if hit.get("note_parties"):
+                lines.append(f"Note (parties): {hit['note_parties']}")
+            if hit.get("note_value_flow"):
+                lines.append(f"Note (value flow): {hit['note_value_flow']}")
             lines.append("</example>")
         lines.append("</general>")
         sections.append("\n".join(lines))

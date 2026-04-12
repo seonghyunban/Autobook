@@ -127,12 +127,7 @@ function detailToCorrected(detail: DraftDetail): Partial<HumanCorrectedTrace> | 
       tax_rate: correction.tax_rate,
       tax_context: correction.tax_context,
     },
-    notes: {
-      transactionAnalysis: correction.note_tx_analysis ?? "",
-      ambiguity: correction.note_ambiguity ?? "",
-      tax: correction.note_tax ?? "",
-      finalEntry: correction.note_entry ?? "",
-    },
+    notes: correction.notes ?? {},
   };
 
   if (correction.ambiguities.length > 0) {

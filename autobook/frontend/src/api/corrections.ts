@@ -22,10 +22,7 @@ export type CorrectionPatch = {
   tax_itc_eligible?: boolean | null;
   tax_amount_inclusive?: boolean | null;
   tax_mentioned?: boolean | null;
-  note_tx_analysis?: string | null;
-  note_ambiguity?: string | null;
-  note_tax?: string | null;
-  note_entry?: string | null;
+  notes?: Record<string, string> | null;
   // Entry
   entry_reason?: string | null;
   lines?: { account_code: string; account_name: string; type: string; amount: number; currency: string }[] | null;

@@ -273,10 +273,7 @@ function buildPatch(c: HumanCorrectedTrace) {
     tax_itc_eligible: tax?.itc_eligible ?? null,
     tax_amount_inclusive: tax?.amount_tax_inclusive ?? null,
     tax_mentioned: tax?.tax_mentioned ?? null,
-    note_tx_analysis: c.notes.transactionAnalysis || null,
-    note_ambiguity: c.notes.ambiguity || null,
-    note_tax: c.notes.tax || null,
-    note_entry: c.notes.finalEntry || null,
+    notes: Object.keys(c.notes).length > 0 ? c.notes : null,
     entry_reason: entry?.reason ?? null,
     lines: entry?.lines?.map((l) => ({
       account_code: l.account_code,

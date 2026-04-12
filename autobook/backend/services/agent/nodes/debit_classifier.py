@@ -101,6 +101,7 @@ def debit_classifier_node(state: PipelineState, config: RunnableConfig) -> dict:
         state.get("rag_pop_hits", []),
         attempted_key="attempted_classifications",
         corrected_key="corrected_classifications",
+        note_key="note_relationship",
         label="debit classifications",
     )
 

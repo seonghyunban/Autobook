@@ -109,10 +109,7 @@ class Trace(Base):
         index=True,
     )
     submitted_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
-    note_tx_analysis: Mapped[str | None] = mapped_column(Text)
-    note_ambiguity: Mapped[str | None] = mapped_column(Text)
-    note_tax: Mapped[str | None] = mapped_column(Text)
-    note_entry: Mapped[str | None] = mapped_column(Text)
+    notes: Mapped[dict | None] = mapped_column(JSONB)
 
     # ── shared reasoning ──────────────────────────────────────
     decision_kind: Mapped[str | None] = mapped_column(String(20))
@@ -163,7 +160,7 @@ class AttemptedTrace(Trace):
 
 
 class CorrectedTrace(Trace):
-    """User's correction of an agent attempt. Owns the note_* fields,
+    """User's correction of an agent attempt. Owns notes (JSONB),
     corrected_by, and submitted_at. Mutable until submitted_at is set,
     then immutable until the owning draft's entry is posted.
     """

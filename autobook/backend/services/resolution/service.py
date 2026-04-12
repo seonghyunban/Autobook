@@ -66,50 +66,90 @@ def submit(
     corrected_classifications = _load_classifications(db, correction.drafted_entry_id)
 
     # 3. Build payloads
-    templated_text = template_graph(corrected_graph)
+    result: dict = {}
+    notes = correction.notes or {}
 
-    result = {
-        "normalizer": {
+    # Normalizer — only if graph was actually corrected
+    graph_changed = attempted_graph != corrected_graph
+    if graph_changed:
+        result["normalizer"] = {
             "key": raw_text,
             "point_id": str(draft_id),
             "payload": build_normalizer_payload(
                 raw_text=raw_text,
                 attempted_graph=attempted_graph,
                 corrected_graph=corrected_graph,
-                note_tx_analysis=correction.note_tx_analysis,
+                note_parties=notes.get("parties"),
+                note_value_flow=notes.get("valueFlow"),
                 entity_id=str(entity_id),
                 draft_id=str(draft_id),
             ),
-        },
-        "agent": {
+        }
+
+    # Agent — conditional on decision, only include changed sections
+    corrected_decision = correction.decision_kind
+    is_proceed = corrected_decision == "PROCEED"
+
+    attempted_tax = _extract_tax(attempt)
+    corrected_tax = _extract_tax(correction)
+
+    ambiguity_changed = attempted_ambiguities != corrected_ambiguities
+    decision_changed = (
+        attempt.decision_kind != corrected_decision
+        or attempt.decision_rationale != correction.decision_rationale
+    )
+    tax_changed = attempted_tax != corrected_tax
+    entry_changed = attempted_entry != corrected_entry
+    classifications_changed = attempted_classifications != corrected_classifications
+
+    # For PROCEED: include all changed sections
+    # For MISSING_INFO/STUCK: only ambiguity + decision
+    include_ambiguity = ambiguity_changed
+    include_decision = decision_changed
+    include_tax = is_proceed and tax_changed
+    include_entry = is_proceed and entry_changed
+    include_classifications = is_proceed and classifications_changed
+
+    has_any_change = (
+        include_ambiguity or include_decision
+        or include_tax or include_entry or include_classifications
+    )
+
+    if has_any_change:
+        templated_text = template_graph(corrected_graph)
+        result["agent"] = {
             "key": templated_text,
             "point_id": str(draft_id),
             "payload": build_agent_payload(
                 templated_text=templated_text,
-                attempted_ambiguities=attempted_ambiguities,
-                corrected_ambiguities=corrected_ambiguities,
-                note_ambiguity=correction.note_ambiguity,
-                attempted_decision=attempt.decision_kind,
-                corrected_decision=correction.decision_kind,
-                attempted_rationale=attempt.decision_rationale,
-                corrected_rationale=correction.decision_rationale,
-                attempted_tax=_extract_tax(attempt),
-                corrected_tax=_extract_tax(correction),
-                note_tax=correction.note_tax,
-                attempted_classifications=attempted_classifications,
-                corrected_classifications=corrected_classifications,
-                attempted_entry=attempted_entry,
-                corrected_entry=corrected_entry,
-                note_entry=correction.note_entry,
+                attempted_ambiguities=attempted_ambiguities if include_ambiguity else None,
+                corrected_ambiguities=corrected_ambiguities if include_ambiguity else None,
+                note_conclusion=notes.get("conclusion") if include_ambiguity else None,
+                note_ambiguities={k: v for k, v in notes.items() if k.startswith("ambiguity-")} if include_ambiguity else None,
+                attempted_decision=attempt.decision_kind if include_decision else None,
+                corrected_decision=corrected_decision if include_decision else None,
+                attempted_rationale=attempt.decision_rationale if include_decision else None,
+                corrected_rationale=correction.decision_rationale if include_decision else None,
+                attempted_tax=attempted_tax if include_tax else None,
+                corrected_tax=corrected_tax if include_tax else None,
+                note_tax=notes.get("tax") if include_tax else None,
+                attempted_classifications=attempted_classifications if include_classifications else None,
+                corrected_classifications=corrected_classifications if include_classifications else None,
+                attempted_entry=attempted_entry if include_entry else None,
+                corrected_entry=corrected_entry if include_entry else None,
+                note_entry=notes.get("entry") if include_entry else None,
+                note_relationship=notes.get("relationship") if include_entry else None,
                 entity_id=str(entity_id),
                 draft_id=str(draft_id),
             ),
-        },
-    }
+        }
 
     # 4. Backward
-    human_tier.backward(result)
-    logger.info("Resolution complete for draft=%s", draft_id)
+    if result:
+        human_tier.backward(result)
+        logger.info("Resolution complete for draft=%s (%s)", draft_id, list(result.keys()))
+    else:
+        logger.info("No corrections differ for draft=%s, skipping RAG", draft_id)
 
 
 # ── Helpers ───────────────────────────────────────────────

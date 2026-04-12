@@ -88,10 +88,7 @@ class CorrectionPatch(BaseModel):
     tax_itc_eligible: bool | None = None
     tax_amount_inclusive: bool | None = None
     tax_mentioned: bool | None = None
-    note_tx_analysis: str | None = None
-    note_ambiguity: str | None = None
-    note_tax: str | None = None
-    note_entry: str | None = None
+    notes: dict[str, str] | None = None
     # Entry
     entry_reason: str | None = None
     lines: list[CorrectionLineIn] | None = None

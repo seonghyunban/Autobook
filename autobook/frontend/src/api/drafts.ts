@@ -85,10 +85,7 @@ export type DraftDetail = {
     tax_itc_eligible: boolean | null;
     tax_amount_inclusive: boolean | null;
     tax_mentioned: boolean | null;
-    note_tx_analysis: string | null;
-    note_ambiguity: string | null;
-    note_tax: string | null;
-    note_entry: string | null;
+    notes: Record<string, string> | null;
     classifier_output: { debit: Record<string, unknown[]>; credit: Record<string, unknown[]> } | null;
     complexity_flags: unknown[] | null;
     rag_hits: { normalizer: unknown[]; local: unknown[]; pop: unknown[] } | null;

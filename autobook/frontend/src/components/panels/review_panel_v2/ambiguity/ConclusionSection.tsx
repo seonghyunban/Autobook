@@ -39,7 +39,7 @@ export function ConclusionSection() {
   const changed = correctedComplete !== isComplete || correctedRationale !== attemptedRationale;
 
   return (
-    <ReviewSectionLayout notesKey="ambiguity" notesPlaceholder="Any additional notes about ambiguities or the decision.">
+    <ReviewSectionLayout notesKey="conclusion" notesPlaceholder="Any additional notes about ambiguities or the decision.">
       <ReviewSubsection title="Ambiguity Conclusion" explanation="Whether the transaction has sufficient information to draft a journal entry.">
         <AttemptedCorrectedLabels />
         <AttemptedCorrectedRow

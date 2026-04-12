@@ -1,7 +1,7 @@
 /**
  * Entry section (conditional: corrected decision = PROCEED).
  * Body: Editable entry table (attempted vs corrected) with reason field.
- * Footer: Notes (finalEntry)
+ * Footer: Notes (entry)
  *
  * Does NOT include DebitCreditRelationshipView — that lives in RelationshipSection.
  */
@@ -215,7 +215,7 @@ export function EntrySection() {
   }
 
   return (
-    <ReviewSectionLayout notesKey="finalEntry"
+    <ReviewSectionLayout notesKey="entry"
       notesPlaceholder="Any additional notes about the final entry — such as incorrect accounts, wrong amounts, or missing lines."
     >
       <ReviewSubsection title="Final Entry" explanation="Review the journal entry and reason drafted by the agent. Edit accounts, amounts, or add/remove lines.">

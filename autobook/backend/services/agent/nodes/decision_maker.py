@@ -140,14 +140,10 @@ def decision_maker_node(state: PipelineState, config: RunnableConfig) -> dict:
 
     _write_start(writer)
 
-    from services.agent.utils.prompt.corrections import render_corrections
-    corrections = render_corrections(
+    from services.agent.utils.prompt.corrections import render_decision_corrections
+    corrections = render_decision_corrections(
         state.get("rag_local_hits", []),
         state.get("rag_pop_hits", []),
-        attempted_key="attempted_ambiguities",
-        corrected_key="corrected_ambiguities",
-        note_key="note_ambiguity",
-        label="ambiguity analysis",
     )
 
     jc = config.get("configurable", {}).get("jurisdiction_config")

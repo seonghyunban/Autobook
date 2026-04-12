@@ -86,3 +86,86 @@ def _render_examples(
         examples.append("\n".join(lines))
 
     return "\n".join(examples)
+
+
+def render_decision_corrections(
+    local_hits: list[dict],
+    pop_hits: list[dict],
+) -> str:
+    """Render RAG corrections for the decision maker.
+
+    Packages ambiguities, decision, and rationale together as a single
+    attempted/corrected pair per example, with conclusion + per-ambiguity notes.
+    """
+    sections = []
+
+    local_examples = _render_decision_examples(local_hits)
+    if local_examples:
+        sections.append(
+            "<entity-specific>\n"
+            "Past corrections for your organization. Pay particular attention to avoid making similar mistakes.\n"
+            + local_examples
+            + "\n</entity-specific>"
+        )
+
+    pop_examples = _render_decision_examples(pop_hits)
+    if pop_examples:
+        sections.append(
+            "<general>\n"
+            "Past corrections from similar transactions. Avoid repeating these mistakes.\n"
+            + pop_examples
+            + "\n</general>"
+        )
+
+    if not sections:
+        return ""
+
+    return "<corrections>\n" + "\n\n".join(sections) + "\n</corrections>"
+
+
+def _render_decision_examples(hits: list[dict]) -> str:
+    examples = []
+    for hit in hits:
+        has_ambiguities = hit.get("attempted_ambiguities") or hit.get("corrected_ambiguities")
+        has_decision = hit.get("attempted_decision") or hit.get("corrected_decision")
+        if not has_ambiguities and not has_decision:
+            continue
+
+        lines = ["<example>"]
+        if hit.get("templated_text"):
+            lines.append(f"Input: {hit['templated_text']}")
+
+        # Attempted: package ambiguities + decision + rationale
+        attempted = {}
+        if hit.get("attempted_ambiguities"):
+            attempted["ambiguities"] = hit["attempted_ambiguities"]
+        if hit.get("attempted_decision"):
+            attempted["decision"] = hit["attempted_decision"]
+        if hit.get("attempted_rationale"):
+            attempted["rationale"] = hit["attempted_rationale"]
+        if attempted:
+            lines.append(f"Attempted: {json.dumps(attempted, indent=None)}")
+
+        # Corrected: same structure
+        corrected = {}
+        if hit.get("corrected_ambiguities"):
+            corrected["ambiguities"] = hit["corrected_ambiguities"]
+        if hit.get("corrected_decision"):
+            corrected["decision"] = hit["corrected_decision"]
+        if hit.get("corrected_rationale"):
+            corrected["rationale"] = hit["corrected_rationale"]
+        if corrected:
+            lines.append(f"Corrected: {json.dumps(corrected, indent=None)}")
+
+        # Notes
+        if hit.get("note_conclusion"):
+            lines.append(f"Note (conclusion): {hit['note_conclusion']}")
+        note_ambs = hit.get("note_ambiguities") or {}
+        for key, note in note_ambs.items():
+            if note:
+                lines.append(f"Note ({key}): {note}")
+
+        lines.append("</example>")
+        examples.append("\n".join(lines))
+
+    return "\n".join(examples)
