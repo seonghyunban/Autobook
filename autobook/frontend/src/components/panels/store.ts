@@ -16,15 +16,13 @@ import { EMPTY_ATTEMPTED_TRACE } from "./dummyData";
 /**
  * Draft state management store.
  *
- * Three layers:
+ * Two layers:
  *   - Zustand: in-memory, powers React UI via selectors
- *   - sessionStorage: per-draft backup (survives refresh)
- *   - DB: persistent (survives tab close, synced via flushIfDirty)
+ *   - DB: persistent (synced via flushIfDirty on modal close / navigation / submit)
  *
  * Rules:
- *   - SSE streaming writes to Zustand only (no sessionStorage until commitResult)
- *   - dirty flag only set by saveCorrection, never by loadDraft or commitResult
- *   - loadDraft prefers sessionStorage over DB (faster, may have unflushed edits)
+ *   - dirty flag only set by saveCorrection/setCorrected, never by loadDraft or commitResult
+ *   - loadDraft always loads from DB (no caching)
  */
 
 type ReasoningSections = Record<SectionId, ReasoningChunk[]>;
@@ -33,39 +31,6 @@ const emptyReasoning = (): ReasoningSections => ({
   normalization: [], ambiguity: [], gap: [], proceed: [], debit: [], credit: [], tax: [], entry: [],
 });
 
-// ── SessionStorage helpers (per-draft keying) ────────────
-
-const DRAFT_KEY_PREFIX = "autobook-draft-";
-
-function draftKey(draftId: string): string {
-  return `${DRAFT_KEY_PREFIX}${draftId}`;
-}
-
-type PersistedDraftState = {
-  draftId: string;
-  attempted: AgentAttemptedTrace;
-  corrected: HumanCorrectedTrace;
-  reasoningSections: ReasoningSections;
-  chunkManifest: ChunkManifest | null;
-};
-
-function readSessionDraft(draftId: string): PersistedDraftState | null {
-  try {
-    const raw = sessionStorage.getItem(draftKey(draftId));
-    if (!raw) return null;
-    return JSON.parse(raw) as PersistedDraftState;
-  } catch {
-    return null;
-  }
-}
-
-function writeSessionDraft(state: PersistedDraftState): void {
-  try {
-    sessionStorage.setItem(draftKey(state.draftId), JSON.stringify(state));
-  } catch {
-    // sessionStorage full or unavailable — silently ignore
-  }
-}
 
 // ── Store type ───────────────────────────────────────────
 
@@ -79,8 +44,7 @@ type DraftStore = {
   dirty: boolean;
 
   /**
-   * Load a draft into the store. Checks sessionStorage first (may have
-   * unflushed edits), falls back to the provided data (from DB).
+   * Load a draft into the store from DB data.
    * Does NOT set dirty — this is a programmatic load.
    */
   loadDraft: (opts: {
@@ -93,8 +57,7 @@ type DraftStore = {
 
   /**
    * Commit a completed pipeline result. Captures reasoning manifest,
-   * sets attempted + corrected, writes to sessionStorage.
-   * Does NOT set dirty.
+   * sets attempted + corrected. Does NOT set dirty.
    */
   commitResult: (wire: AgentResultWire) => void;
 
@@ -105,13 +68,12 @@ type DraftStore = {
   resetForSubmit: () => void;
 
   /**
-   * User edit — updates corrected, writes sessionStorage, sets dirty.
+   * User edit — updates corrected, sets dirty.
    */
   saveCorrection: (updater: (draft: HumanCorrectedTrace) => void) => void;
 
   /**
    * Update reasoning sections (called by SSE handler).
-   * Does NOT write to sessionStorage (streaming is in-progress).
    * Does NOT set dirty.
    */
   setReasoning: (updater: (draft: ReasoningSections) => void) => void;
@@ -340,31 +302,16 @@ export const useDraftStore = create<DraftStore>()(
 
     loadDraft: (opts) =>
       set((state) => {
-        // Check sessionStorage first (may have unflushed edits)
-        const cached = readSessionDraft(opts.draftId);
-        if (cached) {
-          const attempted = structuredClone(cached.attempted);
-          assignIds(attempted);
-          const corrected = structuredClone(cached.corrected);
-          assignIds(corrected);
-          alignIdsFrom(attempted, corrected);
-          state.draftId = opts.draftId;
-          state.attempted = attempted;
-          state.corrected = corrected;
-          state.reasoningSections = cached.reasoningSections;
-          state.chunkManifest = cached.chunkManifest;
-        } else {
-          const attempted = structuredClone(opts.attempted);
-          assignIds(attempted);
-          const corrected = structuredClone(opts.corrected);
-          assignIds(corrected);
-          alignIdsFrom(attempted, corrected);
-          state.draftId = opts.draftId;
-          state.attempted = attempted;
-          state.corrected = corrected;
-          state.reasoningSections = opts.reasoning;
-          state.chunkManifest = opts.manifest ?? null;
-        }
+        const attempted = structuredClone(opts.attempted);
+        assignIds(attempted);
+        const corrected = structuredClone(opts.corrected);
+        assignIds(corrected);
+        alignIdsFrom(attempted, corrected);
+        state.draftId = opts.draftId;
+        state.attempted = attempted;
+        state.corrected = corrected;
+        state.reasoningSections = opts.reasoning;
+        state.chunkManifest = opts.manifest ?? null;
         state.dirty = false;
       }),
 
@@ -384,17 +331,6 @@ export const useDraftStore = create<DraftStore>()(
         state.reasoningSections = reasoning;
         state.chunkManifest = manifest;
         state.dirty = false;
-
-        // Write to sessionStorage
-        if (draftId) {
-          writeSessionDraft({
-            draftId,
-            attempted: state.attempted,
-            corrected: state.corrected,
-            reasoningSections: state.reasoningSections,
-            chunkManifest: state.chunkManifest,
-          });
-        }
       }),
 
     resetForSubmit: () =>
@@ -411,17 +347,6 @@ export const useDraftStore = create<DraftStore>()(
       set((state) => {
         updater(state.corrected);
         state.dirty = true;
-
-        // Write to sessionStorage immediately
-        if (state.draftId) {
-          writeSessionDraft({
-            draftId: state.draftId,
-            attempted: state.attempted,
-            corrected: state.corrected,
-            reasoningSections: state.reasoningSections,
-            chunkManifest: state.chunkManifest,
-          });
-        }
       }),
 
     // Alias for saveCorrection — review panel uses st.setCorrected
@@ -429,22 +354,11 @@ export const useDraftStore = create<DraftStore>()(
       set((state) => {
         updater(state.corrected);
         state.dirty = true;
-        if (state.draftId) {
-          writeSessionDraft({
-            draftId: state.draftId,
-            attempted: state.attempted,
-            corrected: state.corrected,
-            reasoningSections: state.reasoningSections,
-            chunkManifest: state.chunkManifest,
-          });
-        }
       }),
 
     setReasoning: (updater) =>
       set((state) => {
         updater(state.reasoningSections);
-        // No sessionStorage write — streaming in progress
-        // No dirty flag — not a user edit
       }),
 
     setInputText: (text) =>
@@ -475,6 +389,6 @@ export const useDraftStore = create<DraftStore>()(
 export const useLLMInteractionStore = useDraftStore;
 
 // The review panel accesses st.setCorrected via selectors.
-// saveCorrection IS setCorrected + sessionStorage + dirty flag.
+// saveCorrection IS setCorrected + dirty flag.
 // This type assertion makes the store compatible with existing selectors.
 export type { DraftStore as LLMInteractionStore };

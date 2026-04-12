@@ -157,6 +157,26 @@ resource "aws_iam_role_policy" "api_sqs" {
   })
 }
 
+# API: Bedrock access for embedding during correction submit (resolution service).
+resource "aws_iam_role_policy" "api_bedrock" {
+  name = "bedrock-invoke"
+  role = aws_iam_role.task["api"].id
+
+  policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [{
+      Effect = "Allow"
+      Action = [
+        "bedrock:InvokeModel"
+      ]
+      Resource = [
+        "arn:aws:bedrock:*::foundation-model/*",
+        "arn:aws:bedrock:*:${data.aws_caller_identity.current.account_id}:inference-profile/*"
+      ]
+    }]
+  })
+}
+
 # Fast-path: receive from SQS-normalization, send to SQS-agent.
 resource "aws_iam_role_policy" "fast_path_sqs" {
   name = "sqs-normalization-to-agent"
