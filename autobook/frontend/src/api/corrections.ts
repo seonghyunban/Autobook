@@ -56,6 +56,8 @@ export async function patchCorrection(draftId: string, patch: CorrectionPatch): 
     body: JSON.stringify(patch),
   });
   if (!response.ok) {
+    const body = await response.text();
+    console.error("PATCH correction failed:", response.status, body);
     throw new Error(`Failed to save correction: ${response.status}`);
   }
 }

@@ -276,7 +276,7 @@ function buildPatch(c: HumanCorrectedTrace) {
     notes: Object.keys(c.notes).length > 0 ? c.notes : null,
     entry_reason: entry?.reason ?? null,
     lines: entry?.lines?.map((l) => ({
-      account_code: l.account_code,
+      account_code: l.account_code || "",
       account_name: l.account_name,
       type: l.type,
       amount: l.amount,
@@ -462,6 +462,7 @@ export const useDraftStore = create<DraftStore>()(
         console.error("Flush to DB failed:", err);
       }
     },
+
 
     clearDirty: () =>
       set((state) => {

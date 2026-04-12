@@ -128,14 +128,20 @@ def upsert_correction(
         corrected_entry = DraftedEntryDAO.create(
             db, entity_id=entity_id, entry_reason=body.entry_reason,
         )
-        correction = CorrectedTraceDAO.create(
-            db,
-            entity_id=entity_id,
-            draft_id=draft_id,
-            graph_id=corrected_graph.id,
-            drafted_entry_id=corrected_entry.id,
-            corrected_by=current_user.user.id,
-        )
+        try:
+            correction = CorrectedTraceDAO.create(
+                db,
+                entity_id=entity_id,
+                draft_id=draft_id,
+                graph_id=corrected_graph.id,
+                drafted_entry_id=corrected_entry.id,
+                corrected_by=current_user.user.id,
+            )
+        except Exception:
+            db.rollback()
+            correction = CorrectedTraceDAO.get_by_draft(db, draft_id)
+            if correction is None:
+                raise HTTPException(status_code=500, detail="Failed to create correction.")
 
     # ── Replace trace fields ──────────────────────────
     trace_fields = body.model_dump(

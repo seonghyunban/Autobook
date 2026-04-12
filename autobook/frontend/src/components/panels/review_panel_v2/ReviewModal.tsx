@@ -238,7 +238,7 @@ export function ReviewModal({ sections, transactionText, visible, anchorRef, onC
               style={{ padding: "4px 10px", borderRadius: 6, fontSize: 10, fontWeight: 600, display: "flex", alignItems: "center", gap: 4 }}
             >
               <BsStars style={{ width: 16, height: 16, flexShrink: 0 }} />
-              {showAttempted ? "Hide Attempted" : "Show Attempted"}
+              <span style={{ overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{showAttempted ? "Hide Attempted" : "Show Attempted"}</span>
             </HoverButton>
             <HoverButton
               type="button"
