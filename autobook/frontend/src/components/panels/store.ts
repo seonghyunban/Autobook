@@ -171,6 +171,12 @@ function alignIdsFrom(source: TraceBase, target: TraceBase): void {
 
 // ── Wire conversion ───────────────────────────────────────
 
+function normalizeEntry(raw: AgentResultWire["pipeline_state"]): AgentAttemptedTrace["output_entry_drafter"] {
+  const e = raw?.output_entry_drafter;
+  if (!e || !Array.isArray(e.lines)) return null;
+  return e;
+}
+
 export function wireToTrace(wire: AgentResultWire): AgentAttemptedTrace {
   const ps = wire.pipeline_state ?? {};
   return {
@@ -180,7 +186,7 @@ export function wireToTrace(wire: AgentResultWire): AgentAttemptedTrace {
     output_tax_specialist: ps.output_tax_specialist ?? null,
     output_debit_classifier: ps.output_debit_classifier ?? null,
     output_credit_classifier: ps.output_credit_classifier ?? null,
-    output_entry_drafter: ps.output_entry_drafter ?? null,
+    output_entry_drafter: normalizeEntry(ps),
     decision: wire.decision ?? null,
     debit_relationship: {},
     credit_relationship: {},
@@ -244,7 +250,7 @@ function buildPatch(c: HumanCorrectedTrace) {
       amount: l.amount,
       currency: entry.currency || "CAD",
     })) ?? null,
-    graph: graph
+    graph: graph?.nodes && graph?.edges
       ? {
           nodes: graph.nodes.map((n) => ({ index: n.index, name: n.name, role: n.role })),
           edges: graph.edges.map((e) => ({

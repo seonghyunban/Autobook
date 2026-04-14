@@ -140,7 +140,7 @@ def _build_result(final_state: dict, message: dict) -> dict:
             "output_debit_classifier": final_state.get("output_debit_classifier"),
             "output_credit_classifier": final_state.get("output_credit_classifier"),
             "output_tax_specialist": final_state.get("output_tax_specialist"),
-            "output_entry_drafter": final_state.get("output_entry_drafter") or {},
+            "output_entry_drafter": final_state.get("output_entry_drafter") or None,
             "rag_normalizer_hits": final_state.get("rag_normalizer_hits") or [],
             "rag_local_hits": final_state.get("rag_local_hits") or [],
             "rag_pop_hits": final_state.get("rag_pop_hits") or [],
